@@ -22,7 +22,7 @@ public interface IAnimeHelper
     Task<bool> CreateAsync(AnimeDto entity);
     Task<bool> UpdateAsync(AnimeDto entity);
     Task<bool> DeleteAsync(int id);
-    /*Task<IEnumerable<AnimeDto>>? SearchAsync(
+    Task<IEnumerable<AnimeDto>>? SearchAsync(
         string? name = null,
         int? producerId = null,
         int? licensorId = null,
@@ -35,5 +35,4 @@ public interface IAnimeHelper
         int? minReleaseYear = null,
         int? maxReleaseYear = null
     );
-    */
 }

@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using AnimeApi.Server.DataAccess.Context;
 using AnimeApi.Server.DataAccess.Model;
 using AnimeApi.Server.DataAccess.Services.Interfaces;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Services.Repositories;
@@ -123,6 +124,7 @@ public class AnimeRepository : IAnimeRepository
     public async Task<IEnumerable<Anime>> GetByConditionAsync(Expression<Func<Anime, bool>> condition)
     {
         return await _context.Anime
+            .AsExpandable()
             .Where(condition)
             .AsNoTracking()
             .ToListAsync();

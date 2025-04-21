@@ -5,6 +5,7 @@ using AnimeApi.Server.Business.Service.Interfaces;
 using AnimeApi.Server.Business.Validator.Interfaces;
 using AnimeApi.Server.DataAccess.Model;
 using AnimeApi.Server.DataAccess.Services.Interfaces;
+using LinqKit;
 
 namespace AnimeApi.Server.Business.Service.Helpers;
 
@@ -122,5 +123,58 @@ public class AnimeHelper : IAnimeHelper
     public async Task<bool> DeleteAsync(int id)
     {
         return await _repository.DeleteAsync(id);
+    }
+
+    public async Task<IEnumerable<AnimeDto>> SearchAsync(
+        string? name = null,
+        int? producerId = null,
+        int? licensorId = null,
+        int? genreId = null,
+        string? source = null,
+        string? type = null,
+        string? englishName = null,
+        int? minScore = null,
+        int? maxScore = null,
+        int? minReleaseYear = null,
+        int? maxReleaseYear = null
+    )
+    {
+        var predicate = PredicateBuilder.New<Anime>(true);
+
+        if (!string.IsNullOrWhiteSpace(name))
+            predicate = predicate.And(a => a.Name.Contains(name));
+
+        if (!string.IsNullOrWhiteSpace(englishName))
+            predicate = predicate.And(a => a.English_Name.Contains(englishName));
+
+        if (!string.IsNullOrWhiteSpace(source))
+            predicate = predicate.And(a => a.Source.Contains(source));
+
+        if (!string.IsNullOrWhiteSpace(type))
+            predicate = predicate.And(a => a.Type.Contains(type));
+
+        if (producerId.HasValue)
+            predicate = predicate.And(a => a.Anime_Producers.Any(p => p.ProducerId == producerId));
+
+        if (licensorId.HasValue)
+            predicate = predicate.And(a => a.Anime_Licensors.Any(l => l.LicensorId == licensorId));
+
+        if (genreId.HasValue)
+            predicate = predicate.And(a => a.Anime_Genres.Any(g => g.GenreId == genreId));
+
+        if (minScore.HasValue)
+            predicate = predicate.And(a => a.Score >= minScore);
+
+        if (maxScore.HasValue)
+            predicate = predicate.And(a => a.Score <= maxScore);
+
+        if (minReleaseYear.HasValue)
+            predicate = predicate.And(a => a.Release_Year >= minReleaseYear);
+
+        if (maxReleaseYear.HasValue)
+            predicate = predicate.And(a => a.Release_Year <= maxReleaseYear);
+
+        var models = await _repository.GetByConditionAsync(predicate);
+        return models.ToDto();
     }
 }
