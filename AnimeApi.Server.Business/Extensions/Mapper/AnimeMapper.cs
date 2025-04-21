@@ -65,17 +65,17 @@ public static class AnimeMapper
             
             Genres = anime.Anime_Genres
                 .Select(ag => ag.Genre)
-                .Select(g => new GenreDto() {Id = g.Id, Name = g.Name})
+                .Select(g => g.ToDto())
                 .ToList(),
             
             Producers = anime.Anime_Producers
                 .Select(ap => ap.Producer)
-                .Select(p => new ProducerDto() {Id = p.Id, Name = p.Name})
+                .Select(p => p.ToDto())
                 .ToList(),
             
             Licensors = anime.Anime_Licensors
                 .Select(al => al.Licensor)
-                .Select(l => new LicensorDto() {Id = l.Id, Name = l.Name})
+                .Select(l => l.ToDto())
                 .ToList()
         };
     }
