@@ -79,4 +79,14 @@ public static class AnimeMapper
                 .ToList()
         };
     }
+
+    public static IEnumerable<AnimeDto> ToDto(this IEnumerable<Anime> anime)
+    {
+        return anime.Select(a => a.ToDto());
+    }
+
+    public static IEnumerable<Anime> ToModel(this IEnumerable<AnimeDto> anime)
+    {
+        return anime.Select(a => a.ToModel());
+    }
 }
