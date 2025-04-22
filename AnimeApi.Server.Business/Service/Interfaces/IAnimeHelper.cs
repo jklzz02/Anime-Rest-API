@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Service.Helpers;
 using AnimeApi.Server.DataAccess.Model;
 
 namespace AnimeApi.Server.Business.Service.Interfaces;
@@ -22,17 +23,5 @@ public interface IAnimeHelper
     Task<bool> CreateAsync(AnimeDto entity);
     Task<bool> UpdateAsync(AnimeDto entity);
     Task<bool> DeleteAsync(int id);
-    Task<IEnumerable<AnimeDto>>? SearchAsync(
-        string? name = null,
-        int? producerId = null,
-        int? licensorId = null,
-        int? genreId = null,
-        string? source = null,
-        string? type = null,
-        string? englishName = null,
-        int? minScore = null,
-        int? maxScore = null,
-        int? minReleaseYear = null,
-        int? maxReleaseYear = null
-    );
+    Task<IEnumerable<AnimeDto>>? SearchAsync(AnimeSearchParameters parameters);
 }
