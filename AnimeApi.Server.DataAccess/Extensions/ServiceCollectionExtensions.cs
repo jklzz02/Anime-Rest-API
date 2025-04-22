@@ -1,4 +1,6 @@
 using AnimeApi.Server.DataAccess.Context;
+using AnimeApi.Server.DataAccess.Services.Interfaces;
+using AnimeApi.Server.DataAccess.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +18,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<AnimeDbContext>(options =>
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+        services.AddScoped<IAnimeRepository, AnimeRepository>();
+        services.AddScoped<IProducerRepository, ProducerRepository>();
+        services.AddScoped<IGenreRepository, GenreRepository>();
+        services.AddScoped<ILicensorRepository, LicensorRepository>();
         
         return services;
     }
