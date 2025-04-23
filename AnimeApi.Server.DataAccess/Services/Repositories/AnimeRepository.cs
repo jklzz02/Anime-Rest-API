@@ -62,7 +62,7 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(name, nameof(name));
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
         
-        return await GetByConditionAsync(a => EF.Functions.Like(a.Name, $"%{name}%"));
+        return await GetByConditionAsync([a => EF.Functions.Like(a.Name, $"%{name}%")]);
     }
 
     public async Task<IEnumerable<Anime>> GetByEnglishNameAsync(string englishName)
@@ -70,7 +70,7 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(englishName, nameof(englishName));
         ArgumentException.ThrowIfNullOrEmpty(englishName, nameof(englishName));
         
-        return await GetByConditionAsync(a => EF.Functions.Like(a.English_Name, $"%{englishName}%"));
+        return await GetByConditionAsync([a => EF.Functions.Like(a.English_Name, $"%{englishName}%")]);
     }
 
     public async Task<IEnumerable<Anime>> GetBySourceAsync(string source)
@@ -78,7 +78,7 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         ArgumentException.ThrowIfNullOrEmpty(source, nameof(source));
         
-        return await GetByConditionAsync(a => EF.Functions.Like(a.Source, $"%{source}%"));
+        return await GetByConditionAsync([a => EF.Functions.Like(a.Source, $"%{source}%")]);
     }
 
     public async Task<IEnumerable<Anime>> GetByTypeAsync(string type)
@@ -86,48 +86,73 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         ArgumentException.ThrowIfNullOrEmpty(type, nameof(type));
         
-        return await GetByConditionAsync(a => EF.Functions.Like(a.Type, $"%{type}%"));
+        return await GetByConditionAsync([a => EF.Functions.Like(a.Type, $"%{type}%")]);
     }
 
     public async Task<IEnumerable<Anime>> GetByScoreAsync(int score)
     {
-        return await GetByConditionAsync(a => a.Score == score);
+        return await GetByConditionAsync( [a => a.Score == score]);
     }
 
     public async Task<IEnumerable<Anime>> GetByLicensorAsync(int licensorId)
     {
-        return await GetByConditionAsync(a => a.Anime_Licensors.Any(al => al.LicensorId == licensorId));
+        return await GetByConditionAsync([a => a.Anime_Licensors.Any(al => al.LicensorId == licensorId)]);
     }
 
     public async Task<IEnumerable<Anime>> GetByProducerAsync(int producerId)
     {
-        return await GetByConditionAsync(a => a.Anime_Producers.Any(ap => ap.ProducerId == producerId));
+        return await GetByConditionAsync([a => a.Anime_Producers.Any(ap => ap.ProducerId == producerId)]);
     }
 
     public async Task<IEnumerable<Anime>> GetByGenreAsync(int genreId)
     {
-        return await GetByConditionAsync(a => a.Anime_Genres.Any(ag => ag.GenreId == genreId));
+        return await GetByConditionAsync([a => a.Anime_Genres.Any(ag => ag.GenreId == genreId)]);
     }
 
     public async Task<IEnumerable<Anime>> GetByReleaseYearAsync(int year)
     {
-        return await GetByConditionAsync(a => a.Release_Year == year);
+        return await GetByConditionAsync([a => a.Release_Year == year]);
     }
     
     public async Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
     {
-        return await _context.Anime
+        var anime = await _context.Anime
+            .Include(a => a.Anime_Genres)
+                .ThenInclude(ag => ag.Genre)
+            .Include(a => a.Anime_Licensors)
+                .ThenInclude(al => al.Licensor)
+            .Include(a => a.Anime_Producers)
+                .ThenInclude(ap => ap.Producer)
+            .AsSplitQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync(condition);
+
+        return anime;
     }
 
-    public async Task<IEnumerable<Anime>> GetByConditionAsync(Expression<Func<Anime, bool>> condition)
+    public async Task<IEnumerable<Anime>> GetByConditionAsync(IEnumerable<Expression<Func<Anime, bool>>>? filters = null)
     {
-        return await _context.Anime
-            .AsExpandable()
-            .Where(condition)
-            .AsNoTracking()
-            .ToListAsync();
+        var query = _context.Anime
+            .AsExpandable();
+
+        if (filters is not null)
+        {
+            foreach (var filter in filters)
+            {
+                query = query.Where(filter);
+            }
+        }
+        
+        query = query
+            .Include(a => a.Anime_Genres)
+                .ThenInclude(ag => ag.Genre)
+            .Include(a => a.Anime_Licensors)
+                .ThenInclude(al => al.Licensor)
+            .Include(a => a.Anime_Producers)
+                .ThenInclude(ap => ap.Producer)
+            .AsSplitQuery();
+        
+        return await query.ToListAsync();
     }
     
     public void Dispose()

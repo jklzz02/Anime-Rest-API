@@ -64,16 +64,19 @@ public static class AnimeMapper
             Status = anime.Status,
             
             Genres = anime.Anime_Genres
+                .Where(ag => ag?.Genre != null)
                 .Select(ag => ag.Genre)
                 .Select(g => g.ToDto())
                 .ToList(),
             
             Producers = anime.Anime_Producers
+                .Where(ap => ap?.Producer != null)
                 .Select(ap => ap.Producer)
                 .Select(p => p.ToDto())
                 .ToList(),
             
             Licensors = anime.Anime_Licensors
+                .Where(al => al?.Licensor != null)
                 .Select(al => al.Licensor)
                 .Select(l => l.ToDto())
                 .ToList()

@@ -5,7 +5,6 @@ using AnimeApi.Server.Business.Service.Interfaces;
 using AnimeApi.Server.Business.Validator.Interfaces;
 using AnimeApi.Server.DataAccess.Model;
 using AnimeApi.Server.DataAccess.Services.Interfaces;
-using LinqKit;
 
 namespace AnimeApi.Server.Business.Service.Helpers;
 
@@ -85,12 +84,7 @@ public class AnimeHelper : IAnimeHelper
         var models = await _repository.GetByTypeAsync(type);
         return models.ToDto();
     }
-
-    public async Task<IEnumerable<AnimeDto>> GetByConditionAsync(Expression<Func<Anime, bool>> condition)
-    {
-        var models = await _repository.GetByConditionAsync(condition);
-        return models.ToDto();
-    }
+    
     
     public async Task<AnimeDto?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
     {
@@ -127,42 +121,42 @@ public class AnimeHelper : IAnimeHelper
 
     public async Task<IEnumerable<AnimeDto>> SearchAsync(AnimeSearchParameters parameters)
     {
-        var predicate = PredicateBuilder.New<Anime>(true);
+        var filters = new List<Expression<Func<Anime, bool>>>();
 
         if (!string.IsNullOrWhiteSpace(parameters.Name))
-            predicate = predicate.And(a => a.Name.Contains(parameters.Name));
+            filters.Add(a => a.Name.Contains(parameters.Name));
 
         if (!string.IsNullOrWhiteSpace(parameters.EnglishName))
-            predicate = predicate.And(a => a.English_Name.Contains(parameters.EnglishName));
+            filters.Add(a => a.English_Name.Contains(parameters.EnglishName));
 
         if (!string.IsNullOrWhiteSpace(parameters.Source))
-            predicate = predicate.And(a => a.Source.Contains(parameters.Source));
+            filters.Add(a=> a.Source.Contains(parameters.Source));
 
         if (!string.IsNullOrWhiteSpace(parameters.Type))
-            predicate = predicate.And(a => a.Type.Contains(parameters.Type));
+            filters.Add(a => a.Type.Contains(parameters.Type));
 
         if (parameters.ProducerId.HasValue)
-            predicate = predicate.And(a => a.Anime_Producers.Any(p => p.ProducerId == parameters.ProducerId));
+            filters.Add(a => a.Anime_Producers.Any(p => p.ProducerId == parameters.ProducerId));
 
         if (parameters.LicensorId.HasValue)
-            predicate = predicate.And(a => a.Anime_Licensors.Any(l => l.LicensorId == parameters.LicensorId));
+            filters.Add(a => a.Anime_Licensors.Any(l => l.LicensorId == parameters.LicensorId));
 
         if (parameters.GenreId.HasValue)
-            predicate = predicate.And(a => a.Anime_Genres.Any(g => g.GenreId == parameters.GenreId));
+            filters.Add(a => a.Anime_Genres.Any(g => g.GenreId == parameters.GenreId));
 
         if (parameters.MinScore.HasValue)
-            predicate = predicate.And(a => a.Score >= parameters.MinScore);
+            filters.Add(a => a.Score >= parameters.MinScore);
 
         if (parameters.MaxScore.HasValue)
-            predicate = predicate.And(a => a.Score <= parameters.MaxScore);
+            filters.Add(a => a.Score <= parameters.MaxScore);
 
         if (parameters.MinReleaseYear.HasValue)
-            predicate = predicate.And(a => a.Release_Year >= parameters.MinReleaseYear);
+            filters.Add(a => a.Release_Year >= parameters.MinReleaseYear);
 
         if (parameters.MaxReleaseYear.HasValue)
-            predicate = predicate.And(a => a.Release_Year <= parameters.MaxReleaseYear);
+            filters.Add(a => a.Release_Year <= parameters.MaxReleaseYear);
 
-        var models = await _repository.GetByConditionAsync(predicate);
+        var models = await _repository.GetByConditionAsync(filters);
         return models.ToDto();
     }
 }

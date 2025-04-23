@@ -14,6 +14,6 @@ public interface IAnimeRepository : IRepository<Anime>
     Task<IEnumerable<Anime>> GetByLicensorAsync(int licensorId);
     Task<IEnumerable<Anime>> GetByProducerAsync(int producerId);
     Task<IEnumerable<Anime>> GetByGenreAsync(int genreId);
-    Task<IEnumerable<Anime>> GetByConditionAsync(Expression<Func<Anime, bool>> condition);
+    Task<IEnumerable<Anime>> GetByConditionAsync(IEnumerable<Expression<Func<Anime, bool>>> condition);
     Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition);
 }

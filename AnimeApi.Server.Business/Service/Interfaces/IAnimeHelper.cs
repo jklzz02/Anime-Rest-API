@@ -18,7 +18,6 @@ public interface IAnimeHelper
     Task<IEnumerable<AnimeDto>> GetByScoreAsync(int score);
     Task<IEnumerable<AnimeDto>> GetByReleaseYearAsync(int year);
     Task<IEnumerable<AnimeDto>> GetByTypeAsync(string type);
-    Task<IEnumerable<AnimeDto>> GetByConditionAsync(Expression<Func<Anime, bool>> condition);
     Task<AnimeDto?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition);
     Task<bool> CreateAsync(AnimeDto entity);
     Task<bool> UpdateAsync(AnimeDto entity);
