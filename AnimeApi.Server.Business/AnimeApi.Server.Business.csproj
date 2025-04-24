@@ -14,6 +14,13 @@
       <PackageReference Include="FluentValidation" Version="11.11.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
         <PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="9.0.8" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore.Mvc.Core">
+        <HintPath>..\..\..\.nuget\packages\microsoft.aspnetcore.app.ref\8.0.13\ref\net8.0\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
