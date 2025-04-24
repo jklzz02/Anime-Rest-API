@@ -78,7 +78,7 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         ArgumentException.ThrowIfNullOrEmpty(source, nameof(source));
         
-        return await GetByConditionAsync([a => EF.Functions.Like(a.Source, $"%{source}%")]);
+        return await GetByConditionAsync([a => EF.Functions.Like(a.Source, $"%{source}")]);
     }
 
     public async Task<IEnumerable<Anime>> GetByTypeAsync(string type)
@@ -86,7 +86,7 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         ArgumentException.ThrowIfNullOrEmpty(type, nameof(type));
         
-        return await GetByConditionAsync([a => EF.Functions.Like(a.Type, $"%{type}%")]);
+        return await GetByConditionAsync([a => EF.Functions.Like(a.Type, $"%{type}")]);
     }
 
     public async Task<IEnumerable<Anime>> GetByScoreAsync(int score)
@@ -112,6 +112,11 @@ public class AnimeRepository : IAnimeRepository
     public async Task<IEnumerable<Anime>> GetByReleaseYearAsync(int year)
     {
         return await GetByConditionAsync([a => a.Release_Year == year]);
+    }
+
+    public async Task<IEnumerable<Anime>> GetByEpisodesAsync(int episodes)
+    {
+        return await GetByConditionAsync([a => a.Episodes == episodes]);
     }
     
     public async Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
@@ -142,7 +147,7 @@ public class AnimeRepository : IAnimeRepository
                 query = query.Where(filter);
             }
         }
-        
+
         query = query
             .Include(a => a.Anime_Genres)
                 .ThenInclude(ag => ag.Genre)
@@ -150,7 +155,10 @@ public class AnimeRepository : IAnimeRepository
                 .ThenInclude(al => al.Licensor)
             .Include(a => a.Anime_Producers)
                 .ThenInclude(ap => ap.Producer)
-            .AsSplitQuery();
+            .AsSplitQuery()
+            .AsNoTracking()
+            .OrderBy( a => a.Id)
+            .Take(100);
         
         return await query.ToListAsync();
     }
