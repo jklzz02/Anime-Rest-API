@@ -84,6 +84,12 @@ public class AnimeHelper : IAnimeHelper
         var models = await _repository.GetByTypeAsync(type);
         return models.ToDto();
     }
+
+    public async Task<IEnumerable<AnimeDto>> GetByEpisodesAsync(int episodes)
+    {
+        var models = await _repository.GetByEpisodesAsync(episodes);
+        return models.ToDto();
+    }
     
     
     public async Task<AnimeDto?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
@@ -137,13 +143,25 @@ public class AnimeHelper : IAnimeHelper
 
         if (parameters.ProducerId.HasValue)
             filters.Add(a => a.Anime_Producers.Any(p => p.ProducerId == parameters.ProducerId));
+        
+        if(!string.IsNullOrWhiteSpace(parameters.ProducerName))
+            filters.Add(a => a.Anime_Producers.Any(p => p.Producer.Name.Contains(parameters.ProducerName)));
 
         if (parameters.LicensorId.HasValue)
             filters.Add(a => a.Anime_Licensors.Any(l => l.LicensorId == parameters.LicensorId));
 
+        if(!string.IsNullOrWhiteSpace(parameters.LicensorName))
+            filters.Add(a => a.Anime_Licensors.Any(l => l.Licensor.Name.Contains(parameters.LicensorName)));
+        
         if (parameters.GenreId.HasValue)
             filters.Add(a => a.Anime_Genres.Any(g => g.GenreId == parameters.GenreId));
+        
+        if(!string.IsNullOrWhiteSpace(parameters.GenreName))
+            filters.Add(a => a.Anime_Genres.Any(g => g.Genre.Name.Contains(parameters.GenreName)));
 
+        if(parameters.Episodes.HasValue)
+            filters.Add(a => a.Episodes == parameters.Episodes);
+        
         if (parameters.MinScore.HasValue)
             filters.Add(a => a.Score >= parameters.MinScore);
 
@@ -154,7 +172,7 @@ public class AnimeHelper : IAnimeHelper
             filters.Add(a => a.Release_Year >= parameters.MinReleaseYear);
 
         if (parameters.MaxReleaseYear.HasValue)
-            filters.Add(a => a.Release_Year <= parameters.MaxReleaseYear);
+            filters.Add(a => a.Release_Year <= parameters.MaxReleaseYear && a.Release_Year != 0);
 
         var models = await _repository.GetByConditionAsync(filters);
         return models.ToDto();
