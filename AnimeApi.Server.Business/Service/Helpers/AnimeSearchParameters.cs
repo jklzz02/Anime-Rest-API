@@ -4,7 +4,7 @@ namespace AnimeApi.Server.Business.Service.Helpers;
 
 public class AnimeSearchParameters
 {
-    [FromRoute(Name = "title")]
+    [FromQuery(Name = "title")]
     public string? Name { get; set; } = null;
      [FromQuery(Name = "producer_id")]
     public int? ProducerId { get; set; } = null;
