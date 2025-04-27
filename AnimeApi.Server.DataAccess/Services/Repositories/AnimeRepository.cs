@@ -134,7 +134,6 @@ public class AnimeRepository : IAnimeRepository
 
         return anime;
     }
-
     public async Task<IEnumerable<Anime>> GetByConditionAsync(IEnumerable<Expression<Func<Anime, bool>>>? filters = null)
     {
         var query = _context.Anime
@@ -148,28 +147,63 @@ public class AnimeRepository : IAnimeRepository
             }
         }
 
-        query = query
-            .Include(a => a.Anime_Genres)
-                .ThenInclude(ag => ag.Genre)
-            .Include(a => a.Anime_Licensors)
-                .ThenInclude(al => al.Licensor)
-            .Include(a => a.Anime_Producers)
-                .ThenInclude(ap => ap.Producer)
-            .AsSplitQuery()
+        var result = await query
+            .OrderBy(a => a.Id)
+            .Take(100)
             .AsNoTracking()
-            .OrderBy( a => a.Id)
-            .Take(100);
-        
-        return await query.ToListAsync();
-    }
-    
-    public void Dispose()
-    {
-        _context.Dispose();
-    }
+            .AsSplitQuery()
+            .Select(a => new Anime
+            {
+                Id = a.Id,
+                Name = a.Name,
+                English_Name = a.English_Name,
+                Other_Name = a.Other_Name,
+                Synopsis = a.Synopsis,
+                Image_URL = a.Image_URL,
+                Type = a.Type,
+                Episodes = a.Episodes,
+                Duration = a.Duration,
+                Source = a.Source,
+                Release_Year = a.Release_Year,
+                Started_Airing = a.Started_Airing,
+                Finished_Airing = a.Finished_Airing,
+                Rating = a.Rating,
+                Studio = a.Studio,
+                Score = a.Score,
+                Status = a.Status,
+                Anime_Genres = a.Anime_Genres.Select(ag => new Anime_Genre
+                {
+                    AnimeId = ag.AnimeId,
+                    GenreId = ag.GenreId,
+                    Genre = new Genre
+                    {
+                        Id = ag.Genre.Id,
+                        Name = ag.Genre.Name
+                    }
+                }).ToList(),
+                Anime_Licensors = a.Anime_Licensors.Select(al => new Anime_Licensor
+                {
+                    AnimeId = al.AnimeId,
+                    LicensorId = al.LicensorId,
+                    Licensor = new Licensor
+                    {
+                        Id = al.Licensor.Id,
+                        Name = al.Licensor.Name
+                    }
+                }).ToList(),
+                Anime_Producers = a.Anime_Producers.Select(ap => new Anime_Producer
+                {
+                    AnimeId = ap.AnimeId,
+                    ProducerId = ap.ProducerId,
+                    Producer = new Producer
+                    {
+                        Id = ap.Producer.Id,
+                        Name = ap.Producer.Name
+                    }
+                }).ToList()
+            })
+            .ToListAsync();
 
-    public async ValueTask DisposeAsync()
-    {
-        await _context.DisposeAsync();
+        return result;
     }
 }

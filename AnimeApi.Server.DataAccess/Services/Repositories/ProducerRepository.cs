@@ -65,14 +65,4 @@ public class ProducerRepository : IProducerRepository
         _context.Producers.Remove(producer);
         return await _context.SaveChangesAsync() > 0;
     }
-    
-    public void Dispose()
-    {
-        _context.Dispose();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _context.DisposeAsync();
-    }
 }

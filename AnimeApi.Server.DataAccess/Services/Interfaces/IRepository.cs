@@ -5,7 +5,7 @@ namespace AnimeApi.Server.DataAccess.Services.Interfaces;
 /// on entities of a specified type.
 /// </summary>
 /// <typeparam name="T">The type of the entity the repository manages.</typeparam>
-public interface IRepository<T> : IDisposable, IAsyncDisposable where T : class
+public interface IRepository<T> where T : class
 {
     Task<T?> GetByIdAsync(int id);
     Task<IEnumerable<T>> GetAllAsync();

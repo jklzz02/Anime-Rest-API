@@ -66,14 +66,4 @@ public class GenreRepository : IGenreRepository
         
         return await _context.SaveChangesAsync() > 0;
     }
-    
-    public void Dispose()
-    {
-        _context.Dispose();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _context.DisposeAsync();
-    }
 }
