@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using AnimeApi.Server.DataAccess.Model;
+using AnimeApi.Server.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Context;

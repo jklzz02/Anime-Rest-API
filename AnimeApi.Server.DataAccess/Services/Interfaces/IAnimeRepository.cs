@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using AnimeApi.Server.DataAccess.Model;
+using AnimeApi.Server.DataAccess.Models;
 
 namespace AnimeApi.Server.DataAccess.Services.Interfaces;
 

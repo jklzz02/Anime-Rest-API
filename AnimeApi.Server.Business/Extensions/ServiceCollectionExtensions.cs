@@ -1,7 +1,7 @@
-using AnimeApi.Server.Business.Service.Helpers;
-using AnimeApi.Server.Business.Service.Interfaces;
-using AnimeApi.Server.Business.Validator;
-using AnimeApi.Server.Business.Validator.Interfaces;
+using AnimeApi.Server.Business.Services.Helpers;
+using AnimeApi.Server.Business.Services.Interfaces;
+using AnimeApi.Server.Business.Validators;
+using AnimeApi.Server.Business.Validators.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimeApi.Server.Business.Extensions;

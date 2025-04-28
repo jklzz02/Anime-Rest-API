@@ -1,5 +1,6 @@
-using AnimeApi.Server.Business.Service.Helpers;
-using AnimeApi.Server.Business.Service.Interfaces;
+using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Services.Helpers;
+using AnimeApi.Server.Business.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
@@ -54,6 +55,18 @@ public class AnimeController : ControllerBase
     {
         var anime = await _helper.GetByEpisodesAsync(episodes);
         if(!anime.Any()) return NotFound();
+        
+        return Ok(anime);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> CreateAsync([FromBody] AnimeDto anime)
+    {
+        var result = await _helper.CreateAsync(anime);
+        if (!result) return BadRequest();
         
         return Ok(anime);
     }
