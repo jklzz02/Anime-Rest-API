@@ -18,7 +18,8 @@ public class AnimeRepository : IAnimeRepository
 
     public async Task<Anime?> GetByIdAsync(int id)
     {
-        return await GetFirstByConditionAsync(a => a.Id == id);
+        return await _context.Anime
+            .FirstOrDefaultAsync(a => a.Id == id);
     }
 
     public async Task<IEnumerable<Anime>> GetAllAsync()
