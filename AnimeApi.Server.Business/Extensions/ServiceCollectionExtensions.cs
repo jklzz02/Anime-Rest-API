@@ -15,10 +15,10 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IProducerValidator, ProducerValidator>();
         services.AddTransient<ILicensorValidator, LicensorValidator>();
         
-        services.AddScoped<IAnimeHelper, AnimeHelper>();
-        services.AddScoped<IGenreHelper, GenreHelper>();
-        services.AddScoped<IProducerHelper, ProducerHelper>();
-        services.AddScoped<ILicensorHelper, LicensorHelper>();
+        services.AddTransient<IAnimeHelper, AnimeHelper>();
+        services.AddTransient<IGenreHelper, GenreHelper>();
+        services.AddTransient<IProducerHelper, ProducerHelper>();
+        services.AddTransient<ILicensorHelper, LicensorHelper>();
         
         return services;
     }
