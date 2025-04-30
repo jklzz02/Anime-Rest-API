@@ -1,15 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using AnimeApi.Server.DataAccess.Models.Interfaces;
 
 namespace AnimeApi.Server.DataAccess.Models;
 
-public partial class Anime_Licensor
+public partial class Anime_Licensor : IAnimeRelation
 {
     public int Id { get; set; }
 
     public int AnimeId { get; set; }
 
     public int LicensorId { get; set; }
+    [NotMapped]
+    public int RelatedId
+    {
+        get => LicensorId;
+        set => LicensorId = value;
+    }
 
     public virtual Anime Anime { get; set; } = null!;
 
