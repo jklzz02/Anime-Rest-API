@@ -41,6 +41,11 @@ public class ProducerRepository : IProducerRepository
         
         var producer = await GetByIdAsync(entity.Id);
         if(producer is not null) return false;
+
+        if (_context.Producers.Any(p => p.Name == entity.Name))
+        {
+            return false;
+        }
         
         _context.Producers.Add(entity);
         return await _context.SaveChangesAsync() > 0;
@@ -52,8 +57,13 @@ public class ProducerRepository : IProducerRepository
         
         var producer = await GetByIdAsync(entity.Id);
         if (producer is null) return false;
+
+        if (_context.Producers.Any(p => p.Name == entity.Name && p.Id != entity.Id))
+        {
+            return false;
+        }
         
-        _context.Producers.Update(entity);
+        producer.Name = entity.Name;
         return await _context.SaveChangesAsync() > 0;
     }
 

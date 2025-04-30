@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.DataAccess.Context;
+using AnimeApi.Server.DataAccess.Extensions;
 using AnimeApi.Server.DataAccess.Models;
 using AnimeApi.Server.DataAccess.Services.Interfaces;
 using LinqKit;
@@ -19,7 +20,13 @@ public class AnimeRepository : IAnimeRepository
     public async Task<Anime?> GetByIdAsync(int id)
     {
         return await _context.Anime
-            .FirstOrDefaultAsync(a => a.Id == id);
+                .Include(a => a.Anime_Genres)
+                .ThenInclude(ag => ag.Genre)
+                .Include(a => a.Anime_Licensors)
+                .ThenInclude(al => al.Licensor)
+                .Include(a => a.Anime_Producers)
+                .ThenInclude(ap => ap.Producer)
+                .FirstOrDefaultAsync(a => a.Id == id);
     }
 
     public async Task<IEnumerable<Anime>> GetAllAsync()
@@ -45,7 +52,7 @@ public class AnimeRepository : IAnimeRepository
         var anime = await GetByIdAsync(entity.Id);
         if (anime is null) return false;
         
-        _context.Anime.Update(entity);
+        UpdateAnime(anime, entity);
         return await _context.SaveChangesAsync() > 0;
     }
 
@@ -206,5 +213,31 @@ public class AnimeRepository : IAnimeRepository
             .ToListAsync();
 
         return result;
+    }
+
+    private void UpdateAnime(Anime original, Anime updated)
+    {
+        original.Name = updated.Name;
+        original.English_Name = updated.English_Name;
+        original.Other_Name = updated.Other_Name;
+        original.Synopsis = updated.Synopsis;
+        original.Image_URL = updated.Image_URL;
+        original.Type = updated.Type;
+        original.Episodes = updated.Episodes;
+        original.Duration = updated.Duration;
+        original.Source = updated.Source;
+        original.Release_Year = updated.Release_Year;
+        original.Started_Airing = updated.Started_Airing;
+        original.Finished_Airing = updated.Finished_Airing;
+        original.Rating = updated.Rating;
+        original.Studio = updated.Studio;
+        original.Score = updated.Score;
+        original.Status = updated.Status;
+        original.Anime_Genres
+            .Update(updated.Anime_Genres, original.Id);
+        original.Anime_Producers
+            .Update(updated.Anime_Producers, original.Id);
+        original.Anime_Licensors
+            .Update(updated.Anime_Licensors, original.Id);
     }
 }

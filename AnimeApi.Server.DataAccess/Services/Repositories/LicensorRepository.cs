@@ -41,6 +41,8 @@ public class LicensorRepository : ILicensorRepository
     
         var licensor = await GetByIdAsync(entity.Id);
         if (licensor is not null) return false;
+
+        if (_context.Licensors.Any(l => l.Name == entity.Name)) return false;
         
         _context.Licensors.Add(entity);
         return await _context.SaveChangesAsync() > 0;
@@ -52,8 +54,12 @@ public class LicensorRepository : ILicensorRepository
         
         var licensor = await GetByIdAsync(entity.Id);
         if(licensor is null) return false;
+        if (_context.Licensors.Any(l => l.Name == entity.Name && l.Id != entity.Id))
+        {
+            return false;
+        }
 
-        _context.Licensors.Update(entity);
+        licensor.Name = entity.Name;
         return await _context.SaveChangesAsync() > 0;
     }
 
