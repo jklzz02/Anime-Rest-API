@@ -22,7 +22,10 @@ public class GenreRepository : IGenreRepository
 
     public async Task<IEnumerable<Genre>> GetAllAsync()
     {
-        return await _context.Genres.ToListAsync();
+        return await _context.Genres
+            .OrderBy(g => g.Id)
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Genre>> GetByNameAsync(string name)
@@ -42,6 +45,10 @@ public class GenreRepository : IGenreRepository
         
         var genre = await GetByIdAsync(entity.Id);
         if (genre is not null) return false;
+        if (_context.Genres.Any(g => g.Name == entity.Name))
+        {
+            return false;
+        }
         
         await _context.Genres.AddAsync(entity);
         return await _context.SaveChangesAsync() > 0;
@@ -53,8 +60,13 @@ public class GenreRepository : IGenreRepository
         
         var genre = await GetByIdAsync(entity.Id);
         if (genre is null) return false;
-        _context.Genres.Update(entity);
+
+        if (_context.Genres.Any(g => g.Name == entity.Name && g.Id != entity.Id))
+        {
+            return false;
+        }
         
+        genre.Name = entity.Name;
         return await _context.SaveChangesAsync() > 0;
     }
 
