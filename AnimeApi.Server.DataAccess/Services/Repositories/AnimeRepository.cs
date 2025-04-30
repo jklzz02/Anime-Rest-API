@@ -149,7 +149,6 @@ public class AnimeRepository : IAnimeRepository
 
         var result = await query
             .OrderBy(a => a.Id)
-            .Take(100)
             .AsNoTracking()
             .AsSplitQuery()
             .Select(a => new Anime
@@ -202,6 +201,7 @@ public class AnimeRepository : IAnimeRepository
                     }
                 }).ToList()
             })
+            .Take(100)
             .ToListAsync();
 
         return result;
