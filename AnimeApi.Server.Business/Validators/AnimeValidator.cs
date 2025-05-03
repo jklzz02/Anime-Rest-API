@@ -11,53 +11,76 @@ public class AnimeValidator : AbstractValidator<AnimeDto>, IAnimeValidator
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .MaximumLength(255);
+                .WithMessage("The 'title' field cannot be empty.")
+            .MaximumLength(255)
+                .WithMessage("The 'title' field cannot be longer than 255 characters.");
         
         RuleFor(x => x.EnglishName)
             .NotEmpty()
-            .MaximumLength(255);
+                .WithMessage("The 'english_title' field cannot be empty.")
+            .MaximumLength(255)
+                .WithMessage("The 'english_title' field cannot be longer than 255 characters.");
         
         RuleFor(x => x.OtherName)
             .NotEmpty()
-            .MaximumLength(255);
+                .WithMessage("The 'other_title' field cannot be empty.")
+            .MaximumLength(255)
+                .WithMessage("The 'other_title' field cannot be longer than 255 characters.");
         
         RuleFor(x => x.Synopsis)
             .NotEmpty()
-            .MaximumLength(5000);
+                .WithMessage("The 'synopsis' cannot be empty.")
+            .MaximumLength(5000)
+                .WithMessage("The 'synopsis' cannot be longer than 5000 characters.'");
         
         RuleFor(x => x.ImageUrl)
             .NotEmpty()
-            .MaximumLength(255);
+                .WithMessage("The 'image_url' cannot be empty.")
+            .MaximumLength(255)
+                .WithMessage("The 'image_url' cannot be longer than 255 characters.'");
 
         RuleFor(x => x.Type)
             .NotEmpty()
-            .Must(x => _animeTypes.Contains(x));
+                .WithMessage("The 'type' cannot be empty.")
+            .Must(x => _animeTypes.Contains(x))
+            .WithMessage($"The 'type' must be one of the following: {string.Join(", ", _animeTypes)}.");
         
         RuleFor(x => x.Episodes)
             .NotEmpty()
-            .GreaterThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("'episodes' must be greater than or equal to 0.");
         
         RuleFor(x => x.Duration)
             .NotEmpty()
-            .MaximumLength(255);
+                .WithMessage("The 'duration' cannot be empty.")
+            .MaximumLength(255)
+                .WithMessage("The 'duration' cannot be longer than 255 characters.");
         
         RuleFor(x => x.Source)
             .NotEmpty()
-            .MaximumLength(50);
+                .WithMessage("The 'source' cannot be empty.")
+            .MaximumLength(50)
+                .WithMessage("The 'source' cannot be longer than 50 characters.");
 
         RuleFor(x => x.ReleaseYear)
-            .GreaterThanOrEqualTo(1950);
+            .GreaterThanOrEqualTo(1950)
+            .WithMessage("The 'release_year' must be greater than or equal to 1950.'");
         
         RuleFor(x => x.Status)
             .NotEmpty()
-            .MaximumLength(50);
+                .WithMessage("The 'status' cannot be empty.'")
+            .MaximumLength(50)
+                .WithMessage("The 'status' cannot be longer than 50 characters.'");
 
         RuleFor(x => x.Rating)
             .NotEmpty()
-            .MaximumLength(100);
+                .WithMessage("The 'rating' cannot be empty.")
+            .MaximumLength(100)
+                .WithMessage("The 'rating' cannot be longer than 100 characters.");
         
         RuleFor(x => x.Score)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("The 'score' must be greater than or equal to 0.");
 
     }
 }
