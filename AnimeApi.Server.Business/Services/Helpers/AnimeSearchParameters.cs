@@ -26,7 +26,7 @@ public class AnimeSearchParameters
     public string? Source { get; set; } = null;
     [FromQuery(Name = "type")]
     public string? Type { get; set; } = null;
-    [FromQuery(Name = "english_name")]
+    [FromQuery(Name = "english_title")]
     public string? EnglishName { get; set; } = null;
     [FromQuery(Name = "min_score")]
     public int? MinScore { get; set; } = null;

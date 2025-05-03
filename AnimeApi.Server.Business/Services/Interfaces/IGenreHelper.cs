@@ -4,6 +4,7 @@ namespace AnimeApi.Server.Business.Services.Interfaces;
 
 public interface IGenreHelper
 {
+    public IEnumerable<string> ErrorMessages { get; }
     Task<GenreDto?> GetByIdAsync(int id);
     Task<IEnumerable<GenreDto>> GetByNameAsync(string name);
     Task<IEnumerable<GenreDto>> GetAllAsync();

@@ -4,6 +4,7 @@ namespace AnimeApi.Server.Business.Services.Interfaces;
 
 public interface IProducerHelper
 {
+    public IEnumerable<string> ErrorMessages { get; }
     Task<ProducerDto?> GetByIdAsync(int id);
     Task<IEnumerable<ProducerDto>> GetByNameAsync(string name);
     Task<IEnumerable<ProducerDto>> GetAllAsync();

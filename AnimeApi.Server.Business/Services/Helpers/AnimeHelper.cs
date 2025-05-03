@@ -12,7 +12,7 @@ public class AnimeHelper : IAnimeHelper
 {
     private readonly IAnimeRepository _repository;
     private readonly IAnimeValidator _validator;
-    
+    public IEnumerable<string> ErrorMessages { get; private set;} = [];
     public AnimeHelper(IAnimeRepository repository, IAnimeValidator validator)
     {
         _repository = repository;
@@ -103,7 +103,11 @@ public class AnimeHelper : IAnimeHelper
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var validationResult = await _validator.ValidateAsync(entity);
-        if(!validationResult.IsValid) return false;
+        if (!validationResult.IsValid)
+        {
+            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            return false;
+        }
         
         var model = entity.ToModel();
         return await _repository.AddAsync(model);
@@ -114,7 +118,11 @@ public class AnimeHelper : IAnimeHelper
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var validationResult = await _validator.ValidateAsync(entity);
-        if(!validationResult.IsValid) return false;
+        if (!validationResult.IsValid)
+        {
+            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            return false;
+        }
         
         var model = entity.ToModel();
         return await _repository.UpdateAsync(model);

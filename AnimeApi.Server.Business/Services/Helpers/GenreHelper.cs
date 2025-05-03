@@ -10,7 +10,7 @@ public class GenreHelper : IGenreHelper
 {
     private readonly IGenreRepository _repository;
     private readonly IGenreValidator _validator;
-
+    public IEnumerable<string> ErrorMessages { get; private set; }
     public GenreHelper(IGenreRepository repository, IGenreValidator validator)
     {
         _repository = repository;
@@ -43,7 +43,11 @@ public class GenreHelper : IGenreHelper
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var validationResult = await _validator.ValidateAsync(entity);
-        if(!validationResult.IsValid) return false;
+        if (!validationResult.IsValid)
+        {
+            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            return false;
+        }
 
         var model = entity.ToModel();
         return await _repository.AddAsync(model);
@@ -54,7 +58,11 @@ public class GenreHelper : IGenreHelper
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
         var validationResult = await _validator.ValidateAsync(entity);
-        if (!validationResult.IsValid) return false;
+        if (!validationResult.IsValid)
+        {
+            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            return false;
+        }
 
         var model = entity.ToModel();
         return await _repository.UpdateAsync(model);

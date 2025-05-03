@@ -7,6 +7,7 @@ namespace AnimeApi.Server.Business.Services.Interfaces;
 
 public interface IAnimeHelper
 {
+    public IEnumerable<string> ErrorMessages { get; }
     Task<AnimeDto?> GetByIdAsync(int id);
     Task<IEnumerable<AnimeDto>> GetAllAsync();
     Task<IEnumerable<AnimeDto>> GetByNameAsync(string name);
