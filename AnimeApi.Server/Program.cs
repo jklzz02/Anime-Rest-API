@@ -19,14 +19,12 @@ public class Program
            .AddNewtonsoftJson();
        
        builder.Services
-           .AddDataAccess(connectionString)
+           .AddDataAccess(connectionString!)
            .AddBusiness();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        //builder.Services
-            //.AddBusiness();
 
         var app = builder.Build();
 

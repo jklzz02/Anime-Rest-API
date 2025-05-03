@@ -20,6 +20,7 @@ public class AnimeRepository : IAnimeRepository
     public async Task<Anime?> GetByIdAsync(int id)
     {
         return await _context.Anime
+                .AsSplitQuery()
                 .Include(a => a.Anime_Genres)
                 .ThenInclude(ag => ag.Genre)
                 .Include(a => a.Anime_Licensors)
