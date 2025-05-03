@@ -40,7 +40,10 @@ public class GenreController : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] GenreDto genre)
     {
         var result = await _helper.CreateAsync(genre);
-        if (!result) return BadRequest();
+        if (!result)
+        {
+            return BadRequest(_helper.ErrorMessages);
+        }
 
         return Ok(genre);
     }
@@ -52,8 +55,11 @@ public class GenreController : ControllerBase
     {
         if(genre.Name == "") return BadRequest();
         var result = await _helper.UpdateAsync(genre);
-        if(!result) return BadRequest();
-        return Ok("Resource updated");
+        if (!result)
+        {
+            return BadRequest(_helper.ErrorMessages);
+        }
+        return Ok(genre);
     }
     
     [HttpPatch]
@@ -63,8 +69,11 @@ public class GenreController : ControllerBase
     {
         if(genre.Name == "") return BadRequest();
         var result = await _helper.UpdateAsync(genre);
-        if(!result) return BadRequest();
-        return Ok("Resource updated");
+        if (!result)
+        {
+            return BadRequest(_helper.ErrorMessages);
+        }
+        return Ok(genre);
     }
     
     [HttpDelete]
@@ -75,7 +84,7 @@ public class GenreController : ControllerBase
     {
         var result = await _helper.DeleteAsync(id);
         if(!result) return NotFound();
-        return Ok("Resource deleted");
+        return Ok();
     }
 }
 

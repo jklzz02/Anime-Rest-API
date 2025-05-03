@@ -66,7 +66,25 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.CreateAsync(anime);
-        if (!result) return BadRequest();
+        if (!result)
+        {
+            return BadRequest(_helper.ErrorMessages);
+        };
+        
+        return Ok(anime);
+    }
+    
+    [HttpPatch]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> UpdatePartialAsync([FromBody] AnimeDto anime)
+    {
+        var result = await _helper.UpdateAsync(anime);
+        if (!result)
+        {
+            return BadRequest(_helper.ErrorMessages);
+        }
         
         return Ok(anime);
     }
