@@ -88,4 +88,16 @@ public class AnimeController : ControllerBase
         
         return Ok(anime);
     }
+    
+    [HttpDelete]
+    [Route("{id:int:min(1)}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+    {
+        var result = await _helper.DeleteAsync(id);
+        if(!result) return NotFound();
+        
+        return Ok();
+    }
 }

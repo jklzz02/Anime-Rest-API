@@ -123,12 +123,12 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Genres)
                 .HasForeignKey(d => d.AnimeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Genre_ibfk_1");
 
             entity.HasOne(d => d.Genre).WithMany(p => p.Anime_Genres)
                 .HasForeignKey(d => d.GenreId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Genre_ibfk_2");
         });
 
@@ -144,12 +144,12 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Licensors)
                 .HasForeignKey(d => d.AnimeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Licensor_ibfk_1");
 
             entity.HasOne(d => d.Licensor).WithMany(p => p.Anime_Licensors)
                 .HasForeignKey(d => d.LicensorId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Licensor_ibfk_2");
         });
 
@@ -165,12 +165,12 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Producers)
                 .HasForeignKey(d => d.AnimeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Producer_ibfk_1");
 
             entity.HasOne(d => d.Producer).WithMany(p => p.Anime_Producers)
                 .HasForeignKey(d => d.ProducerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Producer_ibfk_2");
         });
 
