@@ -84,7 +84,7 @@ public class GenreController : ControllerBase
     {
         if (string.IsNullOrEmpty(genre.Name))
         {
-            return BadRequest();    
+            return BadRequest();
         }
         
         var result = await _helper.UpdateAsync(genre);

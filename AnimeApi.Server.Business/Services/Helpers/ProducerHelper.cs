@@ -1,4 +1,5 @@
 using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators.Interfaces;
@@ -10,7 +11,7 @@ public class ProducerHelper : IProducerHelper
 {
     private readonly IProducerRepository _repository;
     private readonly IProducerValidator _validator;
-    public IEnumerable<string> ErrorMessages { get; private set; }
+    public Dictionary<string, string> ErrorMessages { get; private set; }
     public ProducerHelper(IProducerRepository repository, IProducerValidator validator)
     {
         _repository = repository;
@@ -41,7 +42,7 @@ public class ProducerHelper : IProducerHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<ProducerDto>();
             return false;
         };
         
@@ -56,7 +57,7 @@ public class ProducerHelper : IProducerHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<ProducerDto>();
             return false;
         }
         

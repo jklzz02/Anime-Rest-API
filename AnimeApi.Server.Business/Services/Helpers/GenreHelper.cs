@@ -1,4 +1,5 @@
 using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators.Interfaces;
@@ -10,7 +11,7 @@ public class GenreHelper : IGenreHelper
 {
     private readonly IGenreRepository _repository;
     private readonly IGenreValidator _validator;
-    public IEnumerable<string> ErrorMessages { get; private set; }
+    public Dictionary<string, string> ErrorMessages { get; private set; }
     public GenreHelper(IGenreRepository repository, IGenreValidator validator)
     {
         _repository = repository;
@@ -45,7 +46,7 @@ public class GenreHelper : IGenreHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<GenreDto>();
             return false;
         }
 
@@ -60,7 +61,7 @@ public class GenreHelper : IGenreHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<GenreDto>();
             return false;
         }
 

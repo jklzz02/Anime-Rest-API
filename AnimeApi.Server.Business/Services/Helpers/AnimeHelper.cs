@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators.Interfaces;
@@ -12,7 +13,7 @@ public class AnimeHelper : IAnimeHelper
 {
     private readonly IAnimeRepository _repository;
     private readonly IAnimeValidator _validator;
-    public IEnumerable<string> ErrorMessages { get; private set;} = [];
+    public Dictionary<string, string> ErrorMessages { get; private set; }
     public AnimeHelper(IAnimeRepository repository, IAnimeValidator validator)
     {
         _repository = repository;
@@ -105,7 +106,7 @@ public class AnimeHelper : IAnimeHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<AnimeDto>();
             return false;
         }
         
@@ -120,7 +121,7 @@ public class AnimeHelper : IAnimeHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.Select(e => e.ErrorMessage);
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<AnimeDto>();
             return false;
         }
         

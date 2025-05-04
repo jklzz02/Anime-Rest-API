@@ -4,7 +4,7 @@ namespace AnimeApi.Server.Business.Services.Interfaces;
 
 public interface ILicensorHelper
 {
-    public IEnumerable<string> ErrorMessages { get; }
+    public Dictionary<string, string> ErrorMessages { get; }
     Task<LicensorDto?> GetByIdAsync(int id);
     Task<IEnumerable<LicensorDto>> GetByNameAsync(string name);
     Task<IEnumerable<LicensorDto>> GetAllAsync();
