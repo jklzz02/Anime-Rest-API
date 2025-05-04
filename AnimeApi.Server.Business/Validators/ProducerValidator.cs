@@ -9,10 +9,13 @@ public class ProducerValidator : AbstractValidator<ProducerDto>, IProducerValida
     public ProducerValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0);
-        
+            .GreaterThan(0)
+            .WithMessage("The id must be greater than zero");
+
         RuleFor(x => x.Name)
             .NotEmpty()
-            .MaximumLength(50);
+            .WithMessage("The name cannot be empty")
+            .MaximumLength(50)
+            .WithMessage("The name must cannot be longer than 50 characters");
     }
 }
