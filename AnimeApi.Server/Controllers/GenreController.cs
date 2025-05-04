@@ -34,6 +34,18 @@ public class GenreController : ControllerBase
         return Ok(genre);
     }
 
+    [HttpGet]
+    [Route("name/{name}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
+    {
+        var genre = await _helper.GetByNameAsync(name);
+        if (!genre.Any()) return NotFound();
+        
+        return Ok(genre);
+    }
+
     [HttpPost]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]

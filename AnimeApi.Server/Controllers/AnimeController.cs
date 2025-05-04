@@ -14,6 +14,15 @@ public class AnimeController : ControllerBase
     {
         _helper = helper;
     }
+
+    [HttpGet]
+    [ProducesResponseType(200)]
+    public async Task<IActionResult> GetAllAsync()
+    {
+        var anime = await _helper.GetAllAsync();
+        return Ok(anime);
+    }
+    
     [HttpGet]
     [Route("{id:int:min(1)}")]
     [ProducesResponseType(200)]
@@ -59,6 +68,18 @@ public class AnimeController : ControllerBase
         return Ok(anime);
     }
 
+    [HttpGet]
+    [Route("title/{title}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> GetByTitleAsync([FromRoute] string title)
+    {
+        var anime = await _helper.GetByNameAsync(title);
+        if (!anime.Any()) return NotFound();
+        
+        return Ok(anime);
+    }
+
     [HttpPost]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
@@ -79,6 +100,21 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] AnimeDto anime)
+    {
+        var result = await _helper.UpdateAsync(anime);
+        if (!result)
+        {
+            return BadRequest(_helper.ErrorMessages);
+        }
+        
+        return Ok(anime);
+    }
+    
+    [HttpPut]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> UpdatePartialFull([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
         if (!result)

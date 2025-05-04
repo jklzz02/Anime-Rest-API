@@ -32,7 +32,10 @@ public class AnimeRepository : IAnimeRepository
 
     public async Task<IEnumerable<Anime>> GetAllAsync()
     {
-        return await _context.Anime.ToListAsync();
+        return await _context.Anime
+            .OrderBy(a => a.Id)
+            .Take(100)
+            .ToListAsync();
     }
 
     public async Task<bool> AddAsync(Anime entity)
