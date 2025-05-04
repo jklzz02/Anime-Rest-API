@@ -60,4 +60,53 @@ public class ProducerController : ControllerBase
         
         return Ok(producer);
     }
+
+    [HttpPut]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> UpdateFullAsync([FromBody] ProducerDto producer)
+    {
+        if (string.IsNullOrEmpty(producer.Name))
+        {
+            return BadRequest();
+        }
+        var result = await _helper.UpdateAsync(producer);
+        if (!result)
+        {
+            return BadRequest(_helper.ErrorMessages);
+        }
+        
+        return Ok(producer);
+    }
+    
+    [HttpPatch]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> UpdatePartialAsync([FromBody] ProducerDto producer)
+    {
+        if (string.IsNullOrEmpty(producer.Name))
+        {
+            return BadRequest();
+        }
+        var result = await _helper.UpdateAsync(producer);
+        if (!result)
+        {
+            return BadRequest(_helper.ErrorMessages);
+        }
+        
+        return Ok(producer);
+    }
+
+    [HttpDelete]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+    {
+        var result = await _helper.DeleteAsync(id);
+        if(!result) return NotFound();
+        
+        return Ok();
+    }
 }

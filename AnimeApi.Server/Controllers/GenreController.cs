@@ -65,7 +65,10 @@ public class GenreController : ControllerBase
     [ProducesResponseType(400)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] GenreDto genre)
     {
-        if(genre.Name == "") return BadRequest();
+        if (string.IsNullOrEmpty(genre.Name))
+        {
+            return BadRequest();
+        }
         var result = await _helper.UpdateAsync(genre);
         if (!result)
         {
@@ -79,7 +82,11 @@ public class GenreController : ControllerBase
     [ProducesResponseType(400)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] GenreDto genre)
     {
-        if(genre.Name == "") return BadRequest();
+        if (string.IsNullOrEmpty(genre.Name))
+        {
+            return BadRequest();    
+        }
+        
         var result = await _helper.UpdateAsync(genre);
         if (!result)
         {
