@@ -1,14 +1,14 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Business.Dto;
-using Moq;
 using AnimeApi.Server.Business.Services.Helpers;
 using AnimeApi.Server.Business.Validators.Interfaces;
 using AnimeApi.Server.DataAccess.Models;
 using AnimeApi.Server.DataAccess.Services.Interfaces;
-using FluentValidation;
+using AnimeApi.Server.Test.Generators;
 using FluentValidation.Results;
+using Moq;
 
-namespace AnimeApi.Server.Test;
+namespace AnimeApi.Server.Test.Tests;
 
 public class AnimeHelperTest
 {
@@ -37,12 +37,7 @@ public class AnimeHelperTest
     [Fact]
     public async Task Should_Return_Valid_Dto_List()
     {
-        var animeList = new List<Anime>()
-        {
-            new Anime { Id = 1, Name = "title 1"},
-            new Anime { Id = 2, Name = "title 2"},
-            new Anime { Id = 3, Name = "title 3"}
-        };
+        var animeList = AnimeGenerator.GetMockAnimeList();
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
         _repositoryMock
             .Setup(r => r.GetAllAsync())
@@ -79,7 +74,7 @@ public class AnimeHelperTest
     }
 
     [Fact]
-    public async Task Should_Return_True_When_Validation_Success()
+    public async Task Should_Return_True_When_Validation_Succeeds()
     {
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
 
@@ -134,12 +129,7 @@ public class AnimeHelperTest
     [InlineData("TeSt")]
     public async Task Should_Return_AnimeDto_With_Correct_Title(string title)
     {
-        var animeList = new List<Anime>
-        {
-            new() { Id = 1, Name = title },
-            new() { Id = 2, Name = "test to check if it works" },
-            new() {Id = 3, Name = "some string"}
-        };
+        var animeList = AnimeGenerator.GetMockAnimeList();
 
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
         
