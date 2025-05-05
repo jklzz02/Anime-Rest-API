@@ -8,7 +8,7 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class ProducerRepository : IProducerRepository
 {
     private readonly AnimeDbContext _context;
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
+    public Dictionary<string, string> ErrorMessages { get; } = new();
     public ProducerRepository(AnimeDbContext context)
     {
         _context = context;

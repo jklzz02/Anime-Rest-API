@@ -11,7 +11,7 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class AnimeRepository : IAnimeRepository
 {
     private readonly AnimeDbContext _context;
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
+    public Dictionary<string, string> ErrorMessages { get; } = new();
 
     public AnimeRepository(AnimeDbContext context)
     {

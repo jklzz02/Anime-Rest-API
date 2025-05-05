@@ -8,7 +8,7 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class LicensorRepository : ILicensorRepository
 {
     private readonly AnimeDbContext _context;
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
+    public Dictionary<string, string> ErrorMessages { get; } = new();
     public LicensorRepository(AnimeDbContext context)
     {
         _context = context;

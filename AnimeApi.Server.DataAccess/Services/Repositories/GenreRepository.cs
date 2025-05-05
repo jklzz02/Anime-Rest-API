@@ -8,7 +8,7 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class GenreRepository : IGenreRepository
 {
     private readonly AnimeDbContext _context;
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
+    public Dictionary<string, string> ErrorMessages { get; } = new();
     
     public GenreRepository(AnimeDbContext context)
     {
