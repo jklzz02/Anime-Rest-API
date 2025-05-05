@@ -22,7 +22,7 @@ public class AnimeHelperTest
     }
 
     [Fact]
-    public async Task Should_Return_Empty_Dto_List()
+    public async Task GetAll_Should_Return_Empty_Dto_List()
     {
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
         _repositoryMock
@@ -35,7 +35,7 @@ public class AnimeHelperTest
     }
 
     [Fact]
-    public async Task Should_Return_Valid_Dto_List()
+    public async Task GetAll_Should_Return_Valid_Dto_List()
     {
         var animeList = AnimeGenerator.GetMockAnimeList();
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
@@ -97,7 +97,7 @@ public class AnimeHelperTest
     [InlineData(1)]
     [InlineData(36)]
     [InlineData(24)]
-    public async Task Should_Return_AnimeDto_With_Correct_Id(int animeId)
+    public async Task GetById_Should_Return_AnimeDto_With_Correct_Id(int animeId)
     {
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
         _repositoryMock
@@ -112,7 +112,7 @@ public class AnimeHelperTest
     [Theory]
     [InlineData(-1)]
     [InlineData(0)]
-    public async Task Should_Return_Null_For_Invalid_Id(int invalidAnimeId)
+    public async Task GetById_Should_Return_Null_For_Invalid_Id(int invalidAnimeId)
     {
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
         _repositoryMock
@@ -127,7 +127,7 @@ public class AnimeHelperTest
     [InlineData("")]
     [InlineData("test")]
     [InlineData("TeSt")]
-    public async Task Should_Return_AnimeDto_With_Correct_Title(string title)
+    public async Task Search_Should_Return_AnimeDto_With_Correct_Title(string title)
     {
         var animeList = AnimeGenerator.GetMockAnimeList();
 
@@ -151,5 +151,49 @@ public class AnimeHelperTest
 
         Assert.NotNull(result);
         Assert.True(result.All(a => a?.Name?.Contains(title) ?? false));
+    }
+
+    [Theory]
+    [InlineData(1, true)]
+    [InlineData(2, true)]
+    [InlineData(3, true)]
+    [InlineData(6, false)]
+    [InlineData(-1, false)]
+    [InlineData(0, false)]
+    public async Task Delete_Should_Return_True_With_Correct_Id(int id, bool expected)
+    {
+        var anime = AnimeGenerator.GetMockAnimeList();
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        _repositoryMock
+            .Setup(r => r.DeleteAsync(It.IsAny<int>()))
+            .ReturnsAsync((int passedId) =>
+            {
+                return anime.Any(a => a.Id == passedId);
+            });
+        
+        var result = await service.DeleteAsync(id);
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public async Task Delete_Should_Remove_Targeted_Entity(int validId)
+    {
+        var anime = AnimeGenerator.GetMockAnimeList();
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        _repositoryMock
+            .Setup(r => r.DeleteAsync(It.IsAny<int>()))
+            .ReturnsAsync((int passedId) =>
+            {
+                var toBeRemoved = anime.First(a => a.Id == passedId);
+                anime.Remove(toBeRemoved);
+                return true;
+            });
+        
+        var result = await service.DeleteAsync(validId);
+        Assert.True(result);
+        Assert.DoesNotContain(anime, a => a.Id == validId);
     }
 }
