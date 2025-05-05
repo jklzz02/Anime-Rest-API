@@ -1,0 +1,165 @@
+using System.Linq.Expressions;
+using AnimeApi.Server.Business.Dto;
+using Moq;
+using AnimeApi.Server.Business.Services.Helpers;
+using AnimeApi.Server.Business.Validators.Interfaces;
+using AnimeApi.Server.DataAccess.Models;
+using AnimeApi.Server.DataAccess.Services.Interfaces;
+using FluentValidation;
+using FluentValidation.Results;
+
+namespace AnimeApi.Server.Test;
+
+public class AnimeHelperTest
+{
+    private readonly Mock<IAnimeRepository> _repositoryMock;
+    private readonly Mock<IAnimeValidator> _validatorMock;
+
+    public AnimeHelperTest()
+    {
+        _repositoryMock = new Mock<IAnimeRepository>();
+        _validatorMock = new Mock<IAnimeValidator>();
+    }
+
+    [Fact]
+    public async Task Should_Return_Empty_Dto_List()
+    {
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        _repositoryMock
+            .Setup(r => r.GetAllAsync())
+            .ReturnsAsync(new List<Anime>());
+        
+        var result = await service.GetAllAsync();
+        Assert.IsAssignableFrom<IEnumerable<AnimeDto>>(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task Should_Return_Valid_Dto_List()
+    {
+        var animeList = new List<Anime>()
+        {
+            new Anime { Id = 1, Name = "title 1"},
+            new Anime { Id = 2, Name = "title 2"},
+            new Anime { Id = 3, Name = "title 3"}
+        };
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        _repositoryMock
+            .Setup(r => r.GetAllAsync())
+            .ReturnsAsync(animeList);
+        
+        var result = await service.GetAllAsync();
+        var resultList = result.ToList();
+        Assert.IsAssignableFrom<IEnumerable<AnimeDto>>(result);
+        Assert.Equal(animeList.Count, resultList.Count);
+
+        for (int i = 0; i < animeList.Count(); i++)
+        {
+            Assert.Equal(animeList[i].Id, resultList[i].Id);
+            Assert.Equal(animeList[i].Name, resultList[i].Name);
+        }
+        
+    }
+
+    [Fact]
+    public async Task Should_Return_False_When_Validation_Fails()
+    {
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        var validationFailure = new ValidationFailure("test", "test error message");
+        
+        _validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<AnimeDto>(), CancellationToken.None))
+            .ReturnsAsync(new ValidationResult(new List<ValidationFailure> { validationFailure }));
+        
+        var result = await service.CreateAsync(new AnimeDto());
+        Assert.False(result);
+        Assert.NotNull(service.ErrorMessages);
+        Assert.Single(service.ErrorMessages);
+        Assert.Equal(validationFailure.ErrorMessage, service.ErrorMessages[validationFailure.PropertyName]);
+    }
+
+    [Fact]
+    public async Task Should_Return_True_When_Validation_Success()
+    {
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+
+        _repositoryMock
+            .Setup(r => r.AddAsync(It.IsAny<Anime>()))
+            .ReturnsAsync(true);
+        
+        var validationResult = new ValidationResult();
+        _validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<AnimeDto>(), CancellationToken.None))
+            .ReturnsAsync(validationResult);
+        
+        var result = await service.CreateAsync(new AnimeDto());
+        Assert.True(result);
+        Assert.NotNull(service.ErrorMessages);
+        Assert.Empty(service.ErrorMessages);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(36)]
+    [InlineData(24)]
+    public async Task Should_Return_AnimeDto_With_Correct_Id(int animeId)
+    {
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        _repositoryMock
+            .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(new Anime {Id = animeId });
+        
+        var result = await service.GetByIdAsync(animeId);
+        Assert.NotNull(result);
+        Assert.Equal(animeId, result.Id);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    public async Task Should_Return_Null_For_Invalid_Id(int invalidAnimeId)
+    {
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        _repositoryMock
+            .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync((Anime?)null);
+        
+        var result = await service.GetByIdAsync(invalidAnimeId);
+        Assert.Null(result);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("test")]
+    [InlineData("TeSt")]
+    public async Task Should_Return_AnimeDto_With_Correct_Title(string title)
+    {
+        var animeList = new List<Anime>
+        {
+            new() { Id = 1, Name = title },
+            new() { Id = 2, Name = "test to check if it works" },
+            new() {Id = 3, Name = "some string"}
+        };
+
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        
+        _repositoryMock
+            .Setup(r => r.GetByConditionAsync(It.IsAny<IEnumerable<Expression<Func<Anime, bool>>>>()))
+            .ReturnsAsync((IEnumerable<Expression<Func<Anime, bool>>> filters) =>
+            {
+                var query = animeList.AsQueryable();
+                foreach (var filter in filters)
+                {
+                    query = query.Where(filter);
+                }
+
+                return query.ToList();
+            });
+        
+        var parameters = new AnimeSearchParameters { Name = title };
+        var result = await service.SearchAsync(parameters);
+
+        Assert.NotNull(result);
+        Assert.True(result.All(a => a?.Name?.Contains(title) ?? false));
+    }
+}
