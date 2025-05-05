@@ -5,7 +5,7 @@ namespace AnimeApi.Server.Business.Dto;
 public class GenreDto
 {
     [JsonProperty( PropertyName = "id")]
-    public int Id { get; init; }
+    public int? Id { get; init; }
     [JsonProperty( PropertyName = "name")]
     public string? Name { get; init; }
 }

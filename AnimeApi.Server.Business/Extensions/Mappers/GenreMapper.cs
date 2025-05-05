@@ -18,7 +18,7 @@ public static class GenreMapper
     {
         return new Genre
         {
-            Id = genreDto.Id,
+            Id = genreDto.Id ?? 0,
             Name = genreDto.Name
         };
     }

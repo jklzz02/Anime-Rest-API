@@ -18,7 +18,7 @@ public static class LicensorMapper
     {
         return new Licensor
         {
-            Id = licensorDto.Id,
+            Id = licensorDto.Id ?? 0,
             Name = licensorDto.Name
         };
     }

@@ -8,10 +8,6 @@ public class LicensorValidator : AbstractValidator<LicensorDto>, ILicensorValida
 {
     public LicensorValidator()
     {
-        RuleFor(x => x.Id)
-            .GreaterThan(0)
-            .WithMessage("The id must be greater than zero");
-
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("The name cannot be empty")

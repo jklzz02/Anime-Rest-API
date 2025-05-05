@@ -8,9 +8,6 @@ public class ProducerValidator : AbstractValidator<ProducerDto>, IProducerValida
 {
     public ProducerValidator()
     {
-        RuleFor(x => x.Id)
-            .GreaterThan(0)
-            .WithMessage("The id must be greater than zero");
 
         RuleFor(x => x.Name)
             .NotEmpty()

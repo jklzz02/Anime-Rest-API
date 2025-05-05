@@ -9,7 +9,7 @@ public static class AnimeMapper
     {
         return new Anime
         {
-            Id = dto.Id,
+            Id = dto.Id ?? 0,
             Name = dto.Name,
             English_Name = dto.EnglishName,
             Other_Name = dto.OtherName,
@@ -28,15 +28,15 @@ public static class AnimeMapper
             Status = dto.Status,
 
             Anime_Genres = dto.Genres?
-                .Select(g => new Anime_Genre { GenreId = g.Id })
+                .Select(g => new Anime_Genre { GenreId = g.Id ?? 0 })
                 .ToList() ?? new List<Anime_Genre>(),
 
             Anime_Producers = dto.Producers?
-                .Select(p => new Anime_Producer { ProducerId = p.Id })
+                .Select(p => new Anime_Producer { ProducerId = p.Id ?? 0 })
                 .ToList() ?? new List<Anime_Producer>(),
 
             Anime_Licensors = dto.Licensors?
-                .Select(l => new Anime_Licensor { LicensorId = l.Id })
+                .Select(l => new Anime_Licensor { LicensorId = l.Id ?? 0})
                 .ToList() ?? new List<Anime_Licensor>()
         };
     }

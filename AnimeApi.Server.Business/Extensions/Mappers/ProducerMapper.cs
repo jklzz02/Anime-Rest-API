@@ -18,7 +18,7 @@ public static class ProducerMapper
     {
         return new Producer
         {
-            Id = producerDto.Id,
+            Id = producerDto.Id ?? 0,
             Name = producerDto.Name
         };
     }
