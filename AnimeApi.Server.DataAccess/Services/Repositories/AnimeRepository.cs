@@ -11,6 +11,7 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class AnimeRepository : IAnimeRepository
 {
     private readonly AnimeDbContext _context;
+    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
 
     public AnimeRepository(AnimeDbContext context)
     {
@@ -43,7 +44,11 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var anime = await GetByIdAsync(entity.Id);
-        if (anime is not null) return false;
+        if (anime is not null)
+        {
+            ErrorMessages.Add("id", "There is already an anime with this id");
+            return false;
+        }
         
         _context.Anime.Add(entity);
         return await _context.SaveChangesAsync() > 0;
@@ -54,7 +59,11 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var anime = await GetByIdAsync(entity.Id);
-        if (anime is null) return false;
+        if (anime is null)
+        {
+            ErrorMessages.Add("id", "There is no anime with this id");
+            return false;
+        }
         
         UpdateAnime(anime, entity);
         return await _context.SaveChangesAsync() > 0;

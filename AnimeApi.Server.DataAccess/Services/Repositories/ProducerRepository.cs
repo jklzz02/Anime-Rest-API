@@ -8,7 +8,7 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class ProducerRepository : IProducerRepository
 {
     private readonly AnimeDbContext _context;
-
+    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     public ProducerRepository(AnimeDbContext context)
     {
         _context = context;
@@ -40,10 +40,15 @@ public class ProducerRepository : IProducerRepository
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var producer = await GetByIdAsync(entity.Id);
-        if(producer is not null) return false;
+        if (producer is not null)
+        {
+            ErrorMessages.Add("id", "There is already a producer with this id");
+            return false;
+        }
 
         if (_context.Producers.Any(p => p.Name == entity.Name))
         {
+            ErrorMessages.Add("name", "There is already a producer with this name");
             return false;
         }
         
@@ -56,10 +61,15 @@ public class ProducerRepository : IProducerRepository
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var producer = await GetByIdAsync(entity.Id);
-        if (producer is null) return false;
+        if (producer is null)
+        {
+            ErrorMessages.Add("id", "There is no producer with this id");
+            return false;
+        }
 
         if (_context.Producers.Any(p => p.Name == entity.Name && p.Id != entity.Id))
         {
+            ErrorMessages.Add("name", "There is already a producer with this name");
             return false;
         }
         

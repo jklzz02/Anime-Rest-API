@@ -8,12 +8,13 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class GenreRepository : IGenreRepository
 {
     private readonly AnimeDbContext _context;
-
+    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
+    
     public GenreRepository(AnimeDbContext context)
     {
         _context = context;
     }
-
+    
     public async Task<Genre?> GetByIdAsync(int id)
     {
         return await _context.Genres
@@ -44,9 +45,14 @@ public class GenreRepository : IGenreRepository
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var genre = await GetByIdAsync(entity.Id);
-        if (genre is not null) return false;
+        if (genre is not null)
+        {
+            ErrorMessages.Add("id", "There is already a genre with this id");
+            return false;
+        }
         if (_context.Genres.Any(g => g.Name == entity.Name))
         {
+            ErrorMessages.Add("name", "There is already a genre with this name");
             return false;
         }
         
@@ -59,10 +65,15 @@ public class GenreRepository : IGenreRepository
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var genre = await GetByIdAsync(entity.Id);
-        if (genre is null) return false;
+        if (genre is null)
+        {
+            ErrorMessages.Add("id", "There is no genre with this id");
+            return false;
+        }
 
         if (_context.Genres.Any(g => g.Name == entity.Name && g.Id != entity.Id))
         {
+            ErrorMessages.Add("name", "There is already a genre with this name");
             return false;
         }
         

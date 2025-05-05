@@ -111,7 +111,12 @@ public class AnimeHelper : IAnimeHelper
         }
         
         var model = entity.ToModel();
-        return await _repository.AddAsync(model);
+        if (!await _repository.AddAsync(model))
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return false;
+        }
+        return true;
     }
     
     public async Task<bool> UpdateAsync(AnimeDto entity)
@@ -126,7 +131,13 @@ public class AnimeHelper : IAnimeHelper
         }
         
         var model = entity.ToModel();
-        return await _repository.UpdateAsync(model);
+        if (!await _repository.UpdateAsync(model))
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return false;
+        }
+        
+        return true;
     }
     
     public async Task<bool> DeleteAsync(int id)

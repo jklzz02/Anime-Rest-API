@@ -51,7 +51,13 @@ public class GenreHelper : IGenreHelper
         }
 
         var model = entity.ToModel();
-        return await _repository.AddAsync(model);
+        if (!await _repository.AddAsync(model))
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return false;    
+        }
+        
+        return true;
     }
 
     public async Task<bool> UpdateAsync(GenreDto entity)
@@ -66,7 +72,13 @@ public class GenreHelper : IGenreHelper
         }
 
         var model = entity.ToModel();
-        return await _repository.UpdateAsync(model);
+        if (!await _repository.UpdateAsync(model))
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return false;
+        }
+        
+        return true;
     }
 
     public async Task<bool> DeleteAsync(int id)

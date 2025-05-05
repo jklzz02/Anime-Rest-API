@@ -8,7 +8,7 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class LicensorRepository : ILicensorRepository
 {
     private readonly AnimeDbContext _context;
-
+    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     public LicensorRepository(AnimeDbContext context)
     {
         _context = context;
@@ -40,9 +40,17 @@ public class LicensorRepository : ILicensorRepository
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
     
         var licensor = await GetByIdAsync(entity.Id);
-        if (licensor is not null) return false;
+        if (licensor is not null)
+        {
+            ErrorMessages.Add("id", "There is already a licensor with this id");
+            return false;
+        }
 
-        if (_context.Licensors.Any(l => l.Name == entity.Name)) return false;
+        if (_context.Licensors.Any(l => l.Name == entity.Name))
+        {
+            ErrorMessages.Add("name", "There is already a licensor with this name");
+            return false;
+        }
         
         _context.Licensors.Add(entity);
         return await _context.SaveChangesAsync() > 0;

@@ -7,6 +7,7 @@ namespace AnimeApi.Server.DataAccess.Services.Interfaces;
 /// <typeparam name="T">The type of the entity the repository manages.</typeparam>
 public interface IRepository<T> where T : class
 {
+    Dictionary<string, string> ErrorMessages { get; }
     Task<T?> GetByIdAsync(int id);
     Task<IEnumerable<T>> GetAllAsync();
     Task<bool> AddAsync(T entity);
