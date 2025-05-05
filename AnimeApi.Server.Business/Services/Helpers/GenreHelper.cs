@@ -11,7 +11,7 @@ public class GenreHelper : IGenreHelper
 {
     private readonly IGenreRepository _repository;
     private readonly IGenreValidator _validator;
-    public Dictionary<string, string> ErrorMessages { get; private set; }
+    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     public GenreHelper(IGenreRepository repository, IGenreValidator validator)
     {
         _repository = repository;

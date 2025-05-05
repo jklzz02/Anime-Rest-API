@@ -13,7 +13,7 @@ public class AnimeHelper : IAnimeHelper
 {
     private readonly IAnimeRepository _repository;
     private readonly IAnimeValidator _validator;
-    public Dictionary<string, string> ErrorMessages { get; private set; }
+    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     public AnimeHelper(IAnimeRepository repository, IAnimeValidator validator)
     {
         _repository = repository;

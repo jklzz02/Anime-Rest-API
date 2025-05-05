@@ -11,7 +11,7 @@ public class LicensorHelper : ILicensorHelper
 {
     private readonly ILicensorRepository _repository;
     private readonly ILicensorValidator _validator;
-    public Dictionary<string, string> ErrorMessages { get; private set; }
+    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     public LicensorHelper(ILicensorRepository repository, ILicensorValidator validator)
     {
         _repository = repository;

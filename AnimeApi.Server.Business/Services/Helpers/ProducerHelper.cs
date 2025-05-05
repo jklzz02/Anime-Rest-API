@@ -11,7 +11,7 @@ public class ProducerHelper : IProducerHelper
 {
     private readonly IProducerRepository _repository;
     private readonly IProducerValidator _validator;
-    public Dictionary<string, string> ErrorMessages { get; private set; }
+    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     public ProducerHelper(IProducerRepository repository, IProducerValidator validator)
     {
         _repository = repository;
