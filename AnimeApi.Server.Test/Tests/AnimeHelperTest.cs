@@ -153,6 +153,33 @@ public class AnimeHelperTest
         Assert.True(result.All(a => a?.Name?.Contains(title) ?? false));
     }
 
+
+    [Theory]
+    [InlineData(1, true)]
+    [InlineData(2, true)]
+    [InlineData(3, true)]
+    [InlineData(6, false)]
+    [InlineData(-1, false)]
+    [InlineData(0, false)]
+    public async Task Update_Should_Return_True_With_Correct_Id(int id, bool expected)
+    {
+        var anime = AnimeGenerator.GetMockAnimeList();
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        _repositoryMock
+            .Setup(r => r.UpdateAsync(It.IsAny<Anime>()))
+            .ReturnsAsync((Anime entity) =>
+            {
+                return anime.Any(a => a.Id == entity.Id);
+            });
+        
+        _validatorMock
+            .Setup(a => a.ValidateAsync(It.IsAny<AnimeDto>(), CancellationToken.None))
+            .ReturnsAsync(new ValidationResult());
+        
+        var result =  await service.UpdateAsync(new AnimeDto { Id = id });
+        Assert.Equal(expected, result);
+    }
+
     [Theory]
     [InlineData(1, true)]
     [InlineData(2, true)]
