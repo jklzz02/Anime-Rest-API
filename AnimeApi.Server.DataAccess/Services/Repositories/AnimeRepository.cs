@@ -50,6 +50,11 @@ public class AnimeRepository : IAnimeRepository
             return false;
         }
         
+        if (!await CheckForeignKeysAsync(entity.Anime_Genres, entity.Anime_Producers, entity.Anime_Licensors))
+        {
+            return false;
+        }
+        
         _context.Anime.Add(entity);
         return await _context.SaveChangesAsync() > 0;
     }
@@ -62,6 +67,11 @@ public class AnimeRepository : IAnimeRepository
         if (anime is null)
         {
             ErrorMessages.Add("id", "There is no anime with this id");
+            return false;
+        }
+
+        if (!await CheckForeignKeysAsync(entity.Anime_Genres, entity.Anime_Producers, entity.Anime_Licensors))
+        {
             return false;
         }
         
@@ -226,6 +236,55 @@ public class AnimeRepository : IAnimeRepository
             .ToListAsync();
 
         return result;
+    }
+
+    private async Task<bool>  CheckForeignKeysAsync(
+        ICollection<Anime_Genre> genres,
+        ICollection<Anime_Producer> producers,
+        ICollection<Anime_Licensor> licensors)
+    {
+        var genresIds = genres.Select(ag => ag.GenreId).ToList();
+        var producersIds = producers.Select(ap => ap.ProducerId).ToList();
+        var licensorsIds = licensors.Select(al => al.LicensorId).ToList();
+        
+        var genresExistingIds = await _context.Genres
+            .AsNoTracking()
+            .Select(g => g.Id)
+            .ToListAsync();
+        
+        var producersExistingIds = await _context.Producers
+            .AsNoTracking()
+            .Select(p => p.Id)
+            .ToListAsync();
+        
+        var licensorsExistingIds = await _context.Licensors
+            .AsNoTracking()
+            .Select(p => p.Id)
+            .ToListAsync();
+
+        if (!genresIds.All(g => genresExistingIds.Contains(g)))
+        {
+            ErrorMessages.Add("genres", "on or more genre entities ids do not exist.");
+        }
+        
+        
+        if (!licensorsIds.All(l => licensorsExistingIds.Contains(l)))
+        {
+            ErrorMessages.Add("licensors", "on or more licensor entities ids do not exist.");
+        }
+        
+        
+        if (!producersIds.All(g => producersExistingIds.Contains(g)))
+        {
+            ErrorMessages.Add("producers", "on or more producer entities ids do not exist.");
+        }
+
+        if (ErrorMessages.Any())
+        {
+            return false;
+        }
+        
+        return true;
     }
 
     private void UpdateAnime(Anime original, Anime updated)
