@@ -279,12 +279,7 @@ public class AnimeRepository : IAnimeRepository
             ErrorMessages.Add("producers", "on or more producer entities ids do not exist.");
         }
 
-        if (ErrorMessages.Any())
-        {
-            return false;
-        }
-        
-        return true;
+        return ErrorMessages.Count == 0;
     }
 
     private void UpdateAnime(Anime original, Anime updated)
