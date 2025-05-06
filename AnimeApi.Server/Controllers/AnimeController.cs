@@ -114,7 +114,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
-    public async Task<IActionResult> UpdatePartialFull([FromBody] AnimeDto anime)
+    public async Task<IActionResult> UpdateFullAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
         if (!result)
