@@ -40,7 +40,7 @@ public class GenreRepository : IGenreRepository
             .ToListAsync();
     }
 
-    public async Task<bool> AddAsync(Genre entity)
+    public async Task<Genre?> AddAsync(Genre entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -48,19 +48,20 @@ public class GenreRepository : IGenreRepository
         if (genre is not null)
         {
             ErrorMessages.Add("id", "There is already a genre with this id");
-            return false;
+            return null;
         }
         if (_context.Genres.Any(g => g.Name == entity.Name))
         {
             ErrorMessages.Add("name", "There is already a genre with this name");
-            return false;
+            return null;
         }
         
-        await _context.Genres.AddAsync(entity);
-        return await _context.SaveChangesAsync() > 0;
+        var createdEntry = await _context.Genres.AddAsync(entity);
+        var result =  await _context.SaveChangesAsync() > 0;
+        return result ? createdEntry.Entity : null;
     }
 
-    public async Task<bool> UpdateAsync(Genre entity)
+    public async Task<Genre?> UpdateAsync(Genre entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -68,17 +69,18 @@ public class GenreRepository : IGenreRepository
         if (genre is null)
         {
             ErrorMessages.Add("id", "There is no genre with this id");
-            return false;
+            return null;
         }
 
         if (_context.Genres.Any(g => g.Name == entity.Name && g.Id != entity.Id))
         {
             ErrorMessages.Add("name", "There is already a genre with this name");
-            return false;
+            return null;
         }
         
         genre.Name = entity.Name;
-        return await _context.SaveChangesAsync() > 0;
+        var result = await _context.SaveChangesAsync() > 0;
+        return result ? await GetByIdAsync(genre.Id) : null;
     }
 
     public async Task<bool> DeleteAsync(int id)

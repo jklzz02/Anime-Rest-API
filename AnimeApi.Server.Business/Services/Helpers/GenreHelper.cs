@@ -3,6 +3,7 @@ using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators.Interfaces;
+using AnimeApi.Server.DataAccess.Models;
 using AnimeApi.Server.DataAccess.Services.Interfaces;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
@@ -38,7 +39,7 @@ public class GenreHelper : IGenreHelper
         return models.ToDto();
     }
 
-    public async Task<bool> CreateAsync(GenreDto entity)
+    public async Task<GenreDto?> CreateAsync(GenreDto entity)
     {
       
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
@@ -47,20 +48,22 @@ public class GenreHelper : IGenreHelper
         if (!validationResult.IsValid)
         {
             ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<GenreDto>();
-            return false;
+            return null;
         }
 
         var model = entity.ToModel();
-        if (!await _repository.AddAsync(model))
+        var result =await _repository.AddAsync(model);
+        
+        if(result is null)
         {
             ErrorMessages = _repository.ErrorMessages;
-            return false;    
+            return null;    
         }
         
-        return true;
+        return result.ToDto();
     }
 
-    public async Task<bool> UpdateAsync(GenreDto entity)
+    public async Task<GenreDto?> UpdateAsync(GenreDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
@@ -68,17 +71,19 @@ public class GenreHelper : IGenreHelper
         if (!validationResult.IsValid)
         {
             ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<GenreDto>();
-            return false;
+            return null;
         }
 
         var model = entity.ToModel();
-        if (!await _repository.UpdateAsync(model))
+        var result = await _repository.UpdateAsync(model);
+        
+        if(result is null)
         {
             ErrorMessages = _repository.ErrorMessages;
-            return false;
+            return null;
         }
         
-        return true;
+        return result.ToDto();
     }
 
     public async Task<bool> DeleteAsync(int id)

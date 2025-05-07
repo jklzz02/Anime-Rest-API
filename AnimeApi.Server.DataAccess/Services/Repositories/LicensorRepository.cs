@@ -35,7 +35,7 @@ public class LicensorRepository : ILicensorRepository
         return await _context.Licensors.ToListAsync();
     }
 
-    public async Task<bool> AddAsync(Licensor entity)
+    public async Task<Licensor?> AddAsync(Licensor entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
     
@@ -43,32 +43,38 @@ public class LicensorRepository : ILicensorRepository
         if (licensor is not null)
         {
             ErrorMessages.Add("id", "There is already a licensor with this id");
-            return false;
+            return null;
         }
 
         if (_context.Licensors.Any(l => l.Name == entity.Name))
         {
             ErrorMessages.Add("name", "There is already a licensor with this name");
-            return false;
+            return null;
         }
         
-        _context.Licensors.Add(entity);
-        return await _context.SaveChangesAsync() > 0;
+        var createdEntry = _context.Licensors.Add(entity);
+        var result = await _context.SaveChangesAsync() > 0;
+        return result ? createdEntry.Entity : null;
     }
 
-    public async Task<bool> UpdateAsync(Licensor entity)
+    public async Task<Licensor?> UpdateAsync(Licensor entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var licensor = await GetByIdAsync(entity.Id);
-        if(licensor is null) return false;
+        if (licensor is null)
+        {
+            ErrorMessages.Add("id", "There is no licensor with this id");
+            return null;
+        }
         if (_context.Licensors.Any(l => l.Name == entity.Name && l.Id != entity.Id))
         {
-            return false;
+            return null;
         }
 
         licensor.Name = entity.Name;
-        return await _context.SaveChangesAsync() > 0;
+        var result = await _context.SaveChangesAsync() > 0;
+        return result ? await GetByIdAsync(licensor.Id) : null;
     }
 
     public async Task<bool> DeleteAsync(int id)

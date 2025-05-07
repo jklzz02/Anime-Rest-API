@@ -52,12 +52,12 @@ public class GenreController : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] GenreDto genre)
     {
         var result = await _helper.CreateAsync(genre);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
 
-        return Ok(genre);
+        return Ok(result);
     }
 
     [HttpPut]
@@ -70,11 +70,11 @@ public class GenreController : ControllerBase
             return BadRequest();
         }
         var result = await _helper.UpdateAsync(genre);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
-        return Ok(genre);
+        return Ok(result);
     }
     
     [HttpPatch]
@@ -88,11 +88,11 @@ public class GenreController : ControllerBase
         }
         
         var result = await _helper.UpdateAsync(genre);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
-        return Ok(genre);
+        return Ok(result);
     }
     
     [HttpDelete]

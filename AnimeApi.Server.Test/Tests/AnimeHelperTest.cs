@@ -57,7 +57,7 @@ public class AnimeHelperTest
     }
 
     [Fact]
-    public async Task Should_Return_False_When_Validation_Fails()
+    public async Task Should_Return_Null_When_Validation_Fails()
     {
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
         var validationFailure = new ValidationFailure("test", "test error message");
@@ -67,20 +67,20 @@ public class AnimeHelperTest
             .ReturnsAsync(new ValidationResult(new List<ValidationFailure> { validationFailure }));
         
         var result = await service.CreateAsync(new AnimeDto());
-        Assert.False(result);
+        Assert.Null(result);
         Assert.NotNull(service.ErrorMessages);
         Assert.Single(service.ErrorMessages);
         Assert.Equal(validationFailure.ErrorMessage, service.ErrorMessages[validationFailure.PropertyName]);
     }
 
     [Fact]
-    public async Task Should_Return_True_When_Validation_Succeeds()
+    public async Task Should_Return_Entity_When_Validation_Succeeds()
     {
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
 
         _repositoryMock
             .Setup(r => r.AddAsync(It.IsAny<Anime>()))
-            .ReturnsAsync(true);
+            .ReturnsAsync(new Anime());
         
         var validationResult = new ValidationResult();
         _validatorMock
@@ -88,7 +88,7 @@ public class AnimeHelperTest
             .ReturnsAsync(validationResult);
         
         var result = await service.CreateAsync(new AnimeDto());
-        Assert.True(result);
+        Assert.True(result is AnimeDto);
         Assert.NotNull(service.ErrorMessages);
         Assert.Empty(service.ErrorMessages);
     }
@@ -155,13 +155,12 @@ public class AnimeHelperTest
 
 
     [Theory]
-    [InlineData(1, true)]
-    [InlineData(2, true)]
-    [InlineData(3, true)]
-    [InlineData(6, false)]
-    [InlineData(-1, false)]
-    [InlineData(0, false)]
-    public async Task Update_Should_Return_True_With_Correct_Id(int id, bool expected)
+    [InlineData(1, 1)]
+    [InlineData(2, 2)]
+    [InlineData(3, 3)]
+    [InlineData(4, 4)]
+    [InlineData(5, 5)]
+    public async Task Update_Should_Return_Entity_With_Correct_Id(int id, int expectedId)
     {
         var anime = AnimeGenerator.GetMockAnimeList();
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
@@ -169,7 +168,11 @@ public class AnimeHelperTest
             .Setup(r => r.UpdateAsync(It.IsAny<Anime>()))
             .ReturnsAsync((Anime entity) =>
             {
-                return anime.Any(a => a.Id == entity.Id);
+                if (anime.Any(a => a.Id == entity.Id))
+                {
+                    return anime.FirstOrDefault(a => a.Id == entity.Id);
+                }
+                return null;
             });
         
         _validatorMock
@@ -177,7 +180,7 @@ public class AnimeHelperTest
             .ReturnsAsync(new ValidationResult());
         
         var result =  await service.UpdateAsync(new AnimeDto { Id = id });
-        Assert.Equal(expected, result);
+        Assert.Equal(expectedId, result.Id);
     }
 
     [Theory]

@@ -39,7 +39,7 @@ public class AnimeRepository : IAnimeRepository
             .ToListAsync();
     }
 
-    public async Task<bool> AddAsync(Anime entity)
+    public async Task<Anime?> AddAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -47,19 +47,20 @@ public class AnimeRepository : IAnimeRepository
         if (anime is not null)
         {
             ErrorMessages.Add("id", "There is already an anime with this id");
-            return false;
+            return null;
         }
         
         if (!await CheckForeignKeysAsync(entity.Anime_Genres, entity.Anime_Producers, entity.Anime_Licensors))
         {
-            return false;
+            return null;
         }
         
-        _context.Anime.Add(entity);
-        return await _context.SaveChangesAsync() > 0;
+        var createdEntry = _context.Anime.Add(entity);
+        var result = await _context.SaveChangesAsync() > 0;
+        return result ? createdEntry.Entity : null;
     }
 
-    public async Task<bool> UpdateAsync(Anime entity)
+    public async Task<Anime?> UpdateAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -67,16 +68,17 @@ public class AnimeRepository : IAnimeRepository
         if (anime is null)
         {
             ErrorMessages.Add("id", "There is no anime with this id");
-            return false;
+            return null;
         }
 
         if (!await CheckForeignKeysAsync(entity.Anime_Genres, entity.Anime_Producers, entity.Anime_Licensors))
         {
-            return false;
+            return null;
         }
         
         UpdateAnime(anime, entity);
-        return await _context.SaveChangesAsync() > 0;
+        var result = await _context.SaveChangesAsync() > 0;
+        return result ? await GetByIdAsync(anime.Id) : null;
     }
 
     public async Task<bool> DeleteAsync(int id)

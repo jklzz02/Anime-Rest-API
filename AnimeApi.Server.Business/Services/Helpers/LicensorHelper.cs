@@ -35,7 +35,7 @@ public class LicensorHelper : ILicensorHelper
         return models.ToDto();
     }
 
-    public async Task<bool> CreateAsync(LicensorDto entity)
+    public async Task<LicensorDto?> CreateAsync(LicensorDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -43,14 +43,22 @@ public class LicensorHelper : ILicensorHelper
         if (!validationResult.IsValid)
         {
             ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<LicensorDto>();
-            return false;
+            return null;
         }
         
         var model = entity.ToModel();
-        return await _repository.AddAsync(model);
+        var result = await _repository.AddAsync(model);
+
+        if (result is null)
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
+        return model.ToDto();
     }
 
-    public async Task<bool> UpdateAsync(LicensorDto entity)
+    public async Task<LicensorDto?> UpdateAsync(LicensorDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -58,11 +66,19 @@ public class LicensorHelper : ILicensorHelper
         if (!validationResult.IsValid)
         {
             ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<LicensorDto>();
-            return false;
+            return null;
         }
         
         var model = entity.ToModel();
-        return await _repository.UpdateAsync(model);
+        var result = await _repository.UpdateAsync(model);
+
+        if (result is null)
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
+        return model.ToDto();
     }
 
     public async Task<bool> DeleteAsync(int id)

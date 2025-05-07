@@ -21,8 +21,8 @@ public interface IAnimeHelper
     Task<IEnumerable<AnimeDto>> GetByEpisodesAsync(int episodes);
     Task<IEnumerable<AnimeDto>> GetByTypeAsync(string type);
     Task<AnimeDto?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition);
-    Task<bool> CreateAsync(AnimeDto entity);
-    Task<bool> UpdateAsync(AnimeDto entity);
+    Task<AnimeDto?> CreateAsync(AnimeDto entity);
+    Task<AnimeDto?> UpdateAsync(AnimeDto entity);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<AnimeDto>>? SearchAsync(AnimeSearchParameters parameters);
 }

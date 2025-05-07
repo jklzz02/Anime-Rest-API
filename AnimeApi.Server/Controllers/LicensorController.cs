@@ -51,12 +51,12 @@ public class LicensorController : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] LicensorDto licensor)
     {
         var result = await _helper.CreateAsync(licensor);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
-        
-        return Ok(licensor);
+
+        return Ok(result);
     }
 
     [HttpPut]
@@ -71,12 +71,12 @@ public class LicensorController : ControllerBase
         }
         
         var result = await _helper.UpdateAsync(licensor);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        return Ok(licensor);
+        return Ok(result);
     }
     [HttpPatch]
     [ProducesResponseType(200)]
@@ -90,12 +90,12 @@ public class LicensorController : ControllerBase
         }
         
         var result = await _helper.UpdateAsync(licensor);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        return Ok(licensor);
+        return Ok(result);
     }
 
     [HttpDelete]

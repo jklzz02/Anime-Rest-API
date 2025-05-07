@@ -87,12 +87,12 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.CreateAsync(anime);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         };
-        
-        return Ok(anime);
+
+        return Ok(result);
     }
     
     [HttpPatch]
@@ -102,12 +102,12 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> UpdatePartialAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
-        
-        return Ok(anime);
+
+        return Ok(result);
     }
     
     [HttpPut]
@@ -117,12 +117,12 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> UpdateFullAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
-        
-        return Ok(anime);
+
+        return Ok(result);
     }
     
     [HttpDelete]

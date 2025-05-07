@@ -53,12 +53,12 @@ public class ProducerController : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] ProducerDto producer)
     {
         var result = await _helper.CreateAsync(producer);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        return Ok(producer);
+        return Ok(result);
     }
 
     [HttpPut]
@@ -72,12 +72,12 @@ public class ProducerController : ControllerBase
             return BadRequest();
         }
         var result = await _helper.UpdateAsync(producer);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        return Ok(producer);
+        return Ok(result);
     }
     
     [HttpPatch]
@@ -91,12 +91,12 @@ public class ProducerController : ControllerBase
             return BadRequest();
         }
         var result = await _helper.UpdateAsync(producer);
-        if (!result)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        return Ok(producer);
+        return Ok(result);
     }
 
     [HttpDelete]

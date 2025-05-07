@@ -99,7 +99,7 @@ public class AnimeHelper : IAnimeHelper
         return model?.ToDto();
     }
 
-    public async Task<bool> CreateAsync(AnimeDto entity)
+    public async Task<AnimeDto?> CreateAsync(AnimeDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -107,19 +107,20 @@ public class AnimeHelper : IAnimeHelper
         if (!validationResult.IsValid)
         {
             ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<AnimeDto>();
-            return false;
+            return null;
         }
         
         var model = entity.ToModel();
-        if (!await _repository.AddAsync(model))
+        var result = await _repository.AddAsync(model);
+        if(result is null)
         {
             ErrorMessages = _repository.ErrorMessages;
-            return false;
+            return null;
         }
-        return true;
+        return result.ToDto();
     }
     
-    public async Task<bool> UpdateAsync(AnimeDto entity)
+    public async Task<AnimeDto?> UpdateAsync(AnimeDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -127,17 +128,18 @@ public class AnimeHelper : IAnimeHelper
         if (!validationResult.IsValid)
         {
             ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<AnimeDto>();
-            return false;
+            return null;
         }
         
         var model = entity.ToModel();
-        if (!await _repository.UpdateAsync(model))
+        var result = await _repository.UpdateAsync(model);
+        if(result is null)
         {
             ErrorMessages = _repository.ErrorMessages;
-            return false;
+            return null;
         }
         
-        return true;
+        return model.ToDto();
     }
     
     public async Task<bool> DeleteAsync(int id)

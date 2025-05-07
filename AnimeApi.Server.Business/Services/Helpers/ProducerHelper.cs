@@ -35,7 +35,7 @@ public class ProducerHelper : IProducerHelper
         return models.ToDto();
     }
 
-    public async Task<bool> CreateAsync(ProducerDto entity)
+    public async Task<ProducerDto?> CreateAsync(ProducerDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -43,14 +43,22 @@ public class ProducerHelper : IProducerHelper
         if (!validationResult.IsValid)
         {
             ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<ProducerDto>();
-            return false;
+            return null;
         };
         
         var model = entity.ToModel();
-        return await _repository.AddAsync(model);
+        var result = await _repository.AddAsync(model);
+
+        if (result is null)
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
+        return model.ToDto();
     }
 
-    public async Task<bool> UpdateAsync(ProducerDto entity)
+    public async Task<ProducerDto?> UpdateAsync(ProducerDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -58,11 +66,19 @@ public class ProducerHelper : IProducerHelper
         if (!validationResult.IsValid)
         {
             ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<ProducerDto>();
-            return false;
+            return null;
         }
         
         var model = entity.ToModel();
-        return await _repository.UpdateAsync(model);
+        var result = await _repository.UpdateAsync(model);
+
+        if (result is null)
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
+        return model.ToDto();
     }
 
     public async Task<bool> DeleteAsync(int id)
