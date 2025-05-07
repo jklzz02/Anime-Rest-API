@@ -158,9 +158,10 @@ public class AnimeHelperTest
     [InlineData(1, 1)]
     [InlineData(2, 2)]
     [InlineData(3, 3)]
-    [InlineData(4, 4)]
-    [InlineData(5, 5)]
-    public async Task Update_Should_Return_Entity_With_Correct_Id(int id, int expectedId)
+    [InlineData(6, null)]
+    [InlineData(-1, null)]
+    [InlineData(-0, null)]
+    public async Task Update_Should_Return_Entity_With_Correct_Id(int id, int? expectedId)
     {
         var anime = AnimeGenerator.GetMockAnimeList();
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
@@ -180,7 +181,7 @@ public class AnimeHelperTest
             .ReturnsAsync(new ValidationResult());
         
         var result =  await service.UpdateAsync(new AnimeDto { Id = id });
-        Assert.Equal(expectedId, result.Id);
+        Assert.Equal(expectedId, result?.Id);
     }
 
     [Theory]
