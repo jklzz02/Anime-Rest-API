@@ -1,5 +1,6 @@
 using AnimeApi.Server.Business.Dto;
 using AnimeApi.Server.DataAccess.Models;
+using LinqKit;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
@@ -64,21 +65,18 @@ public static class AnimeMapper
             Status = anime.Status,
             
             Genres = anime.Anime_Genres
-                .Where(ag => ag?.Genre != null)
-                .Select(ag => ag.Genre)
-                .Select(g => g.ToDto())
+                .Where(ag => ag?.GenreId != null)
+                .Select(ag => new GenreDto() { Id = ag.GenreId, Name = ag?.Genre?.Name ?? ""})
                 .ToList(),
             
             Producers = anime.Anime_Producers
-                .Where(ap => ap?.Producer != null)
-                .Select(ap => ap.Producer)
-                .Select(p => p.ToDto())
+                .Where(ap => ap?.ProducerId != null)
+                .Select(ap => new ProducerDto(){Id = ap.ProducerId, Name = ap?.Producer?.Name ?? ""})
                 .ToList(),
             
             Licensors = anime.Anime_Licensors
-                .Where(al => al?.Licensor != null)
-                .Select(al => al.Licensor)
-                .Select(l => l.ToDto())
+                .Where(al => al?.LicensorId != null)
+                .Select(al => new LicensorDto(){ Id = al.LicensorId, Name = al?.Licensor?.Name ?? ""})
                 .ToList()
         };
     }
