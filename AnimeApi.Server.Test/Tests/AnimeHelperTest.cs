@@ -153,6 +153,51 @@ public class AnimeHelperTest
         Assert.True(result.All(a => a?.Name?.Contains(title) ?? false));
     }
 
+    [Theory]
+    [MemberData(nameof(AnimeGenerator.GetAnimeDtoTestData), MemberType = typeof(AnimeGenerator))]
+    public async Task Create_Should_Return_Correct_Entity(AnimeDto animeDto)
+    {
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        _repositoryMock
+            .Setup(r => r.AddAsync(It.IsAny<Anime>()))
+            .ReturnsAsync((Anime entity) => entity);
+        
+        _validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<AnimeDto>(), CancellationToken.None))
+            .ReturnsAsync(new ValidationResult());
+
+        var result = await service.CreateAsync(animeDto);
+        Assert.NotNull(result);
+        Assert.Empty(service.ErrorMessages);
+        Assert.Equal(animeDto.Id, result.Id);
+        Assert.Equal(animeDto.Name, result.Name);
+    }
+
+    [Theory]
+    [MemberData(nameof(AnimeGenerator.GetAnimeDtoToAnimeTestData), MemberType = typeof(AnimeGenerator))]
+    public async Task Create_Should_Add_Correct_Entity(AnimeDto animeDto, Anime expectedModel)
+    {
+        List<Anime> anime = [];
+        
+        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
+        _repositoryMock
+            .Setup(r => r.AddAsync(It.IsAny<Anime>()))
+            .ReturnsAsync((Anime entity) =>
+            {
+                anime.Add(entity);
+                return entity;
+            });
+        
+        _validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<AnimeDto>(), CancellationToken.None))
+            .ReturnsAsync(new ValidationResult());
+        
+        var result = await service.CreateAsync(animeDto);
+        Assert.NotNull(result);
+        Assert.Empty(service.ErrorMessages);
+        Assert.Equal(expectedModel.Id, anime[0].Id);
+        Assert.Equal(expectedModel.Name, anime[0].Name);
+    }
 
     [Theory]
     [InlineData(1, 1)]
