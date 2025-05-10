@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Business.Dto;
 
-public class GenreDto
+public record GenreDto
 {
     [JsonProperty( PropertyName = "id")]
     public int? Id { get; init; }

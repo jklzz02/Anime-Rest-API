@@ -225,6 +225,7 @@ public static class AnimeGenerator
             {
                 Id = 4,
                 Name = "Made in Abyss",
+                EnglishName = "Made in Abyss",
                 OtherName = "N/A",
                 Synopsis = "Girl explores a deadly abyss.",
                 ImageUrl = "url4",

@@ -29,15 +29,15 @@ public static class AnimeMapper
             Status = dto.Status,
 
             Anime_Genres = dto.Genres?
-                .Select(g => new Anime_Genre { GenreId = g.Id ?? 0 })
+                .Select(g => new Anime_Genre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0, Genre = g.ToModel()})
                 .ToList() ?? new List<Anime_Genre>(),
 
             Anime_Producers = dto.Producers?
-                .Select(p => new Anime_Producer { ProducerId = p.Id ?? 0 })
+                .Select(p => new Anime_Producer { ProducerId = p.Id ?? 0, AnimeId = dto.Id ?? 0, Producer = p.ToModel()})
                 .ToList() ?? new List<Anime_Producer>(),
 
             Anime_Licensors = dto.Licensors?
-                .Select(l => new Anime_Licensor { LicensorId = l.Id ?? 0})
+                .Select(l => new Anime_Licensor { LicensorId = l.Id ?? 0, AnimeId = dto.Id ?? 0, Licensor = l.ToModel()})
                 .ToList() ?? new List<Anime_Licensor>()
         };
     }
@@ -65,17 +65,14 @@ public static class AnimeMapper
             Status = anime.Status,
             
             Genres = anime.Anime_Genres
-                .Where(ag => ag?.GenreId != null)
                 .Select(ag => new GenreDto() { Id = ag.GenreId, Name = ag?.Genre?.Name})
                 .ToList(),
             
             Producers = anime.Anime_Producers
-                .Where(ap => ap?.ProducerId != null)
                 .Select(ap => new ProducerDto(){Id = ap.ProducerId, Name = ap?.Producer?.Name})
                 .ToList(),
             
             Licensors = anime.Anime_Licensors
-                .Where(al => al?.LicensorId != null)
                 .Select(al => new LicensorDto(){ Id = al.LicensorId, Name = al?.Licensor?.Name})
                 .ToList()
         };
