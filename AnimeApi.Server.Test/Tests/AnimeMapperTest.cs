@@ -9,7 +9,7 @@ public class AnimeMapperTest
 {
     [Theory]
     [MemberData(nameof(AnimeGenerator.GetAnimeDtoToAnimeTestData), MemberType = typeof(AnimeGenerator))]
-    public void To_Dto_Should_Map_Properties_Correctly(AnimeDto dto, Anime model)
+    public void ToDto_Should_Map_Properties_Correctly(AnimeDto dto, Anime model)
     {
         var result = model.ToDto();
         
@@ -34,7 +34,7 @@ public class AnimeMapperTest
     
     [Theory]
     [MemberData(nameof(AnimeGenerator.GetAnimeDtoTestData), MemberType = typeof(AnimeGenerator))]
-    public void To_Dto_Round_Trip_Should_Preserve_Data(AnimeDto dto)
+    public void ToDto_Round_Trip_Should_Preserve_Data(AnimeDto dto)
     {
         var model = dto.ToModel();
         var roundTrippedDto = model.ToDto();
@@ -60,7 +60,7 @@ public class AnimeMapperTest
 
     [Theory]
     [MemberData(nameof(AnimeGenerator.GetAnimeDtoToAnimeTestData), MemberType = typeof(AnimeGenerator))]
-    public void To_Model_Should_Map_Properties_Correctly(AnimeDto dto, Anime model)
+    public void ToModel_Should_Map_Properties_Correctly(AnimeDto dto, Anime model)
     {
         var result = dto.ToModel();
         
