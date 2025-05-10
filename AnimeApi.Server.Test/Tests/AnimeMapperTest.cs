@@ -31,6 +31,32 @@ public class AnimeMapperTest
         Assert.Equal(dto.Licensors, result.Licensors);
         Assert.Equal(dto.Producers, result.Producers);
     }
+    
+    [Theory]
+    [MemberData(nameof(AnimeGenerator.GetAnimeDtoTestData), MemberType = typeof(AnimeGenerator))]
+    public void To_Dto_Round_Trip_Should_Preserve_Data(AnimeDto dto)
+    {
+        var model = dto.ToModel();
+        var roundTrippedDto = model.ToDto();
+    
+        Assert.Equal(dto.Id, roundTrippedDto.Id);
+        Assert.Equal(dto.Name, roundTrippedDto.Name);
+        Assert.Equal(dto.EnglishName, roundTrippedDto.EnglishName);
+        Assert.Equal(dto.OtherName, roundTrippedDto.OtherName);
+        Assert.Equal(dto.Type, roundTrippedDto.Type);
+        Assert.Equal(dto.Duration, roundTrippedDto.Duration);
+        Assert.Equal(dto.ImageUrl, roundTrippedDto.ImageUrl);
+        Assert.Equal(dto.Score, roundTrippedDto.Score);
+        Assert.Equal(dto.StartedAiring, roundTrippedDto.StartedAiring);
+        Assert.Equal(dto.FinishedAiring, roundTrippedDto.FinishedAiring);
+        Assert.Equal(dto.ReleaseYear, roundTrippedDto.ReleaseYear);
+        Assert.Equal(dto.Synopsis, roundTrippedDto.Synopsis);
+        Assert.Equal(dto.Studio, roundTrippedDto.Studio);
+        Assert.Equal(dto.Status, roundTrippedDto.Status);
+        Assert.Equal(dto.Genres, roundTrippedDto.Genres);
+        Assert.Equal(dto.Licensors, roundTrippedDto.Licensors);
+        Assert.Equal(dto.Producers, roundTrippedDto.Producers);
+    }
 
     [Theory]
     [MemberData(nameof(AnimeGenerator.GetAnimeDtoToAnimeTestData), MemberType = typeof(AnimeGenerator))]
@@ -58,4 +84,37 @@ public class AnimeMapperTest
         Assert.Equal(model.Anime_Producers.Count, result.Anime_Producers.Count);
     }
     
+    [Fact]
+    public void ToDto_Should_Return_Null_When_Model_Is_Null()
+    {
+        Anime model = null;
+        var result = model?.ToDto();
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void ToModel_Should_Return_Null_When_Dto_Is_Null()
+    {
+        AnimeDto dto = null;
+        var result = dto?.ToModel();
+        Assert.Null(result);
+    }
+    
+    [Fact]
+    public void ToDto_Should_Map_Empty_Collections_Correctly()
+    {
+        var model = new Anime
+        {
+            Anime_Genres = new List<Anime_Genre>(),
+            Anime_Licensors = new List<Anime_Licensor>(),
+            Anime_Producers = new List<Anime_Producer>()
+        };
+
+        var dto = model.ToDto();
+    
+        Assert.Empty(dto.Genres);
+        Assert.Empty(dto.Licensors);
+        Assert.Empty(dto.Producers);
+    }
+
 }
