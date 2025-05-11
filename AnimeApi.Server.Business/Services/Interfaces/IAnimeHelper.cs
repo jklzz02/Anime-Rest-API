@@ -10,19 +10,20 @@ public interface IAnimeHelper
     Dictionary<string, string> ErrorMessages { get; }
     Task<AnimeDto?> GetByIdAsync(int id);
     Task<IEnumerable<AnimeDto>> GetAllAsync();
-    Task<IEnumerable<AnimeDto>> GetByNameAsync(string name);
-    Task<IEnumerable<AnimeDto>> GetByProducerAsync(int producerId);
-    Task<IEnumerable<AnimeDto>> GetByLicensorAsync(int licensorId);
-    Task<IEnumerable<AnimeDto>> GetByGenreAsync(int genreId);
-    Task<IEnumerable<AnimeDto>> GetBySourceAsync(string source);
-    Task<IEnumerable<AnimeDto>> GetByEnglishNameAsync(string englishName);
-    Task<IEnumerable<AnimeDto>> GetByScoreAsync(int score);
-    Task<IEnumerable<AnimeDto>> GetByReleaseYearAsync(int year);
-    Task<IEnumerable<AnimeDto>> GetByEpisodesAsync(int episodes);
-    Task<IEnumerable<AnimeDto>> GetByTypeAsync(string type);
+    Task<IEnumerable<AnimeDto>?> GetAllAsync(int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetByNameAsync(string name, int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetByProducerAsync(int producerId, int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetByLicensorAsync(int licensorId, int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetByGenreAsync(int genreId, int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetBySourceAsync(string source, int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetByEnglishNameAsync(string englishName, int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetByScoreAsync(int score, int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetByReleaseYearAsync(int year, int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetByEpisodesAsync(int episodes, int page, int size = 100);
+    Task<IEnumerable<AnimeDto>?> GetByTypeAsync(string type, int page, int size = 100);
     Task<AnimeDto?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition);
     Task<AnimeDto?> CreateAsync(AnimeDto entity);
     Task<AnimeDto?> UpdateAsync(AnimeDto entity);
     Task<bool> DeleteAsync(int id);
-    Task<IEnumerable<AnimeDto>>? SearchAsync(AnimeSearchParameters parameters);
+    Task<IEnumerable<AnimeDto>?> SearchAsync(AnimeSearchParameters parameters, int page, int size = 100);
 }

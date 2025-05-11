@@ -134,8 +134,8 @@ public class AnimeHelperTest
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
         
         _repositoryMock
-            .Setup(r => r.GetByConditionAsync(It.IsAny<IEnumerable<Expression<Func<Anime, bool>>>>()))
-            .ReturnsAsync((IEnumerable<Expression<Func<Anime, bool>>> filters) =>
+            .Setup(r => r.GetByConditionAsync(It.IsAny<int>(), It.IsAny<int>(),It.IsAny<IEnumerable<Expression<Func<Anime, bool>>>>()))
+            .ReturnsAsync((int page, int size, IEnumerable<Expression<Func<Anime, bool>>> filters) =>
             {
                 var query = animeList.AsQueryable();
                 foreach (var filter in filters)
@@ -143,11 +143,14 @@ public class AnimeHelperTest
                     query = query.Where(filter);
                 }
 
-                return query.ToList();
+                return query
+                    .Skip((page - 1) * size)
+                    .Take(size)
+                    .ToList();
             });
         
         var parameters = new AnimeSearchParameters { Name = title };
-        var result = await service.SearchAsync(parameters);
+        var result = await service.SearchAsync(parameters, 1);
 
         Assert.NotNull(result);
         Assert.True(result.All(a => a?.Name?.Contains(title) ?? false));

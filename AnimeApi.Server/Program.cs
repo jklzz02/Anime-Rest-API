@@ -19,6 +19,7 @@ public class Program
            .AddNewtonsoftJson();
        
        builder.Services
+           .AddMemoryCache()
            .AddDataAccess(connectionString!)
            .AddBusiness();
 
@@ -35,7 +36,7 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
 
         app.UseAuthorization();
         

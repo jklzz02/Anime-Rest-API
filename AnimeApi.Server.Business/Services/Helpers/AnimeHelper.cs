@@ -31,64 +31,147 @@ public class AnimeHelper : IAnimeHelper
         var models = await _repository.GetAllAsync();
         return models.ToDto();
     }
-    
-    public async Task<IEnumerable<AnimeDto>> GetByNameAsync(string name)
+
+    public async Task<IEnumerable<AnimeDto>?> GetAllAsync(int page, int pageSize)
     {
-        var models = await _repository.GetByNameAsync(name);
+        var models = await _repository.GetAllAsync(page, pageSize);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
     
-    public async Task<IEnumerable<AnimeDto>> GetByProducerAsync(int producerId)
+    public async Task<IEnumerable<AnimeDto>?> GetByNameAsync(string name, int page, int size = 100)
     {
-        var models = await _repository.GetByProducerAsync(producerId);
+        var models = await _repository.GetByNameAsync(name, page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
     
-    public async Task<IEnumerable<AnimeDto>> GetByLicensorAsync(int licensorId)
+    public async Task<IEnumerable<AnimeDto>?> GetByProducerAsync(int producerId, int page, int size = 100)
     {
-        var models = await _repository.GetByLicensorAsync(licensorId);
+        var models = await _repository.GetByProducerAsync(producerId, page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
     
-    public async Task<IEnumerable<AnimeDto>> GetByGenreAsync(int genreId)
+    public async Task<IEnumerable<AnimeDto>?> GetByLicensorAsync(int licensorId, int page, int size = 100)
     {
-        var models = await _repository.GetByGenreAsync(genreId);
+        var models = await _repository.GetByLicensorAsync(licensorId, page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
     
-    public async Task<IEnumerable<AnimeDto>> GetBySourceAsync(string source)
+    public async Task<IEnumerable<AnimeDto>?> GetByGenreAsync(int genreId, int page, int size = 100)
     {
-        var models = await _repository.GetBySourceAsync(source);
+        var models = await _repository.GetByGenreAsync(genreId, page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
+        return models.ToDto();
+    }
+    
+    public async Task<IEnumerable<AnimeDto>?> GetBySourceAsync(string source, int page, int size = 100)
+    {
+        var models = await _repository.GetBySourceAsync(source, page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
 
-    public async Task<IEnumerable<AnimeDto>> GetByEnglishNameAsync(string englishName)
+    public async Task<IEnumerable<AnimeDto>?> GetByEnglishNameAsync(string englishName, int page, int size = 100)
     {
-        var models = await _repository.GetByEnglishNameAsync(englishName);
+        var models = await _repository.GetByEnglishNameAsync(englishName, page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
     
-    public async Task<IEnumerable<AnimeDto>> GetByScoreAsync(int score)
+    public async Task<IEnumerable<AnimeDto>?> GetByScoreAsync(int score, int page, int size = 100)
     {
-        var models = await _repository.GetByScoreAsync(score);
+        var models = await _repository.GetByScoreAsync(score, page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
     
-    public async Task<IEnumerable<AnimeDto>> GetByReleaseYearAsync(int year)
+    public async Task<IEnumerable<AnimeDto>?> GetByReleaseYearAsync(int year, int page, int size = 100)
     {
-        var models = await _repository.GetByReleaseYearAsync(year);
+        var models = await _repository.GetByReleaseYearAsync(year, page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
     
-    public async Task<IEnumerable<AnimeDto>> GetByTypeAsync(string type)
+    public async Task<IEnumerable<AnimeDto>?> GetByTypeAsync(string type, int page, int size = 100)
     {
-        var models = await _repository.GetByTypeAsync(type);
+        var models = await _repository.GetByTypeAsync(type, page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
 
-    public async Task<IEnumerable<AnimeDto>> GetByEpisodesAsync(int episodes)
+    public async Task<IEnumerable<AnimeDto>?> GetByEpisodesAsync(int episodes, int page, int size = 100)
     {
-        var models = await _repository.GetByEpisodesAsync(episodes);
+        var models = await _repository.GetByEpisodesAsync(episodes, page, size);
+
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
     
@@ -147,7 +230,7 @@ public class AnimeHelper : IAnimeHelper
         return await _repository.DeleteAsync(id);
     }
 
-    public async Task<IEnumerable<AnimeDto>> SearchAsync(AnimeSearchParameters parameters)
+    public async Task<IEnumerable<AnimeDto>?> SearchAsync(AnimeSearchParameters parameters, int page, int size = 100)
     {
         var filters = new List<Expression<Func<Anime, bool>>>();
 
@@ -196,7 +279,14 @@ public class AnimeHelper : IAnimeHelper
         if (parameters.MaxReleaseYear.HasValue)
             filters.Add(a => a.Release_Year <= parameters.MaxReleaseYear && a.Release_Year != 0);
 
-        var models = await _repository.GetByConditionAsync(filters);
+        var models = await _repository.GetByConditionAsync(page, size, filters);
+
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
         return models.ToDto();
     }
 }

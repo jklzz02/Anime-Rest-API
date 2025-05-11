@@ -12,7 +12,7 @@ public class AnimeRepository : IAnimeRepository
 {
     private readonly AnimeDbContext _context;
     public Dictionary<string, string> ErrorMessages { get; } = new();
-
+    
     public AnimeRepository(AnimeDbContext context)
     {
         _context = context;
@@ -35,8 +35,17 @@ public class AnimeRepository : IAnimeRepository
     {
         return await _context.Anime
             .OrderBy(a => a.Id)
-            .Take(100)
             .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Anime>> GetAllAsync(int page, int size = 100)
+    {
+        if (!ValidatePageAndSize(page, size)) return [];
+        
+        var entities = await GetAllAsync();
+        return entities
+            .Skip((page - 1) * size)
+            .Take(size);
     }
 
     public async Task<Anime?> AddAsync(Anime entity)
@@ -49,8 +58,13 @@ public class AnimeRepository : IAnimeRepository
             ErrorMessages.Add("id", "There is already an anime with this id");
             return null;
         }
+
+        var areForeignKeysValid = await ValidateForeignKeysAsync(
+            entity.Anime_Genres,
+            entity.Anime_Producers,
+            entity.Anime_Licensors);
         
-        if (!await CheckForeignKeysAsync(entity.Anime_Genres, entity.Anime_Producers, entity.Anime_Licensors))
+        if(!areForeignKeysValid)
         {
             return null;
         }
@@ -71,7 +85,12 @@ public class AnimeRepository : IAnimeRepository
             return null;
         }
 
-        if (!await CheckForeignKeysAsync(entity.Anime_Genres, entity.Anime_Producers, entity.Anime_Licensors))
+        var areForeignKeysValid = await ValidateForeignKeysAsync(
+            entity.Anime_Genres,
+            entity.Anime_Producers,
+            entity.Anime_Licensors);
+        
+        if(!areForeignKeysValid)
         {
             return null;
         }
@@ -90,66 +109,91 @@ public class AnimeRepository : IAnimeRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<IEnumerable<Anime>> GetByNameAsync(string name)
+    public async Task<IEnumerable<Anime>> GetByNameAsync(string name, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(name, nameof(name));
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
         
-        return await GetByConditionAsync([a => EF.Functions.Like(a.Name, $"%{name}%")]);
+        return await GetByConditionAsync(
+            page,
+            size,
+            [a => EF.Functions.Like(a.Name, $"%{name}%")]);
     }
 
-    public async Task<IEnumerable<Anime>> GetByEnglishNameAsync(string englishName)
+    public async Task<IEnumerable<Anime>> GetByEnglishNameAsync(string englishName, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(englishName, nameof(englishName));
         ArgumentException.ThrowIfNullOrEmpty(englishName, nameof(englishName));
         
-        return await GetByConditionAsync([a => EF.Functions.Like(a.English_Name, $"%{englishName}%")]);
+        return await GetByConditionAsync(
+            page,
+            size,
+            [a => EF.Functions.Like(a.English_Name, $"%{englishName}%")]);
     }
 
-    public async Task<IEnumerable<Anime>> GetBySourceAsync(string source)
+    public async Task<IEnumerable<Anime>> GetBySourceAsync(string source, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         ArgumentException.ThrowIfNullOrEmpty(source, nameof(source));
         
-        return await GetByConditionAsync([a => EF.Functions.Like(a.Source, $"%{source}")]);
+        return await GetByConditionAsync(
+            page,
+            size,
+            [a => EF.Functions.Like(a.Source, $"%{source}")]);
     }
 
-    public async Task<IEnumerable<Anime>> GetByTypeAsync(string type)
+    public async Task<IEnumerable<Anime>> GetByTypeAsync(string type, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         ArgumentException.ThrowIfNullOrEmpty(type, nameof(type));
         
-        return await GetByConditionAsync([a => EF.Functions.Like(a.Type, $"%{type}")]);
+        return await GetByConditionAsync(
+            page,
+            size,
+            [a => EF.Functions.Like(a.Type, $"%{type}")]);
     }
 
-    public async Task<IEnumerable<Anime>> GetByScoreAsync(int score)
+    public async Task<IEnumerable<Anime>> GetByScoreAsync(int score, int page, int size = 100)
     {
-        return await GetByConditionAsync( [a => a.Score == score]);
+        return await GetByConditionAsync( page, size, [a => a.Score == score]);
     }
 
-    public async Task<IEnumerable<Anime>> GetByLicensorAsync(int licensorId)
+    public async Task<IEnumerable<Anime>> GetByLicensorAsync(int licensorId, int page, int size = 100)
     {
-        return await GetByConditionAsync([a => a.Anime_Licensors.Any(al => al.LicensorId == licensorId)]);
+        return await GetByConditionAsync(
+            page,
+            size,
+            [a => a.Anime_Licensors.Any(al => al.LicensorId == licensorId)]);
     }
 
-    public async Task<IEnumerable<Anime>> GetByProducerAsync(int producerId)
+    public async Task<IEnumerable<Anime>> GetByProducerAsync(int producerId, int page, int size = 100)
     {
-        return await GetByConditionAsync([a => a.Anime_Producers.Any(ap => ap.ProducerId == producerId)]);
+        return await GetByConditionAsync(
+            page,
+            size,
+            [a => a.Anime_Producers.Any(ap => ap.ProducerId == producerId)]);
     }
 
-    public async Task<IEnumerable<Anime>> GetByGenreAsync(int genreId)
+    public async Task<IEnumerable<Anime>> GetByGenreAsync(int genreId, int page, int size = 100)
     {
-        return await GetByConditionAsync([a => a.Anime_Genres.Any(ag => ag.GenreId == genreId)]);
+        if (!ValidatePageAndSize(page, size)) return [];
+        
+        return await GetByConditionAsync(
+            page,
+            size,
+            [a => a.Anime_Genres.Any(ag => ag.GenreId == genreId)]);
     }
 
-    public async Task<IEnumerable<Anime>> GetByReleaseYearAsync(int year)
+    public async Task<IEnumerable<Anime>> GetByReleaseYearAsync(int year, int page, int size = 100)
     {
-        return await GetByConditionAsync([a => a.Release_Year == year]);
+        if (!ValidatePageAndSize(page, size)) return [];
+        return await GetByConditionAsync(page, size, [a => a.Release_Year == year]);
     }
 
-    public async Task<IEnumerable<Anime>> GetByEpisodesAsync(int episodes)
+    public async Task<IEnumerable<Anime>> GetByEpisodesAsync(int episodes, int page, int size = 100)
     {
-        return await GetByConditionAsync([a => a.Episodes == episodes]);
+        if (!ValidatePageAndSize(page, size)) return [];
+        return await GetByConditionAsync(page, size,[a => a.Episodes == episodes]);
     }
     
     public async Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
@@ -167,8 +211,13 @@ public class AnimeRepository : IAnimeRepository
 
         return anime;
     }
-    public async Task<IEnumerable<Anime>> GetByConditionAsync(IEnumerable<Expression<Func<Anime, bool>>>? filters = null)
+    public async Task<IEnumerable<Anime>> GetByConditionAsync(
+        int page = 1,
+        int size = 100,
+        IEnumerable<Expression<Func<Anime, bool>>>? filters = null)    
     {
+        if (!ValidatePageAndSize(page, size)) return [];
+        
         var query = _context.Anime
             .AsExpandable();
 
@@ -234,13 +283,29 @@ public class AnimeRepository : IAnimeRepository
                     }
                 }).ToList()
             })
-            .Take(100)
+            .Skip((page -1) * size)
+            .Take(size)
             .ToListAsync();
 
         return result;
     }
 
-    private async Task<bool>  CheckForeignKeysAsync(
+    private bool ValidatePageAndSize(int page, int size)
+    {
+        if (page <= 0)
+        {
+            ErrorMessages.Add("page", "must be greater than 0");
+        }
+
+        if (size <= 0)
+        {
+            ErrorMessages.Add("size", "must be greater than 0");
+        }
+
+        return !ErrorMessages.Any();
+    }
+    
+    private async Task<bool>  ValidateForeignKeysAsync(
         ICollection<Anime_Genre> genres,
         ICollection<Anime_Producer> producers,
         ICollection<Anime_Licensor> licensors)
@@ -281,7 +346,7 @@ public class AnimeRepository : IAnimeRepository
             ErrorMessages.Add("producers", "on or more producer entities ids do not exist.");
         }
 
-        return ErrorMessages.Count == 0;
+        return !ErrorMessages.Any();
     }
 
     private void UpdateAnime(Anime original, Anime updated)

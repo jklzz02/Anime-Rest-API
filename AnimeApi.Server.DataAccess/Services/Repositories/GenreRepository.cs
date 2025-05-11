@@ -29,6 +29,20 @@ public class GenreRepository : IGenreRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Genre>> GetAllAsync(int page, int size = 100)
+    {
+        if (page <= 0)
+            throw new ArgumentException($"{nameof(page)} must be greater than zero");
+
+        if (size <= 0)
+            throw new ArgumentException($"{nameof(size)} must be greater than zero");
+
+        var entities = await GetAllAsync();
+        return entities
+            .Skip((page - 1) * size)
+            .Take(size);
+    }
+
     public async Task<IEnumerable<Genre>> GetByNameAsync(string name)
     {
         ArgumentNullException.ThrowIfNull(name, nameof(name));
@@ -38,6 +52,24 @@ public class GenreRepository : IGenreRepository
             .Where(g => EF.Functions.Like(g.Name, $"%{name}%"))
             .AsNoTracking()
             .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Genre>> GetByNameAsync(string name, int page, int size = 100)
+    {
+        ArgumentNullException.ThrowIfNull(name, nameof(name));
+        ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
+        
+        if(page <= 0 )
+            throw new ArgumentException($"'{nameof(page)} must be greater than zero");
+        
+        if(size <= 0)
+            throw new ArgumentException($"'{nameof(size)}' must be greater than zero");
+        
+        var entities = await GetByNameAsync(name);
+        return entities
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToList();
     }
 
     public async Task<Genre?> AddAsync(Genre entity)
