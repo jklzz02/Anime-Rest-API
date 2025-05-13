@@ -18,4 +18,30 @@ public class CachingServiceTest
         var result = await service.GetOrCreateAsync(key, () => Task.FromResult(value));
         Assert.Equal(value, result);
     }
+    
+    [Fact]
+    public async Task GetOrCreate_With_Custom_Expiration_Should_Not_Throw()
+    {
+        var service = new CachingService(Cache);
+        var key = "key";
+
+        var result = await service.
+            GetOrCreateAsync(key, () => Task.FromResult("temp"), TimeSpan.FromMinutes(1));
+
+        Assert.Equal("temp", result);
+        Assert.True(service.HasKey(key));
+    }
+
+    [Fact]
+    public async Task GetOrCreate_With_Custom_Expiration_Should_Expire_In_Time()
+    {
+        var service = new CachingService(Cache);
+        var key = "key"; 
+        await service.
+            GetOrCreateAsync(key, () => Task.FromResult("temp"), TimeSpan.FromMicroseconds(1));
+
+        Thread.Sleep(TimeSpan.FromMicroseconds(1));
+        Assert.False(service.HasKey(key));
+    }
+
 }
