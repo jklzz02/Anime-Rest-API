@@ -29,9 +29,9 @@ public class AnimeSearchParameters
     [FromQuery(Name = "english_title")]
     public string? EnglishName { get; set; } = null;
     [FromQuery(Name = "min_score")]
-    public int? MinScore { get; set; } = null;
+    public decimal? MinScore { get; set; } = null;
     [FromQuery(Name = "max_score")]
-    public int? MaxScore { get; set; } = null;
+    public decimal? MaxScore { get; set; } = null;
     [FromQuery(Name = "min_release_year")]
     public int? MinReleaseYear { get; set; } = null;
     [FromQuery(Name = "max_release_year")]

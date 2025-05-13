@@ -35,7 +35,7 @@ public record AnimeDto
     [JsonProperty("studio")]
     public string? Studio { get; set; }
     [JsonProperty("score")]
-    public int Score { get; set; }
+    public decimal Score { get; set; }
     [JsonProperty("status")]
     public string? Status { get; set; }
     [JsonProperty("genres")]

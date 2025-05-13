@@ -16,6 +16,7 @@ public class AnimeController : ControllerBase
     {
         _helper = helper;
         _cache = cachingService;
+        _cache.DefaultExpiration = TimeSpan.FromMinutes(5);
     }
 
     [HttpGet]

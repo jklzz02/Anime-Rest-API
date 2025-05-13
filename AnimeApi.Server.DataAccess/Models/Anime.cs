@@ -35,7 +35,7 @@ public partial class Anime
 
     public string Studio { get; set; } = null!;
 
-    public int Score { get; set; }
+    public decimal Score { get; set; }
 
     public string Status { get; set; } = null!;
 
