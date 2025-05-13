@@ -281,7 +281,7 @@ public class AnimeHelper : IAnimeHelper
 
         var models = await _repository.GetByConditionAsync(page, size, filters);
 
-        if (_repository.ErrorMessages.Any())
+        if (_repository.ErrorMessages?.Any() ?? false)
         {
             ErrorMessages = _repository.ErrorMessages;
             return null;
