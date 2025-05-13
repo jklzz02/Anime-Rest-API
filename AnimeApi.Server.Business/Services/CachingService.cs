@@ -6,7 +6,7 @@ namespace AnimeApi.Server.Business.Services;
 public class CachingService : ICachingService
 {
     private readonly IMemoryCache _cache;
-    public TimeSpan DefaultExpiration { get; } = TimeSpan.FromMinutes(30);
+    public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromMinutes(30);
 
     public CachingService(IMemoryCache cache)
     {
@@ -27,6 +27,11 @@ public class CachingService : ICachingService
         }
 
         return value;
+    }
+
+    public bool HasKey(object key)
+    {
+        return _cache.TryGetValue(NormalizeKey(key), out _);
     }
 
     public void Remove(object key)
