@@ -17,13 +17,13 @@ public record AnimeDto
     [JsonProperty("image_url")]
     public string? ImageUrl { get; set; }
     [JsonProperty("type")]
-    public string? Type { get; set; }
+    public TypeDto? Type { get; set; }
     [JsonProperty("episodes")]
     public int Episodes { get; set; }
     [JsonProperty("duration")]
     public string? Duration { get; set; }
     [JsonProperty("source")]
-    public string? Source { get; set; }
+    public SourceDto? Source { get; set; }
     [JsonProperty("release_year")]
     public int ReleaseYear { get; set; }
     [JsonProperty("started_airing")]
