@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using AnimeApi.Server.DataAccess.Models.Interfaces;
 
 namespace AnimeApi.Server.DataAccess.Models;

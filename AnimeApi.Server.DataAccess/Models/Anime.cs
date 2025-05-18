@@ -17,13 +17,9 @@ public partial class Anime
 
     public string Image_URL { get; set; } = null!;
 
-    public string Type { get; set; } = null!;
-
     public int Episodes { get; set; }
 
     public string Duration { get; set; } = null!;
-
-    public string Source { get; set; } = null!;
 
     public int Release_Year { get; set; }
 
@@ -39,9 +35,17 @@ public partial class Anime
 
     public string Status { get; set; } = null!;
 
+    public int TypeId { get; set; }
+
+    public int? SourceId { get; set; }
+
     public virtual ICollection<Anime_Genre> Anime_Genres { get; set; } = new List<Anime_Genre>();
 
     public virtual ICollection<Anime_Licensor> Anime_Licensors { get; set; } = new List<Anime_Licensor>();
 
     public virtual ICollection<Anime_Producer> Anime_Producers { get; set; } = new List<Anime_Producer>();
+
+    public virtual Source? Source { get; set; }
+
+    public virtual Type Type { get; set; } = null!;
 }

@@ -19,6 +19,8 @@ public partial class AnimeFullInfo
 
     public string Type { get; set; } = null!;
 
+    public string? Source { get; set; }
+
     public string Duration { get; set; } = null!;
 
     public int Release_Year { get; set; }
@@ -29,11 +31,9 @@ public partial class AnimeFullInfo
 
     public DateOnly? Finished_Airing { get; set; }
 
-    public string Source { get; set; } = null!;
-
     public string Rating { get; set; } = null!;
 
-    public int Score { get; set; }
+    public decimal Score { get; set; }
 
     public string Studio { get; set; } = null!;
 

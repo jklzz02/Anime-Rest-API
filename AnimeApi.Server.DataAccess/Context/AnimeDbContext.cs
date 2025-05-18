@@ -2,11 +2,17 @@
 using System.Collections.Generic;
 using AnimeApi.Server.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
+using Type = AnimeApi.Server.DataAccess.Models.Type;
 
 namespace AnimeApi.Server.DataAccess.Context;
 
 public partial class AnimeDbContext : DbContext
 {
+    public AnimeDbContext()
+    {
+    }
+
     public AnimeDbContext(DbContextOptions<AnimeDbContext> options)
         : base(options)
     {
@@ -28,6 +34,9 @@ public partial class AnimeDbContext : DbContext
 
     public virtual DbSet<Producer> Producers { get; set; }
 
+    public virtual DbSet<Source> Sources { get; set; }
+
+    public virtual DbSet<Type> Types { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -40,11 +49,23 @@ public partial class AnimeDbContext : DbContext
 
             entity.ToTable("Anime");
 
+            entity.HasIndex(e => e.English_Name, "Anime_English_Name_index");
+
+            entity.HasIndex(e => e.Episodes, "Anime_Episodes_index");
+
+            entity.HasIndex(e => e.Name, "Anime_Name_index");
+
+            entity.HasIndex(e => e.Release_Year, "Anime_Release_Year_index");
+
+            entity.HasIndex(e => e.Score, "Anime_Score_index");
+
+            entity.HasIndex(e => e.SourceId, "Anime_Source_Id_fk");
+
+            entity.HasIndex(e => e.TypeId, "Anime_Type_Id_fk");
+
             entity.Property(e => e.Duration).HasMaxLength(255);
-            entity.Property(e => e.English_Name).HasMaxLength(255);
             entity.Property(e => e.Image_URL).HasMaxLength(255);
             entity.Property(e => e.Name)
-                .HasMaxLength(255)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
             entity.Property(e => e.Other_Name)
@@ -52,10 +73,7 @@ public partial class AnimeDbContext : DbContext
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
             entity.Property(e => e.Rating).HasMaxLength(100);
-            entity.Property(e => e.Source)
-                .HasMaxLength(50)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+            entity.Property(e => e.Score).HasPrecision(3, 1);
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Studio)
                 .HasMaxLength(255)
@@ -65,8 +83,37 @@ public partial class AnimeDbContext : DbContext
                 .HasMaxLength(5000)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
-            entity.Property(e => e.Type).HasColumnType("enum('TV','Movie','OVA','ONA','Special','Music','UNKNOWN')");
+
+            entity.HasOne(d => d.Source).WithMany(p => p.Animes)
+                .HasForeignKey(d => d.SourceId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("Anime_Source_Id_fk");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.Animes)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Anime_Type_Id_fk");
         });
+        
+        modelBuilder.Entity<Anime>()
+            .Navigation(a => a.Anime_Genres)
+            .AutoInclude();
+
+        modelBuilder.Entity<Anime>()
+            .Navigation(a => a.Anime_Licensors)
+            .AutoInclude();
+
+        modelBuilder.Entity<Anime>()
+            .Navigation(a => a.Anime_Producers)
+            .AutoInclude();
+
+        modelBuilder.Entity<Anime>()
+            .Navigation(a => a.Type)
+            .AutoInclude();
+        
+        modelBuilder.Entity<Anime>()
+            .Navigation(a => a.Source)
+            .AutoInclude();
 
         modelBuilder.Entity<AnimeFullInfo>(entity =>
         {
@@ -95,10 +142,8 @@ public partial class AnimeDbContext : DbContext
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
             entity.Property(e => e.Rating).HasMaxLength(100);
-            entity.Property(e => e.Source)
-                .HasMaxLength(50)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+            entity.Property(e => e.Score).HasPrecision(3, 1);
+            entity.Property(e => e.Source).HasMaxLength(50);
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Studio)
                 .HasMaxLength(255)
@@ -108,7 +153,7 @@ public partial class AnimeDbContext : DbContext
                 .HasMaxLength(5000)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
-            entity.Property(e => e.Type).HasColumnType("enum('TV','Movie','OVA','ONA','Special','Music','UNKNOWN')");
+            entity.Property(e => e.Type).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Anime_Genre>(entity =>
@@ -123,14 +168,16 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Genres)
                 .HasForeignKey(d => d.AnimeId)
-                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Genre_ibfk_1");
 
             entity.HasOne(d => d.Genre).WithMany(p => p.Anime_Genres)
                 .HasForeignKey(d => d.GenreId)
-                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Genre_ibfk_2");
         });
+        
+        modelBuilder.Entity<Anime_Genre>()
+            .Navigation(ag => ag.Genre)
+            .AutoInclude();
 
         modelBuilder.Entity<Anime_Licensor>(entity =>
         {
@@ -144,14 +191,16 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Licensors)
                 .HasForeignKey(d => d.AnimeId)
-                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Licensor_ibfk_1");
 
             entity.HasOne(d => d.Licensor).WithMany(p => p.Anime_Licensors)
                 .HasForeignKey(d => d.LicensorId)
-                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Licensor_ibfk_2");
         });
+        
+        modelBuilder.Entity<Anime_Licensor>()
+            .Navigation(al => al.Licensor)
+            .AutoInclude();
 
         modelBuilder.Entity<Anime_Producer>(entity =>
         {
@@ -165,14 +214,16 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Producers)
                 .HasForeignKey(d => d.AnimeId)
-                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Producer_ibfk_1");
 
             entity.HasOne(d => d.Producer).WithMany(p => p.Anime_Producers)
                 .HasForeignKey(d => d.ProducerId)
-                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Anime_Producer_ibfk_2");
         });
+        
+        modelBuilder.Entity<Anime_Producer>()
+            .Navigation(al => al.Producer)
+            .AutoInclude();
 
         modelBuilder.Entity<Genre>(entity =>
         {
@@ -211,6 +262,28 @@ public partial class AnimeDbContext : DbContext
                 .HasCharSet("utf8mb3");
         });
 
+        modelBuilder.Entity<Source>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("Source");
+
+            entity.HasIndex(e => e.Name, "Name").IsUnique();
+
+            entity.Property(e => e.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Type>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("Type");
+
+            entity.HasIndex(e => e.Name, "Name").IsUnique();
+
+            entity.Property(e => e.Name).HasMaxLength(50);
+        });
+        
         OnModelCreatingPartial(modelBuilder);
     }
 
