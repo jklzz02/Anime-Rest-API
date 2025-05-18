@@ -6,7 +6,6 @@ namespace AnimeApi.Server.Business.Validators;
 
 public class AnimeValidator : AbstractValidator<AnimeDto>, IAnimeValidator
 {
-    private readonly string[] _animeTypes = ["TV", "Movie", "OVA", "ONA", "Special", "Music", "UNKNOWN" ];
     public AnimeValidator()
     {
         RuleFor(x => x.Name)
@@ -38,12 +37,6 @@ public class AnimeValidator : AbstractValidator<AnimeDto>, IAnimeValidator
                 .WithMessage("The 'image_url' cannot be empty.")
             .MaximumLength(255)
                 .WithMessage("The 'image_url' cannot be longer than 255 characters.'");
-
-        RuleFor(x => x.Type)
-            .NotEmpty()
-                .WithMessage("The 'type' cannot be empty.")
-            .Must(x => _animeTypes.Contains(x))
-            .WithMessage($"The 'type' must be one of the following: {string.Join(", ", _animeTypes)}.");
         
         RuleFor(x => x.Episodes)
             .NotEmpty()
@@ -55,12 +48,6 @@ public class AnimeValidator : AbstractValidator<AnimeDto>, IAnimeValidator
                 .WithMessage("The 'duration' cannot be empty.")
             .MaximumLength(255)
                 .WithMessage("The 'duration' cannot be longer than 255 characters.");
-        
-        RuleFor(x => x.Source)
-            .NotEmpty()
-                .WithMessage("The 'source' cannot be empty.")
-            .MaximumLength(50)
-                .WithMessage("The 'source' cannot be longer than 50 characters.");
 
         RuleFor(x => x.ReleaseYear)
             .GreaterThanOrEqualTo(1950)
@@ -81,6 +68,5 @@ public class AnimeValidator : AbstractValidator<AnimeDto>, IAnimeValidator
         RuleFor(x => x.Score)
             .GreaterThanOrEqualTo(0)
             .WithMessage("The 'score' must be greater than or equal to 0.");
-
     }
 }

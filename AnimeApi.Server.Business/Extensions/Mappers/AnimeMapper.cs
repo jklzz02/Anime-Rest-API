@@ -16,10 +16,10 @@ public static class AnimeMapper
             Other_Name = dto.OtherName,
             Synopsis = dto.Synopsis,
             Image_URL = dto.ImageUrl,
-            Type = dto.Type,
+            TypeId = dto.Type?.Id ?? 0,
             Episodes = dto.Episodes,
             Duration = dto.Duration,
-            Source = dto.Source,
+            SourceId = dto.Source?.Id ?? 0,
             Release_Year = dto.ReleaseYear,
             Started_Airing = dto.StartedAiring,
             Finished_Airing = dto.FinishedAiring,
@@ -29,15 +29,15 @@ public static class AnimeMapper
             Status = dto.Status,
 
             Anime_Genres = dto.Genres?
-                .Select(g => new Anime_Genre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0, Genre = g.ToModel()})
+                .Select(g => new Anime_Genre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0 })
                 .ToList() ?? new List<Anime_Genre>(),
 
             Anime_Producers = dto.Producers?
-                .Select(p => new Anime_Producer { ProducerId = p.Id ?? 0, AnimeId = dto.Id ?? 0, Producer = p.ToModel()})
+                .Select(p => new Anime_Producer { ProducerId = p.Id ?? 0, AnimeId = dto.Id ?? 0 })
                 .ToList() ?? new List<Anime_Producer>(),
 
             Anime_Licensors = dto.Licensors?
-                .Select(l => new Anime_Licensor { LicensorId = l.Id ?? 0, AnimeId = dto.Id ?? 0, Licensor = l.ToModel()})
+                .Select(l => new Anime_Licensor { LicensorId = l.Id ?? 0, AnimeId = dto.Id ?? 0 })
                 .ToList() ?? new List<Anime_Licensor>()
         };
     }
@@ -52,10 +52,10 @@ public static class AnimeMapper
             OtherName = anime.Other_Name,
             Synopsis = anime.Synopsis,
             ImageUrl = anime.Image_URL,
-            Type = anime.Type,
+            Type = new TypeDto() {Id = anime.Type?.Id ?? anime.TypeId, Name = anime.Type?.Name},
             Episodes = anime.Episodes,
             Duration = anime.Duration,
-            Source = anime.Source,
+            Source = new SourceDto(){Id = anime.Source?.Id ?? anime.SourceId, Name = anime.Source?.Name},
             ReleaseYear = anime.Release_Year,
             StartedAiring = anime.Started_Airing,
             FinishedAiring = anime.Finished_Airing,

@@ -241,10 +241,10 @@ public class AnimeHelper : IAnimeHelper
             filters.Add(a => a.English_Name.Contains(parameters.EnglishName));
 
         if (!string.IsNullOrWhiteSpace(parameters.Source))
-            filters.Add(a=> a.Source.Contains(parameters.Source));
+            filters.Add(a=> a.Source.Name.Contains(parameters.Source));
 
         if (!string.IsNullOrWhiteSpace(parameters.Type))
-            filters.Add(a => a.Type.Contains(parameters.Type));
+            filters.Add(a => a.Type.Name.Contains(parameters.Type));
 
         if (parameters.ProducerId.HasValue)
             filters.Add(a => a.Anime_Producers.Any(p => p.ProducerId == parameters.ProducerId));

@@ -22,12 +22,6 @@ public class AnimeRepository : IAnimeRepository
     {
         return await _context.Anime
                 .AsSplitQuery()
-                .Include(a => a.Anime_Genres)
-                .ThenInclude(ag => ag.Genre)
-                .Include(a => a.Anime_Licensors)
-                .ThenInclude(al => al.Licensor)
-                .Include(a => a.Anime_Producers)
-                .ThenInclude(ap => ap.Producer)
                 .FirstOrDefaultAsync(a => a.Id == id);
     }
 
@@ -35,6 +29,7 @@ public class AnimeRepository : IAnimeRepository
     {
         return await _context.Anime
             .OrderBy(a => a.Id)
+            .AsSplitQuery()
             .ToListAsync();
     }
     
@@ -62,7 +57,9 @@ public class AnimeRepository : IAnimeRepository
         var areForeignKeysValid = await ValidateForeignKeysAsync(
             entity.Anime_Genres,
             entity.Anime_Producers,
-            entity.Anime_Licensors);
+            entity.Anime_Licensors,
+            entity.TypeId,
+            entity.SourceId ?? 0);
         
         if(!areForeignKeysValid)
         {
@@ -88,7 +85,9 @@ public class AnimeRepository : IAnimeRepository
         var areForeignKeysValid = await ValidateForeignKeysAsync(
             entity.Anime_Genres,
             entity.Anime_Producers,
-            entity.Anime_Licensors);
+            entity.Anime_Licensors,
+            entity.TypeId,
+            entity.SourceId ?? 0);
         
         if(!areForeignKeysValid)
         {
@@ -150,7 +149,7 @@ public class AnimeRepository : IAnimeRepository
         return await GetByConditionAsync(
             page,
             size,
-            [a => EF.Functions.Like(a.Type, $"%{type}")]);
+            [a => EF.Functions.Like(a.Type.Name, $"%{type}")]);
     }
 
     public async Task<IEnumerable<Anime>> GetByScoreAsync(int score, int page, int size = 100)
@@ -199,12 +198,6 @@ public class AnimeRepository : IAnimeRepository
     public async Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
     {
         var anime = await _context.Anime
-            .Include(a => a.Anime_Genres)
-                .ThenInclude(ag => ag.Genre)
-            .Include(a => a.Anime_Licensors)
-                .ThenInclude(al => al.Licensor)
-            .Include(a => a.Anime_Producers)
-                .ThenInclude(ap => ap.Producer)
             .AsSplitQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync(condition);
@@ -223,66 +216,14 @@ public class AnimeRepository : IAnimeRepository
 
         if (filters is not null)
         {
-            foreach (var filter in filters)
-            {
-                query = query.Where(filter);
-            }
+            query = filters
+                .Aggregate(query, (current, filter) => current.Where(filter));
         }
 
         var result = await query
             .OrderBy(a => a.Id)
             .AsNoTracking()
             .AsSplitQuery()
-            .Select(a => new Anime
-            {
-                Id = a.Id,
-                Name = a.Name,
-                English_Name = a.English_Name,
-                Other_Name = a.Other_Name,
-                Synopsis = a.Synopsis,
-                Image_URL = a.Image_URL,
-                Type = a.Type,
-                Episodes = a.Episodes,
-                Duration = a.Duration,
-                Source = a.Source,
-                Release_Year = a.Release_Year,
-                Started_Airing = a.Started_Airing,
-                Finished_Airing = a.Finished_Airing,
-                Rating = a.Rating,
-                Studio = a.Studio,
-                Score = a.Score,
-                Status = a.Status,
-                Anime_Genres = a.Anime_Genres.Select(ag => new Anime_Genre
-                {
-                    AnimeId = ag.AnimeId,
-                    GenreId = ag.GenreId,
-                    Genre = new Genre
-                    {
-                        Id = ag.Genre.Id,
-                        Name = ag.Genre.Name
-                    }
-                }).ToList(),
-                Anime_Licensors = a.Anime_Licensors.Select(al => new Anime_Licensor
-                {
-                    AnimeId = al.AnimeId,
-                    LicensorId = al.LicensorId,
-                    Licensor = new Licensor
-                    {
-                        Id = al.Licensor.Id,
-                        Name = al.Licensor.Name
-                    }
-                }).ToList(),
-                Anime_Producers = a.Anime_Producers.Select(ap => new Anime_Producer
-                {
-                    AnimeId = ap.AnimeId,
-                    ProducerId = ap.ProducerId,
-                    Producer = new Producer
-                    {
-                        Id = ap.Producer.Id,
-                        Name = ap.Producer.Name
-                    }
-                }).ToList()
-            })
             .Skip((page -1) * size)
             .Take(size)
             .ToListAsync();
@@ -308,7 +249,9 @@ public class AnimeRepository : IAnimeRepository
     private async Task<bool>  ValidateForeignKeysAsync(
         ICollection<Anime_Genre> genres,
         ICollection<Anime_Producer> producers,
-        ICollection<Anime_Licensor> licensors)
+        ICollection<Anime_Licensor> licensors,
+        int typeId,
+        int sourceId)
     {
         var genresIds = genres.Select(ag => ag.GenreId).ToList();
         var producersIds = producers.Select(ap => ap.ProducerId).ToList();
@@ -326,9 +269,19 @@ public class AnimeRepository : IAnimeRepository
         
         var licensorsExistingIds = await _context.Licensors
             .AsNoTracking()
-            .Select(p => p.Id)
+            .Select(l => l.Id)
             .ToListAsync();
-
+        
+        var typesExistingIds = await _context.Types
+            .AsNoTracking()
+            .Select(t => t.Id)
+            .ToListAsync();
+        
+        var sourcesExistingIds = await _context.Sources
+            .AsNoTracking()
+            .Select(s => s.Id)
+            .ToListAsync();
+        
         if (!genresIds.All(g => genresExistingIds.Contains(g)))
         {
             ErrorMessages.Add("genres", "on or more genre entities ids do not exist.");
@@ -346,6 +299,16 @@ public class AnimeRepository : IAnimeRepository
             ErrorMessages.Add("producers", "on or more producer entities ids do not exist.");
         }
 
+        if (!typesExistingIds.Contains(typeId))
+        {
+            ErrorMessages.Add("types", $"there's no anime type with id {typeId}");
+        }
+
+        if (!sourcesExistingIds.Contains(sourceId))
+        {
+            ErrorMessages.Add("sources", $"there's no anime source with id {sourceId}");
+        }
+
         return !ErrorMessages.Any();
     }
 
@@ -356,10 +319,10 @@ public class AnimeRepository : IAnimeRepository
         original.Other_Name = updated.Other_Name;
         original.Synopsis = updated.Synopsis;
         original.Image_URL = updated.Image_URL;
-        original.Type = updated.Type;
+        original.TypeId = updated.TypeId;
         original.Episodes = updated.Episodes;
         original.Duration = updated.Duration;
-        original.Source = updated.Source;
+        original.SourceId = updated.SourceId;
         original.Release_Year = updated.Release_Year;
         original.Started_Airing = updated.Started_Airing;
         original.Finished_Airing = updated.Finished_Airing;

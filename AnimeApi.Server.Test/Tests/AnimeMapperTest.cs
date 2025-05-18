@@ -44,6 +44,7 @@ public class AnimeMapperTest
         Assert.Equal(dto.EnglishName, roundTrippedDto.EnglishName);
         Assert.Equal(dto.OtherName, roundTrippedDto.OtherName);
         Assert.Equal(dto.Type, roundTrippedDto.Type);
+        Assert.Equal(dto.Source, roundTrippedDto.Source);
         Assert.Equal(dto.Duration, roundTrippedDto.Duration);
         Assert.Equal(dto.ImageUrl, roundTrippedDto.ImageUrl);
         Assert.Equal(dto.Score, roundTrippedDto.Score);
@@ -53,9 +54,6 @@ public class AnimeMapperTest
         Assert.Equal(dto.Synopsis, roundTrippedDto.Synopsis);
         Assert.Equal(dto.Studio, roundTrippedDto.Studio);
         Assert.Equal(dto.Status, roundTrippedDto.Status);
-        Assert.Equal(dto.Genres, roundTrippedDto.Genres);
-        Assert.Equal(dto.Licensors, roundTrippedDto.Licensors);
-        Assert.Equal(dto.Producers, roundTrippedDto.Producers);
     }
 
     [Theory]
@@ -68,7 +66,8 @@ public class AnimeMapperTest
         Assert.Equal(model.Name, result.Name);
         Assert.Equal(model.English_Name, result.English_Name);
         Assert.Equal(model.Other_Name, result.Other_Name);
-        Assert.Equal(model.Type, result.Type);
+        Assert.Equal(model.TypeId, result.TypeId);
+        Assert.Equal(model.SourceId, result.SourceId);
         Assert.Equal(model.Duration, result.Duration);
         Assert.Equal(model.Image_URL, result.Image_URL);
         Assert.Equal(model.Score, result.Score);
