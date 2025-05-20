@@ -21,6 +21,7 @@ public class AnimeRepository : IAnimeRepository
     public async Task<Anime?> GetByIdAsync(int id)
     {
         return await _context.Anime
+                .AsNoTracking()
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(a => a.Id == id);
     }
@@ -66,9 +67,16 @@ public class AnimeRepository : IAnimeRepository
             return null;
         }
         
-        var createdEntry = _context.Anime.Add(entity);
+        _context.Anime.Add(entity);
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? createdEntry.Entity : null;
+
+        if (!result)
+        {
+            return null;
+        }
+        
+        _context.Entry(entity).State = EntityState.Detached;
+        return await GetByIdAsync(entity.Id);
     }
 
     public async Task<Anime?> UpdateAsync(Anime entity)
@@ -95,8 +103,16 @@ public class AnimeRepository : IAnimeRepository
         }
         
         UpdateAnime(anime, entity);
+        _context.Update(anime);
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? await GetByIdAsync(anime.Id) : null;
+        
+        if (!result)
+        {
+            return null;
+        }
+        
+        _context.Entry(anime).State = EntityState.Detached;
+        return await GetByIdAsync(anime.Id);
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -320,6 +336,9 @@ public class AnimeRepository : IAnimeRepository
         original.Synopsis = updated.Synopsis;
         original.Image_URL = updated.Image_URL;
         original.TypeId = updated.TypeId;
+        original.Type = updated.Type;
+        original.SourceId = updated.SourceId;
+        original.Source = updated.Source;
         original.Episodes = updated.Episodes;
         original.Duration = updated.Duration;
         original.SourceId = updated.SourceId;

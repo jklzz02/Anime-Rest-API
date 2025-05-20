@@ -1,14 +1,15 @@
 using AnimeApi.Server.Business.Dto;
 using AnimeApi.Server.DataAccess.Models;
 using LinqKit;
+using Type = AnimeApi.Server.DataAccess.Models.Type;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
 public static class AnimeMapper
 {
-    public static Anime ToModel(this AnimeDto dto)
+    public static Anime ToModel(this AnimeDto dto, bool includeNavigation = true)
     {
-        return new Anime
+        var entity =  new Anime
         {
             Id = dto.Id ?? 0,
             Name = dto.Name,
@@ -29,17 +30,25 @@ public static class AnimeMapper
             Status = dto.Status,
 
             Anime_Genres = dto.Genres?
-                .Select(g => new Anime_Genre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0 })
+                .Select(g => new Anime_Genre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0, Genre = includeNavigation ? g.ToModel() : null})
                 .ToList() ?? new List<Anime_Genre>(),
 
             Anime_Producers = dto.Producers?
-                .Select(p => new Anime_Producer { ProducerId = p.Id ?? 0, AnimeId = dto.Id ?? 0 })
+                .Select(p => new Anime_Producer { ProducerId = p.Id ?? 0, AnimeId = dto.Id ?? 0, Producer = includeNavigation ? p.ToModel() : null })
                 .ToList() ?? new List<Anime_Producer>(),
 
             Anime_Licensors = dto.Licensors?
-                .Select(l => new Anime_Licensor { LicensorId = l.Id ?? 0, AnimeId = dto.Id ?? 0 })
+                .Select(l => new Anime_Licensor { LicensorId = l.Id ?? 0, AnimeId = dto.Id ?? 0, Licensor = includeNavigation ? l.ToModel() : null })
                 .ToList() ?? new List<Anime_Licensor>()
         };
+
+        if (includeNavigation)
+        {
+            entity.Source = new Source { Id = dto.Source?.Id ?? 0, Name = dto.Source?.Name };
+            entity.Type = new Type { Id = dto.Type?.Id ?? 0, Name = dto.Type?.Name };
+        }
+        
+        return entity;
     }
     
     public static AnimeDto ToDto(this Anime anime)

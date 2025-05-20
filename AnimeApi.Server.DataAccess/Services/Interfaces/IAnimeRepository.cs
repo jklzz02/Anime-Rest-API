@@ -6,7 +6,6 @@ namespace AnimeApi.Server.DataAccess.Services.Interfaces;
 public interface IAnimeRepository : IRepository<Anime>
 {
     Task<IEnumerable<Anime>> GetAllAsync(int page, int size = 100);
-
     Task<IEnumerable<Anime>> GetByNameAsync(string name, int page, int size = 100);
     Task<IEnumerable<Anime>> GetByEnglishNameAsync(string englishName, int page, int size = 100);
     Task<IEnumerable<Anime>> GetBySourceAsync(string source, int page, int size = 100);

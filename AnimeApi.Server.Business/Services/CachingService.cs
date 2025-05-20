@@ -6,7 +6,7 @@ namespace AnimeApi.Server.Business.Services;
 public class CachingService : ICachingService
 {
     private readonly IMemoryCache _cache;
-    public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromMinutes(30);
+    public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromMinutes(5);
 
     public CachingService(IMemoryCache cache)
     {

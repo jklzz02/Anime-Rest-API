@@ -193,7 +193,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        var model = entity.ToModel();
+        var model = entity.ToModel(false);
         var result = await _repository.AddAsync(model);
         if(result is null)
         {
