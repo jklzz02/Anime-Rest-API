@@ -54,6 +54,9 @@ public class AnimeMapperTest
         Assert.Equal(dto.Synopsis, roundTrippedDto.Synopsis);
         Assert.Equal(dto.Studio, roundTrippedDto.Studio);
         Assert.Equal(dto.Status, roundTrippedDto.Status);
+        Assert.Equal(dto.Genres, roundTrippedDto.Genres);
+        Assert.Equal(dto.Licensors, roundTrippedDto.Licensors);
+        Assert.Equal(dto.Producers, roundTrippedDto.Producers);
     }
 
     [Theory]
