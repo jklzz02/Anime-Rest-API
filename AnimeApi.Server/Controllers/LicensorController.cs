@@ -99,6 +99,7 @@ public class LicensorController : ControllerBase
     }
 
     [HttpDelete]
+    [Route("{id:int:min(1)}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)

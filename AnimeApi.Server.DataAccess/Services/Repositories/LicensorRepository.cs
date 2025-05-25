@@ -50,6 +50,7 @@ public class LicensorRepository : ILicensorRepository
     {
         return await _context.Licensors
             .AsNoTracking()
+            .OrderBy(l => l.Id)
             .ToListAsync();
     }
 
@@ -60,13 +61,13 @@ public class LicensorRepository : ILicensorRepository
         var licensor = await GetByIdAsync(entity.Id);
         if (licensor is not null)
         {
-            ErrorMessages.Add("id", "There is already a licensor with this id");
+            ErrorMessages.Add("id", $"Cannot add another licensor with id '{entity.Id}'");
             return null;
         }
 
         if (_context.Licensors.Any(l => l.Name == entity.Name))
         {
-            ErrorMessages.Add("name", "There is already a licensor with this name");
+            ErrorMessages.Add("name", $"Cannot add another licensor with name '{entity.Name}'");
             return null;
         }
         

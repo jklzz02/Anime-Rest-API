@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
-public class ProducerController : ControllerBase
+[Route("api/[controller]")]
+public class SourceController : Controller
 {
-    private readonly IProducerHelper _helper;
+    private readonly ISourceHelper _helper;
     
-    public ProducerController(IProducerHelper helper)
+    public SourceController(ISourceHelper helper)
     {
         _helper = helper;
     }
@@ -19,8 +19,8 @@ public class ProducerController : ControllerBase
     [ProducesResponseType(200)]
     public async Task<IActionResult> GetAllAsync()
     {
-        var producers = await _helper.GetAllAsync();
-        return Ok(producers);
+        var sources = await _helper.GetAllAsync();
+        return Ok(sources);
     }
     
     [HttpGet]
@@ -29,30 +29,30 @@ public class ProducerController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
-        var producer = await _helper.GetByIdAsync(id);
-        if (producer is null) return NotFound();
+        var source = await _helper.GetByIdAsync(id);
+        if (source is null) return NotFound();
         
-        return Ok(producer);
+        return Ok(source);
     }
-
+    
     [HttpGet]
     [Route("name/{name}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
-        var producer = await _helper.GetByNameAsync(name);
-        if (!producer.Any()) return NotFound();
+        var source = await _helper.GetByNameAsync(name);
+        if (!source.Any()) return NotFound();
         
-        return Ok(producer);
+        return Ok(source);
     }
 
     [HttpPost]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateAsync([FromBody] ProducerDto producer)
+    public async Task<IActionResult> CreateAsync([FromBody] SourceDto source)
     {
-        var result = await _helper.CreateAsync(producer);
+        var result = await _helper.CreateAsync(source);
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -64,14 +64,9 @@ public class ProducerController : ControllerBase
     [HttpPut]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    public async Task<IActionResult> UpdateFullAsync([FromBody] ProducerDto producer)
+    public async Task<IActionResult> UpdateFullAsync([FromBody] SourceDto source)
     {
-        if (string.IsNullOrEmpty(producer.Name))
-        {
-            return BadRequest();
-        }
-        var result = await _helper.UpdateAsync(producer);
+        var result = await _helper.UpdateAsync(source);
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -83,14 +78,9 @@ public class ProducerController : ControllerBase
     [HttpPatch]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    public async Task<IActionResult> UpdatePartialAsync([FromBody] ProducerDto producer)
+    public async Task<IActionResult> UpdatePartialAsync([FromBody] SourceDto source)
     {
-        if (string.IsNullOrEmpty(producer.Name))
-        {
-            return BadRequest();
-        }
-        var result = await _helper.UpdateAsync(producer);
+        var result = await _helper.UpdateAsync(source);
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -98,7 +88,6 @@ public class ProducerController : ControllerBase
         
         return Ok(result);
     }
-
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]

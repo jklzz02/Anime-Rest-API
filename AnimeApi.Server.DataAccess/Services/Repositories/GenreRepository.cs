@@ -63,12 +63,12 @@ public class GenreRepository : IGenreRepository
         var genre = await GetByIdAsync(entity.Id);
         if (genre is not null)
         {
-            ErrorMessages.Add("id", $"There is already a genre with id '{entity.Id}'");
+            ErrorMessages.Add("id", $"Cannot add another anime genre with id '{entity.Id}'");
             return null;
         }
         if (_context.Genres.Any(g => g.Name == entity.Name))
         {
-            ErrorMessages.Add("name", $"There is already a genre with this name '{entity.Name}'");
+            ErrorMessages.Add("name", $"Cannot add another anime genre with name '{entity.Name}'");
             return null;
         }
         

@@ -18,7 +18,7 @@ public class TypeValidator : AbstractValidator<TypeDto>, ITypeValidator
     public ITypeValidator WithExistingIds(IEnumerable<int> ids)
     {
         RuleFor(x => x.Id)
-            .Must(id => !ids.Contains(id!.Value))
+            .Must(id => ids.Contains(id ?? 0))
             .WithMessage(x => $"There's already a type with id '{x.Id}'");
         
         return this;

@@ -35,6 +35,7 @@ public class TypeRepository : ITypeRepository
     {
         return await _context.Types
             .AsNoTracking()
+            .OrderBy(t => t.Id)
             .ToListAsync();
     }
 

@@ -18,7 +18,7 @@ public class SourceValidator : AbstractValidator<SourceDto>, ISourceValidator
     public ISourceValidator WithExistingIds(IEnumerable<int> ids)
     {
         RuleFor(x => x.Id)
-            .Must(id => !ids.Contains(id!.Value))
+            .Must(id => !ids.Contains(id ?? 0))
             .WithMessage(x => $"There's already an anime source with id '{x.Id}'");
         
         return this;

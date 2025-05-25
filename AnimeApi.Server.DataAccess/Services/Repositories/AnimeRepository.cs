@@ -52,7 +52,7 @@ public class AnimeRepository : IAnimeRepository
         var anime = await GetByIdAsync(entity.Id);
         if (anime is not null)
         {
-            ErrorMessages.Add("id", $"There is already an anime with id {entity.Id}");
+            ErrorMessages.Add("id", $"Cannot add another anime with id '{entity.Id}'");
             return null;
         }
 
@@ -307,13 +307,13 @@ public class AnimeRepository : IAnimeRepository
         
         if (!licensorsIds.All(l => licensorsExistingIds.Contains(l)))
         {
-            ErrorMessages.Add("licensors", "on or more licensor entities ids do not exist.");
+            ErrorMessages.Add("licensors", "one or more licensor entities ids do not exist.");
         }
         
         
         if (!producersIds.All(g => producersExistingIds.Contains(g)))
         {
-            ErrorMessages.Add("producers", "on or more producer entities ids do not exist.");
+            ErrorMessages.Add("producers", "one or more producer entities ids do not exist.");
         }
 
         if (!typesExistingIds.Contains(typeId))

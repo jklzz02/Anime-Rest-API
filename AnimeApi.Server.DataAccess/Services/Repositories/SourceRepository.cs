@@ -37,6 +37,7 @@ public class SourceRepository : ISourceRepository
     {
         return await _context.Sources
             .AsNoTracking()
+            .OrderBy(s => s.Id)
             .ToListAsync();
     }
 
