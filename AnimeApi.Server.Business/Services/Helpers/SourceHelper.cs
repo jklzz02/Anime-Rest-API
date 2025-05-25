@@ -73,7 +73,7 @@ public class SourceHelper : ISourceHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<GenreDto>();
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<SourceDto>();
             return null;
         }
 

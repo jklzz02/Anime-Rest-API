@@ -1,4 +1,6 @@
 using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Extensions;
+using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators.Interfaces;
 using AnimeApi.Server.DataAccess.Services.Interfaces;
@@ -19,31 +21,78 @@ public class TypeHelper : ITypeHelper
     
     public async Task<TypeDto?> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        var model = await _repository.GetByIdAsync(id);
+        return model?.ToDto();
     }
 
     public async Task<IEnumerable<TypeDto>> GetByNameAsync(string name)
     {
-        throw new NotImplementedException();
+        var models = await _repository.GetByNameAsync(name);
+        return models.ToDto();
     }
 
     public async Task<IEnumerable<TypeDto>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        var models = await _repository.GetAllAsync();
+        return models.ToDto();
     }
 
     public async Task<TypeDto?> CreateAsync(TypeDto entity)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+
+        var ids = await _repository.GetExistingIdsAsync();
+        var names = await _repository.GetExistingNamesAsync();
+        
+        _validator
+            .WithExistingIds(ids)
+            .WithExistingNames(names);
+        
+        var validationResult = await _validator.ValidateAsync(entity);
+
+        if (!validationResult.IsValid)
+        {
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<TypeDto>();
+            return null;
+        }
+        
+        var model = entity.ToModel();
+        var result = await _repository.AddAsync(model);
+
+        if (result == null)
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
+        return result.ToDto();
     }
 
     public async Task<TypeDto?> UpdateAsync(TypeDto entity)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+
+        var validationResult = await _validator.ValidateAsync(entity);
+        if (!validationResult.IsValid)
+        {
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<TypeDto>();
+            return null;
+        }
+
+        var model = entity.ToModel();
+        var result = await _repository.UpdateAsync(model);
+        
+        if(result is null)
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
+        return result.ToDto();
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        return await _repository.DeleteAsync(id);
     }
 }
