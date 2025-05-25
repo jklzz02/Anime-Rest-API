@@ -13,6 +13,6 @@ public class ProducerValidator : AbstractValidator<ProducerDto>, IProducerValida
             .NotEmpty()
             .WithMessage("The name cannot be empty")
             .MaximumLength(50)
-            .WithMessage("The name must cannot be longer than 50 characters");
+            .WithMessage("The name cannot be longer than 50 characters");
     }
 }

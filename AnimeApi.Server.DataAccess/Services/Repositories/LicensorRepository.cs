@@ -30,9 +30,27 @@ public class LicensorRepository : ILicensorRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<int>> GetExistingIdsAsync()
+    {
+        return await _context.Licensors
+            .AsNoTracking()
+            .Select(l => l.Id)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetExistingNamesAsync()
+    {
+        return await _context.Licensors
+            .AsNoTracking()
+            .Select(l => l.Name)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Licensor>> GetAllAsync()
     {
-        return await _context.Licensors.ToListAsync();
+        return await _context.Licensors
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<Licensor?> AddAsync(Licensor entity)
@@ -64,11 +82,12 @@ public class LicensorRepository : ILicensorRepository
         var licensor = await GetByIdAsync(entity.Id);
         if (licensor is null)
         {
-            ErrorMessages.Add("id", "There is no licensor with this id");
+            ErrorMessages.Add("id", $"There is no licensor with id '{entity.Id}'");
             return null;
         }
         if (_context.Licensors.Any(l => l.Name == entity.Name && l.Id != entity.Id))
         {
+            ErrorMessages.Add("name", $"There is already a licensor with name '{entity.Name}'");
             return null;
         }
 

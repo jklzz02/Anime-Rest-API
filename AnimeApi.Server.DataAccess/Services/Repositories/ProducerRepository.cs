@@ -30,9 +30,27 @@ public class ProducerRepository : IProducerRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<int>> GetExistingIdsAsync()
+    {
+        return await _context.Producers
+            .AsNoTracking()
+            .Select(g => g.Id)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetExistingNamesAsync()
+    {
+        return await _context.Producers
+            .AsNoTracking()
+            .Select(g => g.Name)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Producer>> GetAllAsync()
     {
-        return await _context.Producers.ToListAsync();
+        return await _context.Producers
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<Producer?> AddAsync(Producer entity)
@@ -42,13 +60,13 @@ public class ProducerRepository : IProducerRepository
         var producer = await GetByIdAsync(entity.Id);
         if (producer is not null)
         {
-            ErrorMessages.Add("id", "There is already a producer with this id");
+            ErrorMessages.Add("id", $"There is already a producer with id '{entity.Id}'");
             return null;
         }
 
         if (_context.Producers.Any(p => p.Name == entity.Name))
         {
-            ErrorMessages.Add("name", "There is already a producer with this name");
+            ErrorMessages.Add("name", $"There is already a producer with name {entity.Name}");
             return null;
         }
         
@@ -64,13 +82,13 @@ public class ProducerRepository : IProducerRepository
         var producer = await GetByIdAsync(entity.Id);
         if (producer is null)
         {
-            ErrorMessages.Add("id", "There is no producer with this id");
+            ErrorMessages.Add("id", $"There is no producer with id '{entity.Id}'");
             return null;
         }
 
         if (_context.Producers.Any(p => p.Name == entity.Name && p.Id != entity.Id))
         {
-            ErrorMessages.Add("name", "There is already a producer with this name");
+            ErrorMessages.Add("name", $"There is already a producer with name {entity.Name}");
             return null;
         }
         

@@ -29,20 +29,6 @@ public class GenreRepository : IGenreRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Genre>> GetAllAsync(int page, int size = 100)
-    {
-        if (page <= 0)
-            throw new ArgumentException($"{nameof(page)} must be greater than zero");
-
-        if (size <= 0)
-            throw new ArgumentException($"{nameof(size)} must be greater than zero");
-
-        var entities = await GetAllAsync();
-        return entities
-            .Skip((page - 1) * size)
-            .Take(size);
-    }
-
     public async Task<IEnumerable<Genre>> GetByNameAsync(string name)
     {
         ArgumentNullException.ThrowIfNull(name, nameof(name));
@@ -53,23 +39,21 @@ public class GenreRepository : IGenreRepository
             .AsNoTracking()
             .ToListAsync();
     }
-    
-    public async Task<IEnumerable<Genre>> GetByNameAsync(string name, int page, int size = 100)
+
+    public async Task<IEnumerable<int>> GetExistingIdsAsync()
     {
-        ArgumentNullException.ThrowIfNull(name, nameof(name));
-        ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
-        
-        if(page <= 0 )
-            throw new ArgumentException($"'{nameof(page)} must be greater than zero");
-        
-        if(size <= 0)
-            throw new ArgumentException($"'{nameof(size)}' must be greater than zero");
-        
-        var entities = await GetByNameAsync(name);
-        return entities
-            .Skip((page - 1) * size)
-            .Take(size)
-            .ToList();
+        return await _context.Genres
+            .AsNoTracking()
+            .Select(g => g.Id)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetExistingNamesAsync()
+    {
+        return await _context.Genres
+            .AsNoTracking()
+            .Select(g => g.Name!)
+            .ToListAsync();
     }
 
     public async Task<Genre?> AddAsync(Genre entity)
@@ -79,12 +63,12 @@ public class GenreRepository : IGenreRepository
         var genre = await GetByIdAsync(entity.Id);
         if (genre is not null)
         {
-            ErrorMessages.Add("id", "There is already a genre with this id");
+            ErrorMessages.Add("id", $"There is already a genre with id '{entity.Id}'");
             return null;
         }
         if (_context.Genres.Any(g => g.Name == entity.Name))
         {
-            ErrorMessages.Add("name", "There is already a genre with this name");
+            ErrorMessages.Add("name", $"There is already a genre with this name '{entity.Name}'");
             return null;
         }
         
@@ -100,13 +84,13 @@ public class GenreRepository : IGenreRepository
         var genre = await GetByIdAsync(entity.Id);
         if (genre is null)
         {
-            ErrorMessages.Add("id", "There is no genre with this id");
+            ErrorMessages.Add("id", $"There is no genre with id '{entity.Id}'");
             return null;
         }
 
         if (_context.Genres.Any(g => g.Name == entity.Name && g.Id != entity.Id))
         {
-            ErrorMessages.Add("name", "There is already a genre with this name");
+            ErrorMessages.Add("name", $"There is already a genre with name {entity.Name}");
             return null;
         }
         

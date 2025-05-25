@@ -3,67 +3,70 @@ using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators.Interfaces;
-using AnimeApi.Server.DataAccess.Models;
 using AnimeApi.Server.DataAccess.Services.Interfaces;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
-public class GenreHelper : IGenreHelper
+public class SourceHelper : ISourceHelper
 {
-    private readonly IGenreRepository _repository;
-    private readonly IGenreValidator _validator;
+    private readonly ISourceRepository _repository;
+    private readonly ISourceValidator _validator;
     public Dictionary<string, string> ErrorMessages { get; private set; } = new();
-    public GenreHelper(IGenreRepository repository, IGenreValidator validator)
+    
+    public SourceHelper(ISourceRepository repository, ISourceValidator validator)
     {
         _repository = repository;
         _validator = validator;
     }
-
-    public async Task<GenreDto?> GetByIdAsync(int id)
+    
+    public async Task<SourceDto?> GetByIdAsync(int id)
     {
-        var model = await _repository.GetByIdAsync(id);
+        var model =  await _repository.GetByIdAsync(id);
         return model?.ToDto();
     }
 
-    public async Task<IEnumerable<GenreDto>> GetByNameAsync(string name)
+    public async Task<IEnumerable<SourceDto>> GetByNameAsync(string name)
     {
-        ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
-        
         var models = await _repository.GetByNameAsync(name);
         return models.ToDto();
     }
 
-    public async Task<IEnumerable<GenreDto>> GetAllAsync()
+    public async Task<IEnumerable<SourceDto>> GetAllAsync()
     {
         var models = await _repository.GetAllAsync();
         return models.ToDto();
     }
 
-    public async Task<GenreDto?> CreateAsync(GenreDto entity)
+    public async Task<SourceDto?> CreateAsync(SourceDto entity)
     {
-      
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
+        var ids = await _repository.GetExistingIdsAsync();
+        var names = await _repository.GetExistingNamesAsync();
+
+        _validator
+            .WithExistingIds(ids)
+            .WithExistingNames(names);
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<GenreDto>();
-            return null;
+           ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<Type>();
+           return null;
         }
-
+        
         var model = entity.ToModel();
         var result = await _repository.AddAsync(model);
-        
-        if(result is null)
+
+        if (result == null)
         {
             ErrorMessages = _repository.ErrorMessages;
-            return null;    
+            return null;
         }
         
         return result.ToDto();
     }
 
-    public async Task<GenreDto?> UpdateAsync(GenreDto entity)
+    public async Task<SourceDto?> UpdateAsync(SourceDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 

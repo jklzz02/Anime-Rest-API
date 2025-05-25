@@ -1,11 +1,10 @@
-using AnimeApi.Server.DataAccess.Models;
+using Type = AnimeApi.Server.DataAccess.Models.Type;
 
 namespace AnimeApi.Server.DataAccess.Services.Interfaces;
 
-public interface IProducerRepository : IRepository<Producer>
+public interface ITypeRepository : IRepository<Type>
 {
-    Task<IEnumerable<Producer>> GetByNameAsync(string name);
+    Task<IEnumerable<Type>> GetByNameAsync(string name);
     Task<IEnumerable<int>> GetExistingIdsAsync();
     Task<IEnumerable<string>> GetExistingNamesAsync();
-
 }

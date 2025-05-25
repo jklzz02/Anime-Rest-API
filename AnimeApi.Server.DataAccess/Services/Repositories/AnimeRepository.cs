@@ -29,8 +29,9 @@ public class AnimeRepository : IAnimeRepository
     public async Task<IEnumerable<Anime>> GetAllAsync()
     {
         return await _context.Anime
-            .OrderBy(a => a.Id)
             .AsSplitQuery()
+            .OrderBy(a => a.Id)
+            .AsNoTracking()
             .ToListAsync();
     }
     
@@ -51,7 +52,7 @@ public class AnimeRepository : IAnimeRepository
         var anime = await GetByIdAsync(entity.Id);
         if (anime is not null)
         {
-            ErrorMessages.Add("id", "There is already an anime with this id");
+            ErrorMessages.Add("id", $"There is already an anime with id {entity.Id}");
             return null;
         }
 
@@ -86,7 +87,7 @@ public class AnimeRepository : IAnimeRepository
         var anime = await GetByIdAsync(entity.Id);
         if (anime is null)
         {
-            ErrorMessages.Add("id", "There is no anime with this id");
+            ErrorMessages.Add("id", $"There is no anime with id {entity.Id}");
             return null;
         }
 

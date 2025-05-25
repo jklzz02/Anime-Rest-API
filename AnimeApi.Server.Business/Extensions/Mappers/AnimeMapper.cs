@@ -5,6 +5,9 @@ using Type = AnimeApi.Server.DataAccess.Models.Type;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
+/// <summary>
+/// Provides mapping extension methods for converting between <see cref="Anime"/> and <see cref="AnimeDto"/> objects.
+/// </summary>
 public static class AnimeMapper
 {
     public static Anime ToModel(this AnimeDto dto, bool includeNavigation = true)

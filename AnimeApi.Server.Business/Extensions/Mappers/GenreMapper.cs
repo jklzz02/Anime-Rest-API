@@ -3,6 +3,10 @@ using AnimeApi.Server.DataAccess.Models;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
+/// <summary>
+/// Provides extension methods for mapping between <see cref="Genre"/> and <see cref="GenreDto"/> objects,
+/// as well as collections of these objects.
+/// </summary>
 public static class GenreMapper
 {
     public static GenreDto ToDto(this Genre genre)

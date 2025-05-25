@@ -3,6 +3,9 @@ using AnimeApi.Server.DataAccess.Models;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
+/// <summary>
+/// Provides mapping extensions for converting between <see cref="Producer"/> and <see cref="ProducerDto"/> objects.
+/// </summary>
 public static class ProducerMapper
 {
     public static ProducerDto ToDto(this Producer producer)

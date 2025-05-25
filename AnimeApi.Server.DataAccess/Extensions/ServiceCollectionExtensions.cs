@@ -23,6 +23,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IProducerRepository, ProducerRepository>();
         services.AddTransient<IGenreRepository, GenreRepository>();
         services.AddTransient<ILicensorRepository, LicensorRepository>();
+        services.AddTransient<ISourceRepository, SourceRepository>();
+        services.AddTransient<ITypeRepository, TypeRepository>();
         
         return services;
     }

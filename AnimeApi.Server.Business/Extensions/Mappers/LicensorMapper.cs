@@ -3,6 +3,9 @@ using AnimeApi.Server.DataAccess.Models;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
+/// <summary>
+/// Provides extension methods for mapping between <see cref="Licensor"/> and <see cref="LicensorDto"/> objects.
+/// </summary>
 public static class LicensorMapper
 {
     public static LicensorDto ToDto(this Licensor licensor)

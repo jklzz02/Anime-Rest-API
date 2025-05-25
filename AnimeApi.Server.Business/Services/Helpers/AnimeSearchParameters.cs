@@ -2,6 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
+/// <summary>
+/// Represents a set of parameters used to search for anime entries.
+/// </summary>
+/// <remarks>
+/// This class is used as a model to capture query parameters for anime search operations.
+/// </remarks>
 public class AnimeSearchParameters
 {
     [FromQuery(Name = "title")]
