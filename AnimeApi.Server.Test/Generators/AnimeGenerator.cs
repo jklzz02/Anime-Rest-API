@@ -4,8 +4,21 @@ using Type = AnimeApi.Server.DataAccess.Models.Type;
 
 namespace AnimeApi.Server.Test.Generators;
 
+/// <summary>
+/// Provides utility methods for generating mock data for Anime-related testing.
+/// </summary>
+/// <remarks>
+/// This static class is intended to supply test data in the form of DTOs and domain models,
+/// as well as data mapping examples for validation in unit tests.
+/// </remarks>
 public static class AnimeGenerator
 {
+    /// <summary>
+    /// Provides test data for mapping between <see cref="AnimeDto"/> and <see cref="Anime"/>.
+    /// </summary>
+    /// <returns>
+    /// A collection of object arrays, where each array contains a <see cref="AnimeDto"/> and its expected <see cref="Anime"/> model.
+    /// </returns>
     public static IEnumerable<object[]> GetAnimeDtoToAnimeTestData()
     {
         var dtos = GetMockAnimeDtoList();
@@ -17,6 +30,12 @@ public static class AnimeGenerator
         }
     }
 
+    /// <summary>
+    /// Provides test data for validating <see cref="AnimeDto"/> mapping and operations.
+    /// </summary>
+    /// <returns>
+    /// A collection of object arrays, where each array contains a single <see cref="AnimeDto"/> entry for testing purposes.
+    /// </returns>
     public static IEnumerable<object[]> GetAnimeDtoTestData()
     {
         var dtos = GetMockAnimeDtoList();
