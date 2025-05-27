@@ -10,9 +10,9 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class ProducerHelper : IProducerHelper
 {
     private readonly IProducerRepository _repository;
-    private readonly IProducerValidator _validator;
+    private readonly IBaseValidator<ProducerDto> _validator;
     public Dictionary<string, string> ErrorMessages { get; private set; } = new();
-    public ProducerHelper(IProducerRepository repository, IProducerValidator validator)
+    public ProducerHelper(IProducerRepository repository, IBaseValidator<ProducerDto> validator)
     {
         _repository = repository;
         _validator = validator;

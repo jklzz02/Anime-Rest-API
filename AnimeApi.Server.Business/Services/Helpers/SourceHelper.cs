@@ -10,10 +10,10 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class SourceHelper : ISourceHelper
 {
     private readonly ISourceRepository _repository;
-    private readonly ISourceValidator _validator;
+    private readonly IBaseValidator<SourceDto> _validator;
     public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     
-    public SourceHelper(ISourceRepository repository, ISourceValidator validator)
+    public SourceHelper(ISourceRepository repository, IBaseValidator<SourceDto> validator)
     {
         _repository = repository;
         _validator = validator;
@@ -50,7 +50,7 @@ public class SourceHelper : ISourceHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-           ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<Type>();
+           ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<SourceDto>();
            return null;
         }
         

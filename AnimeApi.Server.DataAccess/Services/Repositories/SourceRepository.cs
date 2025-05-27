@@ -67,20 +67,20 @@ public class SourceRepository : ISourceRepository
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
-        var licensor = await GetByIdAsync(entity.Id);
-        if (licensor is null)
+        var source = await GetByIdAsync(entity.Id);
+        if (source is null)
         {
             ErrorMessages.Add("id", $"There is no anime source with id '{entity.Id}'");
             return null;
         }
-        if (_context.Sources.Any(l => l.Name == entity.Name && l.Id != entity.Id))
+        if (_context.Sources.Any(s => s.Name == entity.Name && s.Id != entity.Id))
         {
             return null;
         }
 
-        licensor.Name = entity.Name;
+        source.Name = entity.Name;
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? await GetByIdAsync(licensor.Id) : null;
+        return result ? await GetByIdAsync(source.Id) : null;
     }
 
     public async Task<bool> DeleteAsync(int id)

@@ -1,8 +1,9 @@
+using AnimeApi.Server.Business.Dto.Interfaces;
 using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Business.Dto;
 
-public record TypeDto
+public record TypeDto : IBaseDto
 {
     [JsonProperty("id")]
     public int? Id { get; init; }

@@ -10,10 +10,10 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class TypeHelper : ITypeHelper
 {
     private readonly ITypeRepository _repository;
-    private readonly ITypeValidator _validator;
+    private readonly IBaseValidator<TypeDto> _validator;
     public Dictionary<string, string> ErrorMessages { get; private set; } = new();
 
-    public TypeHelper(ITypeRepository repository, ITypeValidator validator)
+    public TypeHelper(ITypeRepository repository, IBaseValidator<TypeDto> validator)
     {
         _repository = repository;
         _validator = validator;

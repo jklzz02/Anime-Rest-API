@@ -1,3 +1,4 @@
+using AnimeApi.Server.Business.Dto;
 using AnimeApi.Server.Business.Services;
 using AnimeApi.Server.Business.Services.Helpers;
 using AnimeApi.Server.Business.Services.Interfaces;
@@ -17,11 +18,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBusiness(this IServiceCollection services)
     {
         services.AddTransient<IAnimeValidator, AnimeValidator>();
-        services.AddTransient<IGenreValidator, GenreValidator>();
-        services.AddTransient<IProducerValidator, ProducerValidator>();
-        services.AddTransient<ILicensorValidator, LicensorValidator>();
-        services.AddTransient<ISourceValidator, SourceValidator>();
-        services.AddTransient<ITypeValidator, TypeValidator>();
+        services.AddTransient<IBaseValidator<GenreDto>, BaseValidator<GenreDto>>();
+        services.AddTransient<IBaseValidator<SourceDto>, BaseValidator<SourceDto>>();
+        services.AddTransient<IBaseValidator<TypeDto>, BaseValidator<TypeDto>>();
+        services.AddTransient<IBaseValidator<ProducerDto>, BaseValidator<ProducerDto>>();
+        services.AddTransient<IBaseValidator<LicensorDto>, BaseValidator<LicensorDto>>();
         
         services.AddTransient<IAnimeHelper, AnimeHelper>();
         services.AddTransient<IGenreHelper, GenreHelper>();

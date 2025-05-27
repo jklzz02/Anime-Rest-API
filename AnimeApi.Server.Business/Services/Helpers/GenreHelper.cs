@@ -11,9 +11,9 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class GenreHelper : IGenreHelper
 {
     private readonly IGenreRepository _repository;
-    private readonly IGenreValidator _validator;
+    private readonly IBaseValidator<GenreDto> _validator;
     public Dictionary<string, string> ErrorMessages { get; private set; } = new();
-    public GenreHelper(IGenreRepository repository, IGenreValidator validator)
+    public GenreHelper(IGenreRepository repository, IBaseValidator<GenreDto> validator)
     {
         _repository = repository;
         _validator = validator;

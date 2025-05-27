@@ -10,9 +10,9 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class LicensorHelper : ILicensorHelper
 {
     private readonly ILicensorRepository _repository;
-    private readonly ILicensorValidator _validator;
+    private readonly IBaseValidator<LicensorDto> _validator;
     public Dictionary<string, string> ErrorMessages { get; private set; } = new();
-    public LicensorHelper(ILicensorRepository repository, ILicensorValidator validator)
+    public LicensorHelper(ILicensorRepository repository, IBaseValidator<LicensorDto> validator)
     {
         _repository = repository;
         _validator = validator;

@@ -65,20 +65,20 @@ public class TypeRepository : ITypeRepository
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
-        var licensor = await GetByIdAsync(entity.Id);
-        if (licensor is null)
+        var type = await GetByIdAsync(entity.Id);
+        if (type is null)
         {
             ErrorMessages.Add("id", $"There is no anime type with id '{entity.Id}'");
             return null;
         }
-        if (_context.Sources.Any(l => l.Name == entity.Name && l.Id != entity.Id))
+        if (_context.Sources.Any(t => t.Name == entity.Name && t.Id != entity.Id))
         {
             return null;
         }
 
-        licensor.Name = entity.Name;
+        type.Name = entity.Name;
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? await GetByIdAsync(licensor.Id) : null;
+        return result ? await GetByIdAsync(type.Id) : null;
     }
 
     public async Task<bool> DeleteAsync(int id)
