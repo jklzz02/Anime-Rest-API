@@ -39,6 +39,13 @@ public class LicensorHelper : ILicensorHelper
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
+        var ids = await _repository.GetExistingIdsAsync();
+        var names = await _repository.GetExistingNamesAsync();
+
+        _validator
+            .WithExistingIds(ids)
+            .WithExistingNames(names);
+        
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {

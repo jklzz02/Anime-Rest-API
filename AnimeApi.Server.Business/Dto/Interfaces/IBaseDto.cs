@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace AnimeApi.Server.Business.Dto.Interfaces;
 
 public interface IBaseDto
