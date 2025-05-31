@@ -14,9 +14,11 @@ public record AnimeDto
     public string? OtherName { get; set; }
     [JsonProperty("synopsis")]
     public string? Synopsis { get; set; }
-    [JsonProperty("image_url")]
-    public string? Status { get; set; }
     [JsonProperty("background")]
+    public string? Background { get; set; }
+    [JsonProperty("status")]
+    public string? Status { get; set; }
+    [JsonProperty("image_url")]
     public string? ImageUrl { get; set; }
     [JsonProperty("type")]
     public TypeDto? Type { get; set; }
@@ -38,8 +40,6 @@ public record AnimeDto
     public string? Studio { get; set; }
     [JsonProperty("score")]
     public decimal Score { get; set; }
-    [JsonProperty("status")]
-    public string? Background { get; set; }
     [JsonProperty("trailer_url")]
     public string? TrailerUrl { get; set; }
     [JsonProperty("trailer_embed_url")]

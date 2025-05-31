@@ -38,14 +38,14 @@ public partial class Anime
     public int TypeId { get; set; }
 
     public int? SourceId { get; set; }
-    
-    public string Background { get; set; } = null!;
-    
-    public string Trailer_image_url { get; set; } = null!;
-    
-    public string Trailer_url { get; set; } = null!;
-    
-    public string Trailer_embed_url { get; set; } = null!;
+
+    public string? Trailer_image_url { get; set; }
+
+    public string? Trailer_url { get; set; }
+
+    public string? Trailer_embed_url { get; set; }
+
+    public string? Background { get; set; }
 
     public virtual ICollection<Anime_Genre> Anime_Genres { get; set; } = new List<Anime_Genre>();
 
