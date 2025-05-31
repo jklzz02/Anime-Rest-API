@@ -1,3 +1,4 @@
+using System.Data;
 using AnimeApi.Server.Business.Dto;
 using AnimeApi.Server.Business.Validators.Interfaces;
 using FluentValidation;
@@ -68,5 +69,21 @@ public class AnimeValidator : AbstractValidator<AnimeDto>, IAnimeValidator
         RuleFor(x => x.Score)
             .GreaterThanOrEqualTo(0)
             .WithMessage("The 'score' must be greater than or equal to 0.");
+        
+        RuleFor(x => x.Background)
+            .MaximumLength(1000)
+            .WithMessage("The 'background' cannot be longer than 1000 characters.");
+        
+        RuleFor(x => x.TrailerUrl)
+            .MaximumLength(255)
+            .WithMessage("The 'trailer_url' cannot be longer than 255 characters.");
+        
+        RuleFor(x => x.TrailerEmbedUrl)
+            .MaximumLength(255)
+            .WithMessage("The 'trailer_embed_url' cannot be longer than 255 characters.");
+        
+        RuleFor(x => x.TrailerImageUrl)
+            .MaximumLength(255)
+            .WithMessage("The 'trailer_image_url' cannot be longer than 255 characters.");
     }
 }

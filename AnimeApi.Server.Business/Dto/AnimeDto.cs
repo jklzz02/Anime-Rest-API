@@ -15,6 +15,8 @@ public record AnimeDto
     [JsonProperty("synopsis")]
     public string? Synopsis { get; set; }
     [JsonProperty("image_url")]
+    public string? Status { get; set; }
+    [JsonProperty("background")]
     public string? ImageUrl { get; set; }
     [JsonProperty("type")]
     public TypeDto? Type { get; set; }
@@ -37,7 +39,13 @@ public record AnimeDto
     [JsonProperty("score")]
     public decimal Score { get; set; }
     [JsonProperty("status")]
-    public string? Status { get; set; }
+    public string? Background { get; set; }
+    [JsonProperty("trailer_url")]
+    public string? TrailerUrl { get; set; }
+    [JsonProperty("trailer_embed_url")]
+    public string? TrailerEmbedUrl { get; set; }
+    [JsonProperty("trailer_image_url")]
+    public string? TrailerImageUrl { get;set; }
     [JsonProperty("genres")]
     public List<GenreDto> Genres { get; set; } = [];
     [JsonProperty("licensors")]

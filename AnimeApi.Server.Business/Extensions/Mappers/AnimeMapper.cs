@@ -31,6 +31,10 @@ public static class AnimeMapper
             Studio = dto.Studio,
             Score = dto.Score,
             Status = dto.Status,
+            Background = dto.Background,
+            Trailer_url = dto.TrailerUrl,
+            Trailer_embed_url = dto.TrailerEmbedUrl,
+            Trailer_image_url = dto.TrailerImageUrl,
 
             Anime_Genres = dto.Genres?
                 .Select(g => new Anime_Genre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0, Genre = includeNavigation ? g.ToModel() : null})
@@ -75,6 +79,10 @@ public static class AnimeMapper
             Studio = anime.Studio,
             Score = anime.Score,
             Status = anime.Status,
+            Background = anime.Background,
+            TrailerUrl = anime.Trailer_url,
+            TrailerEmbedUrl = anime.Trailer_embed_url,
+            TrailerImageUrl = anime.Trailer_image_url,
             
             Genres = anime.Anime_Genres
                 .Select(ag => new GenreDto() { Id = ag.GenreId, Name = ag?.Genre?.Name})

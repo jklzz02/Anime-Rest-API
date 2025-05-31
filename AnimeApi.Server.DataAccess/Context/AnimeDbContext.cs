@@ -83,6 +83,26 @@ public partial class AnimeDbContext : DbContext
                 .HasMaxLength(5000)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
+            
+            entity.Property(e => e.Background)
+                .HasMaxLength(1000)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+            
+            entity.Property(e => e.Trailer_image_url)
+                .HasMaxLength(255)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+            
+            entity.Property(e => e.Trailer_url)
+                .HasMaxLength(255)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+            
+            entity.Property(e => e.Trailer_embed_url)
+                .HasMaxLength(255)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
 
             entity.HasOne(d => d.Source).WithMany(p => p.Animes)
                 .HasForeignKey(d => d.SourceId)
