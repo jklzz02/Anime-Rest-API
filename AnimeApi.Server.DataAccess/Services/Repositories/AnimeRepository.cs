@@ -29,9 +29,9 @@ public class AnimeRepository : IAnimeRepository
     public async Task<IEnumerable<Anime>> GetAllAsync()
     {
         return await _context.Anime
+            .AsNoTracking()
             .AsSplitQuery()
             .OrderBy(a => a.Id)
-            .AsNoTracking()
             .ToListAsync();
     }
     
@@ -77,6 +77,22 @@ public class AnimeRepository : IAnimeRepository
         }
         
         _context.Entry(entity).State = EntityState.Detached;
+        
+        entity.Anime_Genres
+            .Where(ag => ag?.Genre != null)
+            .Select(ag => ag.Genre)
+            .ForEach(g => _context.Entry(g).State = EntityState.Detached);
+        
+        entity.Anime_Producers
+            .Where(ap => ap?.Producer != null)
+            .Select(ap => ap.Producer)
+            .ForEach(p => _context.Entry(p).State = EntityState.Detached);
+        
+        entity.Anime_Licensors
+            .Where(al => al?.Licensor != null)
+            .Select(al => al.Licensor)
+            .ForEach(l => _context.Entry(l).State = EntityState.Detached);
+        
         return await GetByIdAsync(entity.Id);
     }
 
@@ -113,6 +129,22 @@ public class AnimeRepository : IAnimeRepository
         }
         
         _context.Entry(anime).State = EntityState.Detached;
+        
+        anime.Anime_Genres
+            .Where(ag => ag?.Genre != null)
+            .Select(ag => ag.Genre)
+            .ForEach(g => _context.Entry(g).State = EntityState.Detached);
+        
+        anime.Anime_Producers
+            .Where(ap => ap?.Producer != null)
+            .Select(ap => ap.Producer)
+            .ForEach(p => _context.Entry(p).State = EntityState.Detached);
+        
+        anime.Anime_Licensors
+            .Where(al => al?.Licensor != null)
+            .Select(al => al.Licensor)
+            .ForEach(l => _context.Entry(l).State = EntityState.Detached);
+        
         return await GetByIdAsync(anime.Id);
     }
 
