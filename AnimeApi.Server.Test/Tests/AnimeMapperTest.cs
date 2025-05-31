@@ -27,6 +27,10 @@ public class AnimeMapperTest
         Assert.Equal(dto.Synopsis, result.Synopsis);
         Assert.Equal(dto.Studio, result.Studio);
         Assert.Equal(dto.Status, result.Status);
+        Assert.Equal(dto.Source, result.Source);
+        Assert.Equal(dto.TrailerUrl, result.TrailerUrl);
+        Assert.Equal(dto.TrailerImageUrl, result.TrailerImageUrl);
+        Assert.Equal(dto.TrailerEmbedUrl, result.TrailerEmbedUrl);
         Assert.Equal(dto.Genres, result.Genres);
         Assert.Equal(dto.Licensors, result.Licensors);
         Assert.Equal(dto.Producers, result.Producers);
@@ -54,6 +58,10 @@ public class AnimeMapperTest
         Assert.Equal(dto.Synopsis, roundTrippedDto.Synopsis);
         Assert.Equal(dto.Studio, roundTrippedDto.Studio);
         Assert.Equal(dto.Status, roundTrippedDto.Status);
+        Assert.Equal(dto.Source, roundTrippedDto.Source);
+        Assert.Equal(dto.TrailerUrl, roundTrippedDto.TrailerUrl);
+        Assert.Equal(dto.TrailerImageUrl, roundTrippedDto.TrailerImageUrl);
+        Assert.Equal(dto.TrailerEmbedUrl, roundTrippedDto.TrailerEmbedUrl);
         Assert.Equal(dto.Genres, roundTrippedDto.Genres);
         Assert.Equal(dto.Licensors, roundTrippedDto.Licensors);
         Assert.Equal(dto.Producers, roundTrippedDto.Producers);
@@ -80,7 +88,9 @@ public class AnimeMapperTest
         Assert.Equal(model.Synopsis, result.Synopsis);
         Assert.Equal(model.Studio, result.Studio);
         Assert.Equal(model.Status, result.Status);
-
+        Assert.Equal(model.Trailer_url, result.Trailer_url);
+        Assert.Equal(model.Trailer_image_url, result.Trailer_image_url);
+        Assert.Equal(model.Trailer_embed_url, result.Trailer_embed_url);
         Assert.Equal(model.Anime_Genres.Count, result.Anime_Genres.Count);
         Assert.Equal(model.Anime_Licensors.Count, result.Anime_Licensors.Count);
         Assert.Equal(model.Anime_Producers.Count, result.Anime_Producers.Count);
