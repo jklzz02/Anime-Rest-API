@@ -383,8 +383,12 @@ public class AnimeRepository : IAnimeRepository
         original.Score = updated.Score;
         original.Status = updated.Status;
         original.Anime_Genres
+            .Distinct()
+            .ToList()
             .Update(updated.Anime_Genres, original.Id);
         original.Anime_Producers
+            .Distinct()
+            .ToList()
             .Update(updated.Anime_Producers, original.Id);
         original.Anime_Licensors
             .Update(updated.Anime_Licensors, original.Id);
