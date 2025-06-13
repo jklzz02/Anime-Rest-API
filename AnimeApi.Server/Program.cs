@@ -1,5 +1,6 @@
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.DataAccess.Extensions;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace AnimeApi.Server;
 
@@ -35,6 +36,30 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        
+        app.UseExceptionHandler(errorApp =>
+        {
+            errorApp.Run(async context =>
+            {
+                context.Response.StatusCode = 500;
+                context.Response.ContentType = "application/json";
+
+                var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
+                if (errorFeature != null)
+                {
+                    var ex = errorFeature.Error;
+
+                    var result = System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        error = "Internal server error",
+                        details = app.Environment.IsDevelopment() ? ex.Message : "An unexpected error occurred."
+                    });
+
+                    await context.Response.WriteAsync(result);
+                }
+            });
+        });
+
 
         app.UseHttpsRedirection();
 
