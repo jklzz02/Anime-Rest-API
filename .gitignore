@@ -3,6 +3,7 @@ bin/
 obj/
 
 # User-specific stuff
+.vs/
 .idea/
 .idea/**/workspace.xml
 .idea/**/tasks.xml
