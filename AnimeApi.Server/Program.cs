@@ -1,6 +1,7 @@
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.DataAccess.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
+using Newtonsoft.Json;
 
 namespace AnimeApi.Server;
 
@@ -49,7 +50,7 @@ public class Program
                 {
                     var ex = errorFeature.Error;
 
-                    var result = System.Text.Json.JsonSerializer.Serialize(new
+                    var result = JsonConvert.SerializeObject(new
                     {
                         error = "Internal server error",
                         details = app.Environment.IsDevelopment() ? ex.Message : "An unexpected error occurred."
