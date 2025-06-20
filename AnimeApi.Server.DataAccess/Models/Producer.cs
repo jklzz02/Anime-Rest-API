@@ -9,5 +9,5 @@ public partial class Producer
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<Anime_Producer> Anime_Producers { get; set; } = new List<Anime_Producer>();
+    public virtual ICollection<AnimeProducer> Anime_Producers { get; set; } = new List<AnimeProducer>();
 }

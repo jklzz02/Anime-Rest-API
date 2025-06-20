@@ -74,9 +74,9 @@ public static class AnimeGenerator
                 Trailer_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
                 Trailer_image_url = "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
                 Trailer_embed_url = "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                Anime_Genres = { new Anime_Genre { GenreId = 1, Genre = new Genre { Id = 1, Name = "Action" } } },
-                Anime_Licensors = { new Anime_Licensor { LicensorId = 1, Licensor = new Licensor { Id = 1, Name = "test" } } },
-                Anime_Producers = { new Anime_Producer { ProducerId = 1, Producer = new Producer { Id = 1, Name = "test" } } }
+                Anime_Genres = { new AnimeGenre { GenreId = 1, Genre = new Genre { Id = 1, Name = "Action" } } },
+                Anime_Licensors = { new AnimeLicensor { LicensorId = 1, Licensor = new Licensor { Id = 1, Name = "test" } } },
+                Anime_Producers = { new AnimeProducer { ProducerId = 1, Producer = new Producer { Id = 1, Name = "test" } } }
             },
             new Anime
             {
@@ -102,9 +102,9 @@ public static class AnimeGenerator
                 Trailer_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
                 Trailer_image_url = "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
                 Trailer_embed_url = "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                Anime_Genres = { new Anime_Genre { GenreId = 2, Genre = new Genre { Id = 2, Name = "Fantasy" } } },
-                Anime_Licensors = { new Anime_Licensor { LicensorId = 2, Licensor = new Licensor { Id = 2, Name = "Disney" } } },
-                Anime_Producers = { new Anime_Producer { ProducerId = 2, Producer = new Producer { Id = 2, Name = "Ghibli" } } }
+                Anime_Genres = { new AnimeGenre { GenreId = 2, Genre = new Genre { Id = 2, Name = "Fantasy" } } },
+                Anime_Licensors = { new AnimeLicensor { LicensorId = 2, Licensor = new Licensor { Id = 2, Name = "Disney" } } },
+                Anime_Producers = { new AnimeProducer { ProducerId = 2, Producer = new Producer { Id = 2, Name = "Ghibli" } } }
             },
             new Anime
             {
@@ -130,9 +130,9 @@ public static class AnimeGenerator
                 Trailer_url = "",
                 Trailer_embed_url = "",
                 Trailer_image_url = "",
-                Anime_Genres = { new Anime_Genre { GenreId = 1, Genre = new Genre { Id = 1, Name = "Action" } }, new Anime_Genre { GenreId = 3, Genre = new Genre { Id = 3, Name = "Adventure" } } },
-                Anime_Licensors = { new Anime_Licensor { LicensorId = 3, Licensor = new Licensor { Id = 3, Name = "Viz Media" } } },
-                Anime_Producers = { new Anime_Producer { ProducerId = 3, Producer = new Producer { Id = 3, Name = "TV Tokyo" } } }
+                Anime_Genres = { new AnimeGenre { GenreId = 1, Genre = new Genre { Id = 1, Name = "Action" } }, new AnimeGenre { GenreId = 3, Genre = new Genre { Id = 3, Name = "Adventure" } } },
+                Anime_Licensors = { new AnimeLicensor { LicensorId = 3, Licensor = new Licensor { Id = 3, Name = "Viz Media" } } },
+                Anime_Producers = { new AnimeProducer { ProducerId = 3, Producer = new Producer { Id = 3, Name = "TV Tokyo" } } }
             },
             new Anime
             {
@@ -158,9 +158,9 @@ public static class AnimeGenerator
                 Trailer_url = "",
                 Trailer_embed_url = "",
                 Trailer_image_url = "",
-                Anime_Genres = { new Anime_Genre { GenreId = 2, Genre = new Genre { Id = 2, Name = "Fantasy" } }, new Anime_Genre { GenreId = 3, Genre = new Genre { Id = 3, Name = "Adventure" } } },
-                Anime_Licensors = { new Anime_Licensor { LicensorId = 1, Licensor = new Licensor { Id = 1, Name = "test" } } },
-                Anime_Producers = { new Anime_Producer { ProducerId = 4, Producer = new Producer { Id = 4, Name = "Kadokawa" } } }
+                Anime_Genres = { new AnimeGenre { GenreId = 2, Genre = new Genre { Id = 2, Name = "Fantasy" } }, new AnimeGenre { GenreId = 3, Genre = new Genre { Id = 3, Name = "Adventure" } } },
+                Anime_Licensors = { new AnimeLicensor { LicensorId = 1, Licensor = new Licensor { Id = 1, Name = "test" } } },
+                Anime_Producers = { new AnimeProducer { ProducerId = 4, Producer = new Producer { Id = 4, Name = "Kadokawa" } } }
             },
             new Anime
             {
@@ -186,9 +186,9 @@ public static class AnimeGenerator
                 Trailer_url = "",
                 Trailer_embed_url = "",
                 Trailer_image_url = "",
-                Anime_Genres = { new Anime_Genre { GenreId = 4, Genre = new Genre { Id = 4, Name = "Comedy" } } },
-                Anime_Licensors = { new Anime_Licensor { LicensorId = 4, Licensor = new Licensor { Id = 4, Name = "ObscureLicensor" } } },
-                Anime_Producers = { new Anime_Producer { ProducerId = 5, Producer = new Producer { Id = 5, Name = "RetroStudio" } } }
+                Anime_Genres = { new AnimeGenre { GenreId = 4, Genre = new Genre { Id = 4, Name = "Comedy" } } },
+                Anime_Licensors = { new AnimeLicensor { LicensorId = 4, Licensor = new Licensor { Id = 4, Name = "ObscureLicensor" } } },
+                Anime_Producers = { new AnimeProducer { ProducerId = 5, Producer = new Producer { Id = 5, Name = "RetroStudio" } } }
             }
         ];
     }

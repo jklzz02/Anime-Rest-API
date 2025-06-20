@@ -37,16 +37,16 @@ public static class AnimeMapper
             Trailer_image_url = dto.TrailerImageUrl,
 
             Anime_Genres = dto.Genres?
-                .Select(g => new Anime_Genre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0, Genre = includeNavigation ? g.ToModel() : null})
-                .ToList() ?? new List<Anime_Genre>(),
+                .Select(g => new AnimeGenre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0, Genre = includeNavigation ? g.ToModel() : null})
+                .ToList() ?? new List<AnimeGenre>(),
 
             Anime_Producers = dto.Producers?
-                .Select(p => new Anime_Producer { ProducerId = p.Id ?? 0, AnimeId = dto.Id ?? 0, Producer = includeNavigation ? p.ToModel() : null })
-                .ToList() ?? new List<Anime_Producer>(),
+                .Select(p => new AnimeProducer { ProducerId = p.Id ?? 0, AnimeId = dto.Id ?? 0, Producer = includeNavigation ? p.ToModel() : null })
+                .ToList() ?? new List<AnimeProducer>(),
 
             Anime_Licensors = dto.Licensors?
-                .Select(l => new Anime_Licensor { LicensorId = l.Id ?? 0, AnimeId = dto.Id ?? 0, Licensor = includeNavigation ? l.ToModel() : null })
-                .ToList() ?? new List<Anime_Licensor>()
+                .Select(l => new AnimeLicensor { LicensorId = l.Id ?? 0, AnimeId = dto.Id ?? 0, Licensor = includeNavigation ? l.ToModel() : null })
+                .ToList() ?? new List<AnimeLicensor>()
         };
 
         if (includeNavigation)

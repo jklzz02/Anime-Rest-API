@@ -47,11 +47,11 @@ public partial class Anime
 
     public string? Background { get; set; }
 
-    public virtual ICollection<Anime_Genre> Anime_Genres { get; set; } = new List<Anime_Genre>();
+    public virtual ICollection<AnimeGenre> Anime_Genres { get; set; } = new List<AnimeGenre>();
 
-    public virtual ICollection<Anime_Licensor> Anime_Licensors { get; set; } = new List<Anime_Licensor>();
+    public virtual ICollection<AnimeLicensor> Anime_Licensors { get; set; } = new List<AnimeLicensor>();
 
-    public virtual ICollection<Anime_Producer> Anime_Producers { get; set; } = new List<Anime_Producer>();
+    public virtual ICollection<AnimeProducer> Anime_Producers { get; set; } = new List<AnimeProducer>();
 
     public virtual Source? Source { get; set; }
 

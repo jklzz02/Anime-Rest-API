@@ -296,9 +296,9 @@ public class AnimeRepository : IAnimeRepository
     }
     
     private async Task<bool>  ValidateForeignKeysAsync(
-        ICollection<Anime_Genre> genres,
-        ICollection<Anime_Producer> producers,
-        ICollection<Anime_Licensor> licensors,
+        ICollection<AnimeGenre> genres,
+        ICollection<AnimeProducer> producers,
+        ICollection<AnimeLicensor> licensors,
         int typeId,
         int sourceId)
     {

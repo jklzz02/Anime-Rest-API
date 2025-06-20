@@ -117,9 +117,9 @@ public class AnimeMapperTest
     {
         var model = new Anime
         {
-            Anime_Genres = new List<Anime_Genre>(),
-            Anime_Licensors = new List<Anime_Licensor>(),
-            Anime_Producers = new List<Anime_Producer>()
+            Anime_Genres = new List<AnimeGenre>(),
+            Anime_Licensors = new List<AnimeLicensor>(),
+            Anime_Producers = new List<AnimeProducer>()
         };
 
         var dto = model.ToDto();

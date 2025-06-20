@@ -9,5 +9,5 @@ public partial class Licensor
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<Anime_Licensor> Anime_Licensors { get; set; } = new List<Anime_Licensor>();
+    public virtual ICollection<AnimeLicensor> Anime_Licensors { get; set; } = new List<AnimeLicensor>();
 }

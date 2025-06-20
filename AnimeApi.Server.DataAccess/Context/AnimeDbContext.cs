@@ -17,11 +17,12 @@ public partial class AnimeDbContext : DbContext
 
     public virtual DbSet<Anime> Anime { get; set; }
 
-    public virtual DbSet<Anime_Genre> Anime_Genres { get; set; }
+    public virtual DbSet<AnimeGenre> Anime_Genres { get; set; }
 
-    public virtual DbSet<Anime_Licensor> Anime_Licensors { get; set; }
+    public virtual DbSet<AnimeLicensor> Anime_Licensors { get; set; }
 
-    public virtual DbSet<Anime_Producer> Anime_Producers { get; set; }
+    public virtual DbSet<AnimeProducer> Anime_Producers { get; set; }
+    
 
     public virtual DbSet<Genre> Genres { get; set; }
 
@@ -114,7 +115,7 @@ public partial class AnimeDbContext : DbContext
             .Navigation(a => a.Source)
             .AutoInclude();
 
-        modelBuilder.Entity<Anime_Genre>(entity =>
+        modelBuilder.Entity<AnimeGenre>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
@@ -133,11 +134,11 @@ public partial class AnimeDbContext : DbContext
                 .HasConstraintName("Anime_Genre_ibfk_2");
         });
         
-        modelBuilder.Entity<Anime_Genre>()
+        modelBuilder.Entity<AnimeGenre>()
             .Navigation(ag => ag.Genre)
             .AutoInclude();
 
-        modelBuilder.Entity<Anime_Licensor>(entity =>
+        modelBuilder.Entity<AnimeLicensor>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
@@ -156,11 +157,11 @@ public partial class AnimeDbContext : DbContext
                 .HasConstraintName("Anime_Licensor_ibfk_2");
         });
         
-        modelBuilder.Entity<Anime_Licensor>()
+        modelBuilder.Entity<AnimeLicensor>()
             .Navigation(al => al.Licensor)
             .AutoInclude();
 
-        modelBuilder.Entity<Anime_Producer>(entity =>
+        modelBuilder.Entity<AnimeProducer>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
@@ -179,7 +180,7 @@ public partial class AnimeDbContext : DbContext
                 .HasConstraintName("Anime_Producer_ibfk_2");
         });
         
-        modelBuilder.Entity<Anime_Producer>()
+        modelBuilder.Entity<AnimeProducer>()
             .Navigation(al => al.Producer)
             .AutoInclude();
 
