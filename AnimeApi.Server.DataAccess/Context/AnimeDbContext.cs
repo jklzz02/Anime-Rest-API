@@ -23,6 +23,7 @@ public partial class AnimeDbContext : DbContext
 
     public virtual DbSet<AnimeProducer> Anime_Producers { get; set; }
     
+    public virtual DbSet<AppUser> Users { get; set; }
 
     public virtual DbSet<Genre> Genres { get; set; }
 
@@ -193,6 +194,26 @@ public partial class AnimeDbContext : DbContext
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
             entity.Property(e => e.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<AppUser>(entity =>
+        {
+            entity.HasKey(e => e.Id)
+                .HasName("PRIMARY");
+            
+            entity.ToTable("User");
+
+            entity.HasIndex(e => e.Email, "Email")
+                .IsUnique();
+
+            entity.Property(e => e.Email)
+                .HasMaxLength(255);
+
+            entity.Property(e => e.Username)
+                .HasMaxLength(255);
+
+            entity.Property(e => e.Picture_Url)
+                .HasMaxLength(255);
         });
 
         modelBuilder.Entity<Licensor>(entity =>
