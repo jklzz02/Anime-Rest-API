@@ -249,22 +249,40 @@ public class AnimeHelper : IAnimeHelper
         if (parameters.ProducerId.HasValue)
             filters.Add(a => a.Anime_Producers.Any(p => p.ProducerId == parameters.ProducerId));
         
-        if(!string.IsNullOrWhiteSpace(parameters.ProducerName))
+        if (!string.IsNullOrWhiteSpace(parameters.ProducerName))
             filters.Add(a => a.Anime_Producers.Any(p => p.Producer.Name.Contains(parameters.ProducerName)));
 
+        if (parameters.ProducerNames?.Any() ?? false)
+        {
+            filters.Add(a => parameters
+                .ProducerNames.All(p => a.Anime_Producers.Any(ap => ap.Producer.Name == p)));
+        }
+        
         if (parameters.LicensorId.HasValue)
             filters.Add(a => a.Anime_Licensors.Any(l => l.LicensorId == parameters.LicensorId));
 
-        if(!string.IsNullOrWhiteSpace(parameters.LicensorName))
+        if (!string.IsNullOrWhiteSpace(parameters.LicensorName))
             filters.Add(a => a.Anime_Licensors.Any(l => l.Licensor.Name.Contains(parameters.LicensorName)));
+
+        if (parameters.LicensorNames?.Any() ?? false)
+        {
+            filters.Add(a => parameters
+                .LicensorNames.All(l => a.Anime_Licensors.Any(al => al.Licensor.Name == l)));
+        }
         
         if (parameters.GenreId.HasValue)
             filters.Add(a => a.Anime_Genres.Any(g => g.GenreId == parameters.GenreId));
         
-        if(!string.IsNullOrWhiteSpace(parameters.GenreName))
+        if (!string.IsNullOrWhiteSpace(parameters.GenreName))
             filters.Add(a => a.Anime_Genres.Any(g => g.Genre.Name.Contains(parameters.GenreName)));
 
-        if(parameters.Episodes.HasValue)
+        if (parameters.GenreNames?.Any() ?? false)
+        {
+            filters.Add(a => parameters
+                .GenreNames.All(g => a.Anime_Genres.Any(ag => ag.Genre.Name == g)));
+        }
+
+        if (parameters.Episodes.HasValue)
             filters.Add(a => a.Episodes == parameters.Episodes);
         
         if (parameters.MinScore.HasValue)
