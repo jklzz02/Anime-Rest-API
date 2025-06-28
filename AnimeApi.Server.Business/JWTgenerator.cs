@@ -1,0 +1,51 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using AnimeApi.Server.DataAccess.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+
+namespace AnimeApi.Server.Business;
+
+public class JwtGenerator
+{
+    private readonly IConfiguration _configuration;
+
+    public JwtGenerator(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+    
+    public string GenerateToken(AppUser user)
+    {
+        var secrets = _configuration.GetSection("Authentication:Jwt");
+
+        var secret = secrets.GetSection("Secret").Value ?? 
+                     throw new ApplicationException("Secret not found in configuration");
+        
+        var issuer = secrets.GetSection("Issuer").Value ??
+                     throw new ApplicationException("Issuer not found in configuration");
+        
+        var audience = secrets.GetSection("Audience").Value ??
+                       throw new ApplicationException("Audience not found in configuration");
+
+        List<Claim> claims = 
+            [
+                new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new (JwtRegisteredClaimNames.Email, user.Email),
+                new ("name", user.Username)
+            ];
+        
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: issuer,
+            audience: audience,
+            claims: claims,
+            expires: DateTime.Now.AddHours(2),
+            signingCredentials: credentials);
+        
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+}
