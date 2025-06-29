@@ -4,6 +4,7 @@ using AnimeApi.Server.Business.Services.Helpers;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators;
 using AnimeApi.Server.Business.Validators.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimeApi.Server.Business.Extensions;
@@ -33,6 +34,21 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<ICachingService, CachingService>();
         
+        return services;
+    }
+
+    /// <summary>
+    /// Adds identity-related services, including authentication and user management,
+    /// to the dependency injection container.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to which the identity services will be added.</param>
+    /// <returns>The updated <see cref="IServiceCollection"/> configured with identity-related dependencies.</returns>
+    public static IServiceCollection AddIdentity(this IServiceCollection services)
+    {
+        services.AddTransient<IJwtGenerator, JwtGenerator>();
+        services.AddTransient<IUserService, UserService>();
+        services.AddAuthenticationCore();
+
         return services;
     }
 }

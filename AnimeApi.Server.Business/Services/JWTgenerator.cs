@@ -1,13 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AnimeApi.Server.DataAccess.Models;
+using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AnimeApi.Server.Business;
+namespace AnimeApi.Server.Business.Services;
 
-public class JwtGenerator
+public class JwtGenerator : IJwtGenerator
 {
     private readonly IConfiguration _configuration;
 
@@ -16,7 +17,7 @@ public class JwtGenerator
         _configuration = configuration;
     }
     
-    public string GenerateToken(AppUser user)
+    public string GenerateToken(AppUserDto user)
     {
         var secrets = _configuration.GetSection("Authentication:Jwt");
 
