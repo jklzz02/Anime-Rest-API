@@ -1,3 +1,4 @@
+using AnimeApi.Server.Business.Objects;
 using AnimeApi.Server.Business.Services.Interfaces;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -40,9 +41,4 @@ public class AuthController : ControllerBase
             user = userDto
         });
     }
-}
-
-public class GoogleLoginRequest
-{
-    public string IdToken { get; set; } = string.Empty;
 }

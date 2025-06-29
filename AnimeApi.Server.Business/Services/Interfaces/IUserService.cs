@@ -1,4 +1,4 @@
-using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Objects.Dto;
 using Google.Apis.Auth;
 
 namespace AnimeApi.Server.Business.Services.Interfaces;

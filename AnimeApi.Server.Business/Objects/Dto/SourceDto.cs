@@ -1,7 +1,7 @@
-using AnimeApi.Server.Business.Dto.Interfaces;
+using AnimeApi.Server.Business.Objects.Dto.Interfaces;
 using Newtonsoft.Json;
 
-namespace AnimeApi.Server.Business.Dto;
+namespace AnimeApi.Server.Business.Objects.Dto;
 
 public record SourceDto : IBaseDto
 {

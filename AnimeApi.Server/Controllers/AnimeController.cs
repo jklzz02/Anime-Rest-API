@@ -1,5 +1,5 @@
-using AnimeApi.Server.Business.Dto;
-using AnimeApi.Server.Business.Services.Helpers;
+using AnimeApi.Server.Business.Objects.Dto;
+using AnimeApi.Server.Business.Objects;
 using AnimeApi.Server.Business.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

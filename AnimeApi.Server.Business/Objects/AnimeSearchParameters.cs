@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace AnimeApi.Server.Business.Services.Helpers;
+namespace AnimeApi.Server.Business.Objects;
 
 /// <summary>
 /// Represents a set of parameters used to search for anime entries.
@@ -12,7 +12,7 @@ public class AnimeSearchParameters
 {
     [FromQuery(Name = "title")]
     public string? Name { get; set; } = null;
-     [FromQuery(Name = "producer_id")]
+    [FromQuery(Name = "producer_id")]
     public int? ProducerId { get; set; } = null;
     [FromQuery(Name = "producer")]
     public string? ProducerName { get; set; } = null;

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace AnimeApi.Server.Business.Dto;
+namespace AnimeApi.Server.Business.Objects.Dto;
 
 public record AppUserDto
 {

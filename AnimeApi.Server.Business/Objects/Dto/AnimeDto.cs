@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace AnimeApi.Server.Business.Dto;
+namespace AnimeApi.Server.Business.Objects.Dto;
 
 public record AnimeDto
 {

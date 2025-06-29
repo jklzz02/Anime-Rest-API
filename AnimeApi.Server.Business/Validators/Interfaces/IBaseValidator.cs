@@ -1,4 +1,4 @@
-using AnimeApi.Server.Business.Dto.Interfaces;
+using AnimeApi.Server.Business.Objects.Dto.Interfaces;
 using FluentValidation;
 
 namespace AnimeApi.Server.Business.Validators.Interfaces;

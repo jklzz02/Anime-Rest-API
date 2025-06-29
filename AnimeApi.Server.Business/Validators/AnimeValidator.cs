@@ -1,5 +1,5 @@
 using System.Data;
-using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Validators.Interfaces;
 using FluentValidation;
 

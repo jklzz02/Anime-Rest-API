@@ -1,4 +1,4 @@
-using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.DataAccess.Models;
 using LinqKit;
 using Type = AnimeApi.Server.DataAccess.Models.Type;

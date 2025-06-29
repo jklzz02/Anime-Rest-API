@@ -1,4 +1,4 @@
-using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Objects.Dto;
 using Type = AnimeApi.Server.DataAccess.Models.Type;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;

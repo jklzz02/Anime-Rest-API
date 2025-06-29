@@ -1,11 +1,11 @@
-using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators.Interfaces;
 using AnimeApi.Server.DataAccess.Services.Interfaces;
 
-namespace AnimeApi.Server.Business.Services.Helpers;
+namespace AnimeApi.Server.Business.Objects;
 
 public class LicensorHelper : ILicensorHelper
 {

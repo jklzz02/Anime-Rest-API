@@ -1,4 +1,4 @@
-namespace AnimeApi.Server.Business.Dto.Interfaces;
+namespace AnimeApi.Server.Business.Objects.Dto.Interfaces;
 
 public interface IBaseDto
 { 

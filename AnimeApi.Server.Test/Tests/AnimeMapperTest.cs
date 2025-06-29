@@ -1,4 +1,4 @@
-using AnimeApi.Server.Business.Dto;
+using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.DataAccess.Models;
 using AnimeApi.Server.Test.Generators;
