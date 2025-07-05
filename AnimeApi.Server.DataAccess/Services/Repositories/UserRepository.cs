@@ -27,4 +27,13 @@ public class UserRepository : IUserRepository
         _context.Users.Add(user);
         return await _context.SaveChangesAsync() > 0;
     }
+
+    public async Task<bool> DestroyAsync(string email)
+    {
+        var user = await GetByEmailAsync(email);
+        if (user is null) return false;
+        
+        _context.Users.Remove(user);
+        return await _context.SaveChangesAsync() > 0;
+    }
 }

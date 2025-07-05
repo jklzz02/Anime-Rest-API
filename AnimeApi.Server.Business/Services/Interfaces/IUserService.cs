@@ -22,4 +22,14 @@ public interface IUserService
     /// An <see cref="AppUserDto"/> representing the retrieved or newly created user.
     /// </returns>
     Task<AppUserDto> GetOrCreateUserAsync(GoogleJsonWebSignature.Payload payload);
+
+    /// <summary>
+    /// Deletes a user identified by their email address asynchronously.
+    /// </summary>
+    /// <param name="email">The email address of the user to be deleted.</param>
+    /// <returns>
+    /// A boolean value indicating whether the user was successfully deleted
+    /// (true if deleted, false if the user does not exist).
+    /// </returns>
+    Task<bool> DestroyUserAsync(string email);
 }

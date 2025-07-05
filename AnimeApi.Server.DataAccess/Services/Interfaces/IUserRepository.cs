@@ -17,4 +17,11 @@ public interface IUserRepository
     /// <param name="user">The <see cref="AppUser"/> instance containing user details to be added.</param>
     /// <returns>A boolean indicating whether the user was successfully created.</returns>
     Task<bool?> CreateAsync(AppUser user);
+
+    /// <summary>
+    /// Deletes an <see cref="AppUser"/> from the data store based on the provided email address.
+    /// </summary>
+    /// <param name="email">The email address of the user to be deleted.</param>
+    /// <returns>A boolean indicating whether the user was successfully deleted.</returns>
+    Task<bool> DestroyAsync(string email);
 }

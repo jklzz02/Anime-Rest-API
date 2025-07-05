@@ -42,4 +42,15 @@ public class UserService : IUserService
         await _repository.CreateAsync(newUser.ToModel());
         return newUser;
     }
+
+    public async Task<bool> DestroyUserAsync(string email)
+    {
+        var user = await _repository.GetByEmailAsync(email);
+        if (user == null)
+        {
+            return false;
+        }
+
+        return await _repository.DestroyAsync(email);
+    }
 }
