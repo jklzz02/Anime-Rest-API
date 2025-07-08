@@ -22,6 +22,14 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public async Task<AppUser?> GetByIdAsync(int id)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == id);
+        
+        return user;
+    }
+
     public async Task<bool?> CreateAsync(AppUser user)
     {
         _context.Users.Add(user);

@@ -10,7 +10,12 @@ public interface IUserRepository
     /// <param name="email">The email address of the user to retrieve.</param>
     /// <returns>An <see cref="AppUser"/> if a user with the specified email exists; otherwise, null.</returns>
     Task<AppUser?> GetByEmailAsync(string email);
-
+    /// <summary>
+    /// Retrieves an <see cref="AppUser"/> based on the provided ID.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user to retrieve.</param>
+    /// <returns>An <see cref="AppUser"/> if a user with the specified ID exists; otherwise, null.</returns>
+    Task<AppUser?> GetByIdAsync(int id);
     /// <summary>
     /// Creates a new user in the data store.
     /// </summary>

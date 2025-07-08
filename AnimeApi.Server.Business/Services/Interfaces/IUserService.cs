@@ -13,7 +13,14 @@ public interface IUserService
     /// An <see cref="AppUserDto"/> representing the user if found, or null if no user exists with the specified email.
     /// </returns>
     Task<AppUserDto?> GetByEmailAsync(string email);
-
+    /// <summary>
+    /// Retrieves a user by their unique identifier asynchronously.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user to retrieve.</param>
+    /// <returns>
+    /// An <see cref="AppUserDto"/> representing the user if found, or null if no user exists with the specified identifier.
+    /// </returns>
+    Task<AppUserDto?> GetByIdAsync(int id);
     /// <summary>
     /// Retrieves an existing user or creates a new one based on the provided Google authentication payload.
     /// </summary>

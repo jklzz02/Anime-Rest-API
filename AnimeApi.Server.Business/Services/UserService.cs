@@ -21,7 +21,13 @@ public class UserService : IUserService
         var user =  await _repository.GetByEmailAsync(email);
         return user?.ToDto();
     }
-    
+
+    public async Task<AppUserDto?> GetByIdAsync(int id)
+    {
+        var user = await _repository.GetByIdAsync(id);
+        return user?.ToDto();
+    }
+
     public async Task<AppUserDto> GetOrCreateUserAsync(GoogleJsonWebSignature.Payload payload)
     {
         var existingUser = await _repository.GetByEmailAsync(payload.Email);
