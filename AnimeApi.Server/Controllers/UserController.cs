@@ -18,6 +18,8 @@ public class UserController : ControllerBase
 
     [HttpGet]
     [Authorize]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(401)]
     public async Task<IActionResult> GetCurrentUserAsync()
     {
         var email = User.FindFirst(JwtRegisteredClaimNames.Email);
@@ -30,6 +32,9 @@ public class UserController : ControllerBase
 
     [HttpDelete]
     [Authorize]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(404)]
     public async Task<IActionResult> DestroyCurrentUserAsync()
     {
         var email = User.FindFirst(JwtRegisteredClaimNames.Email);

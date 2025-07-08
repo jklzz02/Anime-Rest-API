@@ -1,6 +1,7 @@
 using AnimeApi.Server.Business.Objects;
 using AnimeApi.Server.Business.Services.Interfaces;
 using Google.Apis.Auth;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
@@ -22,6 +23,11 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
     {
         GoogleJsonWebSignature.Payload payload;
+
+        if (string.IsNullOrEmpty(request?.IdToken))
+        {
+            return BadRequest("Google ID token is required.");
+        }
         
         try
         {
