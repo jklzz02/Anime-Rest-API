@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using AnimeApi.Server.Business.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -38,7 +37,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> DestroyCurrentUserAsync()
     {
-        var email = User.FindFirst(JwtRegisteredClaimNames.Email);
+        var email = User.FindFirst(ClaimTypes.Email);
         var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
 
         if (user is null) return NotFound();
