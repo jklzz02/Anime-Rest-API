@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AnimeApi.Server.Controllers;
 
 [ApiController]
-[Route("api/auth")]
+[Route("[Controller]")]
 public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
