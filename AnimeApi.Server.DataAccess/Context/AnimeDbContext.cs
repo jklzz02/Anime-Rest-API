@@ -22,8 +22,9 @@ public partial class AnimeDbContext : DbContext
     public virtual DbSet<AnimeLicensor> Anime_Licensors { get; set; }
 
     public virtual DbSet<AnimeProducer> Anime_Producers { get; set; }
-    
     public virtual DbSet<AppUser> Users { get; set; }
+    
+    public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Genre> Genres { get; set; }
 
@@ -214,6 +215,26 @@ public partial class AnimeDbContext : DbContext
 
             entity.Property(e => e.Picture_Url)
                 .HasMaxLength(255);
+
+            entity.HasOne<Role>(e => e.Role).WithMany(r => r.Users)
+                .HasForeignKey(e => e.Role_Id)
+                .HasConstraintName("User_Role_Id_fk");
+        });
+        
+        modelBuilder.Entity<AppUser>()
+            .Navigation(u => u.Role)
+            .AutoInclude();
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.Id)
+                .HasName("PRIMARY");
+            
+            entity.Property(e => e.Access)
+                .HasMaxLength(255)
+                .IsRequired();
+            
+            entity.ToTable("Role");
         });
 
         modelBuilder.Entity<Licensor>(entity =>

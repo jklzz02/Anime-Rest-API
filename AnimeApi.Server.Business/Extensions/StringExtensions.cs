@@ -2,7 +2,7 @@ using System.Text;
 
 namespace AnimeApi.Server.Business.Extensions;
 
-public static class StringFormatter
+public static class StringExtensions
 {
     /// <summary>
     /// Converts a string to title case
@@ -25,5 +25,16 @@ public static class StringFormatter
     public static string EmailToUsername(this string email)
     {
         return string.Join(" ", email.Split('@')[0].Split('.')).ToTitleCase();
+    }
+
+    /// <summary>
+    /// Compares two strings for equality, ignoring case.
+    /// </summary>
+    /// <param name="str">The first string to compare.</param>
+    /// <param name="other">The second string to compare against.</param>
+    /// <returns>True if the strings are equal, ignoring case; otherwise, false.</returns>
+    public static bool EqualsIgnoreCase(this string str, string other)
+    {
+        return string.Equals(str, other, StringComparison.OrdinalIgnoreCase);
     }
 }

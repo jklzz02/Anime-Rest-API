@@ -1,5 +1,6 @@
 using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.DataAccess.Models;
+using static AnimeApi.Server.Business.Constants;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
@@ -13,11 +14,12 @@ public static class AppUserMapper
             Email = appUser.Email,
             Username = appUser.Username,
             CreatedAt = appUser.Created_At,
-            ProfilePictureUrl = appUser.Picture_Url
+            ProfilePictureUrl = appUser.Picture_Url,
+            Admin = appUser.Role.Access.EqualsIgnoreCase(UserAccess.Admin)
         };
     }
 
-    public static AppUser ToModel(this AppUserDto appUserDto)
+    public static AppUser ToModel(this AppUserDto appUserDto, int roleId)
     {
         return new AppUser
         {
@@ -25,7 +27,8 @@ public static class AppUserMapper
             Email = appUserDto.Email,
             Username = appUserDto.Username,
             Created_At = appUserDto.CreatedAt,
-            Picture_Url = appUserDto.ProfilePictureUrl
+            Picture_Url = appUserDto.ProfilePictureUrl,
+            Role_Id = roleId
         };
     }
 }

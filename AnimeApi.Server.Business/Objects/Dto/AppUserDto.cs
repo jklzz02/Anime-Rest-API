@@ -18,4 +18,7 @@ public record AppUserDto
     
     [JsonPropertyName("created_at")]
     public required DateTime CreatedAt { get; init; }
+    
+    [JsonPropertyName("admin")]
+    public bool Admin { get; init; }
 }

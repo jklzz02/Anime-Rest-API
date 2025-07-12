@@ -9,28 +9,30 @@ namespace AnimeApi.Server.Business.Services;
 
 public class UserService : IUserService
 {
-    private readonly IUserRepository _repository;
+    private readonly IUserRepository _userRepository;
+    private readonly IRoleRepository _roleRepository;
     
-    public UserService(IUserRepository repository)
+    public UserService(IUserRepository userRepository, IRoleRepository roleRepository)
     {
-        _repository = repository;
+        _userRepository = userRepository;
+        _roleRepository = roleRepository;
     }
 
     public async Task<AppUserDto?> GetByEmailAsync(string email)
     {
-        var user =  await _repository.GetByEmailAsync(email);
+        var user =  await _userRepository.GetByEmailAsync(email);
         return user?.ToDto();
     }
 
     public async Task<AppUserDto?> GetByIdAsync(int id)
     {
-        var user = await _repository.GetByIdAsync(id);
+        var user = await _userRepository.GetByIdAsync(id);
         return user?.ToDto();
     }
 
     public async Task<AppUserDto> GetOrCreateUserAsync(GoogleJsonWebSignature.Payload payload)
     {
-        var existingUser = await _repository.GetByEmailAsync(payload.Email);
+        var existingUser = await _userRepository.GetByEmailAsync(payload.Email);
 
         if (existingUser != null)
         {
@@ -42,21 +44,25 @@ public class UserService : IUserService
             Username = payload.Email.EmailToUsername(),
             Email = payload.Email,
             CreatedAt = DateTime.UtcNow,
-            ProfilePictureUrl = payload.Picture,
+            ProfilePictureUrl = payload.Picture ?? string.Empty,
+            Admin = false
         };
 
-        await _repository.CreateAsync(newUser.ToModel());
+        var role = await _roleRepository
+            .GetByAccessAsync(Constants.UserAccess.User);
+
+        await _userRepository.CreateAsync(newUser.ToModel(role!.Id));
         return newUser;
     }
 
     public async Task<bool> DestroyUserAsync(string email)
     {
-        var user = await _repository.GetByEmailAsync(email);
+        var user = await _userRepository.GetByEmailAsync(email);
         if (user == null)
         {
             return false;
         }
 
-        return await _repository.DestroyAsync(email);
+        return await _userRepository.DestroyAsync(email);
     }
 }

@@ -5,6 +5,7 @@ using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using static AnimeApi.Server.Business.Constants;
 
 namespace AnimeApi.Server.Business.Services;
 
@@ -35,6 +36,7 @@ public class JwtGenerator : IJwtGenerator
                 new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new (JwtRegisteredClaimNames.Email, user.Email),
                 new (JwtRegisteredClaimNames.Name, user.Username),
+                new (UserAccess.User, user.Admin.ToString())
             ];
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
