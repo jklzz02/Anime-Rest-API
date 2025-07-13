@@ -9,4 +9,6 @@ public class AppUser
     public string Picture_Url { get; set; } = null!;
     public int Role_Id { get; set; }
     public Role Role { get; set; } = null!;
+    
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

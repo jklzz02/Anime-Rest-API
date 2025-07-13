@@ -52,6 +52,8 @@ public partial class Anime
     public virtual ICollection<AnimeLicensor> Anime_Licensors { get; set; } = new List<AnimeLicensor>();
 
     public virtual ICollection<AnimeProducer> Anime_Producers { get; set; } = new List<AnimeProducer>();
+    
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
     public virtual Source? Source { get; set; }
 

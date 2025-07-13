@@ -22,7 +22,10 @@ public partial class AnimeDbContext : DbContext
     public virtual DbSet<AnimeLicensor> Anime_Licensors { get; set; }
 
     public virtual DbSet<AnimeProducer> Anime_Producers { get; set; }
+    
     public virtual DbSet<AppUser> Users { get; set; }
+    
+    public virtual DbSet<Review> Reviews { get; set; }
     
     public virtual DbSet<Role> Roles { get; set; }
 
@@ -224,6 +227,28 @@ public partial class AnimeDbContext : DbContext
         modelBuilder.Entity<AppUser>()
             .Navigation(u => u.Role)
             .AutoInclude();
+
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.HasKey(e => e.Id)
+                .HasName("PRIMARY");
+            
+            entity.ToTable("Review");
+            
+            entity.Property(e => e.Content)
+                .HasMaxLength(5000)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3")
+                .IsRequired();
+            
+            entity.HasOne(r => r.Anime).WithMany(a => a.Reviews)
+                .HasForeignKey(r => r.Anime_Id)
+                .HasConstraintName("Anime_Id_fk");
+            
+            entity.HasOne(r => r.User).WithMany(u => u.Reviews)
+                .HasForeignKey(r => r.User_Id)
+                .HasConstraintName("User_Id_Fk");
+        });
 
         modelBuilder.Entity<Role>(entity =>
         {
