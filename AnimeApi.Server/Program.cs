@@ -20,7 +20,7 @@ public class Program
        builder.Services
            .AddAuthorization(options =>
            {
-               options.AddPolicy(Constants.UserAccess.Admin, policy => policy.RequireRole(Constants.UserAccess.Admin));
+               options.AddPolicy(Constant.UserAccess.Admin, policy => policy.RequireRole(Constant.UserAccess.Admin));
            })
            .AddControllers()
            .AddNewtonsoftJson();
@@ -30,8 +30,8 @@ public class Program
            .AddMemoryCache()
            .AddBusiness()
            .AddIdentity()
-           .AddAuthentication("Bearer")
-           .AddJwtBearer("Bearer", options =>
+           .AddAuthentication(Constant.Authentication.DefaultScheme)
+           .AddJwtBearer(Constant.Authentication.DefaultScheme, options =>
            {
                var config = builder.Configuration.GetSection("Authentication:Jwt");
                options.TokenValidationParameters = new TokenValidationParameters
@@ -52,15 +52,15 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "AnimeApi", Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = Constant.App, Version = "v1" });
 
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            c.AddSecurityDefinition(Constant.Authentication.DefaultScheme, new OpenApiSecurityScheme
             {
                 Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
                 Name = "Authorization",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
+                Scheme = Constant.Authentication.DefaultScheme,
                 BearerFormat = "JWT"
             });
 
@@ -72,7 +72,7 @@ public class Program
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                            Id = Constant.Authentication.DefaultScheme
                         }
                     },
                     Array.Empty<string>()
@@ -93,7 +93,7 @@ public class Program
         {
             errorApp.Run(async context =>
             {
-                context.Response.StatusCode = 500;
+                context.Response.StatusCode = Constant.StatusCode.InternalServerError;
                 context.Response.ContentType = "application/json";
 
                 var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
@@ -103,7 +103,7 @@ public class Program
 
                     var result = JsonConvert.SerializeObject(new
                     {
-                        error = "Internal server error",
+                        error = Constant.Remark.InternalServerError,
                         details = app.Environment.IsDevelopment() ? ex.Message : "An unexpected error occurred."
                     });
 

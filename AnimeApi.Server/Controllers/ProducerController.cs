@@ -18,7 +18,7 @@ public class ProducerController : ControllerBase
     }
     
     [HttpGet]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
     public async Task<IActionResult> GetAllAsync()
     {
         var producers = await _helper.GetAllAsync();
@@ -27,8 +27,8 @@ public class ProducerController : ControllerBase
     
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var producer = await _helper.GetByIdAsync(id);
@@ -39,8 +39,8 @@ public class ProducerController : ControllerBase
 
     [HttpGet]
     [Route("name/{name}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
         var producer = await _helper.GetByNameAsync(name);
@@ -50,10 +50,10 @@ public class ProducerController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] ProducerDto producer)
     {
         var result = await _helper.CreateAsync(producer);
@@ -66,11 +66,11 @@ public class ProducerController : ControllerBase
     }
 
     [HttpPut]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] ProducerDto producer)
     {
         if (string.IsNullOrEmpty(producer.Name))
@@ -87,11 +87,11 @@ public class ProducerController : ControllerBase
     }
     
     [HttpPatch]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] ProducerDto producer)
     {
         if (string.IsNullOrEmpty(producer.Name))
@@ -110,15 +110,15 @@ public class ProducerController : ControllerBase
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(403)]   
-    [ProducesResponseType(404)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.NoContent)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]   
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);
         if(!result) return NotFound();
         
-        return Ok();
+        return NoContent();
     }
 }

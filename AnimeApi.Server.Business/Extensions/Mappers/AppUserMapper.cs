@@ -1,6 +1,6 @@
 using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.DataAccess.Models;
-using static AnimeApi.Server.Business.Constants;
+using static AnimeApi.Server.Business.Constant;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 

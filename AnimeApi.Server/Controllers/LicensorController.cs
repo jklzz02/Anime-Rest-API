@@ -17,7 +17,7 @@ public class LicensorController : ControllerBase
     }
     
     [HttpGet]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
     public async Task<IActionResult> GetAllAsync()
     {
         var licensors = await _helper.GetAllAsync();
@@ -26,7 +26,7 @@ public class LicensorController : ControllerBase
 
     [HttpGet]
     [Route("{id:int}")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var licensor = await _helper.GetByIdAsync(id);
@@ -36,8 +36,8 @@ public class LicensorController : ControllerBase
 
     [HttpGet]
     [Route("name/{name}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
         var licensor = await _helper.GetByNameAsync(name);
@@ -47,11 +47,11 @@ public class LicensorController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] LicensorDto licensor)
     {
         var result = await _helper.CreateAsync(licensor);
@@ -64,11 +64,11 @@ public class LicensorController : ControllerBase
     }
 
     [HttpPut]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] LicensorDto licensor)
     {
         if (string.IsNullOrEmpty(licensor.Name))
@@ -85,11 +85,11 @@ public class LicensorController : ControllerBase
         return Ok(result);
     }
     [HttpPatch]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] LicensorDto licensor)
     {
         if (string.IsNullOrEmpty(licensor.Name))
@@ -108,14 +108,14 @@ public class LicensorController : ControllerBase
 
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(403)]
-    [ProducesResponseType(404)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.NoContent)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);
         if(!result) return NotFound();
-        return Ok();
+        return NoContent();
     }
 }

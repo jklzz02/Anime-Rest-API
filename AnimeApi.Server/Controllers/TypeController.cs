@@ -18,7 +18,7 @@ public class TypeController : ControllerBase
     }
     
     [HttpGet]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
     public async Task<IActionResult> GetAllAsync()
     {
         var types = await _helper.GetAllAsync();
@@ -27,8 +27,8 @@ public class TypeController : ControllerBase
     
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var type = await _helper.GetByIdAsync(id);
@@ -39,8 +39,8 @@ public class TypeController : ControllerBase
     
     [HttpGet]
     [Route("name/{name}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
         var type = await _helper.GetByNameAsync(name);
@@ -50,10 +50,10 @@ public class TypeController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] TypeDto type)
     {
         var result = await _helper.CreateAsync(type);
@@ -66,10 +66,10 @@ public class TypeController : ControllerBase
     }
     
     [HttpPut]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] TypeDto type)
     {
         var result = await _helper.UpdateAsync(type);
@@ -82,10 +82,10 @@ public class TypeController : ControllerBase
     }
 
     [HttpPatch]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] TypeDto type)
     {
         var result = await _helper.UpdateAsync(type);
@@ -99,15 +99,15 @@ public class TypeController : ControllerBase
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(403)] 
-    [ProducesResponseType(404)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.NoContent)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)] 
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);
         if(!result) return NotFound();
-        
-        return Ok();
+
+        return NoContent();
     }
 }

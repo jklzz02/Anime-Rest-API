@@ -22,7 +22,7 @@ public class AnimeController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
     public async Task<IActionResult> GetAllAsync([FromQuery] int page)
     {
         var anime = await _cache
@@ -40,8 +40,8 @@ public class AnimeController : ControllerBase
     
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var anime = await _cache
@@ -54,8 +54,9 @@ public class AnimeController : ControllerBase
     
     [HttpGet]
     [Route("search")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByParametersAsync([FromQuery] AnimeSearchParameters parameters, int page)
     {
         var anime = await _cache
@@ -75,8 +76,9 @@ public class AnimeController : ControllerBase
 
     [HttpGet]
     [Route("year/{year:int:min(1900)}/page/{page:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByReleaseYearAsync([FromRoute] int year, int page)
     {
         var anime = await _cache
@@ -95,8 +97,9 @@ public class AnimeController : ControllerBase
 
     [HttpGet]
     [Route("episodes/{episodes:int:min(1)}/page/{page:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByEpisodes([FromRoute] int episodes, int page)
     {
         var anime = await _cache
@@ -115,8 +118,9 @@ public class AnimeController : ControllerBase
 
     [HttpGet]
     [Route("title/{title}/page/{page:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
     public async Task<IActionResult> GetByTitleAsync([FromRoute] string title, int page)
     {
         var anime = await _cache
@@ -134,11 +138,10 @@ public class AnimeController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.CreateAsync(anime);
@@ -151,11 +154,10 @@ public class AnimeController : ControllerBase
     }
     
     [HttpPatch]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
@@ -168,11 +170,10 @@ public class AnimeController : ControllerBase
     }
     
     [HttpPut]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
@@ -186,15 +187,15 @@ public class AnimeController : ControllerBase
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(403)]   
-    [ProducesResponseType(404)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(Constant.StatusCode.NoContent)]
+    [ProducesResponseType(Constant.StatusCode.Forbidden)]   
+    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [Authorize(Policy = Constant.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);
         if(!result) return NotFound();
         
-        return Ok();
+        return NoContent();
     }
 }

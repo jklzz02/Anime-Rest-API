@@ -1,7 +1,7 @@
+using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Objects;
 using AnimeApi.Server.Business.Services.Interfaces;
 using Google.Apis.Auth;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
@@ -20,6 +20,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("google")]
+    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constant.StatusCode.BadRequest)]
+    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
     public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
     {
         GoogleJsonWebSignature.Payload payload;
