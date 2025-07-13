@@ -22,14 +22,18 @@ public class JwtGenerator : IJwtGenerator
     {
         var secrets = _configuration.GetSection("Authentication:Jwt");
 
-        var secret = secrets.GetSection("Secret").Value ?? 
-                     throw new ApplicationException("Secret not found in configuration");
-        
-        var issuer = secrets.GetSection("Issuer").Value ??
-                     throw new ApplicationException("Issuer not found in configuration");
-        
-        var audience = secrets.GetSection("Audience").Value ??
-                       throw new ApplicationException("Audience not found in configuration");
+        var secret = secrets.GetSection("Secret")?.Value;
+        if (string.IsNullOrEmpty(secret))
+            throw new ApplicationException("Secret not found in configuration");
+
+
+        var issuer = secrets.GetSection("Issuer")?.Value;
+        if (string.IsNullOrEmpty(issuer))
+            throw new ApplicationException("Issuer not found in configuration");
+
+        var audience = secrets.GetSection("Audience").Value;
+        if (string.IsNullOrEmpty(audience))
+            throw new ApplicationException("Audience not found in configuration");
 
         List<Claim> claims = 
             [
