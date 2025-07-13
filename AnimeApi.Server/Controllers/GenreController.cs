@@ -1,5 +1,7 @@
+using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
@@ -49,6 +51,8 @@ public class GenreController : ControllerBase
     [HttpPost]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] GenreDto genre)
     {
         var result = await _helper.CreateAsync(genre);
@@ -63,6 +67,8 @@ public class GenreController : ControllerBase
     [HttpPut]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] GenreDto genre)
     {
         if (string.IsNullOrEmpty(genre.Name))
@@ -79,7 +85,9 @@ public class GenreController : ControllerBase
     
     [HttpPatch]
     [ProducesResponseType(200)]
+    [ProducesResponseType(403)]
     [ProducesResponseType(400)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] GenreDto genre)
     {
         if (string.IsNullOrEmpty(genre.Name))
@@ -98,7 +106,9 @@ public class GenreController : ControllerBase
     [HttpDelete]
     [Route("{id:int:min(1)}")]
     [ProducesResponseType(200)]
+    [ProducesResponseType(403)]   
     [ProducesResponseType(404)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);

@@ -1,5 +1,7 @@
+using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
@@ -50,6 +52,8 @@ public class TypeController : ControllerBase
     [HttpPost]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] TypeDto type)
     {
         var result = await _helper.CreateAsync(type);
@@ -64,6 +68,8 @@ public class TypeController : ControllerBase
     [HttpPut]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] TypeDto type)
     {
         var result = await _helper.UpdateAsync(type);
@@ -78,6 +84,8 @@ public class TypeController : ControllerBase
     [HttpPatch]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] TypeDto type)
     {
         var result = await _helper.UpdateAsync(type);
@@ -92,7 +100,9 @@ public class TypeController : ControllerBase
     [HttpDelete]
     [Route("{id:int:min(1)}")]
     [ProducesResponseType(200)]
+    [ProducesResponseType(403)] 
     [ProducesResponseType(404)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);

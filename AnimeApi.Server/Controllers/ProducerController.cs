@@ -1,5 +1,7 @@
+using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
@@ -50,6 +52,8 @@ public class ProducerController : ControllerBase
     [HttpPost]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] ProducerDto producer)
     {
         var result = await _helper.CreateAsync(producer);
@@ -65,6 +69,8 @@ public class ProducerController : ControllerBase
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] ProducerDto producer)
     {
         if (string.IsNullOrEmpty(producer.Name))
@@ -84,6 +90,8 @@ public class ProducerController : ControllerBase
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] ProducerDto producer)
     {
         if (string.IsNullOrEmpty(producer.Name))
@@ -103,7 +111,9 @@ public class ProducerController : ControllerBase
     [HttpDelete]
     [Route("{id:int:min(1)}")]
     [ProducesResponseType(200)]
+    [ProducesResponseType(403)]   
     [ProducesResponseType(404)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);

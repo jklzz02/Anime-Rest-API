@@ -40,7 +40,7 @@ public class JwtGenerator : IJwtGenerator
                 new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new (JwtRegisteredClaimNames.Email, user.Email),
                 new (JwtRegisteredClaimNames.Name, user.Username),
-                new (UserAccess.User, user.Admin.ToString())
+                new (ClaimTypes.Role, user.Admin ? UserAccess.Admin : UserAccess.User)
             ];
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));

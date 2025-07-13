@@ -1,6 +1,8 @@
+using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Objects;
 using AnimeApi.Server.Business.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -135,6 +137,8 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.CreateAsync(anime);
@@ -150,6 +154,8 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
@@ -165,6 +171,8 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
@@ -179,7 +187,9 @@ public class AnimeController : ControllerBase
     [HttpDelete]
     [Route("{id:int:min(1)}")]
     [ProducesResponseType(200)]
+    [ProducesResponseType(403)]   
     [ProducesResponseType(404)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);

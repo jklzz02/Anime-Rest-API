@@ -1,4 +1,5 @@
 using System.Text;
+using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.DataAccess.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
@@ -17,10 +18,13 @@ public class Program
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
        builder.Services
-           .AddAuthorization()
+           .AddAuthorization(options =>
+           {
+               options.AddPolicy(Constants.UserAccess.Admin, policy => policy.RequireRole(Constants.UserAccess.Admin));
+           })
            .AddControllers()
            .AddNewtonsoftJson();
-       
+
        builder.Services
            .AddDataAccess(connectionString!)
            .AddMemoryCache()

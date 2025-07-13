@@ -4,7 +4,6 @@ using AnimeApi.Server.Business.Objects;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators;
 using AnimeApi.Server.Business.Validators.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimeApi.Server.Business.Extensions;
