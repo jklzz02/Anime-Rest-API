@@ -9,4 +9,5 @@ public class Review
     public int User_Id { get; set; }
     public AppUser User { get; set; } = null!;
     public DateTime Created_At { get; set; }
+    public decimal Score { get; set; }
 }
