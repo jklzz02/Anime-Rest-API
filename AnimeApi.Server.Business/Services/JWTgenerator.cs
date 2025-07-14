@@ -9,15 +9,21 @@ using static AnimeApi.Server.Business.Constant;
 
 namespace AnimeApi.Server.Business.Services;
 
+/// <inheritdoc/>
 public class JwtGenerator : IJwtGenerator
 {
     private readonly IConfiguration _configuration;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="JwtGenerator"/> class.
+    /// </summary>
+    /// <param name="configuration">The configuration containing JWT settings.</param>
     public JwtGenerator(IConfiguration configuration)
     {
         _configuration = configuration;
     }
     
+    /// <inheritdoc/>
     public string GenerateToken(AppUserDto user)
     {
         var secrets = _configuration.GetSection("Authentication:Jwt");

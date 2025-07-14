@@ -1,4 +1,3 @@
-using System.Text;
 
 namespace AnimeApi.Server.Business.Extensions;
 

@@ -3,6 +3,9 @@ using Google.Apis.Auth;
 
 namespace AnimeApi.Server.Business.Services.Interfaces;
 
+/// <summary>
+/// Defines the contract for user-related operations within the application.
+/// </summary>
 public interface IUserService
 {
     /// <summary>

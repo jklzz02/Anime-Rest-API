@@ -7,29 +7,41 @@ using Google.Apis.Auth;
 
 namespace AnimeApi.Server.Business.Services;
 
+/// <summary>
+/// Provides user-related services including user retrieval, creation, and deletion.
+/// Implements the <see cref="IUserService"/> interface.
+/// </summary>
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UserService"/> class.
+    /// </summary>
+    /// <param name="userRepository">The repository for managing user data.</param>
+    /// <param name="roleRepository">The repository for managing role data.</param>
     public UserService(IUserRepository userRepository, IRoleRepository roleRepository)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
     }
 
+    /// <inheritdoc />
     public async Task<AppUserDto?> GetByEmailAsync(string email)
     {
         var user =  await _userRepository.GetByEmailAsync(email);
         return user?.ToDto();
     }
 
+    /// <inheritdoc />
     public async Task<AppUserDto?> GetByIdAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
         return user?.ToDto();
     }
 
+    /// <inheritdoc />
     public async Task<AppUserDto> GetOrCreateUserAsync(GoogleJsonWebSignature.Payload payload)
     {
         var existingUser = await _userRepository.GetByEmailAsync(payload.Email);
@@ -55,6 +67,7 @@ public class UserService : IUserService
         return newUser;
     }
 
+    /// <inheritdoc />
     public async Task<bool> DestroyUserAsync(string email)
     {
         var user = await _userRepository.GetByEmailAsync(email);

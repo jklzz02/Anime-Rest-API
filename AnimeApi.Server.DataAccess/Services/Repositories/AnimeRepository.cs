@@ -8,16 +8,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Services.Repositories;
 
+/// <summary>
+/// Represents a repository for managing and querying Anime data.
+/// </summary>
+/// <remarks>
+/// This class provides the implementation of the <see cref="IAnimeRepository"/> interface
+/// and serves as a mediator between the database and application logic,
+/// enabling operations such as retrieval, addition, update, and deletion of <see cref="Anime"/> entities.
+/// </remarks>
 public class AnimeRepository : IAnimeRepository
 {
     private readonly AnimeDbContext _context;
     public Dictionary<string, string> ErrorMessages { get; } = new();
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AnimeRepository"/> class.
+    /// </summary>
+    /// <param name="context">The database context used for anime data operations.</param>
     public AnimeRepository(AnimeDbContext context)
     {
         _context = context;
     }
 
+    /// <inheritdoc />
     public async Task<Anime?> GetByIdAsync(int id)
     {
         return await _context.Anime
@@ -26,6 +39,7 @@ public class AnimeRepository : IAnimeRepository
                 .FirstOrDefaultAsync(a => a.Id == id);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetAllAsync()
     {
         return await _context.Anime
@@ -35,6 +49,7 @@ public class AnimeRepository : IAnimeRepository
             .ToListAsync();
     }
     
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetAllAsync(int page, int size = 100)
     {
         if (!ValidatePageAndSize(page, size)) return [];
@@ -45,6 +60,7 @@ public class AnimeRepository : IAnimeRepository
             .Take(size);
     }
 
+    /// <inheritdoc />
     public async Task<Anime?> AddAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
@@ -93,6 +109,7 @@ public class AnimeRepository : IAnimeRepository
         return await GetByIdAsync(entity.Id);
     }
 
+    /// <inheritdoc />
     public async Task<Anime?> UpdateAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
@@ -142,6 +159,7 @@ public class AnimeRepository : IAnimeRepository
         return await GetByIdAsync(anime.Id);
     }
 
+    /// <inheritdoc />
     public async Task<bool> DeleteAsync(int id)
     {
         var anime = await GetByIdAsync(id);
@@ -151,6 +169,7 @@ public class AnimeRepository : IAnimeRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetByNameAsync(string name, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(name, nameof(name));
@@ -162,6 +181,7 @@ public class AnimeRepository : IAnimeRepository
             [a => EF.Functions.Like(a.Name, $"%{name}%")]);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetByEnglishNameAsync(string englishName, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(englishName, nameof(englishName));
@@ -173,6 +193,7 @@ public class AnimeRepository : IAnimeRepository
             [a => EF.Functions.Like(a.English_Name, $"%{englishName}%")]);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetBySourceAsync(string source, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(source, nameof(source));
@@ -184,6 +205,7 @@ public class AnimeRepository : IAnimeRepository
             [a => EF.Functions.Like(a.Source, $"%{source}")]);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetByTypeAsync(string type, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
@@ -195,11 +217,13 @@ public class AnimeRepository : IAnimeRepository
             [a => EF.Functions.Like(a.Type.Name, $"%{type}")]);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetByScoreAsync(int score, int page, int size = 100)
     {
         return await GetByConditionAsync( page, size, [a => a.Score == score]);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetByLicensorAsync(int licensorId, int page, int size = 100)
     {
         return await GetByConditionAsync(
@@ -208,6 +232,7 @@ public class AnimeRepository : IAnimeRepository
             [a => a.Anime_Licensors.Any(al => al.LicensorId == licensorId)]);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetByProducerAsync(int producerId, int page, int size = 100)
     {
         return await GetByConditionAsync(
@@ -216,6 +241,7 @@ public class AnimeRepository : IAnimeRepository
             [a => a.Anime_Producers.Any(ap => ap.ProducerId == producerId)]);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetByGenreAsync(int genreId, int page, int size = 100)
     {
         if (!ValidatePageAndSize(page, size)) return [];
@@ -226,18 +252,21 @@ public class AnimeRepository : IAnimeRepository
             [a => a.Anime_Genres.Any(ag => ag.GenreId == genreId)]);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetByReleaseYearAsync(int year, int page, int size = 100)
     {
         if (!ValidatePageAndSize(page, size)) return [];
         return await GetByConditionAsync(page, size, [a => a.Release_Year == year]);
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetByEpisodesAsync(int episodes, int page, int size = 100)
     {
         if (!ValidatePageAndSize(page, size)) return [];
         return await GetByConditionAsync(page, size,[a => a.Episodes == episodes]);
     }
     
+    /// <inheritdoc />
     public async Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
     {
         var anime = await _context.Anime
