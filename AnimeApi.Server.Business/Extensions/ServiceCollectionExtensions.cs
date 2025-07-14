@@ -1,6 +1,6 @@
 using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Services;
-using AnimeApi.Server.Business.Objects;
+using AnimeApi.Server.Business.Services.Helpers;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators;
 using AnimeApi.Server.Business.Validators.Interfaces;
@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBusiness(this IServiceCollection services)
     {
         services.AddTransient<IAnimeValidator, AnimeValidator>();
+        services.AddTransient<IReviewValidator, ReviewValidator>();
         services.AddTransient<IBaseValidator<GenreDto>, BaseValidator<GenreDto>>();
         services.AddTransient<IBaseValidator<SourceDto>, BaseValidator<SourceDto>>();
         services.AddTransient<IBaseValidator<TypeDto>, BaseValidator<TypeDto>>();
@@ -30,6 +31,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ILicensorHelper, LicensorHelper>();
         services.AddTransient<ISourceHelper, SourceHelper>();
         services.AddTransient<ITypeHelper, TypeHelper>();
+        services.AddTransient<IReviewHelper, ReviewHelper>();
 
         services.AddTransient<ICachingService, CachingService>();
         
