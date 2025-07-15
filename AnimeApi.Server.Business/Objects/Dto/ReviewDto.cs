@@ -16,8 +16,4 @@ public record ReviewDto
     public int UserId { get; init; }
     [JsonProperty("created_at")]
     public DateTime CreatedAt { get; init; }
-    [JsonProperty("updated_at")]
-    public AppUserDto User { get; init; } = null!;
-    [JsonProperty("anime")]
-    public AnimeDto Anime { get; init; } = null!;
 }
