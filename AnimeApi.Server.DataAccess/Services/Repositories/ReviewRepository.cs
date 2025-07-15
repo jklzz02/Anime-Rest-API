@@ -88,9 +88,10 @@ public class ReviewRepository : IReviewRepository
     /// <inheritdoc />
     public async Task<IEnumerable<Review>> GetMostRecentByTimespanAsync(TimeSpan timespan)
     {
+        var minDate = DateTime.UtcNow.Subtract(timespan);
         return await _context.Reviews
             .AsNoTracking()
-            .Where(r => r.Created_At >= DateTime.UtcNow.Subtract(timespan))
+            .Where(r => r.Created_At >= minDate)
             .OrderByDescending(r => r.Created_At)
             .ToListAsync();
     }
