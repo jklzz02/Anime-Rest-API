@@ -1,5 +1,6 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.DataAccess.Context;
+using AnimeApi.Server.DataAccess.Repositories;
 using AnimeApi.Server.DataAccess.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

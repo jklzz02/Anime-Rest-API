@@ -6,7 +6,7 @@ using AnimeApi.Server.DataAccess.Extensions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.Services.Repositories;
+namespace AnimeApi.Server.DataAccess.Repositories;
 
 /// <summary>
 /// Represents a repository for managing and querying Anime data.
