@@ -1,4 +1,4 @@
-using AnimeApi.Server.Business.Services.Interfaces;
+using AnimeApi.Server.Core.Abstractions.Business.Services;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace AnimeApi.Server.Business.Services;

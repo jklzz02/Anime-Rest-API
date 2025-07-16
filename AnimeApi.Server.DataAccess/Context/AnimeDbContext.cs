@@ -1,5 +1,5 @@
-﻿using TypeModel = AnimeApi.Server.DataAccess.Models.Type; 
-using AnimeApi.Server.DataAccess.Models;
+﻿using AnimeApi.Server.Core.Objects.Models;
+using TypeModel = AnimeApi.Server.Core.Objects.Models.Type;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Context;

@@ -1,13 +1,13 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Business.Services.Helpers;
-using AnimeApi.Server.Business.Validators.Interfaces;
-using AnimeApi.Server.DataAccess.Models;
+using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Test.Generators;
 using FluentValidation.Results;
 using Moq;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
-using AnimeApi.Server.Business.Objects;
+using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Test.Tests;
 

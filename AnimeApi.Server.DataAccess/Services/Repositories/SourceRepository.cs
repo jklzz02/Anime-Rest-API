@@ -1,6 +1,6 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
-using AnimeApi.Server.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Services.Repositories;

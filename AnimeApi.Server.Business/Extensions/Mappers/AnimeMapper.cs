@@ -1,6 +1,6 @@
 using AnimeApi.Server.Core.Objects.Dto;
-using AnimeApi.Server.DataAccess.Models;
-using Type = AnimeApi.Server.DataAccess.Models.Type;
+using AnimeApi.Server.Core.Objects.Models;
+using Type = AnimeApi.Server.Core.Objects.Models.Type;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 

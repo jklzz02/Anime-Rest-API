@@ -1,7 +1,7 @@
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
-using AnimeApi.Server.Business.Services.Interfaces;
-using AnimeApi.Server.Business.Validators.Interfaces;
+using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 

@@ -1,7 +1,7 @@
 using AnimeApi.Server.Core.Objects.Dto;
 using Google.Apis.Auth;
 
-namespace AnimeApi.Server.Business.Services.Interfaces;
+namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 
 /// <summary>
 /// Defines the contract for user-related operations within the application.

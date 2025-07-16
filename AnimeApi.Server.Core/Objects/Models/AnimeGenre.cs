@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Models;
 
-namespace AnimeApi.Server.DataAccess.Models;
+namespace AnimeApi.Server.Core.Objects.Models;
 
 public partial class AnimeGenre : IAnimeRelation
 {

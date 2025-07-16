@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace AnimeApi.Server.Business.Objects;
+namespace AnimeApi.Server.Core.Objects;
 
 /// <summary>
 /// Represents a set of parameters used to search for anime entries.

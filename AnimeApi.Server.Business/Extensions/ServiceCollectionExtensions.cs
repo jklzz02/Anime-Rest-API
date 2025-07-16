@@ -1,8 +1,8 @@
 using AnimeApi.Server.Business.Services;
 using AnimeApi.Server.Business.Services.Helpers;
-using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators;
-using AnimeApi.Server.Business.Validators.Interfaces;
+using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using AnimeApi.Server.Core.Objects.Dto;
 

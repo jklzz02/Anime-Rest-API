@@ -1,4 +1,4 @@
-namespace AnimeApi.Server.DataAccess.Models;
+namespace AnimeApi.Server.Core.Objects.Models;
 
 public class Review
 {

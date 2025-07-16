@@ -1,7 +1,7 @@
 using AnimeApi.Server.Core.Objects.Dto;
 using FluentValidation;
 
-namespace AnimeApi.Server.Business.Validators.Interfaces;
+namespace AnimeApi.Server.Core.Abstractions.Business.Validators;
 
 public interface IReviewValidator : IValidator<ReviewDto>
 {

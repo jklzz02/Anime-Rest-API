@@ -1,4 +1,4 @@
-namespace AnimeApi.Server.Business.Services.Interfaces;
+namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 
 /// <summary>
 /// Defines a service for managing caching operations, such as storing, retrieving, and removing cached items.

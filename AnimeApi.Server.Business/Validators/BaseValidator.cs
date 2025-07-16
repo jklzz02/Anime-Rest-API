@@ -1,4 +1,4 @@
-using AnimeApi.Server.Business.Validators.Interfaces;
+using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.Dto;
 using FluentValidation;
 

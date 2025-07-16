@@ -1,6 +1,6 @@
 using AnimeApi.Server.Core.Objects.Dto;
 
-namespace AnimeApi.Server.Business.Services.Interfaces;
+namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 
 /// <summary>
 /// Provides functionality to manage <see cref="ReviewDto"/> data in the application.

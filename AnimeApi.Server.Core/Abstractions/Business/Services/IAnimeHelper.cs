@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
-using AnimeApi.Server.Business.Objects;
-using AnimeApi.Server.DataAccess.Models;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Models;
 
-namespace AnimeApi.Server.Business.Services.Interfaces;
+namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 
 public interface IAnimeHelper
 {

@@ -1,6 +1,6 @@
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Objects.Dto;
-using AnimeApi.Server.DataAccess.Models;
+using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.Test.Generators;
 
 namespace AnimeApi.Server.Test.Tests;

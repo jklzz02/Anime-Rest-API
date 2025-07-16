@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using AnimeApi.Server.Business;
-using AnimeApi.Server.Business.Services.Interfaces;
+using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

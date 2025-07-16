@@ -1,7 +1,7 @@
 using AnimeApi.Server.Core.Abstractions.Dto;
 using FluentValidation;
 
-namespace AnimeApi.Server.Business.Validators.Interfaces;
+namespace AnimeApi.Server.Core.Abstractions.Business.Validators;
 
 /// <summary>
 /// Represents a contract to validate entities of a specific type
