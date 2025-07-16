@@ -1,4 +1,5 @@
 using AnimeApi.Server.Business;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +19,7 @@ public class TypeController : ControllerBase
     }
     
     [HttpGet]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetAllAsync()
     {
         var types = await _helper.GetAllAsync();
@@ -27,8 +28,8 @@ public class TypeController : ControllerBase
     
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var type = await _helper.GetByIdAsync(id);
@@ -39,8 +40,8 @@ public class TypeController : ControllerBase
     
     [HttpGet]
     [Route("name/{name}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
         var type = await _helper.GetByNameAsync(name);
@@ -50,10 +51,10 @@ public class TypeController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] TypeDto type)
     {
         var result = await _helper.CreateAsync(type);
@@ -66,10 +67,10 @@ public class TypeController : ControllerBase
     }
     
     [HttpPut]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] TypeDto type)
     {
         var result = await _helper.UpdateAsync(type);
@@ -82,10 +83,10 @@ public class TypeController : ControllerBase
     }
 
     [HttpPatch]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] TypeDto type)
     {
         var result = await _helper.UpdateAsync(type);
@@ -99,10 +100,10 @@ public class TypeController : ControllerBase
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.NoContent)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)] 
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.NoContent)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)] 
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);

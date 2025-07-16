@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AnimeApi.Server.Business;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -22,8 +23,8 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var review = await _reviewHelper.GetByIdAsync(id);
@@ -37,7 +38,7 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("anime/{animeId:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetByAnimeIdAsync([FromRoute] int animeId)
     {
         var reviews = await _reviewHelper.GetByAnimeIdAsync(animeId);
@@ -46,7 +47,7 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("anime/title{title:minlength(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetByAnimeTitleAsync([FromRoute] string title) 
     {
         var reviews = await _reviewHelper.GetByTitleAsync(title);
@@ -55,8 +56,8 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("user/{userId:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByUserIdAsync([FromRoute] int id) 
     {
         var review = await _reviewHelper.GetByUserIdAsync(id);
@@ -70,7 +71,7 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("user/email{email:minlength(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetByUserEmailAsync([FromRoute] string email)
     {
         var reviews = await _reviewHelper.GetByUserEmailAsync(email);
@@ -79,7 +80,7 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("date")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetByDateAsync([FromQuery] DateTime date)
     {
         var reviews = await _reviewHelper.GetByDateAsync(date);
@@ -88,7 +89,7 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("recent")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetMostRecentAsync([FromQuery] TimeSpan timeSpan)
     {
         var reviews = await _reviewHelper.GetMostRecentByTimeSpanAsync(timeSpan);
@@ -97,7 +98,7 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("score/{minScore:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetByMinScoreAsync([FromQuery] int minScore)
     {
         var reviews = await _reviewHelper.GetByMinScoreAsync(minScore);
@@ -106,10 +107,10 @@ public class ReviewController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
     public async Task<IActionResult> CreateAsync([FromBody] ReviewDto review)
     {
         var email = User.Claims
@@ -143,10 +144,10 @@ public class ReviewController : ControllerBase
 
     [Authorize]
     [HttpPatch]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
     public async Task<IActionResult> UpdateAsync([FromBody] ReviewDto review)
     {
         var email = User.Claims
@@ -180,10 +181,10 @@ public class ReviewController : ControllerBase
     [Authorize]
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var email = User.Claims

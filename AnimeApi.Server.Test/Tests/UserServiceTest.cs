@@ -1,5 +1,6 @@
 using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Services;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Models;
 using Google.Apis.Auth;
@@ -20,7 +21,7 @@ public class UserServiceTest
         Picture_Url = String.Empty,
         Created_At = DateTime.UtcNow,
         Role_Id = 1,
-        Role = new Role { Id = 1, Access = Constant.UserAccess.User },
+        Role = new Role { Id = 1, Access = Constants.UserAccess.User },
     };
 
     public UserServiceTest()
@@ -93,7 +94,7 @@ public class UserServiceTest
             .ReturnsAsync((AppUser?)null);
 
         _roleRepositoryMock
-            .Setup(r => r.GetByAccessAsync(Constant.UserAccess.User))
+            .Setup(r => r.GetByAccessAsync(Constants.UserAccess.User))
             .ReturnsAsync(new Role { Id = roleId });
 
         var result = await _service.GetOrCreateUserAsync(payload);

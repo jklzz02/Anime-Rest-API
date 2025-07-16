@@ -1,4 +1,5 @@
 using AnimeApi.Server.Business;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +19,7 @@ public class SourceController : Controller
     }
     
     [HttpGet]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetAllAsync()
     {
         var sources = await _helper.GetAllAsync();
@@ -27,8 +28,8 @@ public class SourceController : Controller
     
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var source = await _helper.GetByIdAsync(id);
@@ -39,8 +40,8 @@ public class SourceController : Controller
     
     [HttpGet]
     [Route("name/{name}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
         var source = await _helper.GetByNameAsync(name);
@@ -50,10 +51,10 @@ public class SourceController : Controller
     }
 
     [HttpPost]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] SourceDto source)
     {
         var result = await _helper.CreateAsync(source);
@@ -66,10 +67,10 @@ public class SourceController : Controller
     }
 
     [HttpPut]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] SourceDto source)
     {
         var result = await _helper.UpdateAsync(source);
@@ -82,10 +83,10 @@ public class SourceController : Controller
     }
     
     [HttpPatch]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] SourceDto source)
     {
         var result = await _helper.UpdateAsync(source);
@@ -99,10 +100,10 @@ public class SourceController : Controller
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.NoContent)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]  
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.NoContent)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]  
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);

@@ -1,4 +1,5 @@
 using AnimeApi.Server.Business;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +18,7 @@ public class GenreController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetAllAsync()
     {
         var genres = await _helper.GetAllAsync();
@@ -26,8 +27,8 @@ public class GenreController : ControllerBase
 
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var genre = await _helper.GetByIdAsync(id);
@@ -38,8 +39,8 @@ public class GenreController : ControllerBase
 
     [HttpGet]
     [Route("name/{name}")]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
         var genre = await _helper.GetByNameAsync(name);
@@ -49,10 +50,10 @@ public class GenreController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] GenreDto genre)
     {
         var result = await _helper.CreateAsync(genre);
@@ -65,10 +66,10 @@ public class GenreController : ControllerBase
     }
 
     [HttpPut]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] GenreDto genre)
     {
         if (string.IsNullOrEmpty(genre.Name))
@@ -84,10 +85,10 @@ public class GenreController : ControllerBase
     }
     
     [HttpPatch]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.BadRequest)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] GenreDto genre)
     {
         if (string.IsNullOrEmpty(genre.Name))
@@ -105,9 +106,9 @@ public class GenreController : ControllerBase
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constant.StatusCode.NoContent)]
-    [ProducesResponseType(Constant.StatusCode.Forbidden)]
-    [Authorize(Policy = Constant.UserAccess.Admin)]
+    [ProducesResponseType(Constants.StatusCode.NoContent)]
+    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);

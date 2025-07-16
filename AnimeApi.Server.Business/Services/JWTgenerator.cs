@@ -5,7 +5,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using static AnimeApi.Server.Business.Constant;
+using static AnimeApi.Server.Core.Constants;
 
 namespace AnimeApi.Server.Business.Services;
 

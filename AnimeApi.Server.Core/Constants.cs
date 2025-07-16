@@ -1,9 +1,9 @@
-namespace AnimeApi.Server.Business;
+namespace AnimeApi.Server.Core;
 
 /// <summary>
 /// Provides a centralized location for defining constant values used throughout the application.
 /// </summary>
-public static class Constant
+public static class Constants
 {
     public const string App = "AnimeApi";
 

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AnimeApi.Server.Business;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,8 +20,8 @@ public class UserController : ControllerBase
 
     [HttpGet]
     [Authorize]
-    [ProducesResponseType(Constant.StatusCode.Ok)]
-    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
     public async Task<IActionResult> GetCurrentUserAsync()
     {
         var email = User.FindFirst(ClaimTypes.Email);
@@ -33,9 +34,9 @@ public class UserController : ControllerBase
 
     [HttpDelete]
     [Authorize]
-    [ProducesResponseType(Constant.StatusCode.NoContent)]
-    [ProducesResponseType(Constant.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constant.StatusCode.NotFound)]
+    [ProducesResponseType(Constants.StatusCode.NoContent)]
+    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> DestroyCurrentUserAsync()
     {
         var email = User.FindFirst(ClaimTypes.Email);

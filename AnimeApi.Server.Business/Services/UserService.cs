@@ -1,5 +1,6 @@
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Dto;
@@ -61,7 +62,7 @@ public class UserService : IUserService
         };
 
         var role = await _roleRepository
-            .GetByAccessAsync(Constant.UserAccess.User);
+            .GetByAccessAsync(Constants.UserAccess.User);
 
         await _userRepository.CreateAsync(newUser.ToModel(role!.Id));
         return newUser;

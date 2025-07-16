@@ -1,6 +1,7 @@
 using System.Text;
 using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Extensions;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.DataAccess.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
@@ -20,7 +21,7 @@ public class Program
        builder.Services
            .AddAuthorization(options =>
            {
-               options.AddPolicy(Constant.UserAccess.Admin, policy => policy.RequireRole(Constant.UserAccess.Admin));
+               options.AddPolicy(Constants.UserAccess.Admin, policy => policy.RequireRole(Constants.UserAccess.Admin));
            })
            .AddControllers()
            .AddNewtonsoftJson();
@@ -30,8 +31,8 @@ public class Program
            .AddMemoryCache()
            .AddBusiness()
            .AddIdentity()
-           .AddAuthentication(Constant.Authentication.DefaultScheme)
-           .AddJwtBearer(Constant.Authentication.DefaultScheme, options =>
+           .AddAuthentication(Constants.Authentication.DefaultScheme)
+           .AddJwtBearer(Constants.Authentication.DefaultScheme, options =>
            {
                var config = builder.Configuration.GetSection("Authentication:Jwt");
                options.TokenValidationParameters = new TokenValidationParameters
@@ -52,15 +53,15 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = Constant.App, Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = Constants.App, Version = "v1" });
 
-            c.AddSecurityDefinition(Constant.Authentication.DefaultScheme, new OpenApiSecurityScheme
+            c.AddSecurityDefinition(Constants.Authentication.DefaultScheme, new OpenApiSecurityScheme
             {
                 Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
                 Name = "Authorization",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = Constant.Authentication.DefaultScheme,
+                Scheme = Constants.Authentication.DefaultScheme,
                 BearerFormat = "JWT"
             });
 
@@ -72,7 +73,7 @@ public class Program
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = Constant.Authentication.DefaultScheme
+                            Id = Constants.Authentication.DefaultScheme
                         }
                     },
                     Array.Empty<string>()
@@ -93,7 +94,7 @@ public class Program
         {
             errorApp.Run(async context =>
             {
-                context.Response.StatusCode = Constant.StatusCode.InternalServerError;
+                context.Response.StatusCode = Constants.StatusCode.InternalServerError;
                 context.Response.ContentType = "application/json";
 
                 var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
@@ -103,7 +104,7 @@ public class Program
 
                     var result = JsonConvert.SerializeObject(new
                     {
-                        error = Constant.Remark.InternalServerError,
+                        error = Constants.Remark.InternalServerError,
                         details = app.Environment.IsDevelopment() ? ex.Message : "An unexpected error occurred."
                     });
 
