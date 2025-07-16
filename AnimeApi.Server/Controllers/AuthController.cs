@@ -1,6 +1,6 @@
 using AnimeApi.Server.Business;
-using AnimeApi.Server.Business.Objects;
 using AnimeApi.Server.Business.Services.Interfaces;
+using AnimeApi.Server.Core.Objects;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Mvc;
 

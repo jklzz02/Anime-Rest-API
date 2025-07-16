@@ -1,5 +1,5 @@
+using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.DataAccess.Context;
-using AnimeApi.Server.DataAccess.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Type = AnimeApi.Server.DataAccess.Models.Type;
 

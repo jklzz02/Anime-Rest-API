@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36301.6 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeApi.Server.DataAccess", "AnimeApi.Server.DataAccess\AnimeApi.Server.DataAccess.csproj", "{B9A8F317-B695-44D8-928D-454C03E6EAF6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeApi.Server.Business", "AnimeApi.Server.Business\AnimeApi.Server.Business.csproj", "{CE23FDCA-653F-4E80-9360-A97C63FDD3B3}"
@@ -7,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeApi.Server", "AnimeApi.Server\AnimeApi.Server.csproj", "{71C79321-3A32-429E-926B-DBD78B60F994}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeApi.Server.Test", "AnimeApi.Server.Test\AnimeApi.Server.Test.csproj", "{806748F3-553A-47C3-87B8-E3801773037A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeApi.Server.Core", "AnimeApi.Server.Core\AnimeApi.Server.Core.csproj", "{56B569C3-ADA9-48B7-BDB2-41100006C8CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +35,15 @@ Global
 		{806748F3-553A-47C3-87B8-E3801773037A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{806748F3-553A-47C3-87B8-E3801773037A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{806748F3-553A-47C3-87B8-E3801773037A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56B569C3-ADA9-48B7-BDB2-41100006C8CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56B569C3-ADA9-48B7-BDB2-41100006C8CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56B569C3-ADA9-48B7-BDB2-41100006C8CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56B569C3-ADA9-48B7-BDB2-41100006C8CE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3502245E-7147-47A4-80A4-747207363210}
 	EndGlobalSection
 EndGlobal

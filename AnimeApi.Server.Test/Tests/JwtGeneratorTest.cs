@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
-using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Services;
+using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.Extensions.Configuration;
 using Moq;
 

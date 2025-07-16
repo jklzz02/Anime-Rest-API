@@ -1,7 +1,7 @@
 using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.DataAccess.Models;
-using AnimeApi.Server.DataAccess.Services.Interfaces;
 using Google.Apis.Auth;
 using Moq;
 

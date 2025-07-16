@@ -1,4 +1,5 @@
-using AnimeApi.Server.DataAccess.Models.Interfaces;
+
+using AnimeApi.Server.Core.Abstractions.DataAccess.Models;
 
 namespace AnimeApi.Server.DataAccess.Extensions;
 

@@ -20,4 +20,8 @@
       <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0-preview.3.efcore.9.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AnimeApi.Server.Core\AnimeApi.Server.Core.csproj" />
+    </ItemGroup>
+
 </Project>

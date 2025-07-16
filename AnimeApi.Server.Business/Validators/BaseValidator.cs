@@ -1,5 +1,5 @@
-using AnimeApi.Server.Business.Objects.Dto.Interfaces;
 using AnimeApi.Server.Business.Validators.Interfaces;
+using AnimeApi.Server.Core.Abstractions.Dto;
 using FluentValidation;
 
 namespace AnimeApi.Server.Business.Validators;

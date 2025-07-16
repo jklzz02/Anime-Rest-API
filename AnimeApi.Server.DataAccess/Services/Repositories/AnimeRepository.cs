@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.DataAccess.Context;
 using AnimeApi.Server.DataAccess.Extensions;
 using AnimeApi.Server.DataAccess.Models;
-using AnimeApi.Server.DataAccess.Services.Interfaces;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 

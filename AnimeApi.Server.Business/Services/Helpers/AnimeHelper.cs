@@ -2,11 +2,11 @@ using System.Linq.Expressions;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Business.Objects;
-using AnimeApi.Server.Business.Objects.Dto;
 using AnimeApi.Server.Business.Services.Interfaces;
 using AnimeApi.Server.Business.Validators.Interfaces;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.DataAccess.Models;
-using AnimeApi.Server.DataAccess.Services.Interfaces;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
