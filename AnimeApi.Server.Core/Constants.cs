@@ -15,6 +15,11 @@ public static class Constants
         public const string DefaultScheme = "Bearer";
     }
 
+    public static class Pagination
+    {
+        public const int DefaultPageSize = 100;
+    }
+
     /// <summary>
     /// Represents a set of predefined user access roles within the application.
     /// </summary>

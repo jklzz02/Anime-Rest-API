@@ -26,17 +26,17 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(Constants.StatusCode.Ok)]
     public async Task<IActionResult> GetAllAsync([FromQuery] int page)
     {
-        var anime = await _cache
+        var result = await _cache
             .GetOrCreateAsync($"anime-page-{page}", () => _helper.GetAllAsync(page));
 
-        if (anime is null)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        if(!anime.Any()) return NotFound();
+        if(!result.HasItems) return NotFound();
         
-        return Ok(anime);
+        return Ok(result);
     }
     
     [HttpGet]
@@ -60,19 +60,19 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByParametersAsync([FromQuery] AnimeSearchParameters parameters, int page)
     {
-        var anime = await _cache
+        var result = await _cache
             .GetOrCreateAsync(
                 $"anime-page{page}-search-{JsonConvert.SerializeObject(parameters)}",
                 () => _helper.SearchAsync(parameters, page));
         
-        if (anime is null)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        if(!anime.Any()) return NotFound();
+        if(!result.HasItems) return NotFound();
         
-        return Ok(anime);
+        return Ok(result);
     }
 
     [HttpGet]
@@ -82,18 +82,18 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByReleaseYearAsync([FromRoute] int year, int page)
     {
-        var anime = await _cache
+        var result = await _cache
             .GetOrCreateAsync(
                 $"anime-year-{year}-page-{page}",
                 () => _helper.GetByReleaseYearAsync(year, page));
         
-        if (anime is null)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
 
-        if (!anime.Any()) return NotFound();
-        return Ok(anime);
+        if (!result.HasItems) return NotFound();
+        return Ok(result);
     }
 
     [HttpGet]
@@ -103,18 +103,18 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByEpisodes([FromRoute] int episodes, int page)
     {
-        var anime = await _cache
+        var result = await _cache
             .GetOrCreateAsync(
                 $"anime-episodes-{episodes}-page{page}",
                 () => _helper.GetByEpisodesAsync(episodes, page));
         
-        if (anime is null)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        if(!anime.Any()) return NotFound();
-        return Ok(anime);
+        if(!result.HasItems) return NotFound();
+        return Ok(result);
     }
 
     [HttpGet]
@@ -124,18 +124,18 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(Constants.StatusCode.NotFound)]
     public async Task<IActionResult> GetByTitleAsync([FromRoute] string title, int page)
     {
-        var anime = await _cache
+        var result = await _cache
             .GetOrCreateAsync(
                 $"anime-title-{title}-page-{page}",
                 () => _helper.GetByNameAsync(title, page));
         
-        if (anime is null)
+        if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        if (!anime.Any()) return NotFound();
-        return Ok(anime);
+        if (!result.HasItems) return NotFound();
+        return Ok(result);
     }
 
     [HttpPost]

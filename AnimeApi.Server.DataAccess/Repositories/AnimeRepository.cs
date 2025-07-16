@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using AnimeApi.Server.DataAccess.Extensions;
@@ -50,14 +51,22 @@ public class AnimeRepository : IAnimeRepository
     }
     
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetAllAsync(int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetAllAsync(int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size)) return [];
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+        }
+
+        var result = await GetAllAsync();
         
-        var entities = await GetAllAsync();
-        return entities
+        var items = result.ToList();
+        
+        var entities = items
             .Skip((page - 1) * size)
             .Take(size);
+        
+        return new PaginatedResult<Anime>(entities, page, items.Count);
     }
 
     /// <inheritdoc />
@@ -170,10 +179,15 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetByNameAsync(string name, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByNameAsync(string name, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(name, nameof(name));
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
+        
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page);
+        }
         
         return await GetByConditionAsync(
             page,
@@ -182,10 +196,15 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetByEnglishNameAsync(string englishName, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByEnglishNameAsync(string englishName, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(englishName, nameof(englishName));
         ArgumentException.ThrowIfNullOrEmpty(englishName, nameof(englishName));
+        
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page);
+        }
         
         return await GetByConditionAsync(
             page,
@@ -194,10 +213,15 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetBySourceAsync(string source, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetBySourceAsync(string source, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         ArgumentException.ThrowIfNullOrEmpty(source, nameof(source));
+        
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page);
+        }
         
         return await GetByConditionAsync(
             page,
@@ -206,10 +230,15 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetByTypeAsync(string type, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByTypeAsync(string type, int page, int size = 100)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         ArgumentException.ThrowIfNullOrEmpty(type, nameof(type));
+        
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page);
+        }
         
         return await GetByConditionAsync(
             page,
@@ -218,14 +247,24 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetByScoreAsync(int score, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByScoreAsync(int score, int page, int size = 100)
     {
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page);
+        }
+        
         return await GetByConditionAsync( page, size, [a => a.Score == score]);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetByLicensorAsync(int licensorId, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByLicensorAsync(int licensorId, int page, int size = 100)
     {
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+        }
+        
         return await GetByConditionAsync(
             page,
             size,
@@ -233,8 +272,13 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetByProducerAsync(int producerId, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByProducerAsync(int producerId, int page, int size = 100)
     {
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page);
+        }
+        
         return await GetByConditionAsync(
             page,
             size,
@@ -242,9 +286,12 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetByGenreAsync(int genreId, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByGenreAsync(int genreId, int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size)) return [];
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page);
+        }
         
         return await GetByConditionAsync(
             page,
@@ -253,16 +300,24 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetByReleaseYearAsync(int year, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByReleaseYearAsync(int year, int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size)) return [];
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page);
+        }
+        
         return await GetByConditionAsync(page, size, [a => a.Release_Year == year]);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetByEpisodesAsync(int episodes, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByEpisodesAsync(int episodes, int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size)) return [];
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page);
+        }
+        
         return await GetByConditionAsync(page, size,[a => a.Episodes == episodes]);
     }
     
@@ -276,12 +331,15 @@ public class AnimeRepository : IAnimeRepository
 
         return anime;
     }
-    public async Task<IEnumerable<Anime>> GetByConditionAsync(
+            public async Task<PaginatedResult<Anime>> GetByConditionAsync(
         int page = 1,
         int size = 100,
         IEnumerable<Expression<Func<Anime, bool>>>? filters = null)    
     {
-        if (!ValidatePageAndSize(page, size)) return [];
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+        }
         
         var query = _context.Anime
             .AsExpandable();
@@ -296,11 +354,15 @@ public class AnimeRepository : IAnimeRepository
             .OrderBy(a => a.Id)
             .AsNoTracking()
             .AsSplitQuery()
-            .Skip((page -1) * size)
-            .Take(size)
             .ToListAsync();
+        
+        var items = result.ToList();
 
-        return result;
+        var entities = items
+            .Skip((page - 1) * size)
+            .Take(size);
+
+        return new PaginatedResult<Anime>(entities, page, items.Count);
     }
 
     private bool ValidatePageAndSize(int page, int size)

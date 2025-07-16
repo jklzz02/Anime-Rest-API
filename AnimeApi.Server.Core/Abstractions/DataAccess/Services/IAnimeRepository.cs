@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Core.Abstractions.DataAccess.Services;
@@ -11,7 +12,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities for the specified page and size.</returns>
-    Task<IEnumerable<Anime>> GetAllAsync(int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetAllAsync(int page, int size = 100);
 
     /// <summary>
     /// Retrieves a paginated collection of anime entities filtered by their name.
@@ -20,7 +21,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities that match the specified name for the given page and size.</returns>
-    Task<IEnumerable<Anime>> GetByNameAsync(string name, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetByNameAsync(string name, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a paginated collection of anime entities filtered by their English name.
@@ -29,7 +30,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities matching the specified English name for the given page and size.</returns>
-    Task<IEnumerable<Anime>> GetByEnglishNameAsync(string englishName, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetByEnglishNameAsync(string englishName, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a collection of anime entities based on the specified source.
@@ -38,7 +39,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities that match the specified source.</returns>
-    Task<IEnumerable<Anime>> GetBySourceAsync(string source, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetBySourceAsync(string source, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a collection of anime entities filtered by their type.
@@ -47,7 +48,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities that match the specified type for the given page and size.</returns>
-    Task<IEnumerable<Anime>> GetByTypeAsync(string type, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetByTypeAsync(string type, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a collection of anime entities filtered by the specified score.
@@ -56,7 +57,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities with the specified score for the specified page and size.</returns>
-    Task<IEnumerable<Anime>> GetByScoreAsync(int score, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetByScoreAsync(int score, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a collection of anime entities released in the specified year, with optional pagination.
@@ -65,7 +66,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities released in the specified year, for the given page and size.</returns>
-    Task<IEnumerable<Anime>> GetByReleaseYearAsync(int year, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetByReleaseYearAsync(int year, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a paginated collection of anime entities filtered by the specified number of episodes.
@@ -74,7 +75,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities with the specified number of episodes for the given page and size.</returns>
-    Task<IEnumerable<Anime>> GetByEpisodesAsync(int episodes, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetByEpisodesAsync(int episodes, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a collection of anime entities associated with the specified licensor.
@@ -83,7 +84,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities for the specified licensor and page parameters.</returns>
-    Task<IEnumerable<Anime>> GetByLicensorAsync(int licensorId, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetByLicensorAsync(int licensorId, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a paginated collection of anime entities associated with the specified producer.
@@ -92,7 +93,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities associated with the specified producer for the provided page and size.</returns>
-    Task<IEnumerable<Anime>> GetByProducerAsync(int producerId, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetByProducerAsync(int producerId, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a collection of anime entities that belong to a specified genre.
@@ -101,7 +102,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime entities associated with the specified genre for the given page and size.</returns>
-    Task<IEnumerable<Anime>> GetByGenreAsync(int genreId, int page, int size = 100);
+    Task<PaginatedResult<Anime>> GetByGenreAsync(int genreId, int page, int size = 100);
 
     /// <summary>
     /// Retrieves a collection of anime entities that match the specified filter conditions, paginated by the given page and size.
@@ -110,7 +111,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <param name="filters">A collection of filter expressions to apply to the query. Can be null for no filters.</param>
     /// <returns>A collection of anime entities that match the filter conditions for the specified page and size.</returns>
-    Task<IEnumerable<Anime>> GetByConditionAsync(
+            Task<PaginatedResult<Anime>> GetByConditionAsync(
         int page,
         int size = 100,
         IEnumerable<Expression<Func<Anime, bool>>>? filters = null);

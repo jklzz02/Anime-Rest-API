@@ -144,17 +144,19 @@ public class AnimeHelperTest
                     query = query.Where(filter);
                 }
 
-                return query
+                var entities = query
                     .Skip((page - 1) * size)
                     .Take(size)
                     .ToList();
+
+                return new PaginatedResult<Anime>(entities, page, size);
             });
         
         var parameters = new AnimeSearchParameters { Name = title };
         var result = await service.SearchAsync(parameters, 1);
 
         Assert.NotNull(result);
-        Assert.True(result.All(a => a?.Name?.Contains(title) ?? false));
+        Assert.True(result.Items.All(a => a?.Name?.Contains(title) ?? false));
     }
 
     [Theory]
