@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
@@ -356,13 +357,13 @@ public class AnimeRepository : IAnimeRepository
             .AsSplitQuery()
             .ToListAsync();
         
-        var items = result.ToList();
+        var items = result;
 
         var entities = items
             .Skip((page - 1) * size)
             .Take(size);
 
-        return new PaginatedResult<Anime>(entities, page, items.Count);
+        return new PaginatedResult<Anime>(entities, page, items.Count());
     }
 
     private bool ValidatePageAndSize(int page, int size)
@@ -372,9 +373,14 @@ public class AnimeRepository : IAnimeRepository
             ErrorMessages.Add("page", "must be greater than 0");
         }
 
-        if (size <= 0)
+        if (size < Constants.Pagination.MinPageSize)
         {
-            ErrorMessages.Add("size", "must be greater than 0");
+            ErrorMessages.Add("page", $"must be greater than or equal to {Constants.Pagination.MinPageSize}");
+        }
+
+        if (size > Constants.Pagination.MaxPageSize)
+        {
+            ErrorMessages.Add("page", $"must be less than or equal to {Constants.Pagination.MaxPageSize}");
         }
 
         return !ErrorMessages.Any();

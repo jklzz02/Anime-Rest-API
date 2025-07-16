@@ -24,17 +24,20 @@ public class AnimeController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(Constants.StatusCode.Ok)]
-    public async Task<IActionResult> GetAllAsync([FromQuery] int page)
+    [ProducesResponseType(Constants.StatusCode.BadRequest)]
+    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    public async Task<IActionResult> GetAsync([FromQuery] int page, int size = Constants.Pagination.MaxPageSize)
     {
         var result = await _cache
-            .GetOrCreateAsync($"anime-page-{page}", () => _helper.GetAllAsync(page));
-
+            .GetOrCreateAsync(
+                $"anime-page{page}-size{size}",
+                () => _helper.GetAllAsync(page, size));
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        if(!result.HasItems) return NotFound();
+        if (!result.HasItems) return NotFound();
         
         return Ok(result);
     }
@@ -58,12 +61,15 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(Constants.StatusCode.Ok)]
     [ProducesResponseType(Constants.StatusCode.BadRequest)]
     [ProducesResponseType(Constants.StatusCode.NotFound)]
-    public async Task<IActionResult> GetByParametersAsync([FromQuery] AnimeSearchParameters parameters, int page)
+    public async Task<IActionResult> GetByParametersAsync(
+        [FromQuery] AnimeSearchParameters parameters,
+        int page,
+        int size = Constants.Pagination.MaxPageSize)
     {
         var result = await _cache
             .GetOrCreateAsync(
-                $"anime-page{page}-search-{JsonConvert.SerializeObject(parameters)}",
-                () => _helper.SearchAsync(parameters, page));
+                $"anime-page{page}-size{size}-search-{JsonConvert.SerializeObject(parameters)}",
+                () => _helper.SearchAsync(parameters, page, size));
         
         if (result is null)
         {
@@ -80,12 +86,12 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(Constants.StatusCode.Ok)]
     [ProducesResponseType(Constants.StatusCode.BadRequest)]
     [ProducesResponseType(Constants.StatusCode.NotFound)]
-    public async Task<IActionResult> GetByReleaseYearAsync([FromRoute] int year, int page)
+    public async Task<IActionResult> GetByReleaseYearAsync([FromRoute] int year, int page, int size = Constants.Pagination.MaxPageSize)
     {
         var result = await _cache
             .GetOrCreateAsync(
-                $"anime-year-{year}-page-{page}",
-                () => _helper.GetByReleaseYearAsync(year, page));
+                $"anime-year-{year}-page-{page}-size{size}",
+                () => _helper.GetByReleaseYearAsync(year, page, size));
         
         if (result is null)
         {
@@ -101,12 +107,12 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(Constants.StatusCode.Ok)]
     [ProducesResponseType(Constants.StatusCode.BadRequest)]
     [ProducesResponseType(Constants.StatusCode.NotFound)]
-    public async Task<IActionResult> GetByEpisodes([FromRoute] int episodes, int page)
+    public async Task<IActionResult> GetByEpisodes([FromRoute] int episodes, int page, int size = Constants.Pagination.MaxPageSize)
     {
         var result = await _cache
             .GetOrCreateAsync(
-                $"anime-episodes-{episodes}-page{page}",
-                () => _helper.GetByEpisodesAsync(episodes, page));
+                $"anime-episodes-{episodes}-page{page}-size{size}",
+                () => _helper.GetByEpisodesAsync(episodes, page, size));
         
         if (result is null)
         {
@@ -122,12 +128,12 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(Constants.StatusCode.Ok)]
     [ProducesResponseType(Constants.StatusCode.BadRequest)]
     [ProducesResponseType(Constants.StatusCode.NotFound)]
-    public async Task<IActionResult> GetByTitleAsync([FromRoute] string title, int page)
+    public async Task<IActionResult> GetByTitleAsync([FromRoute] string title, int page, int size = Constants.Pagination.MaxPageSize)
     {
         var result = await _cache
             .GetOrCreateAsync(
-                $"anime-title-{title}-page-{page}",
-                () => _helper.GetByNameAsync(title, page));
+                $"anime-title-{title}-page-{page}-size{size}",
+                () => _helper.GetByNameAsync(title, page, size));
         
         if (result is null)
         {
