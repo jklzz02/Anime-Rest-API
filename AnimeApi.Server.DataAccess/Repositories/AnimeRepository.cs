@@ -38,6 +38,11 @@ public class AnimeRepository : IAnimeRepository
         return await _context.Anime
                 .AsNoTracking()
                 .AsSplitQuery()
+                .Include(a => a.Anime_Genres)
+                .Include(a => a.Anime_Producers)
+                .Include(a => a.Anime_Licensors)
+                .Include(a => a.Type)
+                .Include(a => a.Source)
                 .FirstOrDefaultAsync(a => a.Id == id);
     }
 
@@ -47,6 +52,11 @@ public class AnimeRepository : IAnimeRepository
         return await _context.Anime
             .AsNoTracking()
             .AsSplitQuery()
+            .Include(a => a.Anime_Genres)
+            .Include(a => a.Anime_Producers)
+            .Include(a => a.Anime_Licensors)
+            .Include(a => a.Type)
+            .Include(a => a.Source)
             .OrderBy(a => a.Id)
             .ToListAsync();
     }
@@ -328,8 +338,13 @@ public class AnimeRepository : IAnimeRepository
         var anime = await _context.Anime
             .AsSplitQuery()
             .AsNoTracking()
+            .Include(a => a.Anime_Genres)
+            .Include(a => a.Anime_Producers)
+            .Include(a => a.Anime_Licensors)
+            .Include(a => a.Type)
+            .Include(a => a.Source)
             .FirstOrDefaultAsync(condition);
-
+        
         return anime;
     }
             public async Task<PaginatedResult<Anime>> GetByConditionAsync(
@@ -351,19 +366,29 @@ public class AnimeRepository : IAnimeRepository
                 .Aggregate(query, (current, filter) => current.Where(filter));
         }
 
-        var result = await query
-            .OrderBy(a => a.Id)
-            .AsNoTracking()
+        var ids = await query
             .AsSplitQuery()
+            .AsNoTracking()
+            .Select(a => a.Id)
+            .OrderBy(a => a)
             .ToListAsync();
-        
-        var items = result;
 
-        var entities = items
+        var paginatedIds = ids
             .Skip((page - 1) * size)
             .Take(size);
+        
+        var entities = await _context.Anime
+            .AsSplitQuery()
+            .AsNoTracking()
+            .Include(a => a.Anime_Genres)
+            .Include(a => a.Anime_Producers)
+            .Include(a => a.Anime_Licensors)
+            .Include(a => a.Type)
+            .Include(a => a.Source)
+            .Where(a => paginatedIds.Contains(a.Id))
+            .ToListAsync();
 
-        return new PaginatedResult<Anime>(entities, page, items.Count());
+        return new PaginatedResult<Anime>(entities, page, await query.CountAsync());
     }
 
     private bool ValidatePageAndSize(int page, int size)

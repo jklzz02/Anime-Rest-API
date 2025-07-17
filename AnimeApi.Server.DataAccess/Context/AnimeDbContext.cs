@@ -99,26 +99,6 @@ public partial class AnimeDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Anime_Type_Id_fk");
         });
-        
-        modelBuilder.Entity<Anime>()
-            .Navigation(a => a.Anime_Genres)
-            .AutoInclude();
-
-        modelBuilder.Entity<Anime>()
-            .Navigation(a => a.Anime_Licensors)
-            .AutoInclude();
-
-        modelBuilder.Entity<Anime>()
-            .Navigation(a => a.Anime_Producers)
-            .AutoInclude();
-
-        modelBuilder.Entity<Anime>()
-            .Navigation(a => a.Type)
-            .AutoInclude();
-        
-        modelBuilder.Entity<Anime>()
-            .Navigation(a => a.Source)
-            .AutoInclude();
 
         modelBuilder.Entity<AnimeGenre>(entity =>
         {
