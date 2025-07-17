@@ -28,7 +28,10 @@ public class Program
 
        builder.Services
            .AddDataAccess(connectionString!)
-           .AddMemoryCache()
+           .AddMemoryCache(options => 
+           {
+              options.SizeLimit = Constants.Cache.DefaultCachedItemSize;
+           })
            .AddBusiness()
            .AddIdentity()
            .AddAuthentication(Constants.Authentication.DefaultScheme)

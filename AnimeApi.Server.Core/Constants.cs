@@ -62,4 +62,16 @@ public static class Constants
         public const string Created = "Created";
         public const string NoContent = "No Content";
     }
+
+    /// <summary>
+    /// Contains constants related to the caching mechanisms used within the application.
+    /// </summary>
+    public static class Cache
+    {
+        public const int DefaultExpirationMinutes = 5;
+        public const int CacheSize = 1024;
+        public const int MaxCachedItemSize = 256;
+        public const int DefaultCachedItemSize = 128;
+        public const int MinCachedItemSize = 64;
+    }
 }

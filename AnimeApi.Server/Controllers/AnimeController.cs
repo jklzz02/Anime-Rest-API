@@ -19,7 +19,6 @@ public class AnimeController : ControllerBase
     {
         _helper = helper;
         _cache = cachingService;
-        _cache.DefaultExpiration = TimeSpan.FromMinutes(5);
     }
 
     [HttpGet]
@@ -69,7 +68,8 @@ public class AnimeController : ControllerBase
         var result = await _cache
             .GetOrCreateAsync(
                 $"anime-page{page}-size{size}-search-{JsonConvert.SerializeObject(parameters)}",
-                () => _helper.SearchAsync(parameters, page, size));
+                () => _helper.SearchAsync(parameters, page, size),
+                Constants.Cache.MaxCachedItemSize);
         
         if (result is null)
         {
