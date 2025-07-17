@@ -26,7 +26,7 @@ public class CachingServiceTest
         var key = "key";
 
         var result = await service.
-            GetOrCreateAsync(key, () => Task.FromResult("temp"), TimeSpan.FromMinutes(1));
+            GetOrCreateAsync(key, () => Task.FromResult("temp"), 0, TimeSpan.FromMinutes(1));
 
         Assert.Equal("temp", result);
         Assert.True(service.HasKey(key));
@@ -38,7 +38,7 @@ public class CachingServiceTest
         var service = new CachingService(Cache);
         var key = "key"; 
         await service.
-            GetOrCreateAsync(key, () => Task.FromResult("temp"), TimeSpan.FromMicroseconds(1));
+            GetOrCreateAsync(key, () => Task.FromResult("temp"), 0, TimeSpan.FromMicroseconds(1));
 
         Thread.Sleep(TimeSpan.FromMicroseconds(1));
         Assert.False(service.HasKey(key));
