@@ -16,7 +16,23 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        
+        var clientDomain = builder.Configuration
+            .GetSection("Authorization")
+            .GetValue<string>("ClientDomain");
 
+        
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(Constants.Cors.ClientPolicy,
+                policy =>
+                {
+                    policy.WithOrigins(clientDomain!)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+        });
+        
        builder.Services
            .AddAuthorization(options =>
            {
@@ -119,6 +135,8 @@ public class Program
         app.UseHttpsRedirection();
         
         app.UseAuthentication();
+        
+        app.UseCors(Constants.Cors.ClientPolicy);
         
         app.UseAuthorization();
         

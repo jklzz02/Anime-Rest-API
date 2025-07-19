@@ -15,6 +15,11 @@ public static class Constants
         public const string DefaultScheme = "Bearer";
     }
 
+    public static class Cors
+    {
+        public const string ClientPolicy = "allow-client";
+    }
+
     public static class Pagination
     {
         public const int MaxPageSize = 100;
