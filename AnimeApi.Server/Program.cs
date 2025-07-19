@@ -1,5 +1,4 @@
 using System.Text;
-using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.DataAccess.Extensions;
@@ -97,7 +96,7 @@ public class Program
         {
             errorApp.Run(async context =>
             {
-                context.Response.StatusCode = Constants.StatusCode.InternalServerError;
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 context.Response.ContentType = "application/json";
 
                 var errorFeature = context.Features.Get<IExceptionHandlerFeature>();

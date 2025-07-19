@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using AnimeApi.Server.Business;
-using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -23,11 +21,12 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var review = await _reviewHelper.GetByIdAsync(id);
+
         if (review is null)
         {
             return NotFound();
@@ -38,79 +37,122 @@ public class ReviewController : ControllerBase
 
     [HttpGet]
     [Route("anime/{animeId:int:min(1)}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByAnimeIdAsync([FromRoute] int animeId)
     {
         var reviews = await _reviewHelper.GetByAnimeIdAsync(animeId);
+
+        if (!reviews.Any())
+        {
+            return NotFound();
+        }
+
         return Ok(reviews);
     }
 
     [HttpGet]
     [Route("anime/title{title:minlength(1)}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByAnimeTitleAsync([FromRoute] string title) 
     {
         var reviews = await _reviewHelper.GetByTitleAsync(title);
+
+        if (!reviews.Any())
+        {
+            return NotFound();
+        }
+
         return Ok(reviews);
     }
 
     [HttpGet]
     [Route("user/{userId:int:min(1)}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByUserIdAsync([FromRoute] int id) 
     {
-        var review = await _reviewHelper.GetByUserIdAsync(id);
-        if (review is null) 
+        var reviews = await _reviewHelper.GetByUserIdAsync(id);
+
+        if (!reviews.Any()) 
         {
             return NotFound();
         }
 
-        return Ok(review);
+        return Ok(reviews);
     }
 
     [HttpGet]
     [Route("user/email{email:minlength(1)}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByUserEmailAsync([FromRoute] string email)
     {
         var reviews = await _reviewHelper.GetByUserEmailAsync(email);
+
+        if (!reviews.Any())
+        {
+            return NotFound();
+        }
+
         return Ok(reviews);
     }
 
     [HttpGet]
     [Route("date")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByDateAsync([FromQuery] DateTime date)
     {
         var reviews = await _reviewHelper.GetByDateAsync(date);
+
+        if (!reviews.Any())
+        {
+            return NotFound();
+        }
+
         return Ok(reviews);
     }
 
     [HttpGet]
     [Route("recent")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMostRecentAsync([FromQuery] TimeSpan timeSpan)
     {
         var reviews = await _reviewHelper.GetMostRecentByTimeSpanAsync(timeSpan);
+
+        if (!reviews.Any())
+        {
+            return NotFound();
+        }
+
         return Ok(reviews);
     }
 
     [HttpGet]
     [Route("score/{minScore:int:min(1)}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByMinScoreAsync([FromQuery] int minScore)
     {
         var reviews = await _reviewHelper.GetByMinScoreAsync(minScore);
+
+        if (!reviews.Any()) 
+        {
+            return NotFound();
+        }
+
         return Ok(reviews);
     }
 
     [Authorize]
     [HttpPost]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.BadRequest)]
-    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CreateAsync([FromBody] ReviewDto review)
     {
         var email = User.Claims
@@ -144,10 +186,10 @@ public class ReviewController : ControllerBase
 
     [Authorize]
     [HttpPatch]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.BadRequest)]
-    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UpdateAsync([FromBody] ReviewDto review)
     {
         var email = User.Claims
@@ -181,10 +223,10 @@ public class ReviewController : ControllerBase
     [Authorize]
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var email = User.Claims

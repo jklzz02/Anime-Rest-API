@@ -111,7 +111,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <param name="filters">A collection of filter expressions to apply to the query. Can be null for no filters.</param>
     /// <returns>A collection of anime entities that match the filter conditions for the specified page and size.</returns>
-            Task<PaginatedResult<Anime>> GetByConditionAsync(
+    Task<PaginatedResult<Anime>> GetByConditionAsync(
         int page,
         int size = 100,
         IEnumerable<Expression<Func<Anime, bool>>>? filters = null);

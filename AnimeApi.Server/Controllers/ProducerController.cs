@@ -1,4 +1,3 @@
-using AnimeApi.Server.Business;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
@@ -19,7 +18,7 @@ public class ProducerController : ControllerBase
     }
     
     [HttpGet]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
         var producers = await _helper.GetAllAsync();
@@ -28,20 +27,24 @@ public class ProducerController : ControllerBase
     
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var producer = await _helper.GetByIdAsync(id);
-        if (producer is null) return NotFound();
+        
+        if (producer is null)
+        {
+            return NotFound();
+        } 
         
         return Ok(producer);
     }
 
     [HttpGet]
     [Route("name/{name}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
         var producer = await _helper.GetByNameAsync(name);
@@ -51,13 +54,14 @@ public class ProducerController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.BadRequest)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] ProducerDto producer)
     {
         var result = await _helper.CreateAsync(producer);
+        
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -67,10 +71,9 @@ public class ProducerController : ControllerBase
     }
 
     [HttpPut]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.BadRequest)]
-    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] ProducerDto producer)
     {
@@ -78,7 +81,9 @@ public class ProducerController : ControllerBase
         {
             return BadRequest();
         }
+        
         var result = await _helper.UpdateAsync(producer);
+        
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -88,10 +93,9 @@ public class ProducerController : ControllerBase
     }
     
     [HttpPatch]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.BadRequest)]
-    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] ProducerDto producer)
     {
@@ -99,7 +103,9 @@ public class ProducerController : ControllerBase
         {
             return BadRequest();
         }
+        
         var result = await _helper.UpdateAsync(producer);
+        
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -111,14 +117,18 @@ public class ProducerController : ControllerBase
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constants.StatusCode.NoContent)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]   
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);
-        if(!result) return NotFound();
+        
+        if (!result) 
+        {
+            return NotFound();
+        }
         
         return NoContent();
     }

@@ -1,4 +1,3 @@
-using AnimeApi.Server.Business;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
@@ -19,7 +18,7 @@ public class TypeController : ControllerBase
     }
     
     [HttpGet]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
         var types = await _helper.GetAllAsync();
@@ -28,36 +27,46 @@ public class TypeController : ControllerBase
     
     [HttpGet]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var type = await _helper.GetByIdAsync(id);
-        if (type is null) return NotFound();
+        
+        if (type is null) 
+        {
+            return NotFound();
+        }
+            
         
         return Ok(type);
     }
     
     [HttpGet]
     [Route("name/{name}")]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
         var type = await _helper.GetByNameAsync(name);
-        if (!type.Any()) return NotFound();
+        
+        if (!type.Any())
+        {
+            return NotFound();
+        }
         
         return Ok(type);
     }
 
     [HttpPost]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.BadRequest)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] TypeDto type)
     {
         var result = await _helper.CreateAsync(type);
+        
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -67,13 +76,14 @@ public class TypeController : ControllerBase
     }
     
     [HttpPut]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.BadRequest)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] TypeDto type)
     {
         var result = await _helper.UpdateAsync(type);
+        
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -83,13 +93,14 @@ public class TypeController : ControllerBase
     }
 
     [HttpPatch]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.BadRequest)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdatePartialAsync([FromBody] TypeDto type)
     {
         var result = await _helper.UpdateAsync(type);
+        
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -100,14 +111,18 @@ public class TypeController : ControllerBase
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]
-    [ProducesResponseType(Constants.StatusCode.NoContent)]
-    [ProducesResponseType(Constants.StatusCode.Forbidden)] 
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
         var result = await _helper.DeleteAsync(id);
-        if(!result) return NotFound();
+        
+        if (!result)
+        {
+            return NotFound();
+        }
 
         return NoContent();
     }

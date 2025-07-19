@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using AnimeApi.Server.Business;
-using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,33 +18,42 @@ public class UserController : ControllerBase
 
     [HttpGet]
     [Authorize]
-    [ProducesResponseType(Constants.StatusCode.Ok)]
-    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetCurrentUserAsync()
     {
         var email = User.FindFirst(ClaimTypes.Email);
         var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
         
-        if (user is null) return Unauthorized();
+        if (user is null) 
+        {
+            return Unauthorized();
+        }
         
         return Ok(user);
     }
 
     [HttpDelete]
     [Authorize]
-    [ProducesResponseType(Constants.StatusCode.NoContent)]
-    [ProducesResponseType(Constants.StatusCode.Unauthorized)]
-    [ProducesResponseType(Constants.StatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DestroyCurrentUserAsync()
     {
         var email = User.FindFirst(ClaimTypes.Email);
         var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
 
-        if (user is null) return NotFound();
+        if (user is null) 
+        {
+            return NotFound();
+        }
         
         var result = await _userService.DestroyUserAsync(email!.Value);
         
-        if(!result) return Unauthorized();
+        if (!result) 
+        {
+            Unauthorized();
+        }
 
         return NoContent();
     }

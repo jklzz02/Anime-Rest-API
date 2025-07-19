@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AnimeApi.Server.Core\AnimeApi.Server.Core.csproj" />
-      <ProjectReference Include="..\AnimeApi.Server.DataAccess\AnimeApi.Server.DataAccess.csproj" />
     </ItemGroup>
 
     <ItemGroup>
