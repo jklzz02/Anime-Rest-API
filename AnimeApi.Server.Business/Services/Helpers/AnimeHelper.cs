@@ -33,10 +33,10 @@ public class AnimeHelper : IAnimeHelper
         return models.ToDto();
     }
 
-    public async Task<PaginatedResult<AnimeDto>?> GetAllAsync(int page, int pageSize)
+    public async Task<PaginatedResult<AnimeDto>?> GetAllAsync(int page, int size)
     {
         var result = await _repository
-            .GetAllAsync(page, pageSize);
+            .GetAllAsync(page, size);
         
         if (_repository.ErrorMessages.Any())
         {
@@ -44,7 +44,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
     
     public async Task<PaginatedResult<AnimeDto>?> GetByNameAsync(string name, int page, int size = 100)
@@ -57,7 +57,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
     
     public async Task<PaginatedResult<AnimeDto>?> GetByProducerAsync(int producerId, int page, int size = 100)
@@ -70,7 +70,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
     
     public async Task<PaginatedResult<AnimeDto>?> GetByLicensorAsync(int licensorId, int page, int size = 100)
@@ -83,7 +83,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
     
     public async Task<PaginatedResult<AnimeDto>?> GetByGenreAsync(int genreId, int page, int size = 100)
@@ -96,7 +96,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
     
     public async Task<PaginatedResult<AnimeDto>?> GetBySourceAsync(string source, int page, int size = 100)
@@ -109,7 +109,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
 
     public async Task<PaginatedResult<AnimeDto>?> GetByEnglishNameAsync(string englishName, int page, int size = 100)
@@ -122,7 +122,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
     
     public async Task<PaginatedResult<AnimeDto>?> GetByScoreAsync(int score, int page, int size = 100)
@@ -148,7 +148,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
     
     public async Task<PaginatedResult<AnimeDto>?> GetByTypeAsync(string type, int page, int size = 100)
@@ -161,7 +161,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
 
     public async Task<PaginatedResult<AnimeDto>?> GetByEpisodesAsync(int episodes, int page, int size = 100)
@@ -174,7 +174,7 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
     
     
@@ -307,6 +307,6 @@ public class AnimeHelper : IAnimeHelper
             return null;
         }
         
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, result.TotalItems);
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
 }

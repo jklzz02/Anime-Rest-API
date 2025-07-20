@@ -57,7 +57,8 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Anime_Licensors)
             .Include(a => a.Type)
             .Include(a => a.Source)
-            .OrderBy(a => a.Id)
+            .OrderBy(a => a.Score)
+            .ThenByDescending(a => a.Release_Year)
             .ToListAsync();
     }
     
@@ -79,12 +80,12 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Anime_Licensors)
             .Include(a => a.Type)
             .Include(a => a.Source)
-            .OrderByDescending(a => a.Started_Airing ?? a.Started_Airing)
+            .OrderByDescending(a => a.Score)
             .Skip((page - 1) * size)
             .Take(size)
             .ToListAsync();
         
-        return new PaginatedResult<Anime>(entities, page, count);
+        return new PaginatedResult<Anime>(entities, page, size, count);
     }
 
     /// <inheritdoc />
@@ -204,7 +205,7 @@ public class AnimeRepository : IAnimeRepository
         
         if (!ValidatePageAndSize(page, size))
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page);
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
         
         return await GetByConditionAsync(
@@ -221,7 +222,7 @@ public class AnimeRepository : IAnimeRepository
         
         if (!ValidatePageAndSize(page, size))
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page);
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
         
         return await GetByConditionAsync(
@@ -238,7 +239,7 @@ public class AnimeRepository : IAnimeRepository
         
         if (!ValidatePageAndSize(page, size))
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page);
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
         
         return await GetByConditionAsync(
@@ -255,7 +256,7 @@ public class AnimeRepository : IAnimeRepository
         
         if (!ValidatePageAndSize(page, size))
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page);
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
         
         return await GetByConditionAsync(
@@ -269,7 +270,7 @@ public class AnimeRepository : IAnimeRepository
     {
         if (!ValidatePageAndSize(page, size))
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page);
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
         
         return await GetByConditionAsync( page, size, [a => a.Score == score]);
@@ -294,7 +295,7 @@ public class AnimeRepository : IAnimeRepository
     {
         if (!ValidatePageAndSize(page, size))
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page);
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
         
         return await GetByConditionAsync(
@@ -308,7 +309,7 @@ public class AnimeRepository : IAnimeRepository
     {
         if (!ValidatePageAndSize(page, size))
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page);
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
         
         return await GetByConditionAsync(
@@ -322,7 +323,7 @@ public class AnimeRepository : IAnimeRepository
     {
         if (!ValidatePageAndSize(page, size))
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page);
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
         
         return await GetByConditionAsync(page, size, [a => a.Release_Year == year]);
@@ -333,7 +334,7 @@ public class AnimeRepository : IAnimeRepository
     {
         if (!ValidatePageAndSize(page, size))
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page);
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
         
         return await GetByConditionAsync(page, size,[a => a.Episodes == episodes]);

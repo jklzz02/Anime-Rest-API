@@ -7,8 +7,11 @@ public class PaginatedResult<T> where T : class
     [JsonProperty("page")]
     public int Page { get; }
    
-    [JsonProperty("page_items")]
-    public int PageSize => Items.Count();
+    [JsonProperty("result_count")]
+    public int ResultCount => Items.Count();
+    
+    [JsonProperty("page_size")]
+    public int PageSize { get; }
     
     [JsonProperty("total_pages")]
     public int TotalPages => (int)Math.Ceiling(TotalItems / (double)PageSize);
@@ -23,22 +26,24 @@ public class PaginatedResult<T> where T : class
     public bool HasNextPage => Page < TotalPages;
     
     [JsonProperty("has_items")]
-    public bool HasItems => PageSize > 0;
+    public bool HasItems => ResultCount > 0;
     
     [JsonProperty("data")]
     public IEnumerable<T> Items { get; }
     
-    public PaginatedResult(IEnumerable<T> items, int page)
+    public PaginatedResult(IEnumerable<T> items, int page, int size)
     {
         Items = items;
         Page = page;
         TotalItems = 0;
+        PageSize = size;
     }
 
-    public PaginatedResult(IEnumerable<T> items, int page, int totalItems)
+    public PaginatedResult(IEnumerable<T> items, int page, int size, int totalItems)
     {
         Items = items;
         Page = page;
         TotalItems = totalItems;
+        PageSize = size;
     }
 }
