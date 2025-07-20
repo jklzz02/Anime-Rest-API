@@ -68,16 +68,23 @@ public class AnimeRepository : IAnimeRepository
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
+        
+        var count = await _context.Anime.CountAsync();
 
-        var result = await GetAllAsync();
-        
-        var items = result.ToList();
-        
-        var entities = items
+        var entities = await _context.Anime
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(a => a.Anime_Genres)
+            .Include(a => a.Anime_Producers)
+            .Include(a => a.Anime_Licensors)
+            .Include(a => a.Type)
+            .Include(a => a.Source)
+            .OrderByDescending(a => a.Started_Airing ?? a.Started_Airing)
             .Skip((page - 1) * size)
-            .Take(size);
+            .Take(size)
+            .ToListAsync();
         
-        return new PaginatedResult<Anime>(entities, page, items.Count);
+        return new PaginatedResult<Anime>(entities, page, count);
     }
 
     /// <inheritdoc />

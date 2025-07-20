@@ -34,7 +34,6 @@ public interface ICachingService
     /// <typeparam name="T">The type of the cached item.</typeparam>
     /// <param name="key">The unique key identifying the cached item.</param>
     /// <param name="factory">The function used to generate the item if it is not found in the cache.</param>
-    /// <param name="expiration">The duration for which the cached item remains valid. If not specified, the default expiration time is used.</param>
     /// <param name="size">The size of the cached item, used for cache size management.</param>
     /// <returns>The cached item if found, or the newly created item if it was not available in the cache.</returns>
     Task<T?> GetOrCreateAsync<T>(object key, Func<Task<T>> factory, int size);
@@ -46,6 +45,7 @@ public interface ICachingService
     /// <typeparam name="T">The type of the cached item.</typeparam>
     /// <param name="key">The unique key identifying the cached item.</param>
     /// <param name="factory">The function used to generate the item if it is not found in the cache.</param>
+    /// <param name="size">The size of the cached item, used for cache size management.</param>
     /// <param name="expiration">The duration for which the cached item remains valid. If not specified, the default expiration time is used.</param>
     /// <returns></returns>
     Task<T?> GetOrCreateAsync<T>(object key, Func<Task<T>> factory, int size, TimeSpan expiration);

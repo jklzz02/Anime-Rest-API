@@ -58,7 +58,7 @@ public class CachingService : ICachingService
     /// <inheritdoc />
     public async Task<T?> GetOrCreateAsync<T>(object key, Func<Task<T>> factory, int size)
     {
-        return await GetOrCreateAsync(key, factory, DefaultItemSize, DefaultExpiration);
+        return await GetOrCreateAsync(key, factory, size, DefaultExpiration);
     }
 
     /// <inheritdoc />

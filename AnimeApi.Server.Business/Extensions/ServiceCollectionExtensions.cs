@@ -25,15 +25,15 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IBaseValidator<ProducerDto>, BaseValidator<ProducerDto>>();
         services.AddTransient<IBaseValidator<LicensorDto>, BaseValidator<LicensorDto>>();
         
-        services.AddTransient<IAnimeHelper, AnimeHelper>();
-        services.AddTransient<IGenreHelper, GenreHelper>();
-        services.AddTransient<IProducerHelper, ProducerHelper>();
-        services.AddTransient<ILicensorHelper, LicensorHelper>();
-        services.AddTransient<ISourceHelper, SourceHelper>();
-        services.AddTransient<ITypeHelper, TypeHelper>();
-        services.AddTransient<IReviewHelper, ReviewHelper>();
+        services.AddScoped<IAnimeHelper, AnimeHelper>();
+        services.AddScoped<IGenreHelper, GenreHelper>();
+        services.AddScoped<IProducerHelper, ProducerHelper>();
+        services.AddScoped<ILicensorHelper, LicensorHelper>();
+        services.AddScoped<ISourceHelper, SourceHelper>();
+        services.AddScoped<ITypeHelper, TypeHelper>();
+        services.AddScoped<IReviewHelper, ReviewHelper>();
 
-        services.AddTransient<ICachingService, CachingService>();
+        services.AddScoped<ICachingService, CachingService>();
         
         return services;
     }
@@ -46,8 +46,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The updated <see cref="IServiceCollection"/> configured with identity-related dependencies.</returns>
     public static IServiceCollection AddIdentity(this IServiceCollection services)
     {
-        services.AddTransient<IJwtGenerator, JwtGenerator>();
-        services.AddTransient<IUserService, UserService>();
+        services.AddScoped<IJwtGenerator, JwtGenerator>();
+        services.AddScoped<IUserService, UserService>();
         services.AddAuthenticationCore();
 
         return services;

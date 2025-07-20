@@ -20,15 +20,15 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<AnimeDbContext>(options =>
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), mySqlOptions => mySqlOptions.EnableRetryOnFailure()));
 
-        services.AddTransient<IAnimeRepository, AnimeRepository>();
-        services.AddTransient<IProducerRepository, ProducerRepository>();
-        services.AddTransient<IGenreRepository, GenreRepository>();
-        services.AddTransient<ILicensorRepository, LicensorRepository>();
-        services.AddTransient<ISourceRepository, SourceRepository>();
-        services.AddTransient<ITypeRepository, TypeRepository>();
-        services.AddTransient<IUserRepository, UserRepository>();
-        services.AddTransient<IRoleRepository, RoleRepository>();
-        services.AddTransient<IReviewRepository, ReviewRepository>();
+        services.AddScoped<IAnimeRepository, AnimeRepository>();
+        services.AddScoped<IProducerRepository, ProducerRepository>();
+        services.AddScoped<IGenreRepository, GenreRepository>();
+        services.AddScoped<ILicensorRepository, LicensorRepository>();
+        services.AddScoped<ISourceRepository, SourceRepository>();
+        services.AddScoped<ITypeRepository, TypeRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
         
         return services;
     }

@@ -58,7 +58,7 @@ public static class Constants
     public static class Cache
     {
         public const int DefaultExpirationMinutes = 5;
-        public const int CacheSize = 1024;
+        public const int CacheSize = 2048;
         public const int MaxCachedItemSize = 256;
         public const int DefaultCachedItemSize = 128;
         public const int MinCachedItemSize = 64;

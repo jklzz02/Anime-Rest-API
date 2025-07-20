@@ -45,7 +45,7 @@ public class Program
            .AddDataAccess(connectionString!)
            .AddMemoryCache(options => 
            {
-              options.SizeLimit = Constants.Cache.DefaultCachedItemSize;
+              options.SizeLimit = Constants.Cache.CacheSize;
            })
            .AddBusiness()
            .AddIdentity()

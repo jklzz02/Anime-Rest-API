@@ -26,10 +26,11 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync([FromQuery] int page, int size = Constants.Pagination.MaxPageSize)
     {
-        var result = await _cache
-            .GetOrCreateAsync(
-                $"anime-page{page}-size{size}",
-                () => _helper.GetAllAsync(page, size));
+         var result = await _cache
+             .GetOrCreateAsync(
+                 $"anime-page{page}-size{size}",
+                 () => _helper.GetAllAsync(page, size));
+         
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -50,7 +51,9 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var anime = await _cache
-            .GetOrCreateAsync($"anime-id-{id}",() => _helper.GetByIdAsync(id));
+            .GetOrCreateAsync(
+                $"anime-id-{id}",
+                () => _helper.GetByIdAsync(id));
         
         if (anime is null)
         {
@@ -70,18 +73,15 @@ public class AnimeController : ControllerBase
         int page,
         int size = Constants.Pagination.MaxPageSize)
     {
-        var result = await _cache
-            .GetOrCreateAsync(
-                $"anime-page{page}-size{size}-search-{JsonConvert.SerializeObject(parameters)}",
-                () => _helper.SearchAsync(parameters, page, size),
-                Constants.Cache.MaxCachedItemSize);
+        var result = await _helper
+            .SearchAsync(parameters, page, size);
         
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
         }
         
-        if(!result.HasItems) 
+        if (!result.HasItems) 
         {
             return NotFound();
         }
@@ -167,6 +167,7 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.CreateAsync(anime);
+        
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -183,6 +184,7 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> UpdatePartialAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
+        
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
@@ -199,6 +201,7 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> UpdateFullAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
+        
         if (result is null)
         {
             return BadRequest(_helper.ErrorMessages);
