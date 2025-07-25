@@ -355,7 +355,7 @@ public class AnimeRepository : IAnimeRepository
         
         return anime;
     }
-            public async Task<PaginatedResult<Anime>> GetByConditionAsync(
+    public async Task<PaginatedResult<Anime>> GetByConditionAsync(
         int page = 1,
         int size = 100,
         IEnumerable<Expression<Func<Anime, bool>>>? filters = null)    
@@ -397,6 +397,30 @@ public class AnimeRepository : IAnimeRepository
             .ToListAsync();
 
         return new PaginatedResult<Anime>(entities, page, await query.CountAsync());
+    }
+
+    public async Task<IEnumerable<AnimeSummary>> GetSummaryAsync(int count)
+    {
+        if (count <= 0)
+        {
+            throw new ArgumentException(null, nameof(count));
+        }
+        
+        var entities = await _context.Anime
+            .AsNoTracking()
+            .OrderByDescending(a => a.Score)
+            .Take(count)
+            .ToListAsync();
+
+        return entities.Select(a => new AnimeSummary
+        {
+            Id = a.Id,
+            Name = a.Name,
+            ImageUrl = a.Image_URL,
+            Score = a.Score,
+            ReleaseYear = a.Release_Year,
+            Rating = a.Rating
+        });
     }
 
     private bool ValidatePageAndSize(int page, int size)

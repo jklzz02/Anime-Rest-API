@@ -184,6 +184,24 @@ public class AnimeHelper : IAnimeHelper
         return model?.ToDto();
     }
 
+    public async Task<IEnumerable<AnimeSummaryDto>> GetSummaryAsync(int count)
+    {
+        if (count <= 0)
+        {
+            ErrorMessages = new Dictionary<string, string>
+            {
+                {"Count", "Count must be greater than 0."}
+            };
+            
+            return [];       
+        }
+        
+        var models = await _repository
+            .GetSummaryAsync(count);
+
+        return models.ToDto();
+    }
+
     public async Task<AnimeDto?> CreateAsync(AnimeDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));

@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Core.Objects;
+using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Core.Abstractions.DataAccess.Services;
@@ -122,4 +123,11 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="condition">An expression that defines the condition to filter the anime entities.</param>
     /// <returns>The first anime entity that matches the condition or null if no match is found.</returns>
     Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition);
+
+    /// <summary>
+    /// Retrieves a limited collection of anime summaries.
+    /// </summary>
+    /// <param name="count">The number of anime summaries to retrieve. Must be greater than 0.</param>
+    /// <returns>A collection of anime summary data transfer objects.</returns>
+    Task<IEnumerable<AnimeSummary>> GetSummaryAsync(int count);
 }

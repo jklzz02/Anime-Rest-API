@@ -22,6 +22,7 @@ public interface IAnimeHelper
     Task<PaginatedResult<AnimeDto>?> GetByEpisodesAsync(int episodes, int page, int size = 100);
     Task<PaginatedResult<AnimeDto>?> GetByTypeAsync(string type, int page, int size = 100);
     Task<AnimeDto?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition);
+    Task<IEnumerable<AnimeSummaryDto>> GetSummaryAsync(int count); 
     Task<AnimeDto?> CreateAsync(AnimeDto entity);
     Task<AnimeDto?> UpdateAsync(AnimeDto entity);
     Task<bool> DeleteAsync(int id);
