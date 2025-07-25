@@ -160,10 +160,10 @@ public class AnimeController : ControllerBase
     }
 
     [HttpGet]
-    [Route("summary{count:int:min(1)}")]
+    [Route("summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetSummaryAsync(int count)
+    public async Task<IActionResult> GetSummaryAsync([FromQuery] int count)
     {
         var result = await _helper.GetSummaryAsync(count);
         
