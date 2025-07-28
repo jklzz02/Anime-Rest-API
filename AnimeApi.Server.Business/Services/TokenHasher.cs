@@ -1,0 +1,33 @@
+using System.Security.Cryptography;
+using System.Text;
+using AnimeApi.Server.Core.Abstractions.Business.Services;
+using Microsoft.Extensions.Configuration;
+
+namespace AnimeApi.Server.Business.Services;
+
+public class TokenHasher : ITokenHasher
+{
+    private readonly string _secret;
+
+    public TokenHasher(IConfiguration configuration)
+    {
+        _secret = configuration
+            .GetSection("Authentication:RefreshToken")?
+            .GetSection("Secret")?.Value ?? throw new ApplicationException("Refresh token secret not found in configuration");
+    }
+    
+    /// <inheritdoc />
+    public string Hash(string token)
+    {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_secret));
+        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(token));
+        return Convert.ToBase64String(hash);
+    }
+    
+    /// <inheritdoc />
+    public bool Verify(string token, string hashed)
+    {
+        var computed = Hash(token);
+        return computed == hashed;
+    }
+}

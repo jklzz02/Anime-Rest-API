@@ -55,13 +55,13 @@ public class Program
                var config = builder.Configuration.GetSection("Authentication:Jwt");
                options.TokenValidationParameters = new TokenValidationParameters
                {
-                   ValidateIssuer = true,
-                   ValidIssuer = config["Issuer"],
-                   ValidateAudience = true,
-                   ValidAudience = config["Audience"],
-                   ValidateIssuerSigningKey = true,
+                   ValidIssuer = config["Issuer"] ?? throw new ApplicationException("JWT issuer missing"),
+                   ValidAudience = config["Audience"] ?? throw new ApplicationException("JWT audience missing"),
                    IssuerSigningKey = new SymmetricSecurityKey(
-                       Encoding.UTF8.GetBytes(config["Secret"] ?? throw new Exception("JWT secret missing"))),
+                       Encoding.UTF8.GetBytes(config["Secret"] ?? throw new ApplicationException("JWT secret missing"))),
+                   ValidateIssuer = true,
+                   ValidateAudience = true,
+                   ValidateIssuerSigningKey = true,
                    ValidateLifetime = true,
                    ClockSkew = TimeSpan.FromMinutes(2)
                };

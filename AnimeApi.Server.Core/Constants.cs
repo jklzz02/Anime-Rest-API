@@ -13,6 +13,7 @@ public static class Constants
     public static class Authentication
     {
         public const string DefaultScheme = "Bearer";
+        public const int RefreshTokenExpirationDays = 15;
     }
 
     public static class Cors

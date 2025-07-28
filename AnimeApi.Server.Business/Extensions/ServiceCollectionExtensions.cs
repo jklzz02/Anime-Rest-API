@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISourceHelper, SourceHelper>();
         services.AddScoped<ITypeHelper, TypeHelper>();
         services.AddScoped<IReviewHelper, ReviewHelper>();
+        services.AddScoped<IRefreshTokenHelper, RefreshTokenHelper>();
 
         services.AddScoped<ICachingService, CachingService>();
         
@@ -48,6 +49,10 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IJwtGenerator, JwtGenerator>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IRefreshTokenService,RefreshTokenService>();
+        
+        services.AddSingleton<ITokenHasher, TokenHasher>();
+        
         services.AddAuthenticationCore();
 
         return services;

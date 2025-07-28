@@ -11,4 +11,6 @@ public class AppUser
     public Role Role { get; set; } = null!;
     
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+    
+    public virtual RefreshToken RefreshToken { get; set; } = null!;
 }

@@ -27,6 +27,8 @@ public partial class AnimeDbContext : DbContext
     
     public virtual DbSet<Review> Reviews { get; set; }
     
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+    
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Genre> Genres { get; set; }
@@ -202,11 +204,35 @@ public partial class AnimeDbContext : DbContext
             entity.HasOne<Role>(e => e.Role).WithMany(r => r.Users)
                 .HasForeignKey(e => e.Role_Id)
                 .HasConstraintName("User_Role_Id_fk");
+
+            entity.HasOne<RefreshToken>(e => e.RefreshToken)
+                .WithOne(e => e.User);
         });
         
         modelBuilder.Entity<AppUser>()
             .Navigation(u => u.Role)
             .AutoInclude();
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id)
+                .HasName("PRIMARY");
+            
+            entity.ToTable("Refresh_Token");
+            
+            entity.HasOne(e => e.User)
+                .WithOne(e => e.RefreshToken)
+                .HasForeignKey<RefreshToken>(e => e.User_Id)
+                .HasConstraintName("RefreshToken_User_Id_fk")
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.Property(e => e.Hashed_Token)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity
+                .HasIndex(e => e.Hashed_Token, "Refresh_Token_Hashed_Token__index");
+        });
 
         modelBuilder.Entity<Review>(entity =>
         {
