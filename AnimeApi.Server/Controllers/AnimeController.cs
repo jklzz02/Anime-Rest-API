@@ -175,6 +175,22 @@ public class AnimeController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet]
+    [Route("recent")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetRecentAsync([FromQuery]int count)
+    {
+        var result = await _helper.GetMostRecentAsync(count);
+        
+        if (_helper.ErrorMessages.Any())
+        {
+            return BadRequest(_helper.ErrorMessages);
+        }
+        
+        return Ok(result);
+    }
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

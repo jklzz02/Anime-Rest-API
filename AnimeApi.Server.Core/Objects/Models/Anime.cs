@@ -20,9 +20,9 @@ public partial class Anime
 
     public int Release_Year { get; set; }
 
-    public DateOnly? Started_Airing { get; set; }
+    public DateTime? Started_Airing { get; set; }
 
-    public DateOnly? Finished_Airing { get; set; }
+    public DateTime? Finished_Airing { get; set; }
 
     public string Rating { get; set; } = null!;
 

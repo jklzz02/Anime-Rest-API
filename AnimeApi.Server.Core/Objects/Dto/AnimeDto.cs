@@ -31,9 +31,9 @@ public record AnimeDto
     [JsonProperty("release_year")]
     public int ReleaseYear { get; set; }
     [JsonProperty("started_airing")]
-    public DateOnly? StartedAiring { get; set; }
+    public DateTime? StartedAiring { get; set; }
     [JsonProperty("finished_airing")]
-    public DateOnly? FinishedAiring { get; set; }
+    public DateTime? FinishedAiring { get; set; }
     [JsonProperty("rating")]
     public string? Rating { get; set; }
     [JsonProperty("studio")]

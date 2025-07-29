@@ -339,6 +339,24 @@ public class AnimeRepository : IAnimeRepository
         
         return await GetByConditionAsync(page, size,[a => a.Episodes == episodes]);
     }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<Anime>> GetMostRecentAsync(int count)
+    {
+        return await _context.Anime
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(a => a.Anime_Genres)
+            .Include(a => a.Anime_Producers)
+            .Include(a => a.Anime_Licensors)
+            .Include(a => a.Type)
+            .Include(a => a.Source)
+            .Where(a => a.Started_Airing != null)
+            .OrderByDescending(a => a.Started_Airing)
+            .ThenByDescending(a => a.Score)
+            .Take(count)
+            .ToListAsync();
+    }
     
     /// <inheritdoc />
     public async Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
@@ -377,10 +395,10 @@ public class AnimeRepository : IAnimeRepository
         var ids = await query
             .AsSplitQuery()
             .AsNoTracking()
+            .OrderByDescending(a => a.Score)
             .Select(a => a.Id)
-            .OrderBy(a => a)
             .ToListAsync();
-
+        
         var paginatedIds = ids
             .Skip((page - 1) * size)
             .Take(size);
@@ -396,7 +414,7 @@ public class AnimeRepository : IAnimeRepository
             .Where(a => paginatedIds.Contains(a.Id))
             .ToListAsync();
 
-        return new PaginatedResult<Anime>(entities, page, await query.CountAsync());
+        return new PaginatedResult<Anime>(entities, page, size, await query.CountAsync());
     }
 
     public async Task<IEnumerable<AnimeSummary>> GetSummaryAsync(int count)

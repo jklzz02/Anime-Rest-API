@@ -106,6 +106,13 @@ public interface IAnimeRepository : IRepository<Anime>
     Task<PaginatedResult<Anime>> GetByGenreAsync(int genreId, int page, int size = 100);
 
     /// <summary>
+    /// Retrieves the most recent anime entities added to the database.
+    /// </summary>
+    /// <param name="count">The number of most recent anime entities to retrieve. Must be greater than 0.</param>
+    /// <returns>A collection containing the most recent anime entities, limited to the specified count.</returns>
+    Task<IEnumerable<Anime>> GetMostRecentAsync(int count);
+
+    /// <summary>
     /// Retrieves a collection of anime entities that match the specified filter conditions, paginated by the given page and size.
     /// </summary>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>

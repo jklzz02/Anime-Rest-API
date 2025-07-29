@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Runtime.InteropServices.JavaScript;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
@@ -184,15 +185,28 @@ public class AnimeHelper : IAnimeHelper
         return model?.ToDto();
     }
 
+    public async Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count)
+    {
+        if (count <= 0)
+        {
+            ErrorMessages.Add("Count", "Count must be greater than 0.");
+        }
+
+        if (ErrorMessages.Any())
+        {
+            return [];
+        }
+        
+        var models = await _repository.GetMostRecentAsync(count);
+        
+        return models.ToDto();
+    }
+
     public async Task<IEnumerable<AnimeSummaryDto>> GetSummaryAsync(int count)
     {
         if (count <= 0)
         {
-            ErrorMessages = new Dictionary<string, string>
-            {
-                {"Count", "Count must be greater than 0."}
-            };
-            
+            ErrorMessages.Add("Count", "Count must be greater than 0.");
             return [];       
         }
         
