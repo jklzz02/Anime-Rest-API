@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
-using System.Runtime.InteropServices.JavaScript;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
@@ -38,6 +38,20 @@ public class AnimeHelper : IAnimeHelper
     {
         var result = await _repository
             .GetAllAsync(page, size);
+        
+        if (_repository.ErrorMessages.Any())
+        {
+            ErrorMessages = _repository.ErrorMessages;
+            return null;
+        }
+        
+        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
+    }
+
+    public async Task<PaginatedResult<AnimeDto>?> GetAllNonAdultAsync(int page, int size)
+    {
+        var result = await _repository
+            .GetAllNonAdultAsync(page, size);
         
         if (_repository.ErrorMessages.Any())
         {
@@ -330,6 +344,9 @@ public class AnimeHelper : IAnimeHelper
 
         if (parameters.MaxReleaseYear.HasValue)
             filters.Add(a => a.Release_Year <= parameters.MaxReleaseYear && a.Release_Year != 0);
+        
+        if (!parameters.IncludeAdultContext)
+            filters.Add(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.ToLower().Contains(Constants.Ratings.AdultContent));
 
         var result = await _repository.GetByConditionAsync(page, size, filters);
 

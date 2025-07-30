@@ -24,12 +24,15 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAsync([FromQuery] int page, int size = Constants.Pagination.MaxPageSize)
+    public async Task<IActionResult> GetAsync([FromQuery] int page, int size = Constants.Pagination.MaxPageSize, bool includeAdultContent = false)
     {
          var result = await _cache
              .GetOrCreateAsync(
-                 $"anime-page{page}-size{size}",
-                 () => _helper.GetAllAsync(page, size));
+                 $"anime-page{page}-size{size}-include{includeAdultContent}",
+                 () => includeAdultContent ? 
+                     _helper.GetAllAsync(page, size) :
+                     _helper.GetAllNonAdultAsync(page, size)
+                     );
          
         if (result is null)
         {
@@ -139,7 +142,7 @@ public class AnimeController : ControllerBase
     }
 
     [HttpGet]
-    [Route("title/{title}/page/{page:int:min(1)}")]
+    [Route("title/{title}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

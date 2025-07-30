@@ -11,6 +11,7 @@ public interface IAnimeHelper
     Task<AnimeDto?> GetByIdAsync(int id);
     Task<IEnumerable<AnimeDto>> GetAllAsync();
     Task<PaginatedResult<AnimeDto>?> GetAllAsync(int page, int size = 100);
+    Task<PaginatedResult<AnimeDto>?> GetAllNonAdultAsync(int page, int size);
     Task<PaginatedResult<AnimeDto>?> GetByNameAsync(string name, int page, int size = 100);
     Task<PaginatedResult<AnimeDto>?> GetByProducerAsync(int producerId, int page, int size = 100);
     Task<PaginatedResult<AnimeDto>?> GetByLicensorAsync(int licensorId, int page, int size = 100);

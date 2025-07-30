@@ -89,6 +89,34 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
+    public async Task<PaginatedResult<Anime>> GetAllNonAdultAsync(int page, int size)
+    {
+        if (!ValidatePageAndSize(page, size))
+        {
+            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+        }
+
+        var query = _context.Anime
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(a => a.Anime_Genres)
+            .Include(a => a.Anime_Producers)
+            .Include(a => a.Anime_Licensors)
+            .Include(a => a.Type)
+            .Include(a => a.Source)
+            .Where(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.Contains(Constants.Ratings.AdultContent))
+            .OrderByDescending(a => a.Score);
+            
+        
+        var entities = await query
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToListAsync();
+        
+        return new PaginatedResult<Anime>(entities, page, size, await query.CountAsync());
+    }
+
+    /// <inheritdoc />
     public async Task<Anime?> AddAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
@@ -351,7 +379,8 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Anime_Licensors)
             .Include(a => a.Type)
             .Include(a => a.Source)
-            .Where(a => a.Started_Airing != null)
+            .Where(a => a.Started_Airing != null && a.Started_Airing <= DateTime.UtcNow)
+            .Where(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.Contains(Constants.Ratings.AdultContent))
             .OrderByDescending(a => a.Started_Airing)
             .ThenByDescending(a => a.Score)
             .Take(count)

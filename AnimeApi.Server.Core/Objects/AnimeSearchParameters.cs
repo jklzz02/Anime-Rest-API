@@ -47,4 +47,7 @@ public class AnimeSearchParameters
     public int? MinReleaseYear { get; set; } = null;
     [FromQuery(Name = "max_release_year")]
     public int? MaxReleaseYear { get; set; } = null;
+    
+    [FromQuery(Name = "include_adult_content")]
+    public bool IncludeAdultContext { get; set; }
 }

@@ -16,6 +16,14 @@ public interface IAnimeRepository : IRepository<Anime>
     Task<PaginatedResult<Anime>> GetAllAsync(int page, int size = 100);
 
     /// <summary>
+    /// Retrieves a paginated collection of non-adult anime entities.
+    /// </summary>
+    /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
+    /// <param name="size">The number of items per page. Defaults to 100.</param>
+    /// <returns>A collection of non-mature anime entities for the specified page and size.</returns>
+    Task<PaginatedResult<Anime>> GetAllNonAdultAsync(int page, int size);
+
+    /// <summary>
     /// Retrieves a paginated collection of anime entities filtered by their name.
     /// </summary>
     /// <param name="name">The name or partial name of the anime to filter by. Cannot be null or empty.</param>

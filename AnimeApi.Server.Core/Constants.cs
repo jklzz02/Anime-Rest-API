@@ -64,4 +64,29 @@ public static class Constants
         public const int DefaultCachedItemSize = 128;
         public const int MinCachedItemSize = 64;
     }
+
+    public static class Ratings
+    {
+        /// <summary>General Audience - Suitable for all ages</summary>
+        public const string General = "G";
+
+        /// <summary>Parental Guidance - Some material may not be suitable for children</summary>
+        public const string ParentalGuidance = "PG";
+
+        /// <summary>Teens 13 or older - May contain mild violence, language, or suggestive themes</summary>
+        public const string Teens = "PG-13";
+
+        /// <summary>Restricted - 17+ (violence & profanity)</summary>
+        public const string Restricted = "R";
+
+        /// <summary>Restricted Plus - Mature with mild nudity</summary>
+        public const string Mature = "R+";
+
+        /// <summary>Explicit Adult Content - Hentai</summary>
+        public const string AdultContent = "Rx";
+
+        /// <summary>Unrated or not classified</summary>
+        public const string Unrated = "";
+    }
+
 }
