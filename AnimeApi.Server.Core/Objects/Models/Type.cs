@@ -1,6 +1,8 @@
-﻿namespace AnimeApi.Server.Core.Objects.Models;
+﻿using AnimeApi.Server.Core.Abstractions.DataAccess.Models;
 
-public partial class Type
+namespace AnimeApi.Server.Core.Objects.Models;
+
+public partial class Type : IBaseModel
 {
     public int Id { get; set; }
 

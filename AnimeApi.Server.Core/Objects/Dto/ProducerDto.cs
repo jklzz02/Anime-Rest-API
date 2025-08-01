@@ -6,7 +6,7 @@ namespace AnimeApi.Server.Core.Objects.Dto;
 public record ProducerDto : IBaseDto
 {
     [JsonProperty("id")]
-    public required int? Id { get; init; }
+    public int? Id { get; init; }
     [JsonProperty("name")]
-    public required string? Name { get; init; }
+    public string? Name { get; init; }
 }

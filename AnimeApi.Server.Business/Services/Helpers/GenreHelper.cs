@@ -4,6 +4,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
@@ -21,7 +22,7 @@ public class GenreHelper : IGenreHelper
     public async Task<GenreDto?> GetByIdAsync(int id)
     {
         var model = await _repository.GetByIdAsync(id);
-        return model?.ToDto();
+        return model?.MapTo<GenreDto>();
     }
 
     public async Task<IEnumerable<GenreDto>> GetByNameAsync(string name)
@@ -29,13 +30,13 @@ public class GenreHelper : IGenreHelper
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
         
         var models = await _repository.GetByNameAsync(name);
-        return models.ToDto();
+        return models.MapTo<GenreDto>();
     }
 
     public async Task<IEnumerable<GenreDto>> GetAllAsync()
     {
         var models = await _repository.GetAllAsync();
-        return models.ToDto();
+        return models.MapTo<GenreDto>();
     }
 
     public async Task<GenreDto?> CreateAsync(GenreDto entity)
@@ -57,7 +58,7 @@ public class GenreHelper : IGenreHelper
             return null;
         }
 
-        var model = entity.ToModel();
+        var model = entity.MapTo<Genre>();
         var result = await _repository.AddAsync(model);
         
         if(result is null)
@@ -66,7 +67,7 @@ public class GenreHelper : IGenreHelper
             return null;    
         }
         
-        return result.ToDto();
+        return result?.MapTo<GenreDto>();
     }
 
     public async Task<GenreDto?> UpdateAsync(GenreDto entity)
@@ -80,7 +81,7 @@ public class GenreHelper : IGenreHelper
             return null;
         }
 
-        var model = entity.ToModel();
+        var model = entity.MapTo<Genre>();
         var result = await _repository.UpdateAsync(model);
         
         if(result is null)
@@ -89,7 +90,7 @@ public class GenreHelper : IGenreHelper
             return null;
         }
         
-        return result.ToDto();
+        return result.MapTo<GenreDto>();
     }
 
     public async Task<bool> DeleteAsync(int id)

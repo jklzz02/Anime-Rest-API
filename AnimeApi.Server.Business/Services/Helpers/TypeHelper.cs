@@ -4,6 +4,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Dto;
+using Type = AnimeApi.Server.Core.Objects.Models.Type;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
@@ -22,19 +23,19 @@ public class TypeHelper : ITypeHelper
     public async Task<TypeDto?> GetByIdAsync(int id)
     {
         var model = await _repository.GetByIdAsync(id);
-        return model?.ToDto();
+        return model?.MapTo<TypeDto>();
     }
 
     public async Task<IEnumerable<TypeDto>> GetByNameAsync(string name)
     {
         var models = await _repository.GetByNameAsync(name);
-        return models.ToDto();
+        return models.MapTo<TypeDto>();
     }
 
     public async Task<IEnumerable<TypeDto>> GetAllAsync()
     {
         var models = await _repository.GetAllAsync();
-        return models.ToDto();
+        return models.MapTo<TypeDto>();
     }
 
     public async Task<TypeDto?> CreateAsync(TypeDto entity)
@@ -56,7 +57,7 @@ public class TypeHelper : ITypeHelper
             return null;
         }
         
-        var model = entity.ToModel();
+        var model = entity.MapTo<Type>();
         var result = await _repository.AddAsync(model);
 
         if (result == null)
@@ -65,7 +66,7 @@ public class TypeHelper : ITypeHelper
             return null;
         }
         
-        return result.ToDto();
+        return result.MapTo<TypeDto>();
     }
 
     public async Task<TypeDto?> UpdateAsync(TypeDto entity)
@@ -79,7 +80,7 @@ public class TypeHelper : ITypeHelper
             return null;
         }
 
-        var model = entity.ToModel();
+        var model = entity.MapTo<Type>();
         var result = await _repository.UpdateAsync(model);
         
         if(result is null)
@@ -88,7 +89,7 @@ public class TypeHelper : ITypeHelper
             return null;
         }
         
-        return result.ToDto();
+        return result.MapTo<TypeDto>();
     }
 
     public async Task<bool> DeleteAsync(int id)

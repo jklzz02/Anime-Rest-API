@@ -4,6 +4,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
@@ -20,19 +21,19 @@ public class ProducerHelper : IProducerHelper
     public async Task<ProducerDto?> GetByIdAsync(int id)
     {
         var model = await _repository.GetByIdAsync(id);
-        return model?.ToDto();
+        return model?.MapTo<ProducerDto>();
     }
 
     public async Task<IEnumerable<ProducerDto>> GetByNameAsync(string name)
     {
         var models = await _repository.GetByNameAsync(name);
-        return models.ToDto();
+        return models.MapTo<ProducerDto>();
     }
 
     public async Task<IEnumerable<ProducerDto>> GetAllAsync()
     {
         var models = await _repository.GetAllAsync();
-        return models.ToDto();
+        return models.MapTo<ProducerDto>();
     }
 
     public async Task<ProducerDto?> CreateAsync(ProducerDto entity)
@@ -53,7 +54,7 @@ public class ProducerHelper : IProducerHelper
             return null;
         };
         
-        var model = entity.ToModel();
+        var model = entity.MapTo<Producer>();
         var result = await _repository.AddAsync(model);
 
         if (result is null)
@@ -62,7 +63,7 @@ public class ProducerHelper : IProducerHelper
             return null;
         }
         
-        return model.ToDto();
+        return model.MapTo<ProducerDto>();
     }
 
     public async Task<ProducerDto?> UpdateAsync(ProducerDto entity)
@@ -76,7 +77,7 @@ public class ProducerHelper : IProducerHelper
             return null;
         }
         
-        var model = entity.ToModel();
+        var model = entity.MapTo<Producer>();
         var result = await _repository.UpdateAsync(model);
 
         if (result is null)
@@ -85,7 +86,7 @@ public class ProducerHelper : IProducerHelper
             return null;
         }
         
-        return model.ToDto();
+        return model.MapTo<ProducerDto>();
     }
 
     public async Task<bool> DeleteAsync(int id)

@@ -36,15 +36,15 @@ public static class AnimeMapper
             Trailer_image_url = dto.TrailerImageUrl,
 
             Anime_Genres = dto.Genres?
-                .Select(g => new AnimeGenre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0, Genre = includeNavigation ? g.ToModel() : null})
+                .Select(g => new AnimeGenre { GenreId = g.Id ?? 0, AnimeId = dto.Id ?? 0, Genre = includeNavigation ? g.MapTo<Genre>() : null})
                 .ToList() ?? new List<AnimeGenre>(),
 
             Anime_Producers = dto.Producers?
-                .Select(p => new AnimeProducer { ProducerId = p.Id ?? 0, AnimeId = dto.Id ?? 0, Producer = includeNavigation ? p.ToModel() : null })
+                .Select(p => new AnimeProducer { ProducerId = p.Id ?? 0, AnimeId = dto.Id ?? 0, Producer = includeNavigation ? p.MapTo<Producer>() : null })
                 .ToList() ?? new List<AnimeProducer>(),
 
             Anime_Licensors = dto.Licensors?
-                .Select(l => new AnimeLicensor { LicensorId = l.Id ?? 0, AnimeId = dto.Id ?? 0, Licensor = includeNavigation ? l.ToModel() : null })
+                .Select(l => new AnimeLicensor { LicensorId = l.Id ?? 0, AnimeId = dto.Id ?? 0, Licensor = includeNavigation ? l.MapTo<Licensor>() : null })
                 .ToList() ?? new List<AnimeLicensor>()
         };
 
