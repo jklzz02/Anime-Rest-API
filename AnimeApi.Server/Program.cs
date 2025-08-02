@@ -38,6 +38,7 @@ public class Program
            {
                options.AddPolicy(Constants.UserAccess.Admin, policy => policy.RequireRole(Constants.UserAccess.Admin));
            })
+           .AddHttpClient()
            .AddControllers()
            .AddNewtonsoftJson();
 

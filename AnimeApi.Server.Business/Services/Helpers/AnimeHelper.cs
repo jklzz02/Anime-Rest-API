@@ -48,6 +48,12 @@ public class AnimeHelper : IAnimeHelper
         return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
     }
 
+    public async Task<IEnumerable<AnimeDto>> GetByIdsAsync(IEnumerable<int> ids)
+    {
+        var models = await _repository.GetByIdsAsync(ids);
+        return models.ToDto();
+    }
+
     public async Task<PaginatedResult<AnimeDto>?> GetAllNonAdultAsync(int page, int size)
     {
         var result = await _repository
@@ -216,7 +222,7 @@ public class AnimeHelper : IAnimeHelper
         return models.ToDto();
     }
 
-    public async Task<IEnumerable<AnimeSummaryDto>> GetSummaryAsync(int count)
+    public async Task<IEnumerable<AnimeSummaryDto>> GetSummariesAsync(int count)
     {
         if (count <= 0)
         {
@@ -225,7 +231,7 @@ public class AnimeHelper : IAnimeHelper
         }
         
         var models = await _repository
-            .GetSummaryAsync(count);
+            .GetSummariesAsync(count);
 
         return models.ToDto();
     }

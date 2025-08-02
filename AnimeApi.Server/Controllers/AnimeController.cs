@@ -4,7 +4,6 @@ using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Controllers;
 
@@ -14,10 +13,21 @@ public class AnimeController : ControllerBase
 {
     private readonly IAnimeHelper _helper;
     private readonly ICachingService _cache;
-    public AnimeController(IAnimeHelper helper, ICachingService cachingService)
+    private readonly string _recommenderDomain;
+    private readonly IHttpClientFactory _httpClientFactory;
+    
+    public AnimeController(
+        IAnimeHelper helper,
+        ICachingService cachingService,
+        IConfiguration configuration,
+        IHttpClientFactory httpClientFactory)
     {
         _helper = helper;
         _cache = cachingService;
+        _recommenderDomain = configuration
+            .GetValue<string>("Authorization:RecommenderDomain") ?? String.Empty;
+        
+        _httpClientFactory = httpClientFactory;
     }
 
     [HttpGet]
@@ -166,14 +176,37 @@ public class AnimeController : ControllerBase
     [Route("summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetSummaryAsync([FromQuery] int count)
+    public async Task<IActionResult> GetSummariesAsync([FromQuery] int count)
     {
-        var result = await _helper.GetSummaryAsync(count);
+        var result = await _helper.GetSummariesAsync(count);
         
         if (_helper.ErrorMessages.Any())
         {
             return BadRequest(_helper.ErrorMessages);
         }
+        
+        return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("related")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetRelatedAsync([FromQuery] int id, int count = 10)
+    {
+        var http = _httpClientFactory.CreateClient();
+        var test = await http
+            .GetAsync($"{_recommenderDomain}/v1/recommend?anime_id={id}&limit={count}");
+
+        if (!test.IsSuccessStatusCode)
+        {
+            return NotFound();
+        }
+        
+        var ids = await test.Content
+            .ReadFromJsonAsync<List<int>>() ?? [];
+
+        var result = await _helper.GetByIdsAsync(ids);
         
         return Ok(result);
     }

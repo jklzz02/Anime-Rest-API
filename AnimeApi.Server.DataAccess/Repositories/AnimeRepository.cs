@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
@@ -114,6 +115,20 @@ public class AnimeRepository : IAnimeRepository
             .ToListAsync();
         
         return new PaginatedResult<Anime>(entities, page, size, await query.CountAsync());
+    }
+
+    public async Task<IEnumerable<Anime>> GetByIdsAsync(IEnumerable<int> ids)
+    {
+        return await _context.Anime
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(a => a.Anime_Genres)
+            .Include(a => a.Anime_Producers)
+            .Include(a => a.Anime_Licensors)
+            .Include(a => a.Type)
+            .Include(a => a.Source)
+            .Where(a => ids.Contains(a.Id))
+            .ToListAsync();
     }
 
     /// <inheritdoc />
@@ -446,11 +461,12 @@ public class AnimeRepository : IAnimeRepository
         return new PaginatedResult<Anime>(entities, page, size, await query.CountAsync());
     }
 
-    public async Task<IEnumerable<AnimeSummary>> GetSummaryAsync(int count)
-    {
+    /// <inheritdoc />
+    public async Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count)
+    {       
         if (count <= 0)
         {
-            throw new ArgumentException(null, nameof(count));
+            throw new ArgumentException($"{nameof(count)} must be greater than 0");
         }
         
         var entities = await _context.Anime

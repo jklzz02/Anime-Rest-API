@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 using static AnimeApi.Server.Core.Constants;

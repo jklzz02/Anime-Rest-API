@@ -11,6 +11,7 @@ public interface IAnimeHelper
     Task<AnimeDto?> GetByIdAsync(int id);
     Task<IEnumerable<AnimeDto>> GetAllAsync();
     Task<PaginatedResult<AnimeDto>?> GetAllAsync(int page, int size = 100);
+    Task<IEnumerable<AnimeDto>> GetByIdsAsync(IEnumerable<int> ids);
     Task<PaginatedResult<AnimeDto>?> GetAllNonAdultAsync(int page, int size);
     Task<PaginatedResult<AnimeDto>?> GetByNameAsync(string name, int page, int size = 100);
     Task<PaginatedResult<AnimeDto>?> GetByProducerAsync(int producerId, int page, int size = 100);
@@ -24,7 +25,7 @@ public interface IAnimeHelper
     Task<PaginatedResult<AnimeDto>?> GetByTypeAsync(string type, int page, int size = 100);
     Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count);
     Task<AnimeDto?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition);
-    Task<IEnumerable<AnimeSummaryDto>> GetSummaryAsync(int count); 
+    Task<IEnumerable<AnimeSummaryDto>> GetSummariesAsync(int count); 
     Task<AnimeDto?> CreateAsync(AnimeDto entity);
     Task<AnimeDto?> UpdateAsync(AnimeDto entity);
     Task<bool> DeleteAsync(int id);

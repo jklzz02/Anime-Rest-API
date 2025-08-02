@@ -24,6 +24,13 @@ public interface IAnimeRepository : IRepository<Anime>
     Task<PaginatedResult<Anime>> GetAllNonAdultAsync(int page, int size);
 
     /// <summary>
+    /// Retrieves a collection of anime entities by their unique identifiers.
+    /// </summary>
+    /// <param name="ids">An array of unique identifiers for the anime entities to retrieve.</param>
+    /// <returns>A collection of anime entities matching the specified identifiers.</returns>
+    Task<IEnumerable<Anime>> GetByIdsAsync(IEnumerable<int> ids);
+    
+    /// <summary>
     /// Retrieves a paginated collection of anime entities filtered by their name.
     /// </summary>
     /// <param name="name">The name or partial name of the anime to filter by. Cannot be null or empty.</param>
@@ -144,5 +151,5 @@ public interface IAnimeRepository : IRepository<Anime>
     /// </summary>
     /// <param name="count">The number of anime summaries to retrieve. Must be greater than 0.</param>
     /// <returns>A collection of anime summary data transfer objects.</returns>
-    Task<IEnumerable<AnimeSummary>> GetSummaryAsync(int count);
+    Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count);
 }

@@ -1,5 +1,5 @@
 
-namespace AnimeApi.Server.Business.Extensions;
+namespace AnimeApi.Server.Core.Extensions;
 
 public static class StringExtensions
 {
@@ -34,6 +34,6 @@ public static class StringExtensions
     /// <returns>True if the strings are equal, ignoring case; otherwise, false.</returns>
     public static bool EqualsIgnoreCase(this string str, string other)
     {
-        return string.Equals(str, other, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(str.Trim(), other.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 }
