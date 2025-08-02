@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
-using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;

@@ -25,7 +25,7 @@ public class AnimeController : ControllerBase
         _helper = helper;
         _cache = cachingService;
         _recommenderDomain = configuration
-            .GetValue<string>("Authorization:RecommenderDomain") ?? String.Empty;
+            .GetValue<string>("Authorization:RecommenderDomain")!;
         
         _httpClientFactory = httpClientFactory;
     }
@@ -195,15 +195,15 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetRelatedAsync([FromQuery] int id, int count = 10)
     {
         var http = _httpClientFactory.CreateClient();
-        var test = await http
+        var response = await http
             .GetAsync($"{_recommenderDomain}/v1/recommend?anime_id={id}&limit={count}");
 
-        if (!test.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
             return NotFound();
         }
         
-        var ids = await test.Content
+        var ids = await response.Content
             .ReadFromJsonAsync<List<int>>() ?? [];
 
         var result = await _helper.GetByIdsAsync(ids);

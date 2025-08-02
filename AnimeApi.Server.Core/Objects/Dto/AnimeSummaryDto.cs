@@ -8,6 +8,7 @@ public record AnimeSummaryDto
     public int Id { get; set; }
     [JsonProperty("title")]
     public string Name { get; set; } = null!;
+    [JsonProperty("image_url")]
     public string ImageUrl { get; set; } = null!;
     [JsonProperty("score")]
     public decimal Score { get; set; }

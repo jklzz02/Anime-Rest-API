@@ -20,7 +20,6 @@ public class Program
         var clientDomain = builder.Configuration
             .GetSection("Authorization")
             .GetValue<string>("ClientDomain");
-
         
         builder.Services.AddCors(options =>
         {
