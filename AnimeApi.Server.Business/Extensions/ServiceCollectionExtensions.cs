@@ -5,6 +5,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using AnimeApi.Server.Core.Objects.Dto;
+using FluentValidation;
 
 namespace AnimeApi.Server.Business.Extensions;
 
@@ -17,8 +18,9 @@ public static class ServiceCollectionExtensions
     /// <returns>The updated <see cref="IServiceCollection"/> configured with business-level dependencies.</returns>
     public static IServiceCollection AddBusiness(this IServiceCollection services)
     {
-        services.AddTransient<IAnimeValidator, AnimeValidator>();
-        services.AddTransient<IReviewValidator, ReviewValidator>();
+        services.AddTransient<IValidator<AnimeDto>, AnimeValidator>();
+        services.AddTransient<IValidator<ReviewDto>, ReviewValidator>();
+        services.AddTransient<IValidator<FavouriteDto>, FavouriteValidator>();
         services.AddTransient<IBaseValidator<GenreDto>, BaseValidator<GenreDto>>();
         services.AddTransient<IBaseValidator<SourceDto>, BaseValidator<SourceDto>>();
         services.AddTransient<IBaseValidator<TypeDto>, BaseValidator<TypeDto>>();
@@ -31,6 +33,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILicensorHelper, LicensorHelper>();
         services.AddScoped<ISourceHelper, SourceHelper>();
         services.AddScoped<ITypeHelper, TypeHelper>();
+        services.AddScoped<IFavouritesHelper, FavouritesHelper>();
         services.AddScoped<IReviewHelper, ReviewHelper>();
         services.AddScoped<IRefreshTokenHelper, RefreshTokenHelper>();
 

@@ -4,6 +4,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Dto;
+using FluentValidation;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
@@ -14,7 +15,7 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class ReviewHelper : IReviewHelper
 {
     private readonly IReviewRepository _repository;
-    private readonly IReviewValidator _validator;
+    private readonly IValidator<ReviewDto> _validator;
     
     /// <inheritdoc />
     public Dictionary<string, string> ErrorMessages { get; private set; } = new();
@@ -24,7 +25,7 @@ public class ReviewHelper : IReviewHelper
     /// </summary>
     /// <param name="repository">The repository for accessing and managing review data.</param>
     /// <param name="validator">The validator for validating review data.</param>
-    public ReviewHelper(IReviewRepository repository, IReviewValidator validator)
+    public ReviewHelper(IReviewRepository repository, IValidator<ReviewDto> validator)
     {
         _repository = repository;
         _validator = validator;

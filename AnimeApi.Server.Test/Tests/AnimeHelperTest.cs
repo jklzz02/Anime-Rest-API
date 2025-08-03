@@ -8,18 +8,19 @@ using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
+using FluentValidation;
 
 namespace AnimeApi.Server.Test.Tests;
 
 public class AnimeHelperTest
 {
     private readonly Mock<IAnimeRepository> _repositoryMock;
-    private readonly Mock<IAnimeValidator> _validatorMock;
+    private readonly Mock<IValidator<AnimeDto>> _validatorMock;
 
     public AnimeHelperTest()
     {
         _repositoryMock = new Mock<IAnimeRepository>();
-        _validatorMock = new Mock<IAnimeValidator>();
+        _validatorMock = new Mock<IValidator<AnimeDto>>();
     }
 
     [Fact]

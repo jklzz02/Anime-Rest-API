@@ -33,7 +33,7 @@ public class FavouritesRepository : IFavouritesRepository
             return false;
         }
 
-        var newEntity = new UserFavourites
+        var newEntity = new Favourite
         {
             User_Id = userId,
             Anime_Id = animeId
@@ -67,7 +67,7 @@ public class FavouritesRepository : IFavouritesRepository
         return await query.CountAsync();
     }
 
-    public async Task<UserFavourites?> GetFavouriteAsync(int userId, int animeId)
+    public async Task<Favourite?> GetFavouriteAsync(int userId, int animeId)
     {
         return await _context.UserFavourites
             .FirstOrDefaultAsync(uf => uf.User_Id == userId && uf.Anime_Id == animeId);

@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace AnimeApi.Server.Business.Validators;
 
-public class AnimeValidator : AbstractValidator<AnimeDto>, IAnimeValidator
+public class AnimeValidator : AbstractValidator<AnimeDto>
 {
     public AnimeValidator()
     {

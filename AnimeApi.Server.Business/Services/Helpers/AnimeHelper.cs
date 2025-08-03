@@ -8,15 +8,16 @@ using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
+using FluentValidation;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
 public class AnimeHelper : IAnimeHelper
 {
     private readonly IAnimeRepository _repository;
-    private readonly IAnimeValidator _validator;
+    private readonly IValidator<AnimeDto> _validator;
     public Dictionary<string, string> ErrorMessages { get; private set; } = new();
-    public AnimeHelper(IAnimeRepository repository, IAnimeValidator validator)
+    public AnimeHelper(IAnimeRepository repository, IValidator<AnimeDto> validator)
     {
         _repository = repository;
         _validator = validator;

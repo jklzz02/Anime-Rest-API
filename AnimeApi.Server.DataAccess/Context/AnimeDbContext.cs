@@ -25,7 +25,7 @@ public partial class AnimeDbContext : DbContext
     
     public virtual DbSet<AppUser> Users { get; set; }
     
-    public virtual DbSet<UserFavourites> UserFavourites { get; set; }
+    public virtual DbSet<Favourite> UserFavourites { get; set; }
     
     public virtual DbSet<Review> Reviews { get; set; }
     
@@ -215,7 +215,7 @@ public partial class AnimeDbContext : DbContext
             .Navigation(u => u.Role)
             .AutoInclude();
 
-        modelBuilder.Entity<UserFavourites>(entity =>
+        modelBuilder.Entity<Favourite>(entity =>
         {
             entity.HasKey(e => new { e.User_Id, e.Anime_Id })
                 .HasName("PRIMARY");;
