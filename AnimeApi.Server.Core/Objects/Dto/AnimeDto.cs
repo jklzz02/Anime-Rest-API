@@ -46,6 +46,10 @@ public record AnimeDto
     public string? TrailerEmbedUrl { get; set; }
     [JsonProperty("trailer_image_url")]
     public string? TrailerImageUrl { get;set; }
+    [JsonProperty("favourites_count")]
+    public int FavouritesCount { get; set; }
+    [JsonProperty("reviews_count")]
+    public int ReviewCount { get; set; }
     [JsonProperty("genres")]
     public List<GenreDto> Genres { get; set; } = [];
     [JsonProperty("licensors")]

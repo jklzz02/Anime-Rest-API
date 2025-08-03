@@ -82,6 +82,8 @@ public static class AnimeMapper
             TrailerUrl = anime.Trailer_url,
             TrailerEmbedUrl = anime.Trailer_embed_url,
             TrailerImageUrl = anime.Trailer_image_url,
+            FavouritesCount = anime.Favourites.Count(),
+            ReviewCount = anime.Favourites.Count(),
             
             Genres = anime.Anime_Genres
                 .Select(ag => new GenreDto() { Id = ag.GenreId, Name = ag?.Genre?.Name})

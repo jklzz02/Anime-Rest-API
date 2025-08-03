@@ -52,7 +52,7 @@ public partial class Anime
     
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     
-    public ICollection<Favourite> FavouritedBy { get; set; } = new List<Favourite>();
+    public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
 
     public virtual Source? Source { get; set; }
 

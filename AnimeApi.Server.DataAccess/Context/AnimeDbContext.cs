@@ -25,7 +25,7 @@ public partial class AnimeDbContext : DbContext
     
     public virtual DbSet<AppUser> Users { get; set; }
     
-    public virtual DbSet<Favourite> UserFavourites { get; set; }
+    public virtual DbSet<Favourite> User_Favourites { get; set; }
     
     public virtual DbSet<Review> Reviews { get; set; }
     
@@ -224,7 +224,7 @@ public partial class AnimeDbContext : DbContext
                 .HasForeignKey(e => e.User_Id)
                 .HasConstraintName("User_Favourites_User_Id_fk");
             
-            entity.HasOne(e => e.Anime).WithMany(a => a.FavouritedBy)
+            entity.HasOne(e => e.Anime).WithMany(a => a.Favourites)
                 .HasForeignKey(e => e.Anime_Id)
                 .HasConstraintName("User_Favourites_Anime_Id_fk");
         });

@@ -38,6 +38,7 @@ public class UserController : ControllerBase
 
     [HttpGet]
     [Authorize]
+    [Route("favourite")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetCurrentUserFavourites()
@@ -58,6 +59,7 @@ public class UserController : ControllerBase
 
     [HttpPost]
     [Authorize]
+    [Route("favourite")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -114,7 +116,7 @@ public class UserController : ControllerBase
     
     [HttpDelete]
     [Authorize]
-    [Route("{id:int:min(1)}")]
+    [Route("favourite/{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

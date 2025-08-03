@@ -43,6 +43,8 @@ public class AnimeRepository : IAnimeRepository
                 .Include(a => a.Anime_Licensors)
                 .Include(a => a.Type)
                 .Include(a => a.Source)
+                .Include(a => a.Favourites)
+                .Include(a => a.Reviews)
                 .FirstOrDefaultAsync(a => a.Id == id);
     }
 
@@ -57,6 +59,8 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Anime_Licensors)
             .Include(a => a.Type)
             .Include(a => a.Source)
+            .Include(a => a.Favourites)
+            .Include(a => a.Reviews)
             .OrderBy(a => a.Score)
             .ThenByDescending(a => a.Release_Year)
             .ToListAsync();
@@ -126,6 +130,8 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Anime_Licensors)
             .Include(a => a.Type)
             .Include(a => a.Source)
+            .Include(a => a.Favourites)
+            .Include(a => a.Reviews)
             .Where(a => ids.Contains(a.Id))
             .ToListAsync();
     }
@@ -393,6 +399,8 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Anime_Licensors)
             .Include(a => a.Type)
             .Include(a => a.Source)
+            .Include(a => a.Favourites)
+            .Include(a => a.Reviews)
             .Where(a => a.Started_Airing != null && a.Started_Airing <= DateTime.UtcNow)
             .Where(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.Contains(Constants.Ratings.AdultContent))
             .OrderByDescending(a => a.Started_Airing)
@@ -412,6 +420,8 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Anime_Licensors)
             .Include(a => a.Type)
             .Include(a => a.Source)
+            .Include(a => a.Favourites)
+            .Include(a => a.Reviews)
             .FirstOrDefaultAsync(condition);
         
         return anime;
@@ -454,6 +464,8 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Anime_Licensors)
             .Include(a => a.Type)
             .Include(a => a.Source)
+            .Include(a => a.Favourites)
+            .Include(a => a.Reviews)
             .Where(a => paginatedIds.Contains(a.Id))
             .ToListAsync();
 

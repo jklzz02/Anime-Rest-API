@@ -12,20 +12,17 @@ namespace AnimeApi.Server.Controllers;
 public class AnimeController : ControllerBase
 {
     private readonly IAnimeHelper _helper;
-    private readonly IFavouritesHelper _favouritesHelper;
     private readonly ICachingService _cache;
     private readonly string _recommenderDomain;
     private readonly IHttpClientFactory _httpClientFactory;
     
     public AnimeController(
         IAnimeHelper helper,
-        IFavouritesHelper favouritesHelper,
         ICachingService cachingService,
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory)
     {
         _helper = helper;
-        _favouritesHelper = favouritesHelper;
         _cache = cachingService;
         _recommenderDomain = configuration
             .GetValue<string>("Authorization:RecommenderDomain")!;
@@ -227,28 +224,6 @@ public class AnimeController : ControllerBase
             return BadRequest(_helper.ErrorMessages);
         }
         
-        return Ok(result);
-    }
-
-    [HttpGet]
-    [Authorize]
-    [Route("favourite/{id:int:min(1)}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]    
-    public async Task<IActionResult> GetFavouritesAsync(int id)
-    {
-        var result = await _favouritesHelper.GetFavouritesAsync(id);
-        return Ok(result);
-    }
-
-    [HttpGet]
-    [Route("favourite_count/{id:int:min(1)}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetFavouritesCountAsync(int id)
-    {
-        var result = await _favouritesHelper.GetFavouritesCountAsync(id);
         return Ok(result);
     }
 

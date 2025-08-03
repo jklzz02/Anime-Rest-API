@@ -16,7 +16,7 @@ public class FavouritesRepository : IFavouritesRepository
     
     public async Task<IEnumerable<int>> GetFavouritesAsync(int userId)
     {
-        return await _context.UserFavourites
+        return await _context.User_Favourites
             .AsNoTracking()
             .Where(uf => uf.User_Id == userId)
             .Select(uf => uf.Anime_Id)
@@ -39,7 +39,7 @@ public class FavouritesRepository : IFavouritesRepository
             Anime_Id = animeId
         };
         
-        _context.UserFavourites.Add(newEntity);
+        _context.User_Favourites.Add(newEntity);
         return await _context.SaveChangesAsync() > 0;
     }
 
@@ -53,14 +53,14 @@ public class FavouritesRepository : IFavouritesRepository
             return false;
         }
         
-        _context.UserFavourites.Remove(entity);
+        _context.User_Favourites.Remove(entity);
         return await _context.SaveChangesAsync() > 0;
     }
     
 
     public async Task<int> GetFavouritesCountAsync(int animeId)
     {
-        var query = _context.UserFavourites
+        var query = _context.User_Favourites
             .AsNoTracking()
             .Where(uf => uf.Anime_Id == animeId);
         
@@ -69,7 +69,7 @@ public class FavouritesRepository : IFavouritesRepository
 
     public async Task<Favourite?> GetFavouriteAsync(int userId, int animeId)
     {
-        return await _context.UserFavourites
+        return await _context.User_Favourites
             .FirstOrDefaultAsync(uf => uf.User_Id == userId && uf.Anime_Id == animeId);
     }
 }
