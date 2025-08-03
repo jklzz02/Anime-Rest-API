@@ -25,6 +25,8 @@ public partial class AnimeDbContext : DbContext
     
     public virtual DbSet<AppUser> Users { get; set; }
     
+    public virtual DbSet<UserFavourites> UserFavourites { get; set; }
+    
     public virtual DbSet<Review> Reviews { get; set; }
     
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -212,6 +214,20 @@ public partial class AnimeDbContext : DbContext
         modelBuilder.Entity<AppUser>()
             .Navigation(u => u.Role)
             .AutoInclude();
+
+        modelBuilder.Entity<UserFavourites>(entity =>
+        {
+            entity.HasKey(e => new { e.User_Id, e.Anime_Id })
+                .HasName("PRIMARY");;
+            
+            entity.HasOne(e => e.User).WithMany(u => u.Favourites)
+                .HasForeignKey(e => e.User_Id)
+                .HasConstraintName("User_Favourites_User_Id_fk");
+            
+            entity.HasOne(e => e.Anime).WithMany(a => a.FavouritedBy)
+                .HasForeignKey(e => e.Anime_Id)
+                .HasConstraintName("User_Favourites_Anime_Id_fk");
+        });
 
         modelBuilder.Entity<RefreshToken>(entity =>
         {

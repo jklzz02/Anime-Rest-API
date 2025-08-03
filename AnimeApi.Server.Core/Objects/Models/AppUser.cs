@@ -12,5 +12,7 @@ public class AppUser
     
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     
+    public ICollection<UserFavourites> Favourites { get; set; } = new List<UserFavourites>();
+    
     public virtual RefreshToken RefreshToken { get; set; } = null!;
 }
