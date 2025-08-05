@@ -41,8 +41,8 @@ public class AnimeController : ControllerBase
                  $"anime-page{page}-size{size}-include{includeAdultContent}",
                  () => includeAdultContent ? 
                      _helper.GetAllAsync(page, size) :
-                     _helper.GetAllNonAdultAsync(page, size)
-                     );
+                     _helper.GetAllNonAdultAsync(page, size), 
+                 Constants.Cache.MinCachedItemSize);
          
         if (result is null)
         {
