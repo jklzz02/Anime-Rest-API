@@ -11,7 +11,7 @@ public static class RefreshTokenMapper
         {
             Id = refreshToken.Id,
             CreatedAt = refreshToken.Created_At,
-            ExpiresAt = refreshToken.Created_At,
+            ExpiresAt = refreshToken.Expires_At,
             HashedToken = refreshToken.Hashed_Token,
             RevokedAt = refreshToken.Revoked_At,
             UserId = refreshToken.User_Id,

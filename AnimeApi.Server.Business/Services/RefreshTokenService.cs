@@ -63,6 +63,11 @@ public class RefreshTokenService : IRefreshTokenService
         var hashed = _hasher.Hash(token);
         return await _helper.RevokeAsync(hashed);
     }
+    
+    public async Task<bool> RevokeByUserIdAsync(int userId)
+    {
+        return await _helper.RevokeByUserIdAsync(userId);
+    }
 
     private string GenerateToken()
     {

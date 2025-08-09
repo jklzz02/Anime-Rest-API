@@ -54,12 +54,13 @@ public class RefreshTokenRepository : IRefreshTokenRepository
     public async Task<bool> RevokeByUserIdAsync(int userId)
     {
         var refreshToken = await _context.RefreshTokens
-            .FirstOrDefaultAsync(t => t.User_Id == userId);
+            .Where(t => t.User_Id == userId)
+            .ToListAsync();
         
-        if (refreshToken is null) 
+        if (!refreshToken.Any()) 
             return false;
-        
-        refreshToken.Revoked_At = DateTime.UtcNow;
+
+        refreshToken.ForEach(rt => rt.Revoked_At = DateTime.UtcNow);
         return await _context.SaveChangesAsync() > 0;
     }
     

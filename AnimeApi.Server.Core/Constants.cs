@@ -14,6 +14,9 @@ public static class Constants
     {
         public const string DefaultScheme = "Bearer";
         public const int RefreshTokenExpirationDays = 15;
+        public const int AccessTokenExpirationMinutes = 15;
+        public const string RefreshTokenCookieName = "refresh_token";
+        public const string AccessTokenCookieName = "access_token";
     }
 
     public static class Cors
