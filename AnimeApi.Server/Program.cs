@@ -14,13 +14,13 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        
+
         var clientDomain = builder.Configuration
             .GetSection("Authorization")
             .GetValue<string>("ClientDomain");
-        
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy(Constants.Cors.ClientPolicy,
@@ -32,41 +32,41 @@ public class Program
                         .AllowCredentials();
                 });
         });
-        
-       builder.Services
-           .AddAuthorization(options =>
-           {
-               options.AddPolicy(Constants.UserAccess.Admin, policy => policy.RequireRole(Constants.UserAccess.Admin));
-           })
-           .AddHttpClient()
-           .AddControllers()
-           .AddNewtonsoftJson();
 
-       builder.Services
-           .AddDataAccess(connectionString!)
-           .AddMemoryCache(options => 
-           {
-              options.SizeLimit = Constants.Cache.CacheSize;
-           })
-           .AddBusiness()
-           .AddIdentity()
-           .AddAuthentication(Constants.Authentication.DefaultScheme)
-           .AddJwtBearer(Constants.Authentication.DefaultScheme, options =>
-           {
-               var config = builder.Configuration.GetSection("Authentication:Jwt");
-               options.TokenValidationParameters = new TokenValidationParameters
-               {
-                   ValidIssuer = config["Issuer"] ?? throw new ApplicationException("JWT issuer missing"),
-                   ValidAudience = config["Audience"] ?? throw new ApplicationException("JWT audience missing"),
-                   IssuerSigningKey = new SymmetricSecurityKey(
-                       Encoding.UTF8.GetBytes(config["Secret"] ?? throw new ApplicationException("JWT secret missing"))),
-                   ValidateIssuer = true,
-                   ValidateAudience = true,
-                   ValidateIssuerSigningKey = true,
-                   ValidateLifetime = true,
-                   ClockSkew = TimeSpan.FromMinutes(2)
-               };
-           });
+        builder.Services
+            .AddAuthorization(options =>
+            {
+                options.AddPolicy(Constants.UserAccess.Admin, policy => policy.RequireRole(Constants.UserAccess.Admin));
+            })
+            .AddHttpClient()
+            .AddControllers()
+            .AddNewtonsoftJson();
+
+        builder.Services
+            .AddDataAccess(connectionString!)
+            .AddMemoryCache(options =>
+            {
+                options.SizeLimit = Constants.Cache.CacheSize;
+            })
+            .AddBusiness()
+            .AddIdentity()
+            .AddAuthentication(Constants.Authentication.DefaultScheme)
+            .AddJwtBearer(Constants.Authentication.DefaultScheme, options =>
+            {
+                var config = builder.Configuration.GetSection("Authentication:Jwt");
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = config["Issuer"] ?? throw new ApplicationException("JWT issuer missing"),
+                    ValidAudience = config["Audience"] ?? throw new ApplicationException("JWT audience missing"),
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(config["Secret"] ?? throw new ApplicationException("JWT secret missing"))),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(2)
+                };
+            });
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -108,7 +108,7 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-        
+
         app.UseExceptionHandler(errorApp =>
         {
             errorApp.Run(async context =>
@@ -132,17 +132,16 @@ public class Program
             });
         });
 
-
         app.UseHttpsRedirection();
-        
-        app.UseAuthentication();
-        
+
         app.UseCors(Constants.Cors.ClientPolicy);
-        
+
+        app.UseAuthentication();
+
         app.UseAuthorization();
-        
+
         app.MapControllers();
-        
+
         app.Run();
     }
 }

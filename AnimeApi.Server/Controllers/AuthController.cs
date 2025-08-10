@@ -47,7 +47,7 @@ public class AuthController : ControllerBase
         {
             return BadRequest("Google ID token is required.");
         }
-        
+
         try
         {
             payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
@@ -68,7 +68,7 @@ public class AuthController : ControllerBase
             user = userDto
         });
     }
-    
+
     [HttpPost("refresh")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -94,7 +94,7 @@ public class AuthController : ControllerBase
             user
         });
     }
-    
+
     [Authorize]
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -107,7 +107,7 @@ public class AuthController : ControllerBase
         {
             return Unauthorized();
         }
-        
+
         await _refreshTokenService.RevokeByUserIdAsync(user.Id);
         return NoContent();
     }
@@ -124,7 +124,7 @@ public class AuthController : ControllerBase
         {
             return BadRequest("Google ID token is required.");
         }
-        
+
         try
         {
             payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
@@ -135,18 +135,22 @@ public class AuthController : ControllerBase
         }
 
         var userDto = await _userService.GetOrCreateUserAsync(payload);
-        
+
         await _refreshTokenService
             .RevokeByUserIdAsync(userDto.Id);
-        
+
         var accessToken = _jwtGenerator.GenerateToken(userDto);
-        
+
         var refreshToken = await _refreshTokenService.CreateAsync(userDto.Id);
-        
+
         SetTokenCookies(accessToken, refreshToken);
-        return Ok(new { user = userDto });
+        return Ok(new
+        {
+            user = userDto,
+            access_token = accessToken
+        });
     }
-    
+
     [HttpPost("cookie/refresh")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -171,7 +175,11 @@ public class AuthController : ControllerBase
 
         SetTokenCookies(accessToken, newRefresh);
 
-        return Ok(new { user });
+        return Ok(new
+        {
+            user = user,
+            access_token = accessToken
+        });
     }
 
     [HttpPost("cookie/logout")]
@@ -211,10 +219,10 @@ public class AuthController : ControllerBase
             Expires = new DateTimeOffset(refreshToken.MetaData.ExpiresAt),
             MaxAge = TimeSpan.FromDays(Constants.Authentication.RefreshTokenExpirationDays)
         };
-        
+
         Response.Cookies
             .Append(Constants.Authentication.AccessTokenCookieName, accessToken, accessTokenOptions);
-        
+
         Response.Cookies
             .Append(Constants.Authentication.RefreshTokenCookieName, refreshToken.Token, refreshTokenOptions);
     }
