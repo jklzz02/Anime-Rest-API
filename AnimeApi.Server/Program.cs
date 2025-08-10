@@ -28,7 +28,8 @@ public class Program
                 {
                     policy.WithOrigins(clientDomain!)
                         .AllowAnyHeader()
-                        .AllowAnyMethod();
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
         });
         
