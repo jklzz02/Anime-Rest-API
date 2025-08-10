@@ -127,7 +127,7 @@ This solution follows **Clean Architecture** principles with clear separation of
 - **Dependency Injection**: Service registration extensions
 - **Dependencies**: `AnimeApi.Server.Core` only (no DataAccess reference)
 
-### [AnimeApi.Server](AnimeApi.Server/)
+### [AnimeApi.Server](./AnimeApi.Server/)
 
 **Purpose**: Web API layer and application entry point
 
@@ -137,7 +137,7 @@ This solution follows **Clean Architecture** principles with clear separation of
 - **Swagger**: API documentation and testing interface
 - **Dependencies**: All other projects for DI container configuration
 
-### [AnimeApi.Server.Test](./AnimeApi.Server.Test/AnimeApi)
+### [AnimeApi.Server.Test](./AnimeApi.Server.Test)
 
 **Purpose**: Comprehensive unit testing suite
 
@@ -198,6 +198,18 @@ dotnet restore
 
 dotnet ef database update --project AnimeApi.Server.DataAccess --startup-project AnimeApi.Server
 ```
+
+**Setup secrets & config:**
+
+There's a comprehensive [sample file](./AnimeApi.Server/appsettings.Sample.json) to setup the web project secrets such as
+
+- Google client secret
+- Secret key
+
+and also for domains for external services and the client, to avoid `cors` issues and hard coding domains.
+
+- Recommender domain
+- Client domain
 
 **Run the Web project:**
 
