@@ -44,20 +44,60 @@ graph TB
 
 ## Solution Architecture
 
-This solution follows **Clean Architecture** principles with clear separation of concerns across four projects:
+```mermaid
+graph TB
+    Core["AnimeApi.Server.Core
+• Abstractions & Interfaces
+• Models & DTOs
+• Shared Objects"]
 
-### Project Structure
+    DataAccess["AnimeApi.Server.DataAccess
+• EF Core DbContext
+• Repository Implementations
+• Migrations"]
 
-```txt
-AnimeApi.Server.sln
-├── AnimeApi.Server.Core/          # Abstractions & Shared Objects
-├── AnimeApi.Server.DataAccess/    # Data Access Layer
-├── AnimeApi.Server.Business/      # Business Logic Layer
-├── AnimeApi.Server/               # Web API & Controllers
-└── AnimeApi.Server.Test/          # Unit Tests
+    Business["AnimeApi.Server.Business
+• Business Logic Services
+• Validation (FluentValidation)
+• Mapping Extensions
+• Authentication (JWT)"]
+
+    Server["AnimeApi.Server (API)
+• Controllers & Endpoints
+• Middleware (Auth, Logging)
+• Swagger / OpenAPI
+• DI & Configuration"]
+
+    Test["AnimeApi.Server.Test
+• Unit Tests (xUnit)
+• Mocking (Moq)"]
+
+    Core --> |Models - interfaces| DataAccess
+    Core --> |Dto - interfaces - Object wrappers| Business
+
+    DataAccess --> |Entities| Business
+
+    Business --> |Dto| Server
+
+    Test --> |Business logic unit tests| Business
+
+    classDef core fill:#5c2d91,stroke:#4a2372,stroke-width:3px,color:#fff
+    classDef data fill:#00758f,stroke:#005d73,stroke-width:2px,color:#fff
+    classDef business fill:#9e9e9e,stroke:#757575,stroke-width:2px,color:#fff
+    classDef api fill:#ff9800,stroke:#e68900,stroke-width:2px,color:#fff
+    classDef test fill:#4caf50,stroke:#357a38,stroke-width:2px,color:#fff
+
+    class Core core
+    class DataAccess data
+    class Business business
+    class Server api
+    class Test test
+
 ```
 
-### AnimeApi.Server.Core
+This solution follows **Clean Architecture** principles with clear separation of concerns across four projects:
+
+### [AnimeApi.Server.Core](./AnimeApi.Server.Core/)
 
 **Purpose**: Defines contracts and shared objects across all layers
 
@@ -67,17 +107,16 @@ AnimeApi.Server.sln
 - **Shared Objects**: Search parameters, constants, enumerations
 - **Dependencies**: Completely independent from other projects to ensure loose coupling
 
-### AnimeApi.Server.DataAccess
+### [AnimeApi.Server.DataAccess](./AnimeApi.Server.DataAccess/)
 
 **Purpose**: Implements data persistence using Entity Framework Core
 
 - **Repository Implementation**: Concrete implementations of Core interfaces
 - **Database Context**: EF Core `DbContext` configuration
-- **Migrations**: Database schema management
 - **Dependency Injection**: `ServiceCollectionExtensions.cs` for DI registration
 - **Dependencies**: `AnimeApi.Server.Core`
 
-### AnimeApi.Server.Business
+### [AnimeApi.Server.Business](./AnimeApi.Server.Business/)
 
 **Purpose**: Encapsulates business logic and orchestration
 
@@ -88,7 +127,7 @@ AnimeApi.Server.sln
 - **Dependency Injection**: Service registration extensions
 - **Dependencies**: `AnimeApi.Server.Core` only (no DataAccess reference)
 
-### AnimeApi.Server
+### [AnimeApi.Server](AnimeApi.Server/)
 
 **Purpose**: Web API layer and application entry point
 
@@ -98,7 +137,7 @@ AnimeApi.Server.sln
 - **Swagger**: API documentation and testing interface
 - **Dependencies**: All other projects for DI container configuration
 
-### AnimeApi.Server.Test
+### [AnimeApi.Server.Test](./AnimeApi.Server.Test/AnimeApi)
 
 **Purpose**: Comprehensive unit testing suite
 
@@ -115,18 +154,18 @@ AnimeApi.Server.sln
 
 ## Technology Stack
 
-| Layer              | Technologies                          |
-| ------------------ | ------------------------------------- |
-| **Web API**        | ASP.NET Core, Swagger/OpenAPI         |
-| **Business Logic** | FluentValidation, AutoMapper patterns |
-| **Data Access**    | Entity Framework Core, MySQL          |
-| **Authentication** | JWT Bearer tokens                     |
-| **Testing**        | xUnit, Moq                            |
+| Layer              | Technologies                    |
+| ------------------ | ------------------------------- |
+| **Web API**        | ASP.NET Core, Swagger/OpenAPI   |
+| **Business Logic** | FluentValidation, Google Oauth2 |
+| **Data Access**    | Entity Framework Core, MySQL    |
+| **Authentication** | JWT Bearer tokens               |
+| **Testing**        | xUnit, Moq                      |
 
 ## Database Integration
 
 - **Provider**: MySQL with Entity Framework Core (Pomelo)
-- **Migrations**: Code-first approach with EF migrations
+- **Migrations**: EF migrations
 - **Connection Management**: Managed through ASP.NET Core DI
 
 ## API Features
@@ -174,7 +213,7 @@ dotnet test AnimeApi.Server.Test
 ```
 
 - Generators are used to create testing data
-- Theories and interface moqs are the preferred approach
+- Theories and interface mocks are the preferred approach
 
 ## Development Workflow
 
