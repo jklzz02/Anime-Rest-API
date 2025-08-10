@@ -1,6 +1,6 @@
 # Anime REST API
 
-ASP.NET Core Web API implementing Clean Architecture principles for anime data management with integrated machine learning recommendations.
+ASP.NET Core Web API implementing Clean Architecture principles for anime data management with integrated machine learning recommendations and Single Page Application client.
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-8.0-blueviolet)](https://dotnet.microsoft.com/apps/aspnet)
@@ -43,6 +43,8 @@ graph TB
 **Current Status**: The Angular frontend, YARP reverse proxy, and FastAPI recommender service are in development. This repository contains the complete, production-ready REST API solution.
 
 ## Solution Architecture
+
+This solution follows **Clean Architecture** principles with clear separation of concerns across four projects
 
 ```mermaid
 graph TB
@@ -94,8 +96,6 @@ graph TB
     class Test test
 
 ```
-
-This solution follows **Clean Architecture** principles with clear separation of concerns across four projects:
 
 ### [AnimeApi.Server.Core](./AnimeApi.Server.Core/)
 
@@ -206,7 +206,7 @@ There's a comprehensive [sample file](./AnimeApi.Server/appsettings.Sample.json)
 - Google client secret
 - Secret key
 
-and also for domains for external services and the client, to avoid `cors` issues and hard coding domains.
+and also domains for external services and the client, to avoid `cors` issues and to hard code domains.
 
 - Recommender domain
 - Client domain
@@ -231,7 +231,7 @@ dotnet test AnimeApi.Server.Test
 
 1. **Domain Changes**: Start with Core project if needed (abstractions)
 2. **Data Layer**: Implement repositories in DataAccess project
-3. **Business Logic**: Add services or weapp repositories in helpers in Business project
+3. **Business Logic**: Add services or repositories to helpers in Business project
 4. **API Endpoints**: Create controllers in Server project
 5. **Testing**: Write unit tests in Test project
 
