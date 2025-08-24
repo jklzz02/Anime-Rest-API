@@ -36,4 +36,35 @@ public static class StringExtensions
     {
         return string.Equals(str.Trim(), other.Trim(), StringComparison.OrdinalIgnoreCase);
     }
+
+    /// <summary>
+    /// Normalizes a string by removing symbols, white spaces and punctuation.
+    /// </summary>
+    /// <param name="str">The string to normalize.</param>
+    /// <returns>The normalized string in lower case.</returns>
+    public static string ToLowerNormalized(this string str)
+    {
+        return str
+            .Normalize()
+            .ToLowerInvariant();
+    }
+    
+    /// <summary>
+    /// Normalizes a string by removing symbols, white spaces and punctuation.
+    /// </summary>
+    /// <param name="str">The string to normalize.</param>
+    /// <returns>The normalized string in upper case.</returns>
+    public static string ToUpperNormalized(this string str)
+    {
+        return str
+            .Normalize()
+            .ToUpperInvariant();
+    }
+
+    private static string Normalize(this string str)
+    {
+       return str
+            .Where(c => !char.IsPunctuation(c) || !char.IsSymbol(c) || char.IsWhiteSpace(c))
+            .ToString() ?? string.Empty;
+    }
 }
