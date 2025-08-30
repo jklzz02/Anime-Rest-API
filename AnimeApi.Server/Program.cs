@@ -40,7 +40,10 @@ public class Program
             })
             .AddHttpClient()
             .AddControllers()
-            .AddNewtonsoftJson();
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.MaxDepth = Constants.SerializerMaxDepth;
+            });
 
         builder.Services
             .AddDataAccess(connectionString!)
