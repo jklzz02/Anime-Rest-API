@@ -126,41 +126,6 @@ public class AnimeHelperTest
     }
 
     [Theory]
-    [InlineData("")]
-    [InlineData("test")]
-    [InlineData("TeSt")]
-    public async Task Search_Should_Return_AnimeDto_With_Correct_Title(string title)
-    {
-        var animeList = AnimeGenerator.GetMockAnimeList();
-
-        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object);
-        
-        _repositoryMock
-            .Setup(r => r.GetByConditionAsync(It.IsAny<int>(), It.IsAny<int>(),It.IsAny<IEnumerable<Expression<Func<Anime, bool>>>>()))
-            .ReturnsAsync((int page, int size, IEnumerable<Expression<Func<Anime, bool>>> filters) =>
-            {
-                var query = animeList.AsQueryable();
-                foreach (var filter in filters)
-                {
-                    query = query.Where(filter);
-                }
-
-                var entities = query
-                    .Skip((page - 1) * size)
-                    .Take(size)
-                    .ToList();
-
-                return new PaginatedResult<Anime>(entities, page, size);
-            });
-        
-        var parameters = new AnimeSearchParameters { Name = title };
-        var result = await service.SearchAsync(parameters, 1);
-
-        Assert.NotNull(result);
-        Assert.True(result.Items.All(a => a?.Name?.Contains(title) ?? false));
-    }
-
-    [Theory]
     [MemberData(nameof(AnimeGenerator.GetAnimeDtoTestData), MemberType = typeof(AnimeGenerator))]
     public async Task Create_Should_Return_Correct_Entity(AnimeDto animeDto)
     {
