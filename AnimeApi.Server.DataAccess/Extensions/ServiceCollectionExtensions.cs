@@ -4,6 +4,7 @@ using AnimeApi.Server.DataAccess.Repositories;
 using AnimeApi.Server.DataAccess.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace AnimeApi.Server.DataAccess.Extensions;
 
@@ -18,7 +19,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDataAccess(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<AnimeDbContext>(options =>
-            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), mySqlOptions => mySqlOptions.EnableRetryOnFailure()));
+            options.UseNpgsql(new NpgsqlConnection(connectionString), pgSqlOptions => pgSqlOptions.EnableRetryOnFailure()));
 
         services.AddScoped<IAnimeRepository, AnimeRepository>();
         services.AddScoped<IProducerRepository, ProducerRepository>();

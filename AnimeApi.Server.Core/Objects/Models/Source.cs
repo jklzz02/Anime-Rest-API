@@ -6,7 +6,7 @@ public partial class Source : IBaseModel
 {
     public int Id { get; set; }
 
-    public string? Name { get; set; }
+    public string Name { get; set; }
 
     public virtual ICollection<Anime> Animes { get; set; } = new List<Anime>();
 }

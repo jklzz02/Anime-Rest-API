@@ -128,6 +128,15 @@ public interface IAnimeRepository : IRepository<Anime>
     Task<IEnumerable<Anime>> GetMostRecentAsync(int count);
 
     /// <summary>
+    ///  Retrieves paginated anime entities filtered by parameters.
+    /// </summary>
+    /// <param name="parameters">The parameters to filter the anime entities</param>
+    /// <param name="page">The page number to retrieve. Must be grater than 0.</param>
+    /// <param name="size">The number of items per page. Defaults to 100.</param>
+    /// <returns>A collection of anime that match the conditions set by the parameters.</returns>
+    Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page, int size = 100);
+
+    /// <summary>
     /// Retrieves a collection of anime entities that match the specified filter conditions, paginated by the given page and size.
     /// </summary>
     /// <param name="page">The page number to retrieve. Must be greater than 0.</param>

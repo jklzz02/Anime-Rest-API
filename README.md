@@ -20,7 +20,7 @@ graph TB
     B[YARP Proxy<br/><em>Planned</em>]
     C[ASP.NET Core API<br/><strong>This Solution</strong>]
     E[FastAPI Recommender<br/><em>In Development</em>]
-    D[(MySQL Database)]
+    D[(PostgreSQL Database)]
 
     %% Connections
     A -.->|HTTP Requests| B
@@ -164,9 +164,11 @@ graph TB
 
 ## Database Integration
 
-- **Provider**: MySQL with Entity Framework Core (Pomelo)
+- **Provider**: PostgreSQL with Entity Framework Core
 - **Migrations**: EF migrations
 - **Connection Management**: Managed through ASP.NET Core DI
+
+PostgreSQL allows for very efficient full text search.
 
 ## API Features
 

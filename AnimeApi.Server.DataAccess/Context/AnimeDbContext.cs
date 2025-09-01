@@ -45,14 +45,13 @@ public partial class AnimeDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
-            .UseCollation("utf8mb4_0900_ai_ci")
-            .HasCharSet("utf8mb4");
-
+            .UseCollation("utf8mb4_0900_ai_ci");
+        
         modelBuilder.Entity<Anime>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Anime");
+            entity.ToTable("anime");
 
             entity.HasIndex(e => e.English_Name, "Anime_English_Name_index");
 
@@ -72,23 +71,20 @@ public partial class AnimeDbContext : DbContext
             entity.Property(e => e.Duration).HasMaxLength(255);
             entity.Property(e => e.Image_URL).HasMaxLength(255);
             entity.Property(e => e.Name)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+                .UseCollation("utf8mb3_general_ci");
+            
             entity.Property(e => e.Other_Name)
                 .HasMaxLength(255)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+                .UseCollation("utf8mb3_general_ci");
             entity.Property(e => e.Rating).HasMaxLength(100);
             entity.Property(e => e.Score).HasPrecision(3, 1);
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Studio)
                 .HasMaxLength(255)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+                .UseCollation("utf8mb3_general_ci");
             entity.Property(e => e.Synopsis)
                 .HasMaxLength(5000)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+                .UseCollation("utf8mb3_general_ci");
             entity.Property(e => e.Trailer_embed_url).HasMaxLength(255);
             entity.Property(e => e.Trailer_image_url).HasMaxLength(255);
             entity.Property(e => e.Trailer_url).HasMaxLength(255);
@@ -108,7 +104,7 @@ public partial class AnimeDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Anime_Genre");
+            entity.ToTable("anime_genre");
 
             entity.HasIndex(e => e.AnimeId, "AnimeId");
 
@@ -131,7 +127,7 @@ public partial class AnimeDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Anime_Licensor");
+            entity.ToTable("anime_licensor");
 
             entity.HasIndex(e => e.AnimeId, "AnimeId");
 
@@ -154,7 +150,7 @@ public partial class AnimeDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Anime_Producer");
+            entity.ToTable("anime_producer");
 
             entity.HasIndex(e => e.AnimeId, "AnimeId");
 
@@ -177,7 +173,7 @@ public partial class AnimeDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Genre");
+            entity.ToTable("genre");
 
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
@@ -189,7 +185,7 @@ public partial class AnimeDbContext : DbContext
             entity.HasKey(e => e.Id)
                 .HasName("PRIMARY");
             
-            entity.ToTable("User");
+            entity.ToTable("user");
 
             entity.HasIndex(e => e.Email, "Email")
                 .IsUnique();
@@ -219,6 +215,8 @@ public partial class AnimeDbContext : DbContext
         {
             entity.HasKey(e => new { e.User_Id, e.Anime_Id })
                 .HasName("PRIMARY");;
+            
+            entity.ToTable("user_favourites");
             
             entity.HasOne(e => e.User).WithMany(u => u.Favourites)
                 .HasForeignKey(e => e.User_Id)
@@ -255,12 +253,11 @@ public partial class AnimeDbContext : DbContext
             entity.HasKey(e => e.Id)
                 .HasName("PRIMARY");
             
-            entity.ToTable("Review");
+            entity.ToTable("review");
             
             entity.Property(e => e.Content)
                 .HasMaxLength(5000)
                 .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3")
                 .IsRequired();
             
             entity.HasOne(r => r.Anime).WithMany(a => a.Reviews)
@@ -281,40 +278,38 @@ public partial class AnimeDbContext : DbContext
                 .HasMaxLength(255)
                 .IsRequired();
             
-            entity.ToTable("Role");
+            entity.ToTable("role");
         });
 
         modelBuilder.Entity<Licensor>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Licensor");
+            entity.ToTable("licensor");
 
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
             entity.Property(e => e.Name)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+                .UseCollation("utf8mb3_general_ci");
         });
 
         modelBuilder.Entity<Producer>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Producer");
+            entity.ToTable("producer");
 
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
             entity.Property(e => e.Name)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+                .UseCollation("utf8mb3_general_ci");
         });
 
         modelBuilder.Entity<Source>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Source");
+            entity.ToTable("source");
 
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 
@@ -325,7 +320,7 @@ public partial class AnimeDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Type");
+            entity.ToTable("type");
 
             entity.HasIndex(e => e.Name, "Name").IsUnique();
 

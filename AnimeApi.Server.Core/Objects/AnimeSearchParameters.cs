@@ -10,6 +10,9 @@ namespace AnimeApi.Server.Core.Objects;
 /// </remarks>
 public class AnimeSearchParameters
 {
+    [FromQuery(Name = "query")]
+    public string? Query { get; set; }
+    
     [FromQuery(Name = "title")]
     public string? Name { get; set; } = null;
     [FromQuery(Name = "producer_id")]
