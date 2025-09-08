@@ -1,10 +1,10 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Models;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
-using AnimeApi.Server.DataAccess.Extensions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +22,7 @@ public class AnimeRepository : IAnimeRepository
 {
     private readonly AnimeDbContext _context;
     public Dictionary<string, string> ErrorMessages { get; } = new();
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="AnimeRepository"/> class.
     /// </summary>
@@ -35,17 +35,7 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<Anime?> GetByIdAsync(int id)
     {
-        return await _context.Anime
-                .AsNoTracking()
-                .AsSplitQuery()
-                .Include(a => a.Anime_Genres)
-                .Include(a => a.Anime_Producers)
-                .Include(a => a.Anime_Licensors)
-                .Include(a => a.Type)
-                .Include(a => a.Source)
-                .Include(a => a.Favourites)
-                .Include(a => a.Reviews)
-                .FirstOrDefaultAsync(a => a.Id == id);
+        return await GetByIdAsync(id, false);
     }
 
     /// <inheritdoc />
@@ -65,7 +55,7 @@ public class AnimeRepository : IAnimeRepository
             .ThenByDescending(a => a.Release_Year)
             .ToListAsync();
     }
-    
+
     /// <inheritdoc />
     public async Task<PaginatedResult<Anime>> GetAllAsync(int page, int size = 100)
     {
@@ -73,7 +63,7 @@ public class AnimeRepository : IAnimeRepository
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         var count = await _context.Anime.CountAsync();
 
         var entities = await _context.Anime
@@ -88,7 +78,7 @@ public class AnimeRepository : IAnimeRepository
             .Skip((page - 1) * size)
             .Take(size)
             .ToListAsync();
-        
+
         return new PaginatedResult<Anime>(entities, page, size, count);
     }
 
@@ -110,13 +100,13 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Source)
             .Where(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.Contains(Constants.Ratings.AdultContent))
             .OrderByDescending(a => a.Score);
-            
-        
+
+
         var entities = await query
             .Skip((page - 1) * size)
             .Take(size)
             .ToListAsync();
-        
+
         return new PaginatedResult<Anime>(entities, page, size, await query.CountAsync());
     }
 
@@ -140,7 +130,7 @@ public class AnimeRepository : IAnimeRepository
     public async Task<Anime?> AddAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
-        
+
         var anime = await GetByIdAsync(entity.Id);
         if (anime is not null)
         {
@@ -154,12 +144,12 @@ public class AnimeRepository : IAnimeRepository
             entity.Anime_Licensors,
             entity.TypeId,
             entity.SourceId ?? 0);
-        
-        if(!areForeignKeysValid)
+
+        if (!areForeignKeysValid)
         {
             return null;
         }
-        
+
         _context.Anime.Add(entity);
         var result = await _context.SaveChangesAsync() > 0;
 
@@ -167,21 +157,21 @@ public class AnimeRepository : IAnimeRepository
         {
             return null;
         }
-        
+
         _context.Entry(entity).State = EntityState.Detached;
-        
+
         entity.Anime_Genres
             .Select(ag => ag.Genre)
             .ForEach(g => _context.Entry(g).State = EntityState.Detached);
-        
+
         entity.Anime_Producers
             .Select(ap => ap.Producer)
             .ForEach(p => _context.Entry(p).State = EntityState.Detached);
-        
+
         entity.Anime_Licensors
             .Select(al => al.Licensor)
             .ForEach(l => _context.Entry(l).State = EntityState.Detached);
-        
+
         return await GetByIdAsync(entity.Id);
     }
 
@@ -189,8 +179,8 @@ public class AnimeRepository : IAnimeRepository
     public async Task<Anime?> UpdateAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
-        
-        var anime = await GetByIdAsync(entity.Id);
+
+        var anime = await GetByIdAsync(entity.Id, true);
         if (anime is null)
         {
             ErrorMessages.Add("id", $"There is no anime with id {entity.Id}");
@@ -203,35 +193,24 @@ public class AnimeRepository : IAnimeRepository
             entity.Anime_Licensors,
             entity.TypeId,
             entity.SourceId ?? 0);
-        
-        if(!areForeignKeysValid)
+
+        if (!areForeignKeysValid)
         {
             return null;
         }
-        
+
         UpdateAnime(anime, entity);
-        _context.Update(anime);
+        UpdateRelations(anime.Anime_Genres.ToList(), entity.Anime_Genres.ToList());
+        UpdateRelations(anime.Anime_Producers.ToList(), entity.Anime_Producers.ToList());
+        UpdateRelations(anime.Anime_Licensors.ToList(), entity.Anime_Licensors.ToList());
+
         var result = await _context.SaveChangesAsync() > 0;
-        
+
         if (!result)
         {
             return null;
         }
-        
-        _context.Entry(anime).State = EntityState.Detached;
-        
-        anime.Anime_Genres
-            .Select(ag => ag.Genre)
-            .ForEach(g => _context.Entry(g).State = EntityState.Detached);
-        
-        anime.Anime_Producers
-            .Select(ap => ap.Producer)
-            .ForEach(p => _context.Entry(p).State = EntityState.Detached);
-        
-        anime.Anime_Licensors
-            .Select(al => al.Licensor)
-            .ForEach(l => _context.Entry(l).State = EntityState.Detached);
-        
+
         return await GetByIdAsync(anime.Id);
     }
 
@@ -240,7 +219,7 @@ public class AnimeRepository : IAnimeRepository
     {
         var anime = await GetByIdAsync(id);
         if (anime is null) return false;
-        
+
         _context.Anime.Remove(anime);
         return await _context.SaveChangesAsync() > 0;
     }
@@ -250,12 +229,12 @@ public class AnimeRepository : IAnimeRepository
     {
         ArgumentNullException.ThrowIfNull(name, nameof(name));
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
-        
+
         if (!ValidatePageAndSize(page, size))
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         return await GetByConditionAsync(
             page,
             size,
@@ -267,12 +246,12 @@ public class AnimeRepository : IAnimeRepository
     {
         ArgumentNullException.ThrowIfNull(englishName, nameof(englishName));
         ArgumentException.ThrowIfNullOrEmpty(englishName, nameof(englishName));
-        
+
         if (!ValidatePageAndSize(page, size))
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         return await GetByConditionAsync(
             page,
             size,
@@ -284,12 +263,12 @@ public class AnimeRepository : IAnimeRepository
     {
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         ArgumentException.ThrowIfNullOrEmpty(source, nameof(source));
-        
+
         if (!ValidatePageAndSize(page, size))
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         return await GetByConditionAsync(
             page,
             size,
@@ -301,12 +280,12 @@ public class AnimeRepository : IAnimeRepository
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         ArgumentException.ThrowIfNullOrEmpty(type, nameof(type));
-        
+
         if (!ValidatePageAndSize(page, size))
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         return await GetByConditionAsync(
             page,
             size,
@@ -320,8 +299,8 @@ public class AnimeRepository : IAnimeRepository
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
-        return await GetByConditionAsync( page, size, [a => a.Score == score]);
+
+        return await GetByConditionAsync(page, size, [a => a.Score == score]);
     }
 
     /// <inheritdoc />
@@ -331,7 +310,7 @@ public class AnimeRepository : IAnimeRepository
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         return await GetByConditionAsync(
             page,
             size,
@@ -345,7 +324,7 @@ public class AnimeRepository : IAnimeRepository
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         return await GetByConditionAsync(
             page,
             size,
@@ -359,7 +338,7 @@ public class AnimeRepository : IAnimeRepository
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         return await GetByConditionAsync(
             page,
             size,
@@ -373,7 +352,7 @@ public class AnimeRepository : IAnimeRepository
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         return await GetByConditionAsync(page, size, [a => a.Release_Year == year]);
     }
 
@@ -384,8 +363,8 @@ public class AnimeRepository : IAnimeRepository
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
-        return await GetByConditionAsync(page, size,[a => a.Episodes == episodes]);
+
+        return await GetByConditionAsync(page, size, [a => a.Episodes == episodes]);
     }
 
     /// <inheritdoc />
@@ -408,7 +387,7 @@ public class AnimeRepository : IAnimeRepository
             .Take(count)
             .ToListAsync();
     }
-    
+
     /// <inheritdoc />
     public async Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
     {
@@ -423,19 +402,20 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Favourites)
             .Include(a => a.Reviews)
             .FirstOrDefaultAsync(condition);
-        
+
         return anime;
     }
+
     public async Task<PaginatedResult<Anime>> GetByConditionAsync(
         int page = 1,
         int size = 100,
-        IEnumerable<Expression<Func<Anime, bool>>>? filters = null)    
+        IEnumerable<Expression<Func<Anime, bool>>>? filters = null)
     {
         if (!ValidatePageAndSize(page, size))
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         var query = _context.Anime
             .AsExpandable();
 
@@ -451,11 +431,11 @@ public class AnimeRepository : IAnimeRepository
             .OrderByDescending(a => a.Score)
             .Select(a => a.Id)
             .ToListAsync();
-        
+
         var paginatedIds = ids
             .Skip((page - 1) * size)
             .Take(size);
-        
+
         var entities = await _context.Anime
             .AsSplitQuery()
             .AsNoTracking()
@@ -472,21 +452,22 @@ public class AnimeRepository : IAnimeRepository
         return new PaginatedResult<Anime>(entities, page, size, await query.CountAsync());
     }
 
-    public async Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page, int size = 100)
+    public async Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page,
+        int size = 100)
     {
         if (!ValidatePageAndSize(page, size))
         {
             return new PaginatedResult<Anime>(new List<Anime>(), page, size);
         }
-        
+
         var filters = new List<Expression<Func<Anime, bool>>>();
 
         if (!string.IsNullOrWhiteSpace(parameters.Query))
         {
             filters.Add(a => EF.Functions.TrigramsAreSimilar(parameters.Query, a.Name) ||
-                              EF.Functions.TrigramsAreSimilar(parameters.Query, a.English_Name));
+                             EF.Functions.TrigramsAreSimilar(parameters.Query, a.English_Name));
         }
-        
+
         if (!string.IsNullOrWhiteSpace(parameters.Name))
             filters.Add(a => a.Name.Contains(parameters.Name));
 
@@ -494,14 +475,14 @@ public class AnimeRepository : IAnimeRepository
             filters.Add(a => a.English_Name.Contains(parameters.EnglishName));
 
         if (!string.IsNullOrWhiteSpace(parameters.Source))
-            filters.Add(a=> a.Source.Name.Contains(parameters.Source));
+            filters.Add(a => a.Source.Name.Contains(parameters.Source));
 
         if (!string.IsNullOrWhiteSpace(parameters.Type))
             filters.Add(a => a.Type.Name.Contains(parameters.Type));
 
         if (parameters.ProducerId.HasValue)
             filters.Add(a => a.Anime_Producers.Any(p => p.ProducerId == parameters.ProducerId));
-        
+
         if (!string.IsNullOrWhiteSpace(parameters.ProducerName))
             filters.Add(a => a.Anime_Producers.Any(p => p.Producer.Name.Contains(parameters.ProducerName)));
 
@@ -510,7 +491,7 @@ public class AnimeRepository : IAnimeRepository
             filters.Add(a => parameters
                 .ProducerNames.All(p => a.Anime_Producers.Any(ap => ap.Producer.Name == p)));
         }
-        
+
         if (parameters.LicensorId.HasValue)
             filters.Add(a => a.Anime_Licensors.Any(l => l.LicensorId == parameters.LicensorId));
 
@@ -522,10 +503,10 @@ public class AnimeRepository : IAnimeRepository
             filters.Add(a => parameters
                 .LicensorNames.All(l => a.Anime_Licensors.Any(al => al.Licensor.Name == l)));
         }
-        
+
         if (parameters.GenreId.HasValue)
             filters.Add(a => a.Anime_Genres.Any(g => g.GenreId == parameters.GenreId));
-        
+
         if (!string.IsNullOrWhiteSpace(parameters.GenreName))
             filters.Add(a => a.Anime_Genres.Any(g => g.Genre.Name.Contains(parameters.GenreName)));
 
@@ -537,7 +518,7 @@ public class AnimeRepository : IAnimeRepository
 
         if (parameters.Episodes.HasValue)
             filters.Add(a => a.Episodes == parameters.Episodes);
-        
+
         if (parameters.MinScore.HasValue)
             filters.Add(a => a.Score >= parameters.MinScore);
 
@@ -549,22 +530,23 @@ public class AnimeRepository : IAnimeRepository
 
         if (parameters.MaxReleaseYear.HasValue)
             filters.Add(a => a.Release_Year <= parameters.MaxReleaseYear && a.Release_Year != 0);
-        
+
         if (!parameters.IncludeAdultContext)
-            filters.Add(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.ToLower().Contains(Constants.Ratings.AdultContent));
-        
+            filters.Add(a =>
+                !string.IsNullOrEmpty(a.Rating) && !a.Rating.ToLower().Contains(Constants.Ratings.AdultContent));
+
         var result = await GetByConditionAsync(page, size, filters);
         return result;
     }
 
     /// <inheritdoc />
     public async Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count)
-    {       
+    {
         if (count <= 0)
         {
             throw new ArgumentException($"{nameof(count)} must be greater than 0");
         }
-        
+
         var entities = await _context.Anime
             .AsNoTracking()
             .OrderByDescending(a => a.Score)
@@ -580,6 +562,27 @@ public class AnimeRepository : IAnimeRepository
             ReleaseYear = a.Release_Year,
             Rating = a.Rating
         });
+    }
+
+    private async Task<Anime?> GetByIdAsync(int id, bool trackEntity)
+    {
+        var query = _context.Anime
+            .AsSplitQuery();
+
+        if (!trackEntity)
+        {
+            query = query.AsNoTracking();
+        }
+
+        return await query
+            .Include(a => a.Anime_Genres)
+            .Include(a => a.Anime_Producers)
+            .Include(a => a.Anime_Licensors)
+            .Include(a => a.Type)
+            .Include(a => a.Source)
+            .Include(a => a.Favourites)
+            .Include(a => a.Reviews)
+            .FirstOrDefaultAsync(a => a.Id == id);
     }
 
     private bool ValidatePageAndSize(int page, int size)
@@ -601,8 +604,8 @@ public class AnimeRepository : IAnimeRepository
 
         return !ErrorMessages.Any();
     }
-    
-    private async Task<bool>  ValidateForeignKeysAsync(
+
+    private async Task<bool> ValidateForeignKeysAsync(
         ICollection<AnimeGenre> genres,
         ICollection<AnimeProducer> producers,
         ICollection<AnimeLicensor> licensors,
@@ -612,44 +615,44 @@ public class AnimeRepository : IAnimeRepository
         var genresIds = genres.Select(ag => ag.GenreId).ToList();
         var producersIds = producers.Select(ap => ap.ProducerId).ToList();
         var licensorsIds = licensors.Select(al => al.LicensorId).ToList();
-        
+
         var genresExistingIds = await _context.Genres
             .AsNoTracking()
             .Select(g => g.Id)
             .ToListAsync();
-        
+
         var producersExistingIds = await _context.Producers
             .AsNoTracking()
             .Select(p => p.Id)
             .ToListAsync();
-        
+
         var licensorsExistingIds = await _context.Licensors
             .AsNoTracking()
             .Select(l => l.Id)
             .ToListAsync();
-        
+
         var typesExistingIds = await _context.Types
             .AsNoTracking()
             .Select(t => t.Id)
             .ToListAsync();
-        
+
         var sourcesExistingIds = await _context.Sources
             .AsNoTracking()
             .Select(s => s.Id)
             .ToListAsync();
-        
+
         if (!genresIds.All(g => genresExistingIds.Contains(g)))
         {
             ErrorMessages.Add("genres", "on or more genre entities ids do not exist.");
         }
-        
-        
+
+
         if (!licensorsIds.All(l => licensorsExistingIds.Contains(l)))
         {
             ErrorMessages.Add("licensors", "one or more licensor entities ids do not exist.");
         }
-        
-        
+
+
         if (!producersIds.All(g => producersExistingIds.Contains(g)))
         {
             ErrorMessages.Add("producers", "one or more producer entities ids do not exist.");
@@ -676,9 +679,7 @@ public class AnimeRepository : IAnimeRepository
         original.Synopsis = updated.Synopsis;
         original.Image_URL = updated.Image_URL;
         original.TypeId = updated.TypeId;
-        original.Type = updated.Type;
         original.SourceId = updated.SourceId;
-        original.Source = updated.Source;
         original.Episodes = updated.Episodes;
         original.Duration = updated.Duration;
         original.SourceId = updated.SourceId;
@@ -689,15 +690,40 @@ public class AnimeRepository : IAnimeRepository
         original.Studio = updated.Studio;
         original.Score = updated.Score;
         original.Status = updated.Status;
-        original.Anime_Genres
-            .Distinct()
-            .ToList()
-            .Update(updated.Anime_Genres, original.Id);
-        original.Anime_Producers
-            .Distinct()
-            .ToList()
-            .Update(updated.Anime_Producers, original.Id);
-        original.Anime_Licensors
-            .Update(updated.Anime_Licensors, original.Id);
     }
-}
+
+   private void UpdateRelations<T>(
+    List<T> original,
+    List<T> updated)
+    where T : class, IAnimeRelation, new()
+{
+    var originalIds = original.Select(a => a.RelatedId).ToList();
+    var updatedIds = updated.Select(a => a.RelatedId).ToList();
+    
+    if (originalIds.SequenceEqual(updatedIds))
+    {
+        return;
+    }
+    
+    var animeId = original.FirstOrDefault()?.AnimeId ?? updated.FirstOrDefault()?.AnimeId ?? 0;
+    
+    var toRemove = original.Where(o => !updatedIds.Contains(o.RelatedId)).ToList();
+
+    foreach (var item in toRemove)
+    {
+        _context.Set<T>().Remove(item);
+    }
+    
+    var idsToAdd = updatedIds.Where(id => !originalIds.Contains(id)).ToList();
+    
+    foreach (var relatedId in idsToAdd)
+    {
+        var newRelation = new T() 
+        { 
+            AnimeId = animeId, 
+            RelatedId = relatedId 
+        };
+        
+        _context.Set<T>().Add(newRelation);
+    }
+}}
