@@ -3,6 +3,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
@@ -34,7 +35,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAsync([FromQuery] int page, int size = Constants.Pagination.MaxPageSize, bool includeAdultContent = false)
+    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, int size = Constants.Pagination.MaxPageSize, bool includeAdultContent = false)
     {
          var result = await _cache
              .GetOrCreateAsync(
@@ -107,7 +108,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByReleaseYearAsync([FromRoute] int year, int page, int size = Constants.Pagination.MaxPageSize)
+    public async Task<IActionResult> GetByReleaseYearAsync([FromRoute] int year, int page = 1, int size = Constants.Pagination.MaxPageSize)
     {
         var result = await _cache
             .GetOrCreateAsync(
@@ -132,7 +133,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByEpisodes([FromRoute] int episodes, int page, int size = Constants.Pagination.MaxPageSize)
+    public async Task<IActionResult> GetByEpisodes([FromRoute] int episodes, int page = 1, int size = Constants.Pagination.MaxPageSize)
     {
         var result = await _cache
             .GetOrCreateAsync(
@@ -156,7 +157,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByTitleAsync([FromRoute] string title, int page, int size = Constants.Pagination.MaxPageSize)
+    public async Task<IActionResult> GetByTitleAsync([FromRoute] string title, int page = 1, int size = Constants.Pagination.MaxPageSize)
     {
         var result = await _cache
             .GetOrCreateAsync(
@@ -245,12 +246,27 @@ public class AnimeController : ControllerBase
     }
     
     [HttpPatch]
+    [Route("{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> UpdatePartialAsync([FromBody] AnimeDto anime)
+    public async Task<IActionResult> UpdatePartialAsync(int id, [FromBody] JsonPatchDocument<AnimeDto> patchDocument)
     {
+        var anime = await _helper.GetByIdAsync(id);
+
+        if (anime is null)
+        {
+            return NotFound();
+        }
+        
+        patchDocument.ApplyTo(anime, ModelState);
+
+        if (!TryValidateModel(anime))
+        {
+            return BadRequest(ModelState);
+        }
+        
         var result = await _helper.UpdateAsync(anime);
         
         if (result is null)

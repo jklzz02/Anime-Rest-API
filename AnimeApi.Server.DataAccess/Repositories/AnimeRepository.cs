@@ -157,21 +157,8 @@ public class AnimeRepository : IAnimeRepository
         {
             return null;
         }
-
-        _context.Entry(entity).State = EntityState.Detached;
-
-        entity.Anime_Genres
-            .Select(ag => ag.Genre)
-            .ForEach(g => _context.Entry(g).State = EntityState.Detached);
-
-        entity.Anime_Producers
-            .Select(ap => ap.Producer)
-            .ForEach(p => _context.Entry(p).State = EntityState.Detached);
-
-        entity.Anime_Licensors
-            .Select(al => al.Licensor)
-            .ForEach(l => _context.Entry(l).State = EntityState.Detached);
-
+        
+        _context.ChangeTracker.Clear();
         return await GetByIdAsync(entity.Id);
     }
 
@@ -210,8 +197,9 @@ public class AnimeRepository : IAnimeRepository
         {
             return null;
         }
-
-        return await GetByIdAsync(anime.Id);
+        
+        _context.ChangeTracker.Clear();
+        return await GetByIdAsync(entity.Id);
     }
 
     /// <inheritdoc />
@@ -576,8 +564,11 @@ public class AnimeRepository : IAnimeRepository
 
         return await query
             .Include(a => a.Anime_Genres)
+            .ThenInclude(ag => ag.Genre)
             .Include(a => a.Anime_Producers)
+            .ThenInclude(ap => ap.Producer)
             .Include(a => a.Anime_Licensors)
+            .ThenInclude(al => al.Licensor) 
             .Include(a => a.Type)
             .Include(a => a.Source)
             .Include(a => a.Favourites)

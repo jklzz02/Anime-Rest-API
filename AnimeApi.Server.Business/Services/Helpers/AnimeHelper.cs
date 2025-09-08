@@ -285,7 +285,10 @@ public class AnimeHelper : IAnimeHelper
         return await _repository.DeleteAsync(id);
     }
 
-    public async Task<PaginatedResult<AnimeDto>?> SearchAsync(AnimeSearchParameters parameters, int page, int size = 100)
+    public async Task<PaginatedResult<AnimeDto>?> SearchAsync(
+        AnimeSearchParameters parameters,
+        int page,
+        int size = 100)
     {
         var result = await _repository.GetByParamsAsync(parameters, page, size);
 
