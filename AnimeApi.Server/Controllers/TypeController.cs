@@ -91,23 +91,6 @@ public class TypeController : ControllerBase
         
         return Ok(result);
     }
-
-    [HttpPatch]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> UpdatePartialAsync([FromBody] TypeDto type)
-    {
-        var result = await _helper.UpdateAsync(type);
-        
-        if (result is null)
-        {
-            return BadRequest(_helper.ErrorMessages);
-        }
-        
-        return Ok(result);
-    }
     
     [HttpDelete]
     [Route("{id:int:min(1)}")]

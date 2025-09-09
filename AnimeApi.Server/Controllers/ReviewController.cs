@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
@@ -52,7 +53,7 @@ public class ReviewController : ControllerBase
     }
 
     [HttpGet]
-    [Route("anime/title{title:minlength(1)}")]
+    [Route("anime/title/{title:minlength(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByAnimeTitleAsync([FromRoute] string title) 
@@ -84,7 +85,7 @@ public class ReviewController : ControllerBase
     }
 
     [HttpGet]
-    [Route("user/email{email:minlength(1)}")]
+    [Route("user/email/{email:minlength(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByUserEmailAsync([FromRoute] string email)
@@ -185,7 +186,7 @@ public class ReviewController : ControllerBase
     }
 
     [Authorize]
-    [HttpPatch]
+    [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -217,6 +218,55 @@ public class ReviewController : ControllerBase
             return BadRequest(_reviewHelper.ErrorMessages);
         }
 
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPatch]
+    [Route("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> UpdatePartialAsync(int id, [FromBody] JsonPatchDocument<ReviewDto> patchDocument)
+    {
+        var email = User.Claims
+            .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        
+        if (string.IsNullOrEmpty(email))
+        {
+            return Unauthorized();
+        }
+        
+        var user = await _userService.GetByEmailAsync(email);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+        
+        var review = await _reviewHelper.GetByIdAsync(id);
+        if (review is null)
+        {
+            return NotFound();
+        }
+
+        if (review.UserId != user.Id)
+        {
+            return Forbid();
+        }
+        
+        patchDocument.ApplyTo(review, ModelState);
+        if (!TryValidateModel(review))
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var result = await _reviewHelper.UpdateAsync(review);
+        if (result is null)
+        {
+            return BadRequest(_reviewHelper.ErrorMessages);
+        }
+        
         return Ok(result);
     }
 

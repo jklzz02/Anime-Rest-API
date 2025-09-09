@@ -93,27 +93,6 @@ public class LicensorController : ControllerBase
         
         return Ok(result);
     }
-    [HttpPatch]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> UpdatePartialAsync([FromBody] LicensorDto licensor)
-    {
-        if (string.IsNullOrEmpty(licensor.Name))
-        {
-            return BadRequest();
-        }
-        
-        var result = await _helper.UpdateAsync(licensor);
-
-        if (result is null)
-        {
-            return BadRequest(_helper.ErrorMessages);
-        }
-        
-        return Ok(result);
-    }
 
     [HttpDelete]
     [Route("{id:int:min(1)}")]
