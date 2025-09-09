@@ -74,10 +74,10 @@ public partial class AnimeDbContext : DbContext
                 .UseCollation("utf8mb3_general_ci");
             
             entity.Property(e => e.Started_Airing)
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamptz");
             
             entity.Property(e => e.Finished_Airing)
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamptz");
             
             entity.Property(e => e.Other_Name)
                 .HasMaxLength(255)
@@ -206,7 +206,7 @@ public partial class AnimeDbContext : DbContext
                 .HasMaxLength(255);
 
             entity.Property(e => e.Created_At)
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestampz");
             
             entity.HasOne<Role>(e => e.Role).WithMany(r => r.Users)
                 .HasForeignKey(e => e.Role_Id)
@@ -254,13 +254,13 @@ public partial class AnimeDbContext : DbContext
                 .HasMaxLength(500);
             
             entity.Property(e => e.Created_At)
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestampz");
             
             entity.Property(e => e.Expires_At)
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestampz");
             
             entity.Property(e => e.Revoked_At)
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestampz");
 
             entity
                 .HasIndex(e => e.Hashed_Token, "Refresh_Token_Hashed_Token__index");
