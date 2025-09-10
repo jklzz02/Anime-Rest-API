@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using AnimeApi.Server.Business.Services;
+using AnimeApi.Server.Core.Exceptions;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -74,7 +75,7 @@ public class JwtGeneratorTest
         _jwtSectionMock.Setup(x => x.GetSection("Issuer")).Returns(_issuerSectionMock.Object);
         _jwtSectionMock.Setup(x => x.GetSection("Audience")).Returns(_audienceSectionMock.Object);
 
-        Assert.Throws<ApplicationException>(() => _generator.GenerateToken(DummyUser));
+        Assert.Throws<ConfigurationException>(() => _generator.GenerateToken(DummyUser));
     }
 
     [Fact]
@@ -87,7 +88,7 @@ public class JwtGeneratorTest
         _jwtSectionMock.Setup(x => x.GetSection("Issuer")).Returns(_issuerSectionMock.Object);
         _jwtSectionMock.Setup(x => x.GetSection("Audience")).Returns(_audienceSectionMock.Object);
 
-        Assert.Throws<ApplicationException>(() => _generator.GenerateToken(DummyUser));
+        Assert.Throws<ConfigurationException>(() => _generator.GenerateToken(DummyUser));
     }
 
     [Fact]
@@ -100,7 +101,7 @@ public class JwtGeneratorTest
         _jwtSectionMock.Setup(x => x.GetSection("Issuer")).Returns(_issuerSectionMock.Object);
         _jwtSectionMock.Setup(x => x.GetSection("Audience")).Returns(_audienceSectionMock.Object);
 
-        Assert.Throws<ApplicationException>(() => _generator.GenerateToken(DummyUser));
+        Assert.Throws<ConfigurationException>(() => _generator.GenerateToken(DummyUser));
     }
     
     private static string GenerateRandomSecret(int byteLength = 32)

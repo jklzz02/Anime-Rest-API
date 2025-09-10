@@ -241,7 +241,7 @@ public partial class AnimeDbContext : DbContext
             entity.HasKey(e => e.Id)
                 .HasName("PRIMARY");
             
-            entity.ToTable("Refresh_Token");
+            entity.ToTable("refresh_token");
             
             entity.HasOne(e => e.User)
                 .WithOne(e => e.RefreshToken)

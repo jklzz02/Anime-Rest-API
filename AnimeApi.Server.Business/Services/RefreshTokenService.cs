@@ -36,7 +36,7 @@ public class RefreshTokenService : IRefreshTokenService
 
         if (saved is null)
         {
-            throw new ApplicationException("Failed to create refresh token");
+            throw new Exception("Failed to create refresh token");
         }
 
         return new RefreshTokenResult

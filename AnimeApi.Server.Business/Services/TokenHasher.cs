@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Exceptions;
 using Microsoft.Extensions.Configuration;
 
 namespace AnimeApi.Server.Business.Services;
@@ -13,7 +14,7 @@ public class TokenHasher : ITokenHasher
     {
         _secret = configuration
             .GetSection("Authentication:RefreshToken")?
-            .GetSection("Secret")?.Value ?? throw new ApplicationException("Refresh token secret not found in configuration");
+            .GetSection("Secret")?.Value ?? throw new ConfigurationException("Authentication:RefreshToken:Secret");
     }
     
     /// <inheritdoc />

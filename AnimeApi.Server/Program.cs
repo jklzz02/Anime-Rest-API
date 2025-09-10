@@ -1,6 +1,7 @@
 using System.Text;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core;
+using AnimeApi.Server.Core.Exceptions;
 using AnimeApi.Server.DataAccess.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
@@ -15,11 +16,12 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        var connectionString = builder.Configuration
+            .GetConnectionString("DefaultConnection") ?? throw new ConfigurationException("DefaultConnection");
 
         var clientDomain = builder.Configuration
             .GetSection("Authorization")
-            .GetValue<string>("ClientDomain");
+            .GetValue<string>("ClientDomain") ?? throw new ConfigurationException("Authorization:ClientDomain");
 
         builder.Services.AddCors(options =>
         {
@@ -59,10 +61,10 @@ public class Program
                 var config = builder.Configuration.GetSection("Authentication:Jwt");
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidIssuer = config["Issuer"] ?? throw new ApplicationException("JWT issuer missing"),
-                    ValidAudience = config["Audience"] ?? throw new ApplicationException("JWT audience missing"),
+                    ValidIssuer = config["Issuer"] ?? throw new ConfigurationException("Authentication:Jwt:Issuer"),
+                    ValidAudience = config["Audience"] ?? throw new ConfigurationException("Authentication:Jwt:Audience"),
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(config["Secret"] ?? throw new ApplicationException("JWT secret missing"))),
+                        Encoding.UTF8.GetBytes(config["Secret"] ?? throw new ConfigurationException("Authentication:Jwt:Secret"))),
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateIssuerSigningKey = true,

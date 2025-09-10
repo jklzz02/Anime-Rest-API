@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Exceptions;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -28,18 +29,17 @@ public class JwtGenerator : IJwtGenerator
     {
         var secrets = _configuration.GetSection("Authentication:Jwt");
 
-        var secret = secrets.GetSection("Secret")?.Value;
+        var secret = secrets.GetSection("Secret").Value;
         if (string.IsNullOrEmpty(secret))
-            throw new ApplicationException("Secret not found in configuration");
+            throw new ConfigurationException("Authentication:Jwt:Secret");
 
-
-        var issuer = secrets.GetSection("Issuer")?.Value;
+        var issuer = secrets.GetSection("Issuer").Value;
         if (string.IsNullOrEmpty(issuer))
-            throw new ApplicationException("Issuer not found in configuration");
+            throw new ConfigurationException("Authentication:Jwt:Issuer'");
 
         var audience = secrets.GetSection("Audience").Value;
         if (string.IsNullOrEmpty(audience))
-            throw new ApplicationException("Audience not found in configuration");
+            throw new ConfigurationException("'Authentication:Jwt:Audience'");
 
         List<Claim> claims = 
             [
