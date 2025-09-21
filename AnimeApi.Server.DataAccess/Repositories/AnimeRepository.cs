@@ -683,38 +683,30 @@ public class AnimeRepository : IAnimeRepository
         original.Status = updated.Status;
     }
 
-   private void UpdateRelations<T>(
+   private async Task UpdateRelations<T>(
     List<T> original,
     List<T> updated)
     where T : class, IAnimeRelation, new()
-{
-    var originalIds = original.Select(a => a.RelatedId).ToList();
-    var updatedIds = updated.Select(a => a.RelatedId).ToList();
-    
-    if (originalIds.SequenceEqual(updatedIds))
     {
-        return;
-    }
-    
-    var animeId = original.FirstOrDefault()?.AnimeId ?? updated.FirstOrDefault()?.AnimeId ?? 0;
-    
-    var toRemove = original.Where(o => !updatedIds.Contains(o.RelatedId)).ToList();
-
-    foreach (var item in toRemove)
-    {
-        _context.Set<T>().Remove(item);
-    }
-    
-    var idsToAdd = updatedIds.Where(id => !originalIds.Contains(id)).ToList();
-    
-    foreach (var relatedId in idsToAdd)
-    {
-        var newRelation = new T() 
-        { 
-            AnimeId = animeId, 
-            RelatedId = relatedId 
-        };
+        var originalIds = original.Select(a => a.RelatedId).ToList();
+        var updatedIds = updated.Select(a => a.RelatedId).ToList();
         
-        _context.Set<T>().Add(newRelation);
+        if (originalIds.SequenceEqual(updatedIds))
+        {
+            return;
+        }
+        
+        var animeId = original.FirstOrDefault()?.AnimeId ?? updated.FirstOrDefault()?.AnimeId ?? 0;
+        
+        var toRemove = original.Where(o => !updatedIds.Contains(o.RelatedId)).ToList();
+        
+        toRemove.ForEach(x => _context.Set<T>().Remove(x));
+        
+        var idsToAdd = updatedIds.Where(id => !originalIds.Contains(id)).ToList();
+
+        var newRelations = idsToAdd
+            .Select(id => new T { AnimeId = animeId, RelatedId = id });
+            
+        await _context.Set<T>().AddRangeAsync(newRelations);
     }
-}}
+}
