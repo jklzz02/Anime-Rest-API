@@ -16,9 +16,9 @@ public class BaseValidator<TEntity>  : AbstractValidator<TEntity>, IBaseValidato
     /// Gets the entity name by converting the type name to lowercase and removing the "dto" suffix.
     /// Used in validation messages to provide context-specific error descriptions.
     /// </summary>
-    protected string EntityName => typeof(TEntity).Name
+    protected virtual string EntityName => typeof(TEntity).Name
         .ToLower()
-        .Replace("dto", "");
+        .Replace("dto", string.Empty);
 
     /// <summary>
     /// Initializes a new instance of the BaseValidator class and sets up common validation rules.
