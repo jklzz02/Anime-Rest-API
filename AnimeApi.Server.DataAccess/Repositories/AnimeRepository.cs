@@ -467,6 +467,9 @@ public class AnimeRepository : IAnimeRepository
 
         if (!string.IsNullOrWhiteSpace(parameters.Type))
             filters.Add(a => a.Type.Name.Contains(parameters.Type));
+        
+        if (!string.IsNullOrWhiteSpace(parameters.Status))
+            filters.Add(a => a.Status.Contains(parameters.Status));
 
         if (parameters.ProducerId.HasValue)
             filters.Add(a => a.Anime_Producers.Any(p => p.ProducerId == parameters.ProducerId));
@@ -506,6 +509,12 @@ public class AnimeRepository : IAnimeRepository
 
         if (parameters.Episodes.HasValue)
             filters.Add(a => a.Episodes == parameters.Episodes);
+        
+        if (parameters.MinEpisodes.HasValue)
+            filters.Add(a => a.Episodes >= parameters.MinEpisodes);
+
+        if (parameters.MaxEpisodes.HasValue)
+            filters.Add(a => a.Episodes <= parameters.MaxEpisodes);
 
         if (parameters.MinScore.HasValue)
             filters.Add(a => a.Score >= parameters.MinScore);
@@ -518,6 +527,19 @@ public class AnimeRepository : IAnimeRepository
 
         if (parameters.MaxReleaseYear.HasValue)
             filters.Add(a => a.Release_Year <= parameters.MaxReleaseYear && a.Release_Year != 0);
+        
+        if (parameters.StartDateFrom.HasValue)
+            filters.Add(a => a.Started_Airing >= parameters.StartDateFrom.Value.ToUniversalTime());
+
+        if (parameters.StartDateTo.HasValue)
+            filters.Add(a => a.Started_Airing <= parameters.StartDateTo.Value.ToUniversalTime());
+
+        if (parameters.EndDateFrom.HasValue)
+            filters.Add(a => a.Finished_Airing >= parameters.EndDateFrom.Value.ToUniversalTime());
+
+        if (parameters.EndDateTo.HasValue)
+            filters.Add(a => a.Finished_Airing <= parameters.EndDateTo.Value.ToUniversalTime());
+
 
         if (!parameters.IncludeAdultContext)
             filters.Add(a =>

@@ -36,6 +36,10 @@ public class AnimeSearchParameters
     public string? Status { get; set; } = null;
     [FromQuery(Name = "episodes")]
     public int? Episodes { get; set; } = null;
+    [FromQuery(Name = "min_episodes")]
+    public int? MinEpisodes { get; set; } = null;
+    [FromQuery(Name = "max_episodes")]
+    public int? MaxEpisodes { get; set; } = null;
     [FromQuery(Name = "source")]
     public string? Source { get; set; } = null;
     [FromQuery(Name = "type")]
@@ -50,6 +54,17 @@ public class AnimeSearchParameters
     public int? MinReleaseYear { get; set; } = null;
     [FromQuery(Name = "max_release_year")]
     public int? MaxReleaseYear { get; set; } = null;
+    [FromQuery(Name = "start_date_from")]
+    public DateTime? StartDateFrom { get; set; } = null;
+    
+    [FromQuery(Name = "start_date_to")]
+    public DateTime? StartDateTo { get; set; } = null;
+    
+    [FromQuery(Name = "end_date_from")]
+    public DateTime? EndDateFrom { get; set; } = null;
+    
+    [FromQuery(Name = "end_date_to")]
+    public DateTime? EndDateTo { get; set; } = null;
     
     [FromQuery(Name = "include_adult_content")]
     public bool IncludeAdultContext { get; set; }
