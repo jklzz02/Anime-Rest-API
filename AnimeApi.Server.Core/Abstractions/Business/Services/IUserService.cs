@@ -1,5 +1,5 @@
+using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
-using Google.Apis.Auth;
 
 namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 
@@ -31,7 +31,7 @@ public interface IUserService
     /// <returns>
     /// An <see cref="AppUserDto"/> representing the retrieved or newly created user.
     /// </returns>
-    Task<AppUserDto> GetOrCreateUserAsync(GoogleJsonWebSignature.Payload payload);
+    Task<AppUserDto> GetOrCreateUserAsync(AuthPayload payload);
 
     /// <summary>
     /// Deletes a user identified by their email address asynchronously.

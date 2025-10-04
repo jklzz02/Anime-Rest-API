@@ -1,11 +1,9 @@
-using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
-using AnimeApi.Server.Core.Extensions;
+using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
-using Google.Apis.Auth;
 
 namespace AnimeApi.Server.Business.Services;
 
@@ -44,7 +42,7 @@ public class UserService : IUserService
     }
 
     /// <inheritdoc />
-    public async Task<AppUserDto> GetOrCreateUserAsync(GoogleJsonWebSignature.Payload payload)
+    public async Task<AppUserDto> GetOrCreateUserAsync(AuthPayload payload)
     {
         var existingUser = await _userRepository.GetByEmailAsync(payload.Email);
 
@@ -55,7 +53,7 @@ public class UserService : IUserService
 
         var newUser = new AppUserDto
         {
-            Username = payload.Email.EmailToUsername(),
+            Username = payload.Username,
             Email = payload.Email,
             CreatedAt = DateTime.UtcNow,
             ProfilePictureUrl = payload.Picture ?? string.Empty,

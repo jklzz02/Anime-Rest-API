@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects;
+using AnimeApi.Server.Core.Objects.Auth;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
@@ -57,7 +58,12 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid Google ID token.");
         }
 
-        var userDto = await _userService.GetOrCreateUserAsync(payload);
+        var userDto = await _userService.GetOrCreateUserAsync(new AuthPayload
+        {
+            Email = payload.Email,
+            Picture = payload.Picture,
+            Username = string.Empty
+        });
         var accessToken = _jwtGenerator.GenerateToken(userDto);
         var refreshToken = await _refreshTokenService.CreateAsync(userDto.Id);
 
@@ -134,7 +140,12 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid Google ID token.");
         }
 
-        var userDto = await _userService.GetOrCreateUserAsync(payload);
+        var userDto = await _userService.GetOrCreateUserAsync(new AuthPayload
+        {
+            Email = payload.Email,
+            Picture = payload.Picture,
+            Username = string.Empty
+        });
 
         await _refreshTokenService
             .RevokeByUserIdAsync(userDto.Id);

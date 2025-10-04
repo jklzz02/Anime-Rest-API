@@ -1,9 +1,8 @@
-using AnimeApi.Server.Business;
 using AnimeApi.Server.Business.Services;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Models;
-using Google.Apis.Auth;
 using Moq;
 
 namespace AnimeApi.Server.Test.Tests;
@@ -64,7 +63,7 @@ public class UserServiceTest
     [Fact]
     public async Task GetOrCreateUser_Should_Return_Existing_User()
     {
-        var payload = new GoogleJsonWebSignature.Payload { Email = MockUser.Email };
+        var payload = new AuthPayload { Email = MockUser.Email };
 
         _userRepositoryMock
             .Setup(r => r.GetByEmailAsync(MockUser.Email))
@@ -83,7 +82,7 @@ public class UserServiceTest
     {
         var email = "new@example.com";
         var roleId = 1;
-        var payload = new GoogleJsonWebSignature.Payload 
+        var payload = new AuthPayload 
         { 
             Email = email,
             Picture = "https://example.com/picture.jpg"
