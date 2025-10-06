@@ -1,6 +1,6 @@
 namespace AnimeApi.Server.Core.Objects;
 
-public class Result<T>
+public sealed class Result<T>
 {
     public T Data { get; }
 
@@ -33,6 +33,11 @@ public class Result<T>
         return new(data);
     }
 
+    public static Result<T> Failure(Error error)
+    {
+        return new ([ error ]);
+    }
+
     public static Result<T> Failure(IEnumerable<Error> errors)
     {
         return new (errors);
@@ -43,8 +48,12 @@ public class Result<T>
         return new (data, errors);
     }
     
-    public static Result<T> Failure(string field, string details)
-     => new (errors: [ new Error(field, details)]);
-}
+    public static Result<T> Failure(ErrorType errorType, string error, string details)
+     => new (errors: [ new Error(errorType, error, details)]);
 
-public record Error(string Field, string Details);
+    public static Result<T> InternalFailure(string error, string details)
+        => Failure(ErrorType.Internal, error, details);
+
+    public static Result<T> ValidationFailure(string error, string details)
+        => Failure(ErrorType.Validation, error, details);
+}

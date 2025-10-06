@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Core.Objects;
 
-public class PaginatedResult<T> where T : class
+public sealed class PaginatedResult<T> where T : class
 {
     [JsonProperty("page")]
     public int Page { get; }
