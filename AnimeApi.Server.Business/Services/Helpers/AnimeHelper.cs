@@ -16,11 +16,17 @@ public class AnimeHelper : IAnimeHelper
 {
     private readonly IAnimeRepository _repository;
     private readonly IValidator<AnimeDto> _validator;
+    private readonly IValidator<AnimeSearchParameters> _paramsValidator;
     public Dictionary<string, string> ErrorMessages { get; private set; } = new();
-    public AnimeHelper(IAnimeRepository repository, IValidator<AnimeDto> validator)
+    
+    public AnimeHelper(
+        IAnimeRepository repository,
+        IValidator<AnimeDto> validator,
+        IValidator<AnimeSearchParameters> paramsValidator)
     {
         _repository = repository;
         _validator = validator;
+        _paramsValidator = paramsValidator;
     }
     
     public async Task<AnimeDto?> GetByIdAsync(int id)
@@ -290,6 +296,14 @@ public class AnimeHelper : IAnimeHelper
         int page,
         int size = 100)
     {
+        var validationResult = await _paramsValidator.ValidateAsync(parameters);
+
+        if (!validationResult.IsValid)
+        {
+            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<AnimeSearchParameters>();
+            return null;
+        }
+        
         var result = await _repository.GetByParamsAsync(parameters, page, size);
 
         if (_repository.ErrorMessages?.Any() ?? false)

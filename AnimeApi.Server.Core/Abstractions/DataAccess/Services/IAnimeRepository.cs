@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using AnimeApi.Server.Core.Objects;
-using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Core.Abstractions.DataAccess.Services;
@@ -135,19 +134,7 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime that match the conditions set by the parameters.</returns>
     Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page, int size = 100);
-
-    /// <summary>
-    /// Retrieves a collection of anime entities that match the specified filter conditions, paginated by the given page and size.
-    /// </summary>
-    /// <param name="page">The page number to retrieve. Must be greater than 0.</param>
-    /// <param name="size">The number of items per page. Defaults to 100.</param>
-    /// <param name="filters">A collection of filter expressions to apply to the query. Can be null for no filters.</param>
-    /// <returns>A collection of anime entities that match the filter conditions for the specified page and size.</returns>
-    Task<PaginatedResult<Anime>> GetByConditionAsync(
-        int page,
-        int size = 100,
-        IEnumerable<Expression<Func<Anime, bool>>>? filters = null);
-
+    
     /// <summary>
     /// Retrieves the first anime entity that satisfies the specified condition.
     /// </summary>

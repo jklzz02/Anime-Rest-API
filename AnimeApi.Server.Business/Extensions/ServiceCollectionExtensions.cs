@@ -3,6 +3,7 @@ using AnimeApi.Server.Business.Services.Helpers;
 using AnimeApi.Server.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
+using AnimeApi.Server.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
 using AnimeApi.Server.Core.Objects.Dto;
 using FluentValidation;
@@ -20,6 +21,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient<IValidator<AnimeDto>, AnimeValidator>();
         services.AddTransient<IValidator<ReviewDto>, ReviewValidator>();
+        services.AddTransient<IValidator<AnimeSearchParameters>, AnimeSearchParametersValidator>();
         services.AddTransient<IValidator<FavouriteDto>, FavouriteValidator>();
         services.AddTransient<IBaseValidator<GenreDto>, BaseValidator<GenreDto>>();
         services.AddTransient<IBaseValidator<SourceDto>, BaseValidator<SourceDto>>();

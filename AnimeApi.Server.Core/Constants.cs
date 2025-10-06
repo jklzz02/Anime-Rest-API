@@ -93,4 +93,22 @@ public static class Constants
         public const string Unrated = "";
     }
 
+    public static class OrderBy
+    {
+        public static class Fields
+        {
+            public const string Id = "id";
+            public const string Name = "title";
+            public const string ReleaseYear = "year";
+            public const string ReleaseDate = "release_date";
+            public const string Score = "score";
+        }
+
+        public static class Directions
+        {
+            public const string Ascending = "asc";
+            public const string Descending = "desc";
+        }
+    }
+
 }

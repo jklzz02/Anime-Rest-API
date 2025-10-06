@@ -84,7 +84,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByParametersAsync(
         [FromQuery] AnimeSearchParameters parameters,
-        int page,
+        int page = 1,
         int size = Constants.Pagination.MaxPageSize)
     {
         var result = await _helper

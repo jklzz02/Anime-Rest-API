@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Core.Objects
 {
@@ -90,5 +91,13 @@ namespace AnimeApi.Server.Core.Objects
 
         [FromQuery(Name = "include_adult_content")]
         public bool IncludeAdultContext { get; set; }
+
+        [JsonProperty("order_by")]
+        [FromQuery(Name = "order_by")]
+        public string? OrderBy { get; set; } = string.Empty;
+        
+        [JsonProperty("sort_order")]
+        [FromQuery(Name = "sort_order")]
+        public string? SortOrder { get; set; } = Constants.OrderBy.Directions.Descending;
     }
 }
