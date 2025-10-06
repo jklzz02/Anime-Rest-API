@@ -23,7 +23,7 @@ namespace AnimeApi.Server.Core.Objects
         [FromQuery(Name = "producer")]
         public string? ProducerName { get; set; } = null;
 
-        [FromQuery(Name = "licensorNames")]
+        [FromQuery(Name = "licensor_names")]
         public IEnumerable<string>? ProducerNames { get; set; } = null;
 
         [FromQuery(Name = "licensor_id")]
@@ -61,6 +61,9 @@ namespace AnimeApi.Server.Core.Objects
 
         [FromQuery(Name = "type")]
         public string? Type { get; set; } = null;
+        
+        [FromQuery(Name = "studio")]
+        public string? Studio { get; set; } = null;
 
         [FromQuery(Name = "english_title")]
         public string? EnglishName { get; set; } = null;

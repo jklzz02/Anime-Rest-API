@@ -662,6 +662,9 @@ public class AnimeRepository : IAnimeRepository
 
         if (!string.IsNullOrWhiteSpace(parameters.ProducerName))
             filters.Add(a => a.Anime_Producers.Any(p => p.Producer.Name.Contains(parameters.ProducerName)));
+        
+        if (!string.IsNullOrWhiteSpace(parameters.Studio))
+            filters.Add(a => a.Studio == parameters.Studio);
 
         if (parameters.ProducerNames?.Any() ?? false)
         {
