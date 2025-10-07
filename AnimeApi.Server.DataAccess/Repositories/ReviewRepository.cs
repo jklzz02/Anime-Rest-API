@@ -113,10 +113,25 @@ public class ReviewRepository : IReviewRepository
         var entity = await GetByIdAsync(review.Id);
         var animeIds = await _context.Anime.Select(a => a.Id).ToListAsync();
         var userIds = await _context.Users.Select(u => u.Id).ToListAsync();
+
+        if (!animeIds.Contains(review.Anime_Id))
+        {
+            errors.Add(Error.Validation("anime", $"There's no anime with id {review.Anime_Id}"));
+        }
+
+        if (!userIds.Contains(review.User_Id))
+        {
+            errors.Add(Error.Validation("user", $"There's no user with id {review.User_Id}"));
+        }
         
         if (entity is not null)
         {
             errors.Add(Error.Validation("id", $"Cannot add another review with id '{review.Id}'"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Review>.Failure(errors);
         }
         
         entity!.Content = review.Content;
