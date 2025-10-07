@@ -6,6 +6,10 @@ public sealed class PaginatedResult<T> where T : class
 {
     [JsonIgnore]
     public List<Error> Errors { get; } = [];
+    
+    [JsonIgnore]
+    public List<Error> ValidationErrors => 
+        Errors.Where(e => e.IsValidation).ToList();
 
     [JsonIgnore]
     public bool Success

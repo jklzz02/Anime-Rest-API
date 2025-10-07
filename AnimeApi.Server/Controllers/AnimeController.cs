@@ -1,5 +1,6 @@
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -45,9 +46,9 @@ public class AnimeController : ControllerBase
                      _helper.GetAllNonAdultAsync(page, size), 
                  Constants.Cache.MinCachedItemSize);
          
-        if (result is null)
+        if (!result.Success)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
         
         if (!result.HasItems) 
@@ -90,9 +91,9 @@ public class AnimeController : ControllerBase
         var result = await _helper
             .SearchAsync(parameters, page, size);
         
-        if (result is null)
+        if (!result.Success)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
         
         if (!result.HasItems) 
@@ -115,9 +116,9 @@ public class AnimeController : ControllerBase
                 $"anime-year-{year}-page-{page}-size{size}",
                 () => _helper.GetByReleaseYearAsync(year, page, size));
         
-        if (result is null)
+        if (!result.Success)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
 
         if (!result.HasItems) 
@@ -140,9 +141,9 @@ public class AnimeController : ControllerBase
                 $"anime-episodes-{episodes}-page{page}-size{size}",
                 () => _helper.GetByEpisodesAsync(episodes, page, size));
         
-        if (result is null)
+        if (!result.Success)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
 
         if (!result.HasItems) 
@@ -164,28 +165,25 @@ public class AnimeController : ControllerBase
                 $"anime-title-{title}-page-{page}-size{size}",
                 () => _helper.GetByNameAsync(title, page, size));
         
-        if (result is null)
+        if (!result.Success)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+        }
+
+        if (!result.HasItems)
+        {
+            return NotFound();
         }
         
-        if (!result.HasItems) return NotFound();
         return Ok(result);
     }
 
     [HttpGet]
     [Route("summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetSummariesAsync([FromQuery] int count)
     {
         var result = await _helper.GetSummariesAsync(count);
-        
-        if (_helper.ErrorMessages.Any())
-        {
-            return BadRequest(_helper.ErrorMessages);
-        }
-        
         return Ok(result);
     }
 
@@ -215,16 +213,9 @@ public class AnimeController : ControllerBase
     [HttpGet]
     [Route("recent")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetRecentAsync([FromQuery]int count)
     {
         var result = await _helper.GetMostRecentAsync(count);
-        
-        if (_helper.ErrorMessages.Any())
-        {
-            return BadRequest(_helper.ErrorMessages);
-        }
-        
         return Ok(result);
     }
 
@@ -237,9 +228,9 @@ public class AnimeController : ControllerBase
     {
         var result = await _helper.CreateAsync(anime);
         
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         };
 
         return Ok(result);
@@ -269,9 +260,9 @@ public class AnimeController : ControllerBase
         
         var result = await _helper.UpdateAsync(anime);
         
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
 
         return Ok(result);
@@ -286,9 +277,9 @@ public class AnimeController : ControllerBase
     {
         var result = await _helper.UpdateAsync(anime);
         
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
 
         return Ok(result);

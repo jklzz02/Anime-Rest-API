@@ -149,7 +149,7 @@ public class AnimeRepository : IAnimeRepository
                 entity.TypeId,
                 entity.SourceId ?? 0);
 
-        if (!foreignKeysErros.Any())
+        if (foreignKeysErros.Any())
         {
             return Result<Anime>.Failure(foreignKeysErros);
         }
@@ -202,7 +202,7 @@ public class AnimeRepository : IAnimeRepository
 
         if (!result)
         {
-            return null;
+            return Result<Anime>.InternalFailure("update", "something went wrong during entity update.");
         }
         
         _context.ChangeTracker.Clear();
@@ -676,7 +676,7 @@ public class AnimeRepository : IAnimeRepository
 
     private IEnumerable<Expression<Func<Anime, bool>>> BuildFilters(AnimeSearchParameters parameters)
     {
-                var filters = new List<Expression<Func<Anime, bool>>>();
+        var filters = new List<Expression<Func<Anime, bool>>>();
 
         if (!string.IsNullOrWhiteSpace(parameters.Query))
         {

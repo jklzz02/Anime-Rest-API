@@ -3,6 +3,7 @@ using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 
@@ -12,7 +13,6 @@ public class LicensorHelper : ILicensorHelper
 {
     private readonly ILicensorRepository _repository;
     private readonly IBaseValidator<LicensorDto> _validator;
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     public LicensorHelper(ILicensorRepository repository, IBaseValidator<LicensorDto> validator)
     {
         _repository = repository;
@@ -36,7 +36,7 @@ public class LicensorHelper : ILicensorHelper
         return models.MapTo<LicensorDto>();
     }
 
-    public async Task<LicensorDto?> CreateAsync(LicensorDto entity)
+    public async Task<Result<LicensorDto>> CreateAsync(LicensorDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
@@ -50,43 +50,51 @@ public class LicensorHelper : ILicensorHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<LicensorDto>();
-            return null;
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<LicensorDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
+
+            return Result<LicensorDto>.Failure(errors);
         }
         
         var model = entity.MapTo<Licensor>();
         var result = await _repository.AddAsync(model);
 
-        if (result is null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;
+            return Result<LicensorDto>.Failure(result.Errors);
         }
         
-        return model.MapTo<LicensorDto>();
+        var data = result.Data.MapTo<LicensorDto>();
+        return Result<LicensorDto>.Success(data);
     }
 
-    public async Task<LicensorDto?> UpdateAsync(LicensorDto entity)
+    public async Task<Result<LicensorDto>> UpdateAsync(LicensorDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<LicensorDto>();
-            return null;
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<LicensorDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
+            
+            return Result<LicensorDto>.Failure(errors);
         }
         
         var model = entity.MapTo<Licensor>();
         var result = await _repository.UpdateAsync(model);
 
-        if (result is null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;
+            return Result<LicensorDto>.Failure(result.Errors);
         }
         
-        return model.MapTo<LicensorDto>();
+        var data = result.Data.MapTo<LicensorDto>();
+        return Result<LicensorDto>.Success(data);
     }
 
     public async Task<bool> DeleteAsync(int id)

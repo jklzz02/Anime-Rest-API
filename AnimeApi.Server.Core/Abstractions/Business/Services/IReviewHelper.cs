@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 
 namespace AnimeApi.Server.Core.Abstractions.Business.Services;
@@ -7,12 +8,6 @@ namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 /// </summary>
 public interface IReviewHelper
 {
-    /// <summary>
-    /// Provides a dictionary containing error messages associated with various
-    /// operations or validations related to review management.
-    /// </summary>
-    public Dictionary<string, string> ErrorMessages { get; }
-
     /// <summary>
     /// Retrieves a <see cref="ReviewDto"/> by its unique identifier.
     /// </summary>
@@ -74,14 +69,14 @@ public interface IReviewHelper
     /// </summary>
     /// <param name="entity">The <see cref="ReviewDto"/> object to create.</param>
     /// <return>A task that represents the asynchronous operation. The task result contains the created <see cref="ReviewDto"/> if successful, or null if the creation fails.</return>
-    Task<ReviewDto?> CreateAsync(ReviewDto entity);
+    Task<Result<ReviewDto>> CreateAsync(ReviewDto entity);
 
     /// <summary>
     /// Updates an existing <see cref="ReviewDto"/> in the system.
     /// </summary>
     /// <param name="entity">The <see cref="ReviewDto"/> containing the updated information.</param>
     /// <return>A task that represents the asynchronous operation. The task result contains the updated <see cref="ReviewDto"/> if the update was successful, or null if not.</return>
-    Task<ReviewDto?> UpdateAsync(ReviewDto entity);
+    Task<Result<ReviewDto>> UpdateAsync(ReviewDto entity);
 
     /// <summary>
     /// Deletes a <see cref="ReviewDto"/> by its unique identifier.

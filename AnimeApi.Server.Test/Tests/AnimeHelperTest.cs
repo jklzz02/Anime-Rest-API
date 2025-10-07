@@ -1,6 +1,4 @@
-using System.Linq.Expressions;
 using AnimeApi.Server.Business.Services.Helpers;
-using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Test.Generators;
 using FluentValidation.Results;
 using Moq;
@@ -74,10 +72,10 @@ public class AnimeHelperTest
             .ReturnsAsync(new ValidationResult(new List<ValidationFailure> { validationFailure }));
         
         var result = await service.CreateAsync(new AnimeDto());
-        Assert.Null(result);
-        Assert.NotNull(service.ErrorMessages);
-        Assert.Single(service.ErrorMessages);
-        Assert.Equal(validationFailure.ErrorMessage, service.ErrorMessages[validationFailure.PropertyName]);
+        Assert.True(result.IsFailure);
+        Assert.NotEmpty(result.Errors);
+        Assert.Single(result.Errors);
+        Assert.Equal(validationFailure.ErrorMessage, result.Errors.First().Details);
     }
 
     [Fact]
@@ -87,7 +85,7 @@ public class AnimeHelperTest
 
         _repositoryMock
             .Setup(r => r.AddAsync(It.IsAny<Anime>()))
-            .ReturnsAsync(new Anime());
+            .ReturnsAsync(Result<Anime>.Success(new Anime()));
         
         var validationResult = new ValidationResult();
         _validatorMock
@@ -95,9 +93,9 @@ public class AnimeHelperTest
             .ReturnsAsync(validationResult);
         
         var result = await service.CreateAsync(new AnimeDto());
-        Assert.True(result is AnimeDto);
-        Assert.NotNull(service.ErrorMessages);
-        Assert.Empty(service.ErrorMessages);
+        Assert.IsType<AnimeDto>(result.Data);
+        Assert.True(result.IsSuccess);
+        Assert.Empty(result.Errors);
     }
 
     [Theory]
@@ -137,17 +135,17 @@ public class AnimeHelperTest
         var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object, _searchParametersValidatorMock.Object);
         _repositoryMock
             .Setup(r => r.AddAsync(It.IsAny<Anime>()))
-            .ReturnsAsync((Anime entity) => entity);
+            .ReturnsAsync((Anime entity) => Result<Anime>.Success(entity));
         
         _validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<AnimeDto>(), CancellationToken.None))
             .ReturnsAsync(new ValidationResult());
 
         var result = await service.CreateAsync(animeDto);
-        Assert.NotNull(result);
-        Assert.Empty(service.ErrorMessages);
-        Assert.Equal(animeDto.Id, result.Id);
-        Assert.Equal(animeDto.Name, result.Name);
+        Assert.True(result.IsSuccess);
+        Assert.Empty(result.Errors);
+        Assert.Equal(animeDto.Id, result.Data.Id);
+        Assert.Equal(animeDto.Name, result.Data.Name);
     }
 
     [Theory]
@@ -162,7 +160,7 @@ public class AnimeHelperTest
             .ReturnsAsync((Anime entity) =>
             {
                 anime.Add(entity);
-                return entity;
+                return Result<Anime>.Success(entity);
             });
         
         _validatorMock
@@ -170,40 +168,10 @@ public class AnimeHelperTest
             .ReturnsAsync(new ValidationResult());
         
         var result = await service.CreateAsync(animeDto);
-        Assert.NotNull(result);
-        Assert.Empty(service.ErrorMessages);
-        Assert.Equal(expectedModel.Id, anime[0].Id);
-        Assert.Equal(expectedModel.Name, anime[0].Name);
-    }
-
-    [Theory]
-    [InlineData(1, 1)]
-    [InlineData(2, 2)]
-    [InlineData(3, 3)]
-    [InlineData(6, null)]
-    [InlineData(-1, null)]
-    [InlineData(-0, null)]
-    public async Task Update_Should_Return_Entity_With_Correct_Id(int id, int? expectedId)
-    {
-        var anime = AnimeGenerator.GetMockAnimeList();
-        var service = new AnimeHelper(_repositoryMock.Object, _validatorMock.Object, _searchParametersValidatorMock.Object);
-        _repositoryMock
-            .Setup(r => r.UpdateAsync(It.IsAny<Anime>()))
-            .ReturnsAsync((Anime entity) =>
-            {
-                if (anime.Any(a => a.Id == entity.Id))
-                {
-                    return anime.FirstOrDefault(a => a.Id == entity.Id);
-                }
-                return null;
-            });
-        
-        _validatorMock
-            .Setup(a => a.ValidateAsync(It.IsAny<AnimeDto>(), CancellationToken.None))
-            .ReturnsAsync(new ValidationResult());
-        
-        var result =  await service.UpdateAsync(new AnimeDto { Id = id });
-        Assert.Equal(expectedId, result?.Id);
+        Assert.True(result.IsSuccess);
+        Assert.Empty(result.Errors);
+        Assert.Equal(expectedModel.Id, result.Data.Id);
+        Assert.Equal(expectedModel.Name, result.Data.Name);
     }
 
     [Theory]

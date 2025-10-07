@@ -3,6 +3,7 @@ using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using Type = AnimeApi.Server.Core.Objects.Models.Type;
 
@@ -12,7 +13,6 @@ public class TypeHelper : ITypeHelper
 {
     private readonly ITypeRepository _repository;
     private readonly IBaseValidator<TypeDto> _validator;
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
 
     public TypeHelper(ITypeRepository repository, IBaseValidator<TypeDto> validator)
     {
@@ -38,7 +38,7 @@ public class TypeHelper : ITypeHelper
         return models.MapTo<TypeDto>();
     }
 
-    public async Task<TypeDto?> CreateAsync(TypeDto entity)
+    public async Task<Result<TypeDto>> CreateAsync(TypeDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
@@ -53,43 +53,51 @@ public class TypeHelper : ITypeHelper
 
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<TypeDto>();
-            return null;
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<TypeDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
+            
+            return Result<TypeDto>.Failure(errors);
         }
         
         var model = entity.MapTo<Type>();
         var result = await _repository.AddAsync(model);
 
-        if (result == null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;
+            return Result<TypeDto>.Failure(result.Errors);
         }
         
-        return result.MapTo<TypeDto>();
+        var data = result.Data.MapTo<TypeDto>();
+        return Result<TypeDto>.Success(data);
     }
 
-    public async Task<TypeDto?> UpdateAsync(TypeDto entity)
+    public async Task<Result<TypeDto>> UpdateAsync(TypeDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<TypeDto>();
-            return null;
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<TypeDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
+            
+            return Result<TypeDto>.Failure(errors);
         }
 
         var model = entity.MapTo<Type>();
         var result = await _repository.UpdateAsync(model);
         
-        if(result is null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;
+            return Result<TypeDto>.Failure(result.Errors);
         }
         
-        return result.MapTo<TypeDto>();
+        var data = result.Data.MapTo<TypeDto>();
+        return Result<TypeDto>.Success(data);
     }
 
     public async Task<bool> DeleteAsync(int id)
