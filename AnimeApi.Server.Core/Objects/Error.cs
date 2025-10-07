@@ -27,14 +27,15 @@ public record Error
 
         if (IsValidation)
         {
-            sb.Append("Validation Error: ");
+            sb.Append("Validation ");
         }
-        else if (IsInternal)
+        
+        if (IsInternal)
         {
-            sb.Append("Internal Error: ");
+            sb.Append("Internal ");
         }
 
-        sb.Append($"{Message}\n Details: {Details}");
+        sb.Append($"Error: {Message}\n Details: {Details}");
         return sb.ToString();
     }
 
