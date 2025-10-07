@@ -17,7 +17,6 @@ public class ReviewRepository : IReviewRepository
     /// Initializes a new instance of the <see cref="ReviewRepository"/> class.
     /// </summary>
     /// <param name="context">The database context used for accessing review data.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="context"/> is null.</exception>
     public ReviewRepository(AnimeDbContext context)
     {
         _context = context;
