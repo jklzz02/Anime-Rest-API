@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Core.Abstractions.DataAccess.Services;
@@ -7,13 +8,6 @@ namespace AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 /// </summary>
 public interface IReviewRepository
 {
-    /// <summary>
-    /// A dictionary containing error messages associated with specific error keys.
-    /// This property serves as a centralized storage for predefined error messages
-    /// that may be used across the repository implementation for consistency and reusability.
-    /// </summary>
-    Dictionary<string, string> ErrorMessages { get; }
-
     /// <summary>
     /// Asynchronously retrieves a <see cref="Review"/> by its unique identifier.
     /// </summary>
@@ -75,14 +69,14 @@ public interface IReviewRepository
     /// </summary>
     /// <param name="review">The <see cref="Review"/> instance to be created.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the created <see cref="Review"/> if the operation is successful; otherwise, null.</returns>
-    Task<Review?> CreateAsync(Review review);
+    Task<Result<Review>> CreateAsync(Review review);
 
     /// <summary>
     /// Asynchronously updates an existing <see cref="Review"/> in the data store.
     /// </summary>
     /// <param name="review">The <see cref="Review"/> object containing updated information to be saved.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the updated <see cref="Review"/> if successful; otherwise, null.</returns>
-    Task<Review?> UpdateAsync(Review review);
+    Task<Result<Review>> UpdateAsync(Review review);
 
     /// <summary>
     /// Asynchronously deletes a <see cref="Review"/> by its unique identifier.

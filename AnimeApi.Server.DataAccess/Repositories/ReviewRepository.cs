@@ -1,9 +1,10 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.Services.Repositories;
+namespace AnimeApi.Server.DataAccess.Repositories;
 
 /// <summary>
 /// Responsible for providing data operations related to <see cref="Review"/> entities.
@@ -11,9 +12,6 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class ReviewRepository : IReviewRepository
 {
     private readonly AnimeDbContext _context;
-
-    /// <inheritdoc />
-    public Dictionary<string, string> ErrorMessages { get; } = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ReviewRepository"/> class.
@@ -107,9 +105,10 @@ public class ReviewRepository : IReviewRepository
     }
 
     /// <inheritdoc />
-    public async Task<Review?> CreateAsync(Review review)
+    public async Task<Result<Review>> CreateAsync(Review review)
     {
         ArgumentNullException.ThrowIfNull(review, nameof(review));
+        List<Error> errors = [];
 
         var entity = await GetByIdAsync(review.Id);
         var animeIds = await _context.Anime.Select(a => a.Id).ToListAsync();
@@ -117,55 +116,46 @@ public class ReviewRepository : IReviewRepository
         
         if (entity is not null)
         {
-            ErrorMessages.Add("id", $"Cannot add another review with id '{review.Id}'");
-        }
-        
-        if (!userIds.Contains(review.User_Id))
-        {
-            ErrorMessages.Add("userId", $"Cannot add review with user id '{review.User_Id}'");
-        }
-        
-        if (!animeIds.Contains(review.Anime_Id))
-        {
-            ErrorMessages.Add("animeId", $"Cannot add review with anime id '{review.Anime_Id}'");
-        }
-
-        if (ErrorMessages.Any())
-        {
-            return null;
-        }
-        
-        var reviewEntity = _context.Reviews.Add(review);
-        await _context.SaveChangesAsync();
-        return await GetByIdAsync(reviewEntity.Entity.Id);
-    }
-    
-    /// <inheritdoc />
-    public async Task<Review?> UpdateAsync(Review review)
-    {
-        ArgumentNullException.ThrowIfNull(review, nameof(review));
-
-        var entity = await GetByIdAsync(review.Id);
-        
-        if (string.IsNullOrWhiteSpace(review.Content))
-        {
-            ErrorMessages.Add("content", "Content cannot be empty");
-        }
-
-        if (entity is null)
-        {
-            ErrorMessages.Add("id", $"there's no review with id {review.Id}");
-        }
-
-        if (ErrorMessages.Any())
-        {
-            return null;
+            errors.Add(Error.Validation("id", $"Cannot add another review with id '{review.Id}'"));
         }
         
         entity!.Content = review.Content;
         _context.Entry(review).State = EntityState.Modified;
         await _context.SaveChangesAsync();
-        return review;
+        return Result<Review>.Success(review);
+    }
+    
+    /// <inheritdoc />
+    public async Task<Result<Review>> UpdateAsync(Review review)
+    {
+        ArgumentNullException.ThrowIfNull(review, nameof(review));
+        List<Error> errors = [];
+
+        var entity = await GetByIdAsync(review.Id);
+        
+        if (string.IsNullOrWhiteSpace(review.Content))
+        {
+            errors.Add(Error.Validation("content", "Content cannot be empty"));
+        }
+
+        if (entity is null)
+        {
+            errors.Add(Error.Validation("id", $"there's no review with id {review.Id}"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Review>.Failure(errors);
+        }
+        
+        entity!.Content = review.Content;
+        _context.Entry(review).State = EntityState.Modified;
+        var result = await _context.SaveChangesAsync() > 0;
+
+        if (!result)
+            return Result<Review>.InternalFailure("update", "something went wrong during entity update.");
+        
+        return Result<Review>.Success(review);
     }
 
     /// <inheritdoc />
@@ -174,7 +164,6 @@ public class ReviewRepository : IReviewRepository
         var entity = await GetByIdAsync(id);
         if (entity is null)
         {
-            ErrorMessages.Add("id", $"there's no review with id {id}");
             return false;
         }
         _context.Reviews.Remove(entity);

@@ -1,14 +1,15 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.Services.Repositories;
+namespace AnimeApi.Server.DataAccess.Repositories;
 
 public class ProducerRepository : IProducerRepository
 {
     private readonly AnimeDbContext _context;
-    public Dictionary<string, string> ErrorMessages { get; } = new();
+    
     public ProducerRepository(AnimeDbContext context)
     {
         _context = context;
@@ -54,48 +55,63 @@ public class ProducerRepository : IProducerRepository
             .ToListAsync();
     }
 
-    public async Task<Producer?> AddAsync(Producer entity)
+    public async Task<Result<Producer>> AddAsync(Producer entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        List<Error> errors = [];
         
         var producer = await GetByIdAsync(entity.Id);
         if (producer is not null)
         {
-            ErrorMessages.Add("id", $"Cannot add another producer with id '{entity.Id}'");
-            return null;
+            errors.Add(Error.Validation("id", $"Cannot add another producer with id '{entity.Id}'"));
         }
 
         if (_context.Producers.Any(p => p.Name == entity.Name))
         {
-            ErrorMessages.Add("name", $"Cannot add another producer with name {entity.Name}");
-            return null;
+            errors.Add(Error.Validation("name", $"Cannot add another producer with name {entity.Name}"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Producer>.Failure(errors);
         }
         
-        var createdEntry = _context.Producers.Add(entity);
+        var createdEntry = await _context.Producers.AddAsync(entity);
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? createdEntry.Entity : null;
+        if (!result)
+            return Result<Producer>.InternalFailure("create", "something went wrong during entity creation.");
+        
+        return Result<Producer>.Success(createdEntry.Entity);
     }
 
-    public async Task<Producer?> UpdateAsync(Producer entity)
+    public async Task<Result<Producer>> UpdateAsync(Producer entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        List<Error> errors = [];
         
         var producer = await GetByIdAsync(entity.Id);
         if (producer is null)
         {
-            ErrorMessages.Add("id", $"There is no producer with id '{entity.Id}'");
-            return null;
+            errors.Add(Error.Validation("id", $"There is no producer with id '{entity.Id}'"));
         }
 
         if (_context.Producers.Any(p => p.Name == entity.Name && p.Id != entity.Id))
         {
-            ErrorMessages.Add("name", $"There is already a producer with name {entity.Name}");
-            return null;
+            errors.Add(Error.Validation("name", $"There is already a producer with name {entity.Name}"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Producer>.Failure(errors);
         }
         
         producer.Name = entity.Name;
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? await GetByIdAsync(entity.Id) : null;
+        
+        if (!result)
+            return Result<Producer>.InternalFailure("update", "something went wrong during entity update.");
+        
+        return Result<Producer>.Success(producer);
     }
 
     public async Task<bool> DeleteAsync(int id)

@@ -1,15 +1,14 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.Services.Repositories;
+namespace AnimeApi.Server.DataAccess.Repositories;
 
 public class GenreRepository : IGenreRepository
 {
     private readonly AnimeDbContext _context;
-    public Dictionary<string, string> ErrorMessages { get; } = new();
-    
     public GenreRepository(AnimeDbContext context)
     {
         _context = context;
@@ -56,47 +55,63 @@ public class GenreRepository : IGenreRepository
             .ToListAsync();
     }
 
-    public async Task<Genre?> AddAsync(Genre entity)
+    public async Task<Result<Genre>> AddAsync(Genre entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
-        
+        List<Error> errors = [];
+
         var genre = await GetByIdAsync(entity.Id);
         if (genre is not null)
         {
-            ErrorMessages.Add("id", $"Cannot add another anime genre with id '{entity.Id}'");
-            return null;
+            errors.Add(Error.Validation("id", $"Cannot add another anime genre with id '{entity.Id}'"));
         }
         if (_context.Genres.Any(g => g.Name == entity.Name))
         {
-            ErrorMessages.Add("name", $"Cannot add another anime genre with name '{entity.Name}'");
-            return null;
+            errors.Add(Error.Validation("name", $"Cannot add another anime genre with name '{entity.Name}'"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Genre>.Failure(errors);
         }
         
         var createdEntry = await _context.Genres.AddAsync(entity);
         var result =  await _context.SaveChangesAsync() > 0;
-        return result ? createdEntry.Entity : null;
+        if (!result) 
+            return Result<Genre>.InternalFailure("create", "something went wrong during entity creation.");
+        
+        return Result<Genre>.Success(createdEntry.Entity);
     }
 
-    public async Task<Genre?> UpdateAsync(Genre entity)
+    public async Task<Result<Genre>> UpdateAsync(Genre entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        
+        List<Error> errors = [];
         
         var genre = await GetByIdAsync(entity.Id);
         if (genre is null)
         {
-            ErrorMessages.Add("id", $"There is no genre with id '{entity.Id}'");
-            return null;
+            errors.Add(Error.Validation("id", $"There is no anime genre with id '{entity.Id}'"));
         }
 
         if (_context.Genres.Any(g => g.Name == entity.Name && g.Id != entity.Id))
         {
-            ErrorMessages.Add("name", $"There is already a genre with name {entity.Name}");
-            return null;
+            errors.Add(Error.Validation("name", $"There is already a anime genre with name '{entity.Name}'"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Genre>.Failure(errors);
         }
         
         genre.Name = entity.Name;
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? await GetByIdAsync(genre.Id) : null;
+        
+        if (!result)
+            return Result<Genre>.InternalFailure("update", "something went wrong during entity update.");
+        
+        return Result<Genre>.Success(genre);
     }
 
     public async Task<bool> DeleteAsync(int id)
