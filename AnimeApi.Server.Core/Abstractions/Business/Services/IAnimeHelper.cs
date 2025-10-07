@@ -7,7 +7,6 @@ namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 
 public interface IAnimeHelper
 {
-    Dictionary<string, string> ErrorMessages { get; }
     Task<AnimeDto?> GetByIdAsync(int id);
     Task<IEnumerable<AnimeDto>> GetAllAsync();
     Task<PaginatedResult<AnimeDto>?> GetAllAsync(int page, int size = 100);

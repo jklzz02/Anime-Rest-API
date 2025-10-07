@@ -47,13 +47,10 @@ public sealed class Result<T>
     {
         return new (data, errors);
     }
-    
-    public static Result<T> Failure(ErrorType errorType, string error, string details)
-     => new (errors: [ new Error(errorType, error, details)]);
 
     public static Result<T> InternalFailure(string error, string details)
-        => Failure(ErrorType.Internal, error, details);
+        => Failure(Error.Internal(error, details));
 
     public static Result<T> ValidationFailure(string error, string details)
-        => Failure(ErrorType.Validation, error, details);
+        => Failure(Error.Validation(error, details));
 }
