@@ -25,6 +25,9 @@ public static class Constants
         public const string ClientPolicy = "allow-client";
     }
 
+    /// <summary>
+    /// Contains constants related to pagination settings used throughout the application.
+    /// </summary>
     public static class Pagination
     {
         public const int MaxPageSize = 100;
@@ -93,8 +96,14 @@ public static class Constants
         public const string Unrated = "";
     }
 
+    /// <summary>
+    /// Contains constants used for specifying sorting options in queries.
+    /// </summary>
     public static class OrderBy
     {
+        /// <summary>
+        /// Constants representing the fields by which data can be ordered.
+        /// </summary>
         public static class Fields
         {
             public const string Id = "id";
@@ -104,6 +113,9 @@ public static class Constants
             public const string Score = "score";
         }
 
+        /// <summary>
+        /// Constants representing the direction of sorting.
+        /// </summary>
         public static class Directions
         {
             public const string Ascending = "asc";

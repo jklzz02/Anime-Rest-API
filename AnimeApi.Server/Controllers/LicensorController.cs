@@ -1,5 +1,6 @@
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -64,9 +65,9 @@ public class LicensorController : ControllerBase
     {
         var result = await _helper.CreateAsync(licensor);
 
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
 
         return Ok(result);
@@ -86,9 +87,9 @@ public class LicensorController : ControllerBase
         
         var result = await _helper.UpdateAsync(licensor);
 
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
         
         return Ok(result);

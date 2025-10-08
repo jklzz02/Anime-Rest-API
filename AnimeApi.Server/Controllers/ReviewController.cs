@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
@@ -177,9 +178,9 @@ public class ReviewController : ControllerBase
         }
 
         var result = await _reviewHelper.CreateAsync(review);
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_reviewHelper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
 
         return Ok(result);
@@ -213,9 +214,9 @@ public class ReviewController : ControllerBase
         }
 
         var result = await _reviewHelper.UpdateAsync(review);
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_reviewHelper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
 
         return Ok(result);
@@ -262,9 +263,9 @@ public class ReviewController : ControllerBase
         }
         
         var result = await _reviewHelper.UpdateAsync(review);
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_reviewHelper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
         
         return Ok(result);
@@ -307,7 +308,7 @@ public class ReviewController : ControllerBase
         var result = await _reviewHelper.DeleteAsync(id);
         if (!result)
         {
-            return BadRequest(_reviewHelper.ErrorMessages);
+            return BadRequest();
         }
 
         return Ok();

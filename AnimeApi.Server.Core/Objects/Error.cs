@@ -9,7 +9,7 @@ public record Error
     
     public string Details { get; }
     
-    public Error(ErrorType type, string message, string details)
+    private Error(ErrorType type, string message, string details)
     {
         Type = type;
         Message = message;
@@ -41,6 +41,12 @@ public record Error
 
     public override int GetHashCode()
         => HashCode.Combine(Type, Message, Details);
+
+    public static Error Validation(string message, string details)
+        => new(ErrorType.Validation, message, details);
+    
+    public static Error Internal(string message, string details)
+        => new(ErrorType.Internal, message, details);
 }
 
 public enum ErrorType

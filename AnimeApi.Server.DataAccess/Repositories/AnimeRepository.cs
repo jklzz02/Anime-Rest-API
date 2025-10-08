@@ -22,7 +22,6 @@ namespace AnimeApi.Server.DataAccess.Repositories;
 public class AnimeRepository : IAnimeRepository
 {
     private readonly AnimeDbContext _context;
-    public Dictionary<string, string> ErrorMessages { get; } = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AnimeRepository"/> class.
@@ -60,9 +59,11 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<PaginatedResult<Anime>> GetAllAsync(int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         var count = await _context.Anime.CountAsync();
@@ -86,9 +87,11 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<PaginatedResult<Anime>> GetAllNonAdultAsync(int page, int size)
     {
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         var query = _context.Anime
@@ -128,27 +131,27 @@ public class AnimeRepository : IAnimeRepository
     }
 
     /// <inheritdoc />
-    public async Task<Anime?> AddAsync(Anime entity)
+    public async Task<Result<Anime>> AddAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
         var anime = await GetByIdAsync(entity.Id);
         if (anime is not null)
         {
-            ErrorMessages.Add("id", $"Cannot add another anime with id '{entity.Id}'");
-            return null;
+            return Result<Anime>.ValidationFailure("id", $"Cannot add another anime with id '{entity.Id}'");
         }
 
-        var areForeignKeysValid = await ValidateForeignKeysAsync(
-            entity.Anime_Genres,
-            entity.Anime_Producers,
-            entity.Anime_Licensors,
-            entity.TypeId,
-            entity.SourceId ?? 0);
+        var foreignKeysErros = await 
+            ValidateForeignKeysAsync(
+                entity.Anime_Genres,
+                entity.Anime_Producers,
+                entity.Anime_Licensors,
+                entity.TypeId,
+                entity.SourceId ?? 0);
 
-        if (!areForeignKeysValid)
+        if (foreignKeysErros.Any())
         {
-            return null;
+            return Result<Anime>.Failure(foreignKeysErros);
         }
 
         _context.Anime.Add(entity);
@@ -156,35 +159,38 @@ public class AnimeRepository : IAnimeRepository
 
         if (!result)
         {
-            return null;
+            return Result<Anime>.InternalFailure("create", "something went wrong during entity creation.");
         }
         
         _context.ChangeTracker.Clear();
-        return await GetByIdAsync(entity.Id);
+        var refreshedEntity = await 
+            GetByIdAsync(entity.Id);
+
+        return Result<Anime>.Success(refreshedEntity!);
     }
 
     /// <inheritdoc />
-    public async Task<Anime?> UpdateAsync(Anime entity)
+    public async Task<Result<Anime>> UpdateAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
         var anime = await GetByIdAsync(entity.Id, true);
         if (anime is null)
         {
-            ErrorMessages.Add("id", $"There is no anime with id {entity.Id}");
-            return null;
+            return Result<Anime>.InternalFailure("update", $"there's no anime with id '{entity.Id}'.");
         }
 
-        var areForeignKeysValid = await ValidateForeignKeysAsync(
-            entity.Anime_Genres,
-            entity.Anime_Producers,
-            entity.Anime_Licensors,
-            entity.TypeId,
-            entity.SourceId ?? 0);
+        var foreignKeysErros = await
+            ValidateForeignKeysAsync(
+                entity.Anime_Genres,
+                entity.Anime_Producers,
+                entity.Anime_Licensors,
+                entity.TypeId,
+                entity.SourceId ?? 0);
 
-        if (!areForeignKeysValid)
+        if (!foreignKeysErros.Any())
         {
-            return null;
+            return Result<Anime>.Failure(foreignKeysErros);
         }
 
         UpdateAnime(anime, entity);
@@ -196,11 +202,14 @@ public class AnimeRepository : IAnimeRepository
 
         if (!result)
         {
-            return null;
+            return Result<Anime>.InternalFailure("update", "something went wrong during entity update.");
         }
         
         _context.ChangeTracker.Clear();
-        return await GetByIdAsync(entity.Id);
+        var refreshedEntity = await 
+            GetByIdAsync(entity.Id);
+
+        return Result<Anime>.Success(refreshedEntity!);
     }
 
     /// <inheritdoc />
@@ -219,9 +228,11 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(name, nameof(name));
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
 
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(
@@ -236,9 +247,11 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(englishName, nameof(englishName));
         ArgumentException.ThrowIfNullOrEmpty(englishName, nameof(englishName));
 
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(
@@ -252,10 +265,11 @@ public class AnimeRepository : IAnimeRepository
     {
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         ArgumentException.ThrowIfNullOrEmpty(source, nameof(source));
+        var paginationErros = ValidatePageAndSize(page, size);
 
-        if (!ValidatePageAndSize(page, size))
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(
@@ -270,9 +284,11 @@ public class AnimeRepository : IAnimeRepository
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         ArgumentException.ThrowIfNullOrEmpty(type, nameof(type));
 
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(
@@ -284,9 +300,11 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<PaginatedResult<Anime>> GetByScoreAsync(int score, int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(page, size, [a => a.Score == score]);
@@ -295,9 +313,11 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<PaginatedResult<Anime>> GetByLicensorAsync(int licensorId, int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(
@@ -309,9 +329,11 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<PaginatedResult<Anime>> GetByProducerAsync(int producerId, int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(
@@ -323,9 +345,11 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<PaginatedResult<Anime>> GetByGenreAsync(int genreId, int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(
@@ -337,9 +361,11 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<PaginatedResult<Anime>> GetByReleaseYearAsync(int year, int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(page, size, [a => a.Release_Year == year]);
@@ -348,9 +374,12 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<PaginatedResult<Anime>> GetByEpisodesAsync(int episodes, int page, int size = 100)
     {
-        if (!ValidatePageAndSize(page, size))
+
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         return await GetByConditionAsync(page, size, [a => a.Episodes == episodes]);
@@ -359,6 +388,11 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetMostRecentAsync(int count)
     {
+        if (count <= 0)
+        {
+           return [];
+        }
+
         return await _context.Anime
             .AsNoTracking()
             .AsSplitQuery()
@@ -403,9 +437,11 @@ public class AnimeRepository : IAnimeRepository
         bool desc = true
         )
     {
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+        
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
 
         var query = _context.Anime
@@ -464,9 +500,11 @@ public class AnimeRepository : IAnimeRepository
     public async Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page,
         int size = 100)
     {
-        if (!ValidatePageAndSize(page, size))
+        var paginationErros = ValidatePageAndSize(page, size);
+
+        if (paginationErros.Any())
         {
-            return new PaginatedResult<Anime>(new List<Anime>(), page, size);
+            return new PaginatedResult<Anime>(paginationErros);
         }
         
         var filters = BuildFilters(parameters);
@@ -483,7 +521,7 @@ public class AnimeRepository : IAnimeRepository
     {
         if (count <= 0)
         {
-            throw new ArgumentException($"{nameof(count)} must be greater than 0");
+            return [];
         }
 
         var entities = await _context.Anime
@@ -527,33 +565,37 @@ public class AnimeRepository : IAnimeRepository
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    private bool ValidatePageAndSize(int page, int size)
+    private List<Error> ValidatePageAndSize(int page, int size)
     {
+        List<Error> errors = [];
+
         if (page <= 0)
         {
-            ErrorMessages.Add("page", "must be greater than 0");
+            errors.Add(Error.Validation("page", "must be greater than 0."));
         }
 
         if (size < Constants.Pagination.MinPageSize)
         {
-            ErrorMessages.Add("page", $"must be greater than or equal to {Constants.Pagination.MinPageSize}");
+            errors.Add(Error.Validation("size", $"must be at least {Constants.Pagination.MinPageSize}."));
         }
 
         if (size > Constants.Pagination.MaxPageSize)
         {
-            ErrorMessages.Add("page", $"must be less than or equal to {Constants.Pagination.MaxPageSize}");
+            errors.Add(Error.Validation("size", $"cannot be greater than {Constants.Pagination.MaxPageSize}."));
         }
 
-        return !ErrorMessages.Any();
+        return errors;
     }
 
-    private async Task<bool> ValidateForeignKeysAsync(
+    private async Task<List<Error>> ValidateForeignKeysAsync(
         ICollection<AnimeGenre> genres,
         ICollection<AnimeProducer> producers,
         ICollection<AnimeLicensor> licensors,
         int typeId,
         int sourceId)
     {
+        List<Error> Errors = new();
+
         var genresIds = genres.Select(ag => ag.GenreId).ToList();
         var producersIds = producers.Select(ap => ap.ProducerId).ToList();
         var licensorsIds = licensors.Select(al => al.LicensorId).ToList();
@@ -585,32 +627,32 @@ public class AnimeRepository : IAnimeRepository
 
         if (!genresIds.All(g => genresExistingIds.Contains(g)))
         {
-            ErrorMessages.Add("genres", "on or more genre entities ids do not exist.");
+            Errors.Add(Error.Validation("genres", "on or more genre entities ids do not exist."));
         }
 
 
         if (!licensorsIds.All(l => licensorsExistingIds.Contains(l)))
         {
-            ErrorMessages.Add("licensors", "one or more licensor entities ids do not exist.");
+            Errors.Add(Error.Validation("licensors", "one or more licensor entities ids do not exist."));
         }
 
 
         if (!producersIds.All(g => producersExistingIds.Contains(g)))
         {
-            ErrorMessages.Add("producers", "one or more producer entities ids do not exist.");
+            Errors.Add(Error.Validation("producers", "one or more producer entities ids do not exist."));
         }
 
         if (!typesExistingIds.Contains(typeId))
         {
-            ErrorMessages.Add("types", $"there's no anime type with id {typeId}");
+            Errors.Add(Error.Validation("types", $"there's no anime type with id {typeId}"));
         }
 
         if (!sourcesExistingIds.Contains(sourceId))
         {
-            ErrorMessages.Add("sources", $"there's no anime source with id {sourceId}");
+            Errors.Add(Error.Validation("sources", $"there's no anime source with id {sourceId}"));
         }
 
-        return !ErrorMessages.Any();
+        return Errors;
     }
 
     private Expression<Func<Anime, object>> OrderByClause(AnimeSearchParameters parameters)
@@ -634,7 +676,7 @@ public class AnimeRepository : IAnimeRepository
 
     private IEnumerable<Expression<Func<Anime, bool>>> BuildFilters(AnimeSearchParameters parameters)
     {
-                var filters = new List<Expression<Func<Anime, bool>>>();
+        var filters = new List<Expression<Func<Anime, bool>>>();
 
         if (!string.IsNullOrWhiteSpace(parameters.Query))
         {

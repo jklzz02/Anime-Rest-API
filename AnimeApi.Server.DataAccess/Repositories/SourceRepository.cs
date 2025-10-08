@@ -1,14 +1,14 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.Services.Repositories;
+namespace AnimeApi.Server.DataAccess.Repositories;
 
 public class SourceRepository : ISourceRepository
 {
     private readonly AnimeDbContext _context;
-    public Dictionary<string, string> ErrorMessages { get; } = new();
 
     public SourceRepository(AnimeDbContext context)
     {
@@ -41,46 +41,63 @@ public class SourceRepository : ISourceRepository
             .ToListAsync();
     }
 
-    public async Task<Source?> AddAsync(Source entity)
+    public async Task<Result<Source>> AddAsync(Source entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
-        
+        List<Error> errors = [];
+
         var type = await GetByIdAsync(entity.Id);
         if (type != null)
         {
-            ErrorMessages.Add("id", $"Cannot add another source with id '{entity.Id}'");
-            return null;
+            errors.Add(Error.Validation("id", $"Cannot add another source with id '{entity.Id}'"));
         }
 
         if (_context.Sources.Any(s => s.Name == entity.Name))
         {
-            ErrorMessages.Add("name", $"Cannot add another source with name '{entity.Name}'");
-            return null;
+            errors.Add(Error.Validation("name", $"Cannot add another source with name '{entity.Name}'"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Source>.Failure(errors);
         }
         
-        var createdEntry = _context.Sources.Add(entity);
+        var createdEntry = await _context.Sources.AddAsync(entity);
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? createdEntry.Entity : null;
+        if (!result)
+            return Result<Source>.InternalFailure("create", "something went wrong during entity creation.");
+        
+        return Result<Source>.Success(createdEntry.Entity);
     }
 
-    public async Task<Source?> UpdateAsync(Source entity)
+    public async Task<Result<Source>> UpdateAsync(Source entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        List<Error> errors = [];
         
         var source = await GetByIdAsync(entity.Id);
         if (source is null)
         {
-            ErrorMessages.Add("id", $"There is no anime source with id '{entity.Id}'");
-            return null;
+            errors.Add(Error.Validation("id", $"There is no anime source with id '{entity.Id}'"));
         }
+        
         if (_context.Sources.Any(s => s.Name == entity.Name && s.Id != entity.Id))
         {
-            return null;
+            errors.Add(Error.Validation("name", $"There is already a source with name '{entity.Name}'"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Source>.Failure(errors);
         }
 
         source.Name = entity.Name;
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? await GetByIdAsync(source.Id) : null;
+        
+        if (!result)
+            return Result<Source>.InternalFailure("update", "something went wrong during entity update.");
+        
+        return Result<Source>.Success(source);
     }
 
     public async Task<bool> DeleteAsync(int id)

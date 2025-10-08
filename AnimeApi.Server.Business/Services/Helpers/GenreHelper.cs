@@ -3,6 +3,7 @@ using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 
@@ -12,7 +13,6 @@ public class GenreHelper : IGenreHelper
 {
     private readonly IGenreRepository _repository;
     private readonly IBaseValidator<GenreDto> _validator;
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     public GenreHelper(IGenreRepository repository, IBaseValidator<GenreDto> validator)
     {
         _repository = repository;
@@ -39,7 +39,7 @@ public class GenreHelper : IGenreHelper
         return models.MapTo<GenreDto>();
     }
 
-    public async Task<GenreDto?> CreateAsync(GenreDto entity)
+    public async Task<Result<GenreDto>> CreateAsync(GenreDto entity)
     {
       
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
@@ -54,43 +54,51 @@ public class GenreHelper : IGenreHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<GenreDto>();
-            return null;
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<GenreDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
+            
+            return Result<GenreDto>.Failure(errors);
         }
 
         var model = entity.MapTo<Genre>();
         var result = await _repository.AddAsync(model);
         
-        if(result is null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;    
+            return Result<GenreDto>.Failure(result.Errors);
         }
         
-        return result?.MapTo<GenreDto>();
+        var data = result.Data.MapTo<GenreDto>();
+        return Result<GenreDto>.Success(data);
     }
 
-    public async Task<GenreDto?> UpdateAsync(GenreDto entity)
+    public async Task<Result<GenreDto>> UpdateAsync(GenreDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<GenreDto>();
-            return null;
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<GenreDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
+            
+            return Result<GenreDto>.Failure(errors);
         }
 
         var model = entity.MapTo<Genre>();
         var result = await _repository.UpdateAsync(model);
         
-        if(result is null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;
+            return Result<GenreDto>.Failure(result.Errors);
         }
         
-        return result.MapTo<GenreDto>();
+        var data = result.Data.MapTo<GenreDto>();
+        return Result<GenreDto>.Success(data);
     }
 
     public async Task<bool> DeleteAsync(int id)

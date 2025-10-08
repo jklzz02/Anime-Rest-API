@@ -1,3 +1,5 @@
+using AnimeApi.Server.Core.Objects;
+
 namespace AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 
 /// <summary>
@@ -7,13 +9,6 @@ namespace AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 /// <typeparam name="TModel">The model type of the entity that the repository manages.</typeparam>
 public interface IRepository<TModel> where TModel : class
 {
-    /// <summary>
-    /// A property containing a collection of error messages. Each key-value pair represents
-    /// an error description, where the key indicates the error name or type and the value
-    /// provides a detailed message about the error.
-    /// </summary>
-    Dictionary<string, string> ErrorMessages { get; }
-
     /// <summary>
     /// Asynchronously retrieves an entity of the specified type by its unique identifier.
     /// </summary>
@@ -38,7 +33,7 @@ public interface IRepository<TModel> where TModel : class
     /// <returns>
     /// Returns the added entity of type <typeparamref name="TModel"/> if the operation succeeds; otherwise, null.
     /// </returns>
-    Task<TModel?> AddAsync(TModel entity);
+    Task<Result<TModel>> AddAsync(TModel entity);
 
     /// <summary>
     /// Asynchronously updates an existing entity of the specified type with new data.
@@ -47,7 +42,7 @@ public interface IRepository<TModel> where TModel : class
     /// <returns>
     /// Returns the updated entity of type <typeparamref name="TModel"/> if the operation is successful; otherwise, null.
     /// </returns>
-    Task<TModel?> UpdateAsync(TModel entity);
+    Task<Result<TModel>> UpdateAsync(TModel entity);
 
     /// <summary>
     /// Asynchronously deletes an entity of the specified type by its unique identifier.

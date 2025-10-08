@@ -3,6 +3,7 @@ using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 
@@ -12,8 +13,6 @@ public class SourceHelper : ISourceHelper
 {
     private readonly ISourceRepository _repository;
     private readonly IBaseValidator<SourceDto> _validator;
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
-    
     public SourceHelper(ISourceRepository repository, IBaseValidator<SourceDto> validator)
     {
         _repository = repository;
@@ -38,7 +37,7 @@ public class SourceHelper : ISourceHelper
         return models.MapTo<SourceDto>();
     }
 
-    public async Task<SourceDto?> CreateAsync(SourceDto entity)
+    public async Task<Result<SourceDto>> CreateAsync(SourceDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
         var ids = await _repository.GetExistingIdsAsync();
@@ -51,43 +50,51 @@ public class SourceHelper : ISourceHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-           ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<SourceDto>();
-           return null;
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<SourceDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
+            
+            return Result<SourceDto>.Failure(errors);
         }
         
         var model = entity.MapTo<Source>();
         var result = await _repository.AddAsync(model);
 
-        if (result == null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;
+            return Result<SourceDto>.Failure(result.Errors);
         }
         
-        return result.MapTo<SourceDto>();
+        var data = result.Data.MapTo<SourceDto>();
+        return Result<SourceDto>.Success(data);
     }
 
-    public async Task<SourceDto?> UpdateAsync(SourceDto entity)
+    public async Task<Result<SourceDto>> UpdateAsync(SourceDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<SourceDto>();
-            return null;
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<SourceDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
+            
+            return Result<SourceDto>.Failure(errors);
         }
 
         var model = entity.MapTo<Source>();
         var result = await _repository.UpdateAsync(model);
         
-        if(result is null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;
+            return Result<SourceDto>.Failure(result.Errors);
         }
         
-        return result.MapTo<SourceDto>();
+        var data = result.Data.MapTo<SourceDto>();
+        return Result<SourceDto>.Success(data);
     }
 
     public async Task<bool> DeleteAsync(int id)

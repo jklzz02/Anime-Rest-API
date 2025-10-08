@@ -3,7 +3,7 @@ using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.Services.Repositories;
+namespace AnimeApi.Server.DataAccess.Repositories;
 
 public class UserRepository : IUserRepository
 {

@@ -1,4 +1,5 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,6 @@ namespace AnimeApi.Server.DataAccess.Services.Repositories;
 public class LicensorRepository : ILicensorRepository
 {
     private readonly AnimeDbContext _context;
-    public Dictionary<string, string> ErrorMessages { get; } = new();
     public LicensorRepository(AnimeDbContext context)
     {
         _context = context;
@@ -54,47 +54,66 @@ public class LicensorRepository : ILicensorRepository
             .ToListAsync();
     }
 
-    public async Task<Licensor?> AddAsync(Licensor entity)
+    public async Task<Result<Licensor>> AddAsync(Licensor entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
-    
+
+        List<Error> errors = [];
+        
         var licensor = await GetByIdAsync(entity.Id);
         if (licensor is not null)
         {
-            ErrorMessages.Add("id", $"Cannot add another licensor with id '{entity.Id}'");
-            return null;
+            errors.Add(Error.Validation("id", $"Cannot add another licensor with id '{entity.Id}'"));
         }
 
         if (_context.Licensors.Any(l => l.Name == entity.Name))
         {
-            ErrorMessages.Add("name", $"Cannot add another licensor with name '{entity.Name}'");
-            return null;
+            errors.Add(Error.Validation("name", $"Cannot add another licensor with name '{entity.Name}'"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Licensor>.Failure(errors);       
         }
         
         var createdEntry = _context.Licensors.Add(entity);
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? createdEntry.Entity : null;
+        
+        if (!result)
+            return Result<Licensor>.InternalFailure("create", "something went wrong during entity creation.");
+        
+        return Result<Licensor>.Success(createdEntry.Entity);
     }
 
-    public async Task<Licensor?> UpdateAsync(Licensor entity)
+    public async Task<Result<Licensor>> UpdateAsync(Licensor entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        
+        List<Error> errors = [];
         
         var licensor = await GetByIdAsync(entity.Id);
         if (licensor is null)
         {
-            ErrorMessages.Add("id", $"There is no licensor with id '{entity.Id}'");
-            return null;
+            errors.Add(Error.Validation("id", $"There is no licensor with id '{entity.Id}'"));
         }
+        
         if (_context.Licensors.Any(l => l.Name == entity.Name && l.Id != entity.Id))
         {
-            ErrorMessages.Add("name", $"There is already a licensor with name '{entity.Name}'");
-            return null;
+            errors.Add(Error.Validation("name", $"There is already a licensor with name '{entity.Name}'"));
+        }
+
+        if (errors.Any())
+        {
+            return Result<Licensor>.Failure(errors);
         }
 
         licensor.Name = entity.Name;
         var result = await _context.SaveChangesAsync() > 0;
-        return result ? await GetByIdAsync(licensor.Id) : null;
+        
+        if (!result)
+            return Result<Licensor>.InternalFailure("update", "something went wrong during entity update.");
+        
+        return Result<Licensor>.Success(licensor);
     }
 
     public async Task<bool> DeleteAsync(int id)

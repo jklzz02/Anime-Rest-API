@@ -11,6 +11,12 @@ public sealed class Result<T>
     
     public bool IsFailure
         => !IsSuccess;
+    
+    public List<Error> InternalErrors
+        => Errors.Where(e => e.IsInternal).ToList();
+    
+    public List<Error> ValidationErrors
+        => Errors.Where(e => e.IsValidation).ToList();
 
     private Result(T data)
         : this(data, [])
@@ -47,13 +53,10 @@ public sealed class Result<T>
     {
         return new (data, errors);
     }
-    
-    public static Result<T> Failure(ErrorType errorType, string error, string details)
-     => new (errors: [ new Error(errorType, error, details)]);
 
     public static Result<T> InternalFailure(string error, string details)
-        => Failure(ErrorType.Internal, error, details);
+        => Failure(Error.Internal(error, details));
 
     public static Result<T> ValidationFailure(string error, string details)
-        => Failure(ErrorType.Validation, error, details);
+        => Failure(Error.Validation(error, details));
 }

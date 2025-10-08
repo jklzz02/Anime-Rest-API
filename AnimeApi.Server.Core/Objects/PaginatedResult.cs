@@ -4,6 +4,17 @@ namespace AnimeApi.Server.Core.Objects;
 
 public sealed class PaginatedResult<T> where T : class
 {
+    [JsonIgnore]
+    public List<Error> Errors { get; } = [];
+    
+    [JsonIgnore]
+    public List<Error> ValidationErrors => 
+        Errors.Where(e => e.IsValidation).ToList();
+
+    [JsonIgnore]
+    public bool Success
+        => !Errors.Any();
+
     [JsonProperty("page")]
     public int Page { get; }
    
@@ -31,6 +42,24 @@ public sealed class PaginatedResult<T> where T : class
     [JsonProperty("data")]
     public IEnumerable<T> Items { get; }
     
+    public PaginatedResult(Error error)
+    {
+        Errors.Add(error);
+        Items = [];
+        Page = 1;
+        TotalItems = 0;
+        PageSize = 0;
+    }
+
+    public PaginatedResult(List<Error> errors)
+    {
+        Errors = errors;
+        Items = [];
+        Page = 1;
+        TotalItems = 0;
+        PageSize = 0;
+    }
+
     public PaginatedResult(IEnumerable<T> items, int page, int size)
     {
         Items = items;

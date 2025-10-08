@@ -1,5 +1,6 @@
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -62,9 +63,9 @@ public class ProducerController : ControllerBase
     {
         var result = await _helper.CreateAsync(producer);
         
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
         
         return Ok(result);
@@ -84,9 +85,9 @@ public class ProducerController : ControllerBase
         
         var result = await _helper.UpdateAsync(producer);
         
-        if (result is null)
+        if (result.IsFailure)
         {
-            return BadRequest(_helper.ErrorMessages);
+            return BadRequest(result.ValidationErrors.TokeyValuePairs());
         }
         
         return Ok(result);

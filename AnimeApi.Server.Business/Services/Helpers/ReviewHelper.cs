@@ -3,6 +3,7 @@ using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using FluentValidation;
 
@@ -16,9 +17,6 @@ public class ReviewHelper : IReviewHelper
 {
     private readonly IReviewRepository _repository;
     private readonly IValidator<ReviewDto> _validator;
-    
-    /// <inheritdoc />
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
     
     /// <summary>
     /// Initializes a new instance of the <see cref="ReviewHelper"/> class.
@@ -92,55 +90,59 @@ public class ReviewHelper : IReviewHelper
     }
 
     /// <inheritdoc />
-    public async Task<ReviewDto?> CreateAsync(ReviewDto entity)
+    public async Task<Result<ReviewDto>> CreateAsync(ReviewDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors
-                .ToJsonKeyedErrors<ReviewDto>();
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<ReviewDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
             
-            return null;
+            return Result<ReviewDto>.Failure(errors);
         }
         
-        var createdEntity = await _repository
+        var result = await _repository
             .CreateAsync(entity.ToModel());
 
-        if (createdEntity is null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;
+            return Result<ReviewDto>.Failure(result.Errors);
         }
         
-        return createdEntity.ToDto();
+        var data = result.Data.ToDto();
+        return Result<ReviewDto>.Success(data);
     }
 
     /// <inheritdoc />
-    public async Task<ReviewDto?> UpdateAsync(ReviewDto entity)
+    public async Task<Result<ReviewDto>> UpdateAsync(ReviewDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors
-                .ToJsonKeyedErrors<ReviewDto>();
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<ReviewDto>()
+                .Select(pair => Error.Validation(pair.Key, pair.Value))
+                .ToList();
             
-            return null;
+            return Result<ReviewDto>.Failure(errors);
         }
         
-        var updatedEntity = await _repository
+        var result = await _repository
             .UpdateAsync(entity.ToModel());
         
-        if (updatedEntity is null)
+        if (result.IsFailure)
         {
-            ErrorMessages = _repository.ErrorMessages;
-            return null;
+            return Result<ReviewDto>.Failure(result.Errors);
         }
         
-        return updatedEntity.ToDto();
+        var data = result.Data.ToDto();
+        return Result<ReviewDto>.Success(data);
     }
 
     /// <inheritdoc />
