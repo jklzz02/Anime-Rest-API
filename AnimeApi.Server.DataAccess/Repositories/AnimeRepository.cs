@@ -649,6 +649,7 @@ public class AnimeRepository : IAnimeRepository
             .WithProducers(parameters.ProducerId, parameters.ProducerName, parameters.ProducerNames)
             .WithLicensors(parameters.LicensorId, parameters.LicensorName, parameters.LicensorNames)
             .WithStatus(parameters.Status)
+            .WithStudio(parameters.Studio)
             .ExcludeAdultContent(!parameters.IncludeAdultContext)
             .WithScoreRange(parameters.MinScore, parameters.MaxScore)
             .WithYearRange(parameters.MinReleaseYear, parameters.MaxReleaseYear)
