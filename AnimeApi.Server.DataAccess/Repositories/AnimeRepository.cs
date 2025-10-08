@@ -301,7 +301,7 @@ public class AnimeRepository : IAnimeRepository
                 entity.TypeId,
                 entity.SourceId ?? 0);
 
-        if (!foreignKeysErros.Any())
+        if (foreignKeysErros.Any())
         {
             return Result<Anime>.Failure(foreignKeysErros);
         }
@@ -412,7 +412,7 @@ public class AnimeRepository : IAnimeRepository
 
         if (!genresIds.All(g => genresExistingIds.Contains(g)))
         {
-            Errors.Add(Error.Validation("genres", "on or more genre entities ids do not exist."));
+            Errors.Add(Error.Validation("genres", "one or more genre entities ids do not exist."));
         }
 
 

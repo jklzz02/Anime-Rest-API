@@ -48,7 +48,7 @@ public class AnimeController : ControllerBase
          
         if (!result.Success)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
         if (!result.HasItems) 
@@ -93,7 +93,7 @@ public class AnimeController : ControllerBase
         
         if (!result.Success)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
         if (!result.HasItems) 
@@ -156,7 +156,7 @@ public class AnimeController : ControllerBase
         
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         };
 
         return Ok(result);
@@ -188,7 +188,7 @@ public class AnimeController : ControllerBase
         
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
 
         return Ok(result);
@@ -205,7 +205,7 @@ public class AnimeController : ControllerBase
         
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
 
         return Ok(result);

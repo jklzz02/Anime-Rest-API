@@ -180,7 +180,7 @@ public class ReviewController : ControllerBase
         var result = await _reviewHelper.CreateAsync(review);
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
 
         return Ok(result);
@@ -216,7 +216,7 @@ public class ReviewController : ControllerBase
         var result = await _reviewHelper.UpdateAsync(review);
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
 
         return Ok(result);
@@ -265,7 +265,7 @@ public class ReviewController : ControllerBase
         var result = await _reviewHelper.UpdateAsync(review);
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
         return Ok(result);

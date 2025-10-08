@@ -14,7 +14,7 @@ public static class ErrorExtensions
         return string.Join(" | ", errors.Select(e => e.ToSingleLineString()));
     }
 
-    public static Dictionary<string, string> TokeyValuePairs(this IEnumerable<Error> errors)
+    public static Dictionary<string, string> ToKeyValuePairs(this IEnumerable<Error> errors)
     {
         return errors.ToDictionary(e => e.Message, e => e.Details);
     }

@@ -70,7 +70,7 @@ public class TypeController : ControllerBase
         
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
         return Ok(result);
@@ -87,7 +87,7 @@ public class TypeController : ControllerBase
         
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
         return Ok(result);

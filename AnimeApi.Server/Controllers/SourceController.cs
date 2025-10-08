@@ -65,7 +65,7 @@ public class SourceController : Controller
         
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
         return Ok(result);
@@ -82,7 +82,7 @@ public class SourceController : Controller
 
         if (result.IsFailure)
         {
-            return BadRequest(result.ValidationErrors.TokeyValuePairs());
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
         return Ok(result);
