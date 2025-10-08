@@ -6,8 +6,8 @@ using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
-using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using AnimeApi.Server.DataAccess.Repositories.QueryHelpers;
 
 namespace AnimeApi.Server.DataAccess.Repositories;
 
@@ -41,19 +41,13 @@ public class AnimeRepository : IAnimeRepository
     /// <inheritdoc />
     public async Task<IEnumerable<Anime>> GetAllAsync()
     {
-        return await _context.Anime
+        var query = new AnimeQuery(_context.Anime)
+            .IncludeFullRelation()
             .AsNoTracking()
             .AsSplitQuery()
-            .Include(a => a.Anime_Genres)
-            .Include(a => a.Anime_Producers)
-            .Include(a => a.Anime_Licensors)
-            .Include(a => a.Type)
-            .Include(a => a.Source)
-            .Include(a => a.Favourites)
-            .Include(a => a.Reviews)
-            .OrderBy(a => a.Score)
-            .ThenByDescending(a => a.Release_Year)
-            .ToListAsync();
+            .ApplySorting(a => a.Id);
+        
+        return await query.Build().ToListAsync();
     }
 
     /// <inheritdoc />
@@ -444,57 +438,33 @@ public class AnimeRepository : IAnimeRepository
             return new PaginatedResult<Anime>(paginationErrors);
         }
 
-        var query = _context.Anime
-            .AsExpandableEFCore();
+        var query = new AnimeQuery(_context.Anime)
+            .IncludeFullRelation()
+            .AsExpandable()
+            .AsSplitQuery()
+            .AsNoTracking();
 
         if (filters is not null)
         {
-            query = filters
-                .Aggregate(query, (current, filter) => current.Where(filter));
+           query.ApplyFilters(filters);
         }
 
         if (orderBy is not null)
         {
-            query = desc
-                ? query.OrderByDescending(orderBy)
-                : query.OrderBy(orderBy);
+          query.ApplySorting(orderBy, desc);
         }
         else
         {
-            query = query.OrderByDescending(a => a.Id);
+          query.ApplySorting(a => a.Score, true);
         }
 
-        var ids = await query
-            .AsSplitQuery()
-            .AsNoTracking()
-            .Select(a => a.Id)
-            .ToListAsync();
+        query.ApplyPagination(page, size);
 
-        var paginatedIds = ids
-            .Skip((page - 1) * size)
-            .Take(size);
+        var resultQuery = query.Build();
+        var entities = await 
+            resultQuery.ToListAsync();
 
-        var entities = await _context.Anime
-            .AsSplitQuery()
-            .AsNoTracking()
-            .Include(a => a.Anime_Genres)
-            .Include(a => a.Anime_Producers)
-            .Include(a => a.Anime_Licensors)
-            .Include(a => a.Type)
-            .Include(a => a.Source)
-            .Include(a => a.Favourites)
-            .Include(a => a.Reviews)
-            .Where(a => paginatedIds.Contains(a.Id))
-            .ToListAsync();
-
-        if (orderBy is not null)
-        {
-            entities = desc 
-                ? entities.OrderByDescending(a => orderBy.Compile()(a)).ToList() 
-                : entities.OrderBy(a => orderBy.Compile()(a)).ToList();
-        }
-
-        return new PaginatedResult<Anime>(entities, page, size, await query.CountAsync());
+        return new PaginatedResult<Anime>(entities, page, size, await resultQuery.CountAsync());
     }
 
     public async Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page,
@@ -543,26 +513,17 @@ public class AnimeRepository : IAnimeRepository
 
     private async Task<Anime?> GetByIdAsync(int id, bool trackEntity)
     {
-        var query = _context.Anime
-            .AsSplitQuery();
+        var query = new AnimeQuery(_context.Anime)
+            .IncludeFullRelation()
+            .AsSplitQuery()
+            .ApplyFilter(a => a.Id == id);
 
         if (!trackEntity)
         {
             query = query.AsNoTracking();
         }
 
-        return await query
-            .Include(a => a.Anime_Genres)
-            .ThenInclude(ag => ag.Genre)
-            .Include(a => a.Anime_Producers)
-            .ThenInclude(ap => ap.Producer)
-            .Include(a => a.Anime_Licensors)
-            .ThenInclude(al => al.Licensor) 
-            .Include(a => a.Type)
-            .Include(a => a.Source)
-            .Include(a => a.Favourites)
-            .Include(a => a.Reviews)
-            .FirstOrDefaultAsync(a => a.Id == id);
+        return await query.Build().FirstOrDefaultAsync();
     }
 
     private List<Error> ValidatePageAndSize(int page, int size)
@@ -676,107 +637,23 @@ public class AnimeRepository : IAnimeRepository
 
     private IEnumerable<Expression<Func<Anime, bool>>> BuildFilters(AnimeSearchParameters parameters)
     {
-        var filters = new List<Expression<Func<Anime, bool>>>();
+        var filters = new AnimeFilterBuilder()
+            .WithFullTextSearch(parameters.Query)
+            .WithName(parameters.Name)
+            .WithEnglishName(parameters.EnglishName)
+            .WithSource(parameters.Source)
+            .WithType(parameters.Type)
+            .WithGenres(parameters.GenreId, parameters.GenreName, parameters.GenreNames)
+            .WithProducers(parameters.ProducerId, parameters.ProducerName, parameters.ProducerNames)
+            .WithLicensors(parameters.LicensorId, parameters.LicensorName, parameters.LicensorNames)
+            .WithStatus(parameters.Status)
+            .ExcludeAdultContent(!parameters.IncludeAdultContext)
+            .WithScoreRange(parameters.MinScore, parameters.MaxScore)
+            .WithYearRange(parameters.MinReleaseYear, parameters.MaxReleaseYear)
+            .WithEpisodeRange(parameters.MinEpisodes, parameters.MaxEpisodes, parameters.Episodes)
+            .WithAirDateRange(parameters.StartDateFrom, parameters.StartDateTo, parameters.EndDateFrom, parameters.EndDateTo);
 
-        if (!string.IsNullOrWhiteSpace(parameters.Query))
-        {
-            filters.Add(a => EF.Functions.TrigramsAreSimilar(parameters.Query, a.Name) ||
-                             EF.Functions.TrigramsAreSimilar(parameters.Query, a.English_Name));
-        }
-
-        if (!string.IsNullOrWhiteSpace(parameters.Name))
-            filters.Add(a => a.Name.Contains(parameters.Name));
-
-        if (!string.IsNullOrWhiteSpace(parameters.EnglishName))
-            filters.Add(a => a.English_Name.Contains(parameters.EnglishName));
-
-        if (!string.IsNullOrWhiteSpace(parameters.Source))
-            filters.Add(a => a.Source.Name.Contains(parameters.Source));
-
-        if (!string.IsNullOrWhiteSpace(parameters.Type))
-            filters.Add(a => a.Type.Name.Contains(parameters.Type));
-        
-        if (!string.IsNullOrWhiteSpace(parameters.Status))
-            filters.Add(a => a.Status.Contains(parameters.Status));
-
-        if (parameters.ProducerId.HasValue)
-            filters.Add(a => a.Anime_Producers.Any(p => p.ProducerId == parameters.ProducerId));
-
-        if (!string.IsNullOrWhiteSpace(parameters.ProducerName))
-            filters.Add(a => a.Anime_Producers.Any(p => p.Producer.Name.Contains(parameters.ProducerName)));
-        
-        if (!string.IsNullOrWhiteSpace(parameters.Studio))
-            filters.Add(a => a.Studio == parameters.Studio);
-
-        if (parameters.ProducerNames?.Any() ?? false)
-        {
-            filters.Add(a => parameters
-                .ProducerNames.All(p => a.Anime_Producers.Any(ap => ap.Producer.Name == p)));
-        }
-
-        if (parameters.LicensorId.HasValue)
-            filters.Add(a => a.Anime_Licensors.Any(l => l.LicensorId == parameters.LicensorId));
-
-        if (!string.IsNullOrWhiteSpace(parameters.LicensorName))
-            filters.Add(a => a.Anime_Licensors.Any(l => l.Licensor.Name.Contains(parameters.LicensorName)));
-
-        if (parameters.LicensorNames?.Any() ?? false)
-        {
-            filters.Add(a => parameters
-                .LicensorNames.All(l => a.Anime_Licensors.Any(al => al.Licensor.Name == l)));
-        }
-
-        if (parameters.GenreId.HasValue)
-            filters.Add(a => a.Anime_Genres.Any(g => g.GenreId == parameters.GenreId));
-
-        if (!string.IsNullOrWhiteSpace(parameters.GenreName))
-            filters.Add(a => a.Anime_Genres.Any(g => g.Genre.Name.Contains(parameters.GenreName)));
-
-        if (parameters.GenreNames?.Any() ?? false)
-        {
-            filters.Add(a => parameters
-                .GenreNames.All(g => a.Anime_Genres.Any(ag => ag.Genre.Name == g)));
-        }
-
-        if (parameters.Episodes.HasValue)
-            filters.Add(a => a.Episodes == parameters.Episodes);
-        
-        if (parameters.MinEpisodes.HasValue)
-            filters.Add(a => a.Episodes >= parameters.MinEpisodes);
-
-        if (parameters.MaxEpisodes.HasValue)
-            filters.Add(a => a.Episodes <= parameters.MaxEpisodes);
-
-        if (parameters.MinScore.HasValue)
-            filters.Add(a => a.Score >= parameters.MinScore);
-
-        if (parameters.MaxScore.HasValue)
-            filters.Add(a => a.Score <= parameters.MaxScore);
-
-        if (parameters.MinReleaseYear.HasValue)
-            filters.Add(a => a.Release_Year >= parameters.MinReleaseYear);
-
-        if (parameters.MaxReleaseYear.HasValue)
-            filters.Add(a => a.Release_Year <= parameters.MaxReleaseYear && a.Release_Year != 0);
-        
-        if (parameters.StartDateFrom.HasValue)
-            filters.Add(a => a.Started_Airing >= parameters.StartDateFrom.Value.ToUniversalTime());
-
-        if (parameters.StartDateTo.HasValue)
-            filters.Add(a => a.Started_Airing <= parameters.StartDateTo.Value.ToUniversalTime());
-
-        if (parameters.EndDateFrom.HasValue)
-            filters.Add(a => a.Finished_Airing >= parameters.EndDateFrom.Value.ToUniversalTime());
-
-        if (parameters.EndDateTo.HasValue)
-            filters.Add(a => a.Finished_Airing <= parameters.EndDateTo.Value.ToUniversalTime());
-
-
-        if (!parameters.IncludeAdultContext)
-            filters.Add(a =>
-                !string.IsNullOrEmpty(a.Rating) && !a.Rating.ToLower().Contains(Constants.Ratings.AdultContent));
-
-        return filters;
+        return filters.Build();
     }
 
     private void UpdateAnime(Anime original, Anime updated)
