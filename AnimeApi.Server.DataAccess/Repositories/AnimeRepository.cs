@@ -42,9 +42,9 @@ public class AnimeRepository : IAnimeRepository
     public async Task<IEnumerable<Anime>> GetAllAsync()
     {
         var query = new AnimeQuery(_context.Anime)
-            .IncludeFullRelation()
             .AsNoTracking()
             .AsSplitQuery()
+            .IncludeFullRelation()
             .ApplySorting(a => a.Id);
         
         return await query.Build().ToListAsync();
@@ -62,18 +62,14 @@ public class AnimeRepository : IAnimeRepository
 
         var count = await _context.Anime.CountAsync();
 
-        var entities = await _context.Anime
+        var query = new AnimeQuery(_context.Anime)
             .AsNoTracking()
             .AsSplitQuery()
-            .Include(a => a.Anime_Genres)
-            .Include(a => a.Anime_Producers)
-            .Include(a => a.Anime_Licensors)
-            .Include(a => a.Type)
-            .Include(a => a.Source)
-            .OrderByDescending(a => a.Score)
-            .Skip((page - 1) * size)
-            .Take(size)
-            .ToListAsync();
+            .IncludeFullRelation()
+            .ApplySorting(a => a.Score, true)
+            .ApplyPagination(page, size);
+        
+        var entities = await query.Build().ToListAsync();
 
         return new PaginatedResult<Anime>(entities, page, size, count);
     }
@@ -88,28 +84,45 @@ public class AnimeRepository : IAnimeRepository
             return new PaginatedResult<Anime>(paginationErrors);
         }
 
-        var query = _context.Anime
+        var query = new AnimeQuery(_context.Anime)
             .AsNoTracking()
             .AsSplitQuery()
-            .Include(a => a.Anime_Genres)
-            .Include(a => a.Anime_Producers)
-            .Include(a => a.Anime_Licensors)
-            .Include(a => a.Type)
-            .Include(a => a.Source)
-            .Where(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.Contains(Constants.Ratings.AdultContent))
-            .OrderByDescending(a => a.Score);
+            .AsExpandable()
+            .IncludeFullRelation()
+            .ApplyFilters([
+                a => !string.IsNullOrEmpty(a.Rating),
+                a => !a.Rating.ToLower().Contains(Constants.Ratings.AdultContent),
+            ])
+            .ApplySorting(a => a.Score, true);
 
-
+        var count = await query.Build().CountAsync();
         var entities = await query
-            .Skip((page - 1) * size)
-            .Take(size)
+            .ApplyPagination(page, size)
+            .Build()
             .ToListAsync();
 
-        return new PaginatedResult<Anime>(entities, page, size, await query.CountAsync());
+        return new PaginatedResult<Anime>(entities, page, size, count);
     }
 
     public async Task<IEnumerable<Anime>> GetByIdsAsync(IEnumerable<int> ids)
     {
+        return await new AnimeQuery(_context.Anime)
+            .AsNoTracking()
+            .AsSplitQuery()
+            .IncludeFullRelation()
+            .ApplyFilter(a => ids.Contains(a.Id))
+            .Build()
+            .ToListAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<Anime>> GetMostRecentAsync(int count)
+    {
+        if (count <= 0)
+        {
+           return [];
+        }
+
         return await _context.Anime
             .AsNoTracking()
             .AsSplitQuery()
@@ -120,11 +133,117 @@ public class AnimeRepository : IAnimeRepository
             .Include(a => a.Source)
             .Include(a => a.Favourites)
             .Include(a => a.Reviews)
-            .Where(a => ids.Contains(a.Id))
+            .Where(a => a.Started_Airing != null && a.Started_Airing <= DateTime.UtcNow)
+            .Where(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.Contains(Constants.Ratings.AdultContent))
+            .OrderByDescending(a => a.Started_Airing)
+            .ThenByDescending(a => a.Score)
+            .Take(count)
             .ToListAsync();
     }
 
     /// <inheritdoc />
+    public async Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
+    {
+        return await new AnimeQuery(_context.Anime)
+            .AsNoTracking()
+            .AsSplitQuery()
+            .IncludeFullRelation()
+            .ApplyFilter(condition)
+            .Build()
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<PaginatedResult<Anime>> GetByConditionAsync(
+        int page = 1,
+        int size = 100,
+        IEnumerable<Expression<Func<Anime, bool>>>? filters = null,
+        Expression<Func<Anime, Object>>? orderBy = null,
+        bool desc = true
+        )
+    {
+        var paginationErrors = ValidatePageAndSize(page, size);
+        
+        if (paginationErrors.Any())
+        {
+            return new PaginatedResult<Anime>(paginationErrors);
+        }
+
+        var query = new AnimeQuery(_context.Anime)
+            .AsExpandable()
+            .AsSplitQuery()
+            .AsNoTracking()
+            .IncludeFullRelation();
+
+        if (filters is not null)
+        {
+           query.ApplyFilters(filters);
+        }
+
+        if (orderBy is not null)
+        {
+          query.ApplySorting(orderBy, desc);
+        }
+        else
+        {
+          query.ApplySorting(a => a.Score, true);
+        }
+
+        var count = await query.Build().CountAsync();
+        
+        query.ApplyPagination(page, size);
+
+        var resultQuery = query.Build();
+        var entities = await 
+            resultQuery.ToListAsync();
+
+        return new PaginatedResult<Anime>(entities, page, size, count);
+    }
+
+    public async Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page,
+        int size = 100)
+    {
+        var paginationErrors = ValidatePageAndSize(page, size);
+
+        if (paginationErrors.Any())
+        {
+            return new PaginatedResult<Anime>(paginationErrors);
+        }
+        
+        var filters = BuildFilters(parameters);
+        var orderBy = OrderByClause(parameters);
+
+        var desc = !(parameters.SortOrder?.EqualsIgnoreCase(Constants.OrderBy.Directions.Ascending) ?? false); 
+
+        var result = await GetByConditionAsync(page, size, filters, orderBy, desc);
+        return result;
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count)
+    {
+        if (count <= 0)
+        {
+            return [];
+        }
+
+        var entities = await _context.Anime
+            .AsNoTracking()
+            .OrderByDescending(a => a.Score)
+            .Take(count)
+            .ToListAsync();
+
+        return entities.Select(a => new AnimeSummary
+        {
+            Id = a.Id,
+            Name = a.Name,
+            ImageUrl = a.Image_URL,
+            Score = a.Score,
+            ReleaseYear = a.Release_Year,
+            Rating = a.Rating
+        });
+    }
+    
+        /// <inheritdoc />
     public async Task<Result<Anime>> AddAsync(Anime entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
@@ -214,303 +333,6 @@ public class AnimeRepository : IAnimeRepository
 
         _context.Anime.Remove(anime);
         return await _context.SaveChangesAsync() > 0;
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetByNameAsync(string name, int page, int size = 100)
-    {
-        ArgumentNullException.ThrowIfNull(name, nameof(name));
-        ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
-
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(
-            page,
-            size,
-            [a => EF.Functions.Like(a.Name, $"%{name}%")]);
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetByEnglishNameAsync(string englishName, int page, int size = 100)
-    {
-        ArgumentNullException.ThrowIfNull(englishName, nameof(englishName));
-        ArgumentException.ThrowIfNullOrEmpty(englishName, nameof(englishName));
-
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(
-            page,
-            size,
-            [a => EF.Functions.Like(a.English_Name, $"%{englishName}%")]);
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetBySourceAsync(string source, int page, int size = 100)
-    {
-        ArgumentNullException.ThrowIfNull(source, nameof(source));
-        ArgumentException.ThrowIfNullOrEmpty(source, nameof(source));
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(
-            page,
-            size,
-            [a => EF.Functions.Like(a.Source.Name, $"%{source}")]);
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetByTypeAsync(string type, int page, int size = 100)
-    {
-        ArgumentNullException.ThrowIfNull(type, nameof(type));
-        ArgumentException.ThrowIfNullOrEmpty(type, nameof(type));
-
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(
-            page,
-            size,
-            [a => EF.Functions.Like(a.Type.Name, $"%{type}")]);
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetByScoreAsync(int score, int page, int size = 100)
-    {
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(page, size, [a => a.Score == score]);
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetByLicensorAsync(int licensorId, int page, int size = 100)
-    {
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(
-            page,
-            size,
-            [a => a.Anime_Licensors.Any(al => al.LicensorId == licensorId)]);
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetByProducerAsync(int producerId, int page, int size = 100)
-    {
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(
-            page,
-            size,
-            [a => a.Anime_Producers.Any(ap => ap.ProducerId == producerId)]);
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetByGenreAsync(int genreId, int page, int size = 100)
-    {
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(
-            page,
-            size,
-            [a => a.Anime_Genres.Any(ag => ag.GenreId == genreId)]);
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetByReleaseYearAsync(int year, int page, int size = 100)
-    {
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(page, size, [a => a.Release_Year == year]);
-    }
-
-    /// <inheritdoc />
-    public async Task<PaginatedResult<Anime>> GetByEpisodesAsync(int episodes, int page, int size = 100)
-    {
-
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        return await GetByConditionAsync(page, size, [a => a.Episodes == episodes]);
-    }
-
-    /// <inheritdoc />
-    public async Task<IEnumerable<Anime>> GetMostRecentAsync(int count)
-    {
-        if (count <= 0)
-        {
-           return [];
-        }
-
-        return await _context.Anime
-            .AsNoTracking()
-            .AsSplitQuery()
-            .Include(a => a.Anime_Genres)
-            .Include(a => a.Anime_Producers)
-            .Include(a => a.Anime_Licensors)
-            .Include(a => a.Type)
-            .Include(a => a.Source)
-            .Include(a => a.Favourites)
-            .Include(a => a.Reviews)
-            .Where(a => a.Started_Airing != null && a.Started_Airing <= DateTime.UtcNow)
-            .Where(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.Contains(Constants.Ratings.AdultContent))
-            .OrderByDescending(a => a.Started_Airing)
-            .ThenByDescending(a => a.Score)
-            .Take(count)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc />
-    public async Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
-    {
-        var anime = await _context.Anime
-            .AsSplitQuery()
-            .AsNoTracking()
-            .Include(a => a.Anime_Genres)
-            .Include(a => a.Anime_Producers)
-            .Include(a => a.Anime_Licensors)
-            .Include(a => a.Type)
-            .Include(a => a.Source)
-            .Include(a => a.Favourites)
-            .Include(a => a.Reviews)
-            .FirstOrDefaultAsync(condition);
-
-        return anime;
-    }
-
-    public async Task<PaginatedResult<Anime>> GetByConditionAsync(
-        int page = 1,
-        int size = 100,
-        IEnumerable<Expression<Func<Anime, bool>>>? filters = null,
-        Expression<Func<Anime, Object>>? orderBy = null,
-        bool desc = true
-        )
-    {
-        var paginationErrors = ValidatePageAndSize(page, size);
-        
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-
-        var query = new AnimeQuery(_context.Anime)
-            .IncludeFullRelation()
-            .AsExpandable()
-            .AsSplitQuery()
-            .AsNoTracking();
-
-        if (filters is not null)
-        {
-           query.ApplyFilters(filters);
-        }
-
-        if (orderBy is not null)
-        {
-          query.ApplySorting(orderBy, desc);
-        }
-        else
-        {
-          query.ApplySorting(a => a.Score, true);
-        }
-
-        var count = await query.Build().CountAsync();
-        
-        query.ApplyPagination(page, size);
-
-        var resultQuery = query.Build();
-        var entities = await 
-            resultQuery.ToListAsync();
-
-        return new PaginatedResult<Anime>(entities, page, size, count);
-    }
-
-    public async Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page,
-        int size = 100)
-    {
-        var paginationErrors = ValidatePageAndSize(page, size);
-
-        if (paginationErrors.Any())
-        {
-            return new PaginatedResult<Anime>(paginationErrors);
-        }
-        
-        var filters = BuildFilters(parameters);
-        var orderBy = OrderByClause(parameters);
-
-        var desc = !(parameters.SortOrder?.EqualsIgnoreCase(Constants.OrderBy.Directions.Ascending) ?? false); 
-
-        var result = await GetByConditionAsync(page, size, filters, orderBy, desc);
-        return result;
-    }
-
-    /// <inheritdoc />
-    public async Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count)
-    {
-        if (count <= 0)
-        {
-            return [];
-        }
-
-        var entities = await _context.Anime
-            .AsNoTracking()
-            .OrderByDescending(a => a.Score)
-            .Take(count)
-            .ToListAsync();
-
-        return entities.Select(a => new AnimeSummary
-        {
-            Id = a.Id,
-            Name = a.Name,
-            ImageUrl = a.Image_URL,
-            Score = a.Score,
-            ReleaseYear = a.Release_Year,
-            Rating = a.Rating
-        });
     }
 
     private async Task<Anime?> GetByIdAsync(int id, bool trackEntity)
