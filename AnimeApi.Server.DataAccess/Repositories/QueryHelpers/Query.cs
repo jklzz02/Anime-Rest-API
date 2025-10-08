@@ -33,10 +33,10 @@ public class Query<TModel>
         return this;
     }
 
-    public Query<TModel> ApplySorting(Expression<Func<TModel, object>>? orderBy)
+    public Query<TModel> ApplySorting<TKey>(Expression<Func<TModel, TKey>>? orderBy)
         => ApplySorting(orderBy, false);
 
-    public Query<TModel> ApplySorting(Expression<Func<TModel, object>>? orderBy, bool desc)
+    public Query<TModel> ApplySorting<TKey>(Expression<Func<TModel, TKey>>? orderBy, bool desc)
     {
         if (orderBy != null)
         {
