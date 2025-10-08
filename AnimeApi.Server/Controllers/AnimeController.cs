@@ -125,7 +125,7 @@ public class AnimeController : ControllerBase
 
         if (!response.IsSuccessStatusCode)
         {
-            return NotFound();
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Request failed");
         }
         
         var ids = await response.Content
