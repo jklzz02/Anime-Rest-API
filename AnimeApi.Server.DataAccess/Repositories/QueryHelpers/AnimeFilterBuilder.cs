@@ -47,7 +47,7 @@ public class AnimeFilterBuilder
     public AnimeFilterBuilder WithSource(int? sourceId, string? source)
     {
         if (!string.IsNullOrWhiteSpace(source))
-            _filters.Add(a => a.Source.Name.Contains(source));
+            _filters.Add(a => a.Source.Name.ToLower().Contains(source.ToLower()));
 
         if (sourceId.HasValue)
             _filters.Add(a => a.SourceId == sourceId);
@@ -64,7 +64,7 @@ public class AnimeFilterBuilder
     public AnimeFilterBuilder WithType(int? typeId, string? type)
     {
         if (!string.IsNullOrWhiteSpace(type))
-            _filters.Add(a => a.Type.Name.Contains(type));
+            _filters.Add(a => a.Type.Name.ToLower().Contains(type.ToLower()));
 
         if (typeId.HasValue)
             _filters.Add(a => a.TypeId == typeId);
@@ -83,7 +83,7 @@ public class AnimeFilterBuilder
     public AnimeFilterBuilder WithStudio(string? studio)
     {
         if (!string.IsNullOrWhiteSpace(studio))
-            _filters.Add(a => a.Studio == studio);
+            _filters.Add(a => a.Studio.ToLower() == studio.ToLower());
         
         return this;
     }
@@ -152,10 +152,10 @@ public class AnimeFilterBuilder
             _filters.Add(a => a.Anime_Genres.Any(g => g.GenreId == genreId));
 
         if (!string.IsNullOrWhiteSpace(genreName))
-            _filters.Add(a => a.Anime_Genres.Any(g => g.Genre.Name.Contains(genreName)));
+            _filters.Add(a => a.Anime_Genres.Any(g => g.Genre.Name.ToLower().Contains(genreName.ToLower())));
 
         if (genreNames?.Any() ?? false)
-            _filters.Add(a => genreNames.All(g => a.Anime_Genres.Any(ag => ag.Genre.Name == g)));
+            _filters.Add(a => genreNames.All(g => a.Anime_Genres.Any(ag => ag.Genre.Name.ToLower() == g.ToLower())));
 
         return this;
     }
@@ -169,10 +169,10 @@ public class AnimeFilterBuilder
             _filters.Add(a => a.Anime_Producers.Any(p => p.ProducerId == producerId));
 
         if (!string.IsNullOrWhiteSpace(producerName))
-            _filters.Add(a => a.Anime_Producers.Any(p => p.Producer.Name.Contains(producerName)));
+            _filters.Add(a => a.Anime_Producers.Any(p => p.Producer.Name.ToLower().Contains(producerName.ToLower())));
 
         if (producerNames?.Any() ?? false)
-            _filters.Add(a => producerNames.All(p => a.Anime_Producers.Any(ap => ap.Producer.Name == p)));
+            _filters.Add(a => producerNames.All(p => a.Anime_Producers.Any(ap => ap.Producer.Name.ToLower() == p.ToLower())));
 
         return this;
     }
@@ -186,10 +186,10 @@ public class AnimeFilterBuilder
             _filters.Add(a => a.Anime_Licensors.Any(l => l.LicensorId == licensorId));
 
         if (!string.IsNullOrWhiteSpace(licensorName))
-            _filters.Add(a => a.Anime_Licensors.Any(l => l.Licensor.Name.Contains(licensorName)));
+            _filters.Add(a => a.Anime_Licensors.Any(l => l.Licensor.Name.ToLower().Contains(licensorName.ToLower())));
 
         if (licensorNames?.Any() ?? false)
-            _filters.Add(a => licensorNames.All(l => a.Anime_Licensors.Any(al => al.Licensor.Name == l)));
+            _filters.Add(a => licensorNames.All(l => a.Anime_Licensors.Any(al => al.Licensor.Name.ToLower() == l.ToLower())));
 
         return this;
     }

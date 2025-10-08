@@ -458,13 +458,15 @@ public class AnimeRepository : IAnimeRepository
           query.ApplySorting(a => a.Score, true);
         }
 
+        var count = await query.Build().CountAsync();
+        
         query.ApplyPagination(page, size);
 
         var resultQuery = query.Build();
         var entities = await 
             resultQuery.ToListAsync();
 
-        return new PaginatedResult<Anime>(entities, page, size, await resultQuery.CountAsync());
+        return new PaginatedResult<Anime>(entities, page, size, count);
     }
 
     public async Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page,

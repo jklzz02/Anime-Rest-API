@@ -8,10 +8,7 @@ namespace AnimeApi.Server.DataAccess.Repositories.QueryHelpers;
 public class Query<TModel>
     where TModel : class
 {
-    private IQueryable<TModel> _query;
-    private object? _lastIncludable;
-    private bool _includesApplied = false;
-
+    protected IQueryable<TModel> _query;
     public Query(IQueryable<TModel> query)
     {
         _query = query;
@@ -59,56 +56,7 @@ public class Query<TModel>
 
         return this;
     }
-
-    public Query<TModel> Include<TProperty>(Expression<Func<TModel, TProperty>> includeSelector)
-        where TProperty : class
-    {
-        var includable = _query.Include(includeSelector);
-        _query = includable;
-        _lastIncludable = includable;
-        _includesApplied = true;
-        return this;
-    }
-
-    public Query<TModel> Include<TProperty>(IEnumerable<Expression<Func<TModel, TProperty>>> includeSelectors)
-        where TProperty : class
-    {
-        foreach (var includeSelector in includeSelectors)
-        {
-            var includable = _query.Include(includeSelector);
-            _query = includable;
-            _lastIncludable = includable;
-        }
-
-        _includesApplied = true;
-        return this;
-    }
-
-    public Query<TModel> ThenInclude<TPreviousProperty, TProperty>(
-        Expression<Func<TPreviousProperty, TProperty>> thenIncludeSelector)
-        where TPreviousProperty : class
-    {
-        if (_lastIncludable is IIncludableQueryable<TModel, ICollection<TPreviousProperty>> collectionIncludable)
-        {
-            var result = collectionIncludable.ThenInclude(thenIncludeSelector);
-            _query = result;
-            _lastIncludable = result;
-        }
-        else if (_lastIncludable is IIncludableQueryable<TModel, TPreviousProperty> referenceIncludable)
-        {
-            var result = referenceIncludable.ThenInclude(thenIncludeSelector);
-            _query = result;
-            _lastIncludable = result;
-        }
-        else
-        {
-            throw new InvalidOperationException("ThenInclude must be called after Include or another ThenInclude.");
-        }
-
-        return this;
-    }
-
-
+    
     public Query<TModel> AsExpandable()
     {
         _query = _query.AsExpandableEFCore();
