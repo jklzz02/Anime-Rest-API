@@ -101,6 +101,6 @@ namespace AnimeApi.Server.Core.Objects
         
         [JsonProperty("sort_order")]
         [FromQuery(Name = "sort_order")]
-        public string? SortOrder { get; set; } = Constants.OrderBy.Directions.Descending;
+        public string? SortOrder { get; set; } = Constants.OrderBy.StringDirections.Descending;
     }
 }

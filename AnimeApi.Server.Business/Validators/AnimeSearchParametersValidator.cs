@@ -12,7 +12,7 @@ public class AnimeSearchParametersValidator : AbstractValidator<AnimeSearchParam
             .Select(f => f.GetRawConstantValue()?.ToString()!);
 
     private readonly IEnumerable<string> _validSortOrderEntries =
-        typeof(Constants.OrderBy.Directions)
+        typeof(Constants.OrderBy.StringDirections)
             .GetFields()
             .Select(f => f.GetRawConstantValue()?.ToString()!);
 

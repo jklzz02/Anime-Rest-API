@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using static AnimeApi.Server.Core.Constants;
 
 namespace AnimeApi.Server.DataAccess.Repositories.QueryHelpers;
 
@@ -33,16 +34,22 @@ public class Query<TModel, TDerived>
         return (TDerived) this;
     }
 
-    public TDerived ApplySorting<TKey>(Expression<Func<TModel, TKey>>? orderBy)
-        => ApplySorting(orderBy, false);
-
-    public TDerived ApplySorting<TKey>(Expression<Func<TModel, TKey>>? orderBy, bool desc)
+    public TDerived ApplySorting<TKey>(params Expression<Func<TModel, TKey>>[]? orderBy)
+        => ApplySorting(Directions.Asc, orderBy);
+    
+    public TDerived ApplySorting<TKey>(Directions direction, params Expression<Func<TModel, TKey>>[]? orderBy)
     {
-        if (orderBy != null)
+        if (orderBy != null && orderBy.Any())
         {
-            _query = desc
-                ? _query.OrderByDescending(orderBy)
-                : _query.OrderBy(orderBy);
+            _query = direction == Directions.Desc
+                ? _query.OrderByDescending(orderBy.First())
+                : _query.OrderBy(orderBy.First());
+
+            orderBy.Skip(1)
+                .ToList()
+                .ForEach(ob => _query = direction == Directions.Desc
+                    ? ((IOrderedQueryable<TModel>)_query).ThenByDescending(ob)
+                    : ((IOrderedQueryable<TModel>)_query).ThenBy(ob));
         }
 
         return (TDerived) this;
@@ -56,7 +63,16 @@ public class Query<TModel, TDerived>
 
         return (TDerived) this;
     }
-    
+
+    public TDerived Limit(int size)
+    {
+        if (size <= 0)
+            throw new InvalidOperationException("Size must be greater than 0.");
+
+        _query = _query.Take(size);
+        return (TDerived) this;
+    }
+
     public TDerived AsExpandable()
     {
         _query = _query.AsExpandableEFCore();

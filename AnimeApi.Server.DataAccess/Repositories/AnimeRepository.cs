@@ -2,7 +2,6 @@ using System.Linq.Expressions;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Models;
-using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
@@ -66,7 +65,7 @@ public class AnimeRepository : IAnimeRepository
             .AsNoTracking()
             .AsSplitQuery()
             .IncludeFullRelation()
-            .ApplySorting(a => a.Score, true)
+            .ApplySorting(Constants.Directions.Desc, a => a.Score)
             .ApplyPagination(page, size);
         
         var entities = await query.Build().ToListAsync();
@@ -93,7 +92,7 @@ public class AnimeRepository : IAnimeRepository
                 a => !string.IsNullOrEmpty(a.Rating),
                 a => !a.Rating.ToLower().Contains(Constants.Ratings.AdultContent),
             ])
-            .ApplySorting(a => a.Score, true);
+            .ApplySorting(Constants.Directions.Desc, a => a.Score);
 
         var count = await query.Build().CountAsync();
         var entities = await query
@@ -123,22 +122,24 @@ public class AnimeRepository : IAnimeRepository
            return [];
         }
 
-        return await _context.Anime
+        var query = new AnimeQuery(_context.Anime)
             .AsNoTracking()
             .AsSplitQuery()
-            .Include(a => a.Anime_Genres)
-            .Include(a => a.Anime_Producers)
-            .Include(a => a.Anime_Licensors)
-            .Include(a => a.Type)
-            .Include(a => a.Source)
-            .Include(a => a.Favourites)
-            .Include(a => a.Reviews)
-            .Where(a => a.Started_Airing != null && a.Started_Airing <= DateTime.UtcNow)
-            .Where(a => !string.IsNullOrEmpty(a.Rating) && !a.Rating.Contains(Constants.Ratings.AdultContent))
-            .OrderByDescending(a => a.Started_Airing)
-            .ThenByDescending(a => a.Score)
-            .Take(count)
-            .ToListAsync();
+            .IncludeFullRelation()
+            .ApplyFilters(
+            [
+                a => a.Started_Airing != null,
+                a => a.Started_Airing <= DateTime.UtcNow,
+                a => !string.IsNullOrEmpty(a.Rating),
+                a => !a.Rating.Contains(Constants.Ratings.AdultContent)
+            ])
+            .ApplySorting<object?>(
+                Constants.Directions.Desc,
+                a => a.Started_Airing,
+                a => a.Score)
+            .Limit(count);
+
+        return await query.Build().ToListAsync();
     }
 
     /// <inheritdoc />
@@ -158,7 +159,7 @@ public class AnimeRepository : IAnimeRepository
         int size = 100,
         IEnumerable<Expression<Func<Anime, bool>>>? filters = null,
         Expression<Func<Anime, Object>>? orderBy = null,
-        bool desc = true
+        Constants.Directions direction = Constants.Directions.Desc
         )
     {
         var paginationErrors = ValidatePageAndSize(page, size);
@@ -181,11 +182,11 @@ public class AnimeRepository : IAnimeRepository
 
         if (orderBy is not null)
         {
-          query.ApplySorting(orderBy, desc);
+          query.ApplySorting(direction, orderBy);
         }
         else
         {
-          query.ApplySorting(a => a.Score, true);
+          query.ApplySorting(Constants.Directions.Desc, a => a.Score);
         }
 
         var count = await query.Build().CountAsync();
@@ -212,9 +213,14 @@ public class AnimeRepository : IAnimeRepository
         var filters = BuildFilters(parameters);
         var orderBy = OrderByClause(parameters);
 
-        var desc = !(parameters.SortOrder?.EqualsIgnoreCase(Constants.OrderBy.Directions.Ascending) ?? false); 
+        var direction = parameters.SortOrder switch
+        {
+            null or "" or Constants.OrderBy.StringDirections.Descending => Constants.Directions.Desc,
+            Constants.OrderBy.StringDirections.Ascending => Constants.Directions.Asc,
+            _ => Constants.Directions.Desc
+        };
 
-        var result = await GetByConditionAsync(page, size, filters, orderBy, desc);
+        var result = await GetByConditionAsync(page, size, filters, orderBy, direction);
         return result;
     }
 

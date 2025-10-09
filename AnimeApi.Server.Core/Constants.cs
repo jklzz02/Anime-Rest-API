@@ -116,11 +116,17 @@ public static class Constants
         /// <summary>
         /// Constants representing the direction of sorting.
         /// </summary>
-        public static class Directions
+        public static class StringDirections
         {
             public const string Ascending = "asc";
             public const string Descending = "desc";
         }
+    }
+
+    public enum Directions
+    {
+        Asc,
+        Desc
     }
 
 }
