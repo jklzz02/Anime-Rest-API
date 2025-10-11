@@ -54,9 +54,7 @@ public class TypeHelper : ITypeHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<TypeDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<TypeDto>();
             
             return Result<TypeDto>.Failure(errors);
         }
@@ -81,9 +79,7 @@ public class TypeHelper : ITypeHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<TypeDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<TypeDto>();
             
             return Result<TypeDto>.Failure(errors);
         }

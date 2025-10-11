@@ -97,10 +97,8 @@ public class AnimeHelper : IAnimeHelper
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-             List<Error> errors = validationResult.Errors
-                 .ToJsonKeyedErrors<AnimeDto>()
-                 .Select(pair => Error.Validation(pair.Key, pair.Value))
-                 .ToList();
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<AnimeDto>();
             
              return Result<AnimeDto>.Failure(errors);
         }
@@ -123,9 +121,7 @@ public class AnimeHelper : IAnimeHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<AnimeDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<AnimeDto>();
             
             return Result<AnimeDto>.Failure(errors);
         }
@@ -155,9 +151,7 @@ public class AnimeHelper : IAnimeHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<AnimeSearchParameters>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<AnimeSearchParameters>();
             
             return new PaginatedResult<AnimeDto>(errors);
         }

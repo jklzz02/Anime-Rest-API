@@ -2,6 +2,7 @@ using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using FluentValidation;
 
@@ -12,9 +13,7 @@ public class FavouritesHelper : IFavouritesHelper
     private readonly IFavouritesRepository _repository;
 
     private readonly IValidator<FavouriteDto> _validator;
-    
-    public Dictionary<string, string> ErrorMessages { get; private set; } = new();
-    
+        
     public FavouritesHelper(
         IFavouritesRepository repository,
         IValidator<FavouriteDto> validator)
@@ -39,27 +38,23 @@ public class FavouritesHelper : IFavouritesHelper
         });
     }
 
-    public async Task<bool> AddFavouriteAsync(FavouriteDto favourite)
+    public async Task<Result<FavouriteDto>> AddFavouriteAsync(FavouriteDto favourite)
     {
         var validationResult = await _validator.ValidateAsync(favourite);
         if (!validationResult.IsValid)
         {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<FavouriteDto>();
-            return false;
+            return Result<FavouriteDto>.Failure(validationResult.Errors.ToJsonKeyedErrors<FavouriteDto>());
         }
         
-        return await _repository.AddFavouriteAsync(favourite.UserId, favourite.AnimeId);
+        var result = await _repository.AddFavouriteAsync(favourite.UserId, favourite.AnimeId);
+
+        return result.IsSuccess
+            ? Result<FavouriteDto>.Success(result.Data.ToDto())
+            : Result<FavouriteDto>.Failure(result.Errors);
     }
 
     public async Task<bool> RemoveFavouriteAsync(FavouriteDto favourite)
     {
-        var validationResult = await _validator.ValidateAsync(favourite);
-        if (!validationResult.IsValid)
-        {
-            ErrorMessages = validationResult.Errors.ToJsonKeyedErrors<FavouriteDto>();
-            return false;
-        }
-        
         return await _repository.RemoveFavouriteAsync(favourite.UserId, favourite.AnimeId);
     }
 

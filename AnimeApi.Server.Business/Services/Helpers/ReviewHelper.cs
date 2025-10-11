@@ -126,9 +126,7 @@ public class ReviewHelper : IReviewHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<ReviewDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<ReviewDto>();
             
             return Result<ReviewDto>.Failure(errors);
         }

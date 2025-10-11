@@ -51,9 +51,7 @@ public class SourceHelper : ISourceHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<SourceDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<SourceDto>();
             
             return Result<SourceDto>.Failure(errors);
         }
@@ -78,9 +76,7 @@ public class SourceHelper : ISourceHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<SourceDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<SourceDto>();
             
             return Result<SourceDto>.Failure(errors);
         }

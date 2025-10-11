@@ -55,9 +55,7 @@ public class GenreHelper : IGenreHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<GenreDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<GenreDto>();
             
             return Result<GenreDto>.Failure(errors);
         }
@@ -82,9 +80,7 @@ public class GenreHelper : IGenreHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<GenreDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<GenreDto>();
             
             return Result<GenreDto>.Failure(errors);
         }

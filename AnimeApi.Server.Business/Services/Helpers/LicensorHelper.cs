@@ -51,9 +51,7 @@ public class LicensorHelper : ILicensorHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<LicensorDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<LicensorDto>();
 
             return Result<LicensorDto>.Failure(errors);
         }
@@ -78,9 +76,7 @@ public class LicensorHelper : ILicensorHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<LicensorDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<LicensorDto>();
             
             return Result<LicensorDto>.Failure(errors);
         }

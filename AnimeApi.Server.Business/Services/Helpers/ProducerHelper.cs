@@ -51,9 +51,7 @@ public class ProducerHelper : IProducerHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<ProducerDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<ProducerDto>();
             
             return Result<ProducerDto>.Failure(errors);
         };
@@ -78,9 +76,7 @@ public class ProducerHelper : IProducerHelper
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
-                .ToJsonKeyedErrors<ProducerDto>()
-                .Select(pair => Error.Validation(pair.Key, pair.Value))
-                .ToList();
+                .ToJsonKeyedErrors<ProducerDto>();
             
             return Result<ProducerDto>.Failure(errors);
         };

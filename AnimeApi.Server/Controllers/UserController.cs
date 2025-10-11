@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -81,9 +82,9 @@ public class UserController : ControllerBase
         
         var result = await _favouritesHelper.AddFavouriteAsync(favourite);
         
-        if (!result)
+        if (result.IsFailure)
         {
-            return BadRequest(_favouritesHelper.ErrorMessages);
+            return BadRequest(result.Errors.ToKeyValuePairs());
         }
         
         return Ok(favourite);

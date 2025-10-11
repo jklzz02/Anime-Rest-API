@@ -1,4 +1,5 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
@@ -23,14 +24,14 @@ public class FavouritesRepository : IFavouritesRepository
             .ToListAsync();
     }
 
-    public async Task<bool> AddFavouriteAsync(int userId, int animeId)
+    public async Task<Result<Favourite>> AddFavouriteAsync(int userId, int animeId)
     {
 
         var entity = await GetFavouriteAsync(userId, animeId);
         
         if (entity != null)
         {
-            return false;
+            return Result<Favourite>.ValidationFailure("Favourit" ,$"Favourite with anime id '{animeId}' and user id '{userId}' already exists.");
         }
 
         var newEntity = new Favourite
@@ -39,8 +40,15 @@ public class FavouritesRepository : IFavouritesRepository
             Anime_Id = animeId
         };
         
-        _context.User_Favourites.Add(newEntity);
-        return await _context.SaveChangesAsync() > 0;
+        var createdEntry = _context.User_Favourites.Add(newEntity);
+        var result =  await _context.SaveChangesAsync() > 0;
+
+        if (!result)
+        {
+            return Result<Favourite>.InternalFailure("Create", "Failed to add favourite.");
+        }
+
+        return Result<Favourite>.Success(createdEntry.Entity);
     }
 
     public async Task<bool> RemoveFavouriteAsync(int userId, int animeId)
