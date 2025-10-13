@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using static AnimeApi.Server.Core.Constants;
 
 namespace AnimeApi.Server.DataAccess.Repositories.QueryHelpers;
 
@@ -34,22 +33,54 @@ public class Query<TModel, TDerived>
         return (TDerived) this;
     }
 
-    public TDerived ApplySorting<TKey>(params Expression<Func<TModel, TKey>>[]? orderBy)
-        => ApplySorting(Directions.Asc, orderBy);
-    
-    public TDerived ApplySorting<TKey>(Directions direction, params Expression<Func<TModel, TKey>>[]? orderBy)
+    public TDerived ApplySorting(Expression<Func<TModel, object?>>? keySelector, SortDirections direction)
     {
-        if (orderBy != null && orderBy.Any())
+        if (keySelector != null)
         {
-            _query = direction == Directions.Desc
-                ? _query.OrderByDescending(orderBy.First())
-                : _query.OrderBy(orderBy.First());
+            _query = direction == SortDirections.Desc
+                ? _query.OrderByDescending(keySelector)
+                : _query.OrderBy(keySelector);
+        }
+        return (TDerived) this;
+    }
 
-            orderBy.Skip(1)
-                .ToList()
-                .ForEach(ob => _query = direction == Directions.Desc
-                    ? ((IOrderedQueryable<TModel>)_query).ThenByDescending(ob)
-                    : ((IOrderedQueryable<TModel>)_query).ThenBy(ob));
+    public TDerived ApplySorting(SortAction<TModel>? sortAction)
+    {
+        if (sortAction != null)
+        {
+            _query = sortAction.Direction == SortDirections.Desc
+                ? _query.OrderByDescending(sortAction.KeySelector)
+                : _query.OrderBy(sortAction.KeySelector);
+        }
+        return (TDerived) this;
+    }
+    
+    public TDerived ApplySorting(IEnumerable<SortAction<TModel>> sortActions)
+    {
+        if (sortActions is null || !sortActions.Any())
+            return (TDerived)this;
+
+        IOrderedQueryable<TModel>? orderedQuery = null;
+
+        foreach (var sortAction in sortActions)
+        {
+            if (orderedQuery == null)
+            {
+                orderedQuery = sortAction.Direction == SortDirections.Desc
+                    ? _query.OrderByDescending(sortAction.KeySelector)
+                    : _query.OrderBy(sortAction.KeySelector);
+            }
+            else
+            {
+                orderedQuery = sortAction.Direction == SortDirections.Desc
+                    ? orderedQuery.ThenByDescending(sortAction.KeySelector)
+                    : orderedQuery.ThenBy(sortAction.KeySelector);
+            }
+        }
+
+        if (orderedQuery != null)
+        {
+            _query = orderedQuery;
         }
 
         return (TDerived) this;
@@ -93,4 +124,28 @@ public class Query<TModel, TDerived>
 
     public IQueryable<TModel> Build()
         => _query;
+}
+
+public class SortAction<TModel>
+{
+    public Expression<Func<TModel, object?>> KeySelector { get; }
+    public SortDirections Direction { get; }
+
+    private SortAction(Expression<Func<TModel, object?>> keySelector, SortDirections direction)
+    {
+        KeySelector = keySelector;
+        Direction = direction;
+    }
+
+    public static SortAction<TModel> Asc(Expression<Func<TModel, object?>> keySelector)
+        => new(keySelector, SortDirections.Asc);
+
+    public static SortAction<TModel> Desc(Expression<Func<TModel, object?>> keySelector)
+        => new(keySelector, SortDirections.Desc);
+}
+
+public enum SortDirections
+{
+    Asc,
+    Desc
 }

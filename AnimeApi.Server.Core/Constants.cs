@@ -122,11 +122,4 @@ public static class Constants
             public const string Descending = "desc";
         }
     }
-
-    public enum Directions
-    {
-        Asc,
-        Desc
-    }
-
 }

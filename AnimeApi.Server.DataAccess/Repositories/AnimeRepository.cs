@@ -44,7 +44,7 @@ public class AnimeRepository : IAnimeRepository
             .AsNoTracking()
             .AsSplitQuery()
             .IncludeFullRelation()
-            .ApplySorting(a => a.Id);
+            .ApplySorting(SortAction<Anime>.Desc(a => a.Score));
         
         return await query.Build().ToListAsync();
     }
@@ -65,7 +65,7 @@ public class AnimeRepository : IAnimeRepository
             .AsNoTracking()
             .AsSplitQuery()
             .IncludeFullRelation()
-            .ApplySorting(Constants.Directions.Desc, a => a.Score)
+            .ApplySorting(SortAction<Anime>.Desc(a => a.Score))
             .ApplyPagination(page, size);
         
         var entities = await query.Build().ToListAsync();
@@ -92,7 +92,7 @@ public class AnimeRepository : IAnimeRepository
                 a => !string.IsNullOrEmpty(a.Rating),
                 a => !a.Rating.ToLower().Contains(Constants.Ratings.AdultContent),
             ])
-            .ApplySorting(Constants.Directions.Desc, a => a.Score);
+            .ApplySorting(SortAction<Anime>.Desc(a => a.Score));
 
         var count = await query.Build().CountAsync();
         var entities = await query
@@ -133,10 +133,11 @@ public class AnimeRepository : IAnimeRepository
                 a => !string.IsNullOrEmpty(a.Rating),
                 a => !a.Rating.Contains(Constants.Ratings.AdultContent)
             ])
-            .ApplySorting<object?>(
-                Constants.Directions.Desc,
-                a => a.Started_Airing,
-                a => a.Score)
+            .ApplySorting(
+            [
+                SortAction<Anime>.Desc(a => a.Started_Airing),
+                SortAction<Anime>.Desc(a => a.Score)
+            ])
             .Limit(count);
 
         return await query.Build().ToListAsync();
@@ -158,8 +159,8 @@ public class AnimeRepository : IAnimeRepository
         int page = 1,
         int size = 100,
         IEnumerable<Expression<Func<Anime, bool>>>? filters = null,
-        Expression<Func<Anime, Object>>? orderBy = null,
-        Constants.Directions direction = Constants.Directions.Desc
+        Expression<Func<Anime, object?>>? orderBy = null,
+        SortDirections direction = SortDirections.Desc
         )
     {
         var paginationErrors = ValidatePageAndSize(page, size);
@@ -182,11 +183,11 @@ public class AnimeRepository : IAnimeRepository
 
         if (orderBy is not null)
         {
-          query.ApplySorting(direction, orderBy);
+          query.ApplySorting(orderBy, direction);
         }
         else
         {
-          query.ApplySorting(Constants.Directions.Desc, a => a.Score);
+          query.ApplySorting(SortAction<Anime>.Desc(a => a.Score));
         }
 
         var count = await query.Build().CountAsync();
@@ -215,9 +216,9 @@ public class AnimeRepository : IAnimeRepository
 
         var direction = parameters.SortOrder switch
         {
-            null or "" or Constants.OrderBy.StringDirections.Descending => Constants.Directions.Desc,
-            Constants.OrderBy.StringDirections.Ascending => Constants.Directions.Asc,
-            _ => Constants.Directions.Desc
+            null or "" or Constants.OrderBy.StringDirections.Descending => SortDirections.Desc,
+            Constants.OrderBy.StringDirections.Ascending => SortDirections.Asc,
+            _ => SortDirections.Desc
         };
 
         var result = await GetByConditionAsync(page, size, filters, orderBy, direction);
