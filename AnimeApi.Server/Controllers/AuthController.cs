@@ -71,7 +71,6 @@ public class AuthController : ControllerBase
         {
             access_token = accessToken,
             refresh_token = refreshToken,
-            user = userDto
         });
     }
 
@@ -97,7 +96,6 @@ public class AuthController : ControllerBase
         {
             token = accessToken,
             refreshToken = newRefresh.Token,
-            user
         });
     }
 
@@ -157,7 +155,6 @@ public class AuthController : ControllerBase
         SetTokenCookies(accessToken, refreshToken);
         return Ok(new
         {
-            user = userDto,
             access_token = accessToken
         });
     }
@@ -188,7 +185,6 @@ public class AuthController : ControllerBase
 
         return Ok(new
         {
-            user = user,
             access_token = accessToken
         });
     }

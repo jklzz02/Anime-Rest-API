@@ -1,24 +1,25 @@
-using System.Text.Json.Serialization;
+
+using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Core.Objects.Dto;
 
 public record AppUserDto
 {
-    [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public int Id { get; init; }
 
-    [JsonPropertyName("username")]
+    [JsonProperty("username")]
     public required string Username { get; init; }
     
-    [JsonPropertyName("email")]
+    [JsonProperty("email")]
     public required string Email { get; init; }
     
-    [JsonPropertyName("profile_picture")]
+    [JsonProperty("profile_picture")]
     public required string ProfilePictureUrl { get; init; }
     
-    [JsonPropertyName("created_at")]
+    [JsonProperty("created_at")]
     public required DateTime CreatedAt { get; init; }
     
-    [JsonPropertyName("admin")]
+    [JsonProperty("admin")]
     public bool Admin { get; init; }
 }
