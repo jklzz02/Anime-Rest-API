@@ -1,8 +1,7 @@
-﻿
-using AnimeApi.Server.Core.Objects.Models;
+﻿using AnimeApi.Server.Core.Objects.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.Repositories.QueryHelpers;
+namespace AnimeApi.Server.DataAccess.QueryHelpers;
 public class AnimeQuery : Query<Anime, AnimeQuery>
 {
     public AnimeQuery(IQueryable<Anime> query)

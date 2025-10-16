@@ -2,7 +2,7 @@
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.Repositories.QueryHelpers;
+namespace AnimeApi.Server.DataAccess.QueryHelpers;
 
 public class Query<TModel, TDerived>
     where TModel : class

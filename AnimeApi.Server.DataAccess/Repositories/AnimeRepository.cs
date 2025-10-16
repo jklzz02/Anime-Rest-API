@@ -6,7 +6,7 @@ using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
-using AnimeApi.Server.DataAccess.Repositories.QueryHelpers;
+using AnimeApi.Server.DataAccess.QueryHelpers;
 
 namespace AnimeApi.Server.DataAccess.Repositories;
 

@@ -4,7 +4,7 @@ using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Objects.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.Repositories.QueryHelpers;
+namespace AnimeApi.Server.DataAccess.QueryHelpers;
 
 public class AnimeFilterBuilder
 {

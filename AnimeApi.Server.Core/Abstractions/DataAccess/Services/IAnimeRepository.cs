@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 
@@ -44,13 +43,6 @@ public interface IAnimeRepository : IRepository<Anime>
     /// <param name="size">The number of items per page. Defaults to 100.</param>
     /// <returns>A collection of anime that match the conditions set by the parameters.</returns>
     Task<PaginatedResult<Anime>> GetByParamsAsync(AnimeSearchParameters parameters, int page, int size = 100);
-    
-    /// <summary>
-    /// Retrieves the first anime entity that satisfies the specified condition.
-    /// </summary>
-    /// <param name="condition">An expression that defines the condition to filter the anime entities.</param>
-    /// <returns>The first anime entity that matches the condition or null if no match is found.</returns>
-    Task<Anime?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition);
 
     /// <summary>
     /// Retrieves a limited collection of anime summaries.
