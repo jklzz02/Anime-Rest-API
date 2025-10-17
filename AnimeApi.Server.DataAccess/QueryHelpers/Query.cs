@@ -4,17 +4,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.QueryHelpers;
 
-public class Query<TModel, TDerived>
-    where TModel : class
-    where TDerived : Query<TModel, TDerived>
+public abstract class Query<TEntity, TDerived>
+    where TEntity : class
+    where TDerived : Query<TEntity, TDerived>
 {
-    protected IQueryable<TModel> _query;
-    public Query(IQueryable<TModel> query)
+    protected IQueryable<TEntity> _query;
+    public Query(IQueryable<TEntity> query)
     {
         _query = query;
     }
 
-    public TDerived ApplyFilter(Expression<Func<TModel, bool>>? filter)
+    public TDerived ApplyFilter(Expression<Func<TEntity, bool>>? filter)
     {
         if (filter != null)
         {
@@ -24,7 +24,7 @@ public class Query<TModel, TDerived>
         return (TDerived) this;
     }
 
-    public TDerived ApplyFilters(IEnumerable<Expression<Func<TModel, bool>>>? filters)
+    public TDerived ApplyFilters(IEnumerable<Expression<Func<TEntity, bool>>>? filters)
     {
         if (filters?.Any() ?? false)
         {
@@ -33,7 +33,7 @@ public class Query<TModel, TDerived>
         return (TDerived) this;
     }
 
-    public TDerived ApplySorting(Expression<Func<TModel, object?>>? keySelector, SortDirections direction)
+    public TDerived ApplySorting(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction)
     {
         if (keySelector != null)
         {
@@ -44,7 +44,7 @@ public class Query<TModel, TDerived>
         return (TDerived) this;
     }
 
-    public TDerived ApplySorting(SortAction<TModel>? sortAction)
+    public TDerived ApplySorting(SortAction<TEntity>? sortAction)
     {
         if (sortAction != null)
         {
@@ -55,12 +55,12 @@ public class Query<TModel, TDerived>
         return (TDerived) this;
     }
     
-    public TDerived ApplySorting(IEnumerable<SortAction<TModel>> sortActions)
+    public TDerived ApplySorting(IEnumerable<SortAction<TEntity>> sortActions)
     {
         if (sortActions is null || !sortActions.Any())
             return (TDerived)this;
 
-        IOrderedQueryable<TModel>? orderedQuery = null;
+        IOrderedQueryable<TEntity>? orderedQuery = null;
 
         foreach (var sortAction in sortActions)
         {
@@ -122,25 +122,25 @@ public class Query<TModel, TDerived>
         return (TDerived) this;
     }
 
-    public IQueryable<TModel> Build()
+    public IQueryable<TEntity> Build()
         => _query;
 }
 
-public class SortAction<TModel>
+public class SortAction<TEntity>
 {
-    public Expression<Func<TModel, object?>> KeySelector { get; }
+    public Expression<Func<TEntity, object?>> KeySelector { get; }
     public SortDirections Direction { get; }
 
-    private SortAction(Expression<Func<TModel, object?>> keySelector, SortDirections direction)
+    private SortAction(Expression<Func<TEntity, object?>> keySelector, SortDirections direction)
     {
         KeySelector = keySelector;
         Direction = direction;
     }
 
-    public static SortAction<TModel> Asc(Expression<Func<TModel, object?>> keySelector)
+    public static SortAction<TEntity> Asc(Expression<Func<TEntity, object?>> keySelector)
         => new(keySelector, SortDirections.Asc);
 
-    public static SortAction<TModel> Desc(Expression<Func<TModel, object?>> keySelector)
+    public static SortAction<TEntity> Desc(Expression<Func<TEntity, object?>> keySelector)
         => new(keySelector, SortDirections.Desc);
 }
 
@@ -148,4 +148,29 @@ public enum SortDirections
 {
     Asc,
     Desc
+}
+
+public interface IQuery<TEntity> where TEntity : class
+{
+    IQuery<TEntity> ApplyFilter(Expression<Func<TEntity, bool>>? filter);
+
+    IQuery<TEntity> ApplyFilters(IEnumerable<Expression<Func<TEntity, bool>>>? filters);
+
+    IQuery<TEntity> ApplySorting(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction);
+
+    IQuery<TEntity> ApplySorting(SortAction<TEntity>? sortAction);
+
+    IQuery<TEntity> ApplySorting(IEnumerable<SortAction<TEntity>> sortActions);
+
+    IQuery<TEntity> ApplyPagination(int page, int size);
+
+    IQuery<TEntity> Limit(int size);
+
+    IQuery<TEntity> AsExpandable();
+
+    IQuery<TEntity> AsNoTracking();
+
+    IQuery<TEntity> AsSplitQuery();
+
+    IQueryable<TEntity> Build();
 }
