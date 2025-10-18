@@ -30,6 +30,13 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         return (TDerived)this;
     }
 
+    public TDerived Paginate(int page, int size)
+    {
+        _skip = (page - 1) * size;
+        _take = size;
+        return (TDerived)this;
+    }
+
     public IQueryable<TEntity> Apply(IQueryable<TEntity> query)
     {
         if (_asExpandable)
@@ -136,13 +143,6 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         {
             _sortActions.AddRange(sortActions);
         }
-        return (TDerived)this;
-    }
-
-    protected TDerived Paginate(int page, int size)
-    {
-        _skip = (page - 1) * size;
-        _take = size;
         return (TDerived)this;
     }
 
