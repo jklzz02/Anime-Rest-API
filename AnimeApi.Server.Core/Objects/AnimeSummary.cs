@@ -1,4 +1,4 @@
-namespace AnimeApi.Server.Core.Objects.Models;
+namespace AnimeApi.Server.Core.Objects;
 
 public class AnimeSummary
 {

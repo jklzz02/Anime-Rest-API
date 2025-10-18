@@ -1,5 +1,5 @@
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
-using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Core.Mappers;
 

@@ -11,12 +11,12 @@ namespace AnimeApi.Server.DataAccess.Repositories
         where TEntity : class
         where TDto : class
     {
-        protected readonly AnimeDbContext _context;
+        protected AnimeDbContext Context {  get; }
         protected readonly IMapper<TEntity, TDto> _mapper;
 
         public BaseRepository(AnimeDbContext context, IMapper<TEntity, TDto> mapper)
         {
-            _context = context;
+            Context = context;
             _mapper = mapper;
         }
 
@@ -24,7 +24,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
         {
             return await
                 specification
-                    .Apply(_context.Set<TEntity>())
+                    .Apply(Context.Set<TEntity>())
                     .CountAsync();
         }
 
@@ -33,7 +33,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
         {
             List<TEntity> result = await
                 specification
-                    .Apply(_context.Set<TEntity>())
+                    .Apply(Context.Set<TEntity>())
                     .ToListAsync();
 
             return _mapper.MapToDto(result);
@@ -43,7 +43,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
         {
             TEntity? result = await
                 specification
-                    .Apply(_context.Set<TEntity>())
+                    .Apply(Context.Set<TEntity>())
                     .FirstOrDefaultAsync();
 
             return result is null
@@ -55,7 +55,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
         public async Task<IEnumerable<TDto>> GetAllAsync()
         {
             List<TEntity> result = await
-                _context.Set<TEntity>()
+                Context.Set<TEntity>()
                     .ToListAsync();
 
             return _mapper.MapToDto(result);
@@ -64,10 +64,10 @@ namespace AnimeApi.Server.DataAccess.Repositories
         public virtual async Task<Result<TDto>> AddAsync(TEntity entity)
         {
            var createdEntity = await 
-                _context.Set<TEntity>()
+                Context.Set<TEntity>()
                     .AddAsync(entity);
 
-            bool saveResult = await _context.SaveChangesAsync() > 0;
+            bool saveResult = await Context.SaveChangesAsync() > 0;
 
             return saveResult
                 ? Result<TDto>.Success(_mapper.MapToDto(createdEntity.Entity))
@@ -76,8 +76,8 @@ namespace AnimeApi.Server.DataAccess.Repositories
 
         public async Task<Result<IEnumerable<TDto>>> AddRangeAsync(IEnumerable<TEntity> entity)
         {
-            await _context.Set<TEntity>().AddRangeAsync(entity);
-            bool saveResult = await _context.SaveChangesAsync() > 0;
+            await Context.Set<TEntity>().AddRangeAsync(entity);
+            bool saveResult = await Context.SaveChangesAsync() > 0;
 
             return saveResult
                 ? Result<IEnumerable<TDto>>.Success(_mapper.MapToDto(entity))
@@ -86,8 +86,8 @@ namespace AnimeApi.Server.DataAccess.Repositories
 
         public virtual async Task<Result<TDto>> UpdateAsync(TEntity entity)
         {
-            _context.Set<TEntity>().Update(entity);
-            bool saveResult = await _context.SaveChangesAsync() > 0;
+            Context.Set<TEntity>().Update(entity);
+            bool saveResult = await Context.SaveChangesAsync() > 0;
             return saveResult
                 ? Result<TDto>.Success(_mapper.MapToDto(entity))
                 : Result<TDto>.InternalFailure("Failed to update entity.", "An error occurred while saving the entity to the database.");
@@ -95,8 +95,8 @@ namespace AnimeApi.Server.DataAccess.Repositories
 
         public async Task<Result<IEnumerable<TDto>>> UpdateRangeAsync(IEnumerable<TEntity> entity)
         {
-            _context.Set<TEntity>().UpdateRange(entity);
-            bool saveResult = await _context.SaveChangesAsync() > 0;
+            Context.Set<TEntity>().UpdateRange(entity);
+            bool saveResult = await Context.SaveChangesAsync() > 0;
             return saveResult
                 ? Result<IEnumerable<TDto>>.Success(_mapper.MapToDto(entity))
                 : Result<IEnumerable<TDto>>.InternalFailure("Failed to update entities.", "An error occurred while saving the entities to the database.");
@@ -112,9 +112,9 @@ namespace AnimeApi.Server.DataAccess.Repositories
                 return false;
             }
 
-            _context.Set<TEntity>().Remove(_mapper.MapToEntity(result)!);
+            Context.Set<TEntity>().Remove(_mapper.MapToEntity(result)!);
 
-            return await _context.SaveChangesAsync() > 0;
+            return await Context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> DeleteRangeAsync(IQuerySpec<TEntity> specification)
@@ -127,13 +127,13 @@ namespace AnimeApi.Server.DataAccess.Repositories
                 return false;
             }
 
-            _context.Set<TEntity>().RemoveRange(_mapper.MapToEntity(result)!);
-            return await _context.SaveChangesAsync() > 0;
+            Context.Set<TEntity>().RemoveRange(_mapper.MapToEntity(result)!);
+            return await Context.SaveChangesAsync() > 0;
         }
 
         public async Task<int> CountAsync()
         {
-            return await _context.Set<TEntity>().CountAsync();
+            return await Context.Set<TEntity>().CountAsync();
         }
 
         public async Task<bool> ExistsAsync(IQuerySpec<TEntity> specification)

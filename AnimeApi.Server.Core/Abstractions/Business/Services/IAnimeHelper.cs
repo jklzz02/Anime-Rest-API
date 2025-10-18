@@ -1,7 +1,5 @@
-using System.Linq.Expressions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
-using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 
@@ -13,8 +11,7 @@ public interface IAnimeHelper
     Task<IEnumerable<AnimeDto>> GetByIdsAsync(IEnumerable<int> ids);
     Task<PaginatedResult<AnimeDto>> GetAllNonAdultAsync(int page, int size);
     Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count);
-    Task<AnimeDto?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition);
-    Task<IEnumerable<AnimeSummaryDto>> GetSummariesAsync(int count); 
+    Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count); 
     Task<Result<AnimeDto>> CreateAsync(AnimeDto entity);
     Task<Result<AnimeDto>> UpdateAsync(AnimeDto entity);
     Task<bool> DeleteAsync(int id);

@@ -1,9 +1,8 @@
 ﻿using System.Linq.Expressions;
-using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.QueryHelpers;
+namespace AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 
 public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
     where TEntity : class
@@ -21,20 +20,20 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
     public TDerived AsNoTracking()
     {
         _asNoTracking = true;
-        return (TDerived)this;
+        return (TDerived) this;
     }
 
     public TDerived AsSplitQuery()
     {
         _asSplitQuery = true;
-        return (TDerived)this;
+        return (TDerived) this;
     }
 
     public TDerived Paginate(int page, int size)
     {
         _skip = (page - 1) * size;
         _take = size;
-        return (TDerived)this;
+        return (TDerived) this;
     }
 
     public IQueryable<TEntity> Apply(IQueryable<TEntity> query)
@@ -98,6 +97,21 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         return query;
     }
 
+    public TDerived Limit(int size)
+    {
+        if (size <= 0)
+            throw new InvalidOperationException("Size must be greater than 0.");
+
+        _take = size;
+        return (TDerived)this;
+    }
+
+    public TDerived AsExpandable()
+    {
+        _asExpandable = true;
+        return (TDerived)this;
+    }
+
 
     protected TDerived FilterBy(Expression<Func<TEntity, bool>>? filter)
     {
@@ -105,7 +119,8 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         {
             _filters.Add(filter);
         }
-        return (TDerived)this;
+        
+        return (TDerived) this;
     }
 
     protected TDerived FilterBy(IEnumerable<Expression<Func<TEntity, bool>>>? filters)
@@ -114,7 +129,8 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         {
             _filters.AddRange(filters);
         }
-        return (TDerived)this;
+        
+        return (TDerived) this;
     }
 
     protected TDerived SortBy(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction)
@@ -134,7 +150,8 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         {
             _sortActions.Add(sortAction);
         }
-        return (TDerived)this;
+
+        return (TDerived) this;
     }
 
     protected TDerived SortBy(IEnumerable<SortAction<TEntity>> sortActions)
@@ -143,27 +160,36 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         {
             _sortActions.AddRange(sortActions);
         }
-        return (TDerived)this;
-    }
-
-    protected TDerived Limit(int size)
-    {
-        if (size <= 0)
-            throw new InvalidOperationException("Size must be greater than 0.");
-
-        _take = size;
-        return (TDerived)this;
-    }
-
-    public TDerived AsExpandable()
-    {
-        _asExpandable = true;
-        return (TDerived)this;
+        return (TDerived) this;
     }
 
     protected TDerived Include(Func<IQueryable<TEntity>, IQueryable<TEntity>> include)
     {
         _includes.Add(include);
-        return (TDerived)this;
+        return (TDerived) this;
     }
+}
+
+public class SortAction<TEntity>
+{
+    public Expression<Func<TEntity, object?>> KeySelector { get; }
+    public SortDirections Direction { get; }
+
+    private SortAction(Expression<Func<TEntity, object?>> keySelector, SortDirections direction)
+    {
+        KeySelector = keySelector;
+        Direction = direction;
+    }
+
+    public static SortAction<TEntity> Asc(Expression<Func<TEntity, object?>> keySelector)
+        => new(keySelector, SortDirections.Asc);
+
+    public static SortAction<TEntity> Desc(Expression<Func<TEntity, object?>> keySelector)
+        => new(keySelector, SortDirections.Desc);
+}
+
+public enum SortDirections
+{
+    Asc,
+    Desc
 }

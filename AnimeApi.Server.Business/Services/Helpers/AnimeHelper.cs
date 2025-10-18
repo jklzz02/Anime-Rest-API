@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
@@ -6,18 +5,19 @@ using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.SpecHelpers;
 using FluentValidation;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
 public class AnimeHelper : IAnimeHelper
 {
-    private readonly IAnimeRepository _repository;
+    private readonly IRepository<Anime, AnimeDto> _repository;
     private readonly IValidator<AnimeDto> _validator;
     private readonly IValidator<AnimeSearchParameters> _paramsValidator;
     
     public AnimeHelper(
-        IAnimeRepository repository,
+        IRepository<Anime, AnimeDto> repository,
         IValidator<AnimeDto> validator,
         IValidator<AnimeSearchParameters> paramsValidator)
     {
@@ -28,66 +28,89 @@ public class AnimeHelper : IAnimeHelper
     
     public async Task<AnimeDto?> GetByIdAsync(int id)
     {
-        var model = await _repository.GetByIdAsync(id);
-        return model?.ToDto();
-    }
+        var query = AnimeQuery.ByPk(id)
+            .AsNoTracking()
+            .IncludeFullRelation();
 
-    public async Task<IEnumerable<AnimeDto>> GetAllAsync()
-    {
-        var models = await _repository.GetAllAsync();
-        return models.ToDto();
-    }
-
-    public async Task<PaginatedResult<AnimeDto>> GetAllAsync(int page, int size)
-    {
-        var result = await _repository
-            .GetAllAsync(page, size);
-        
-        if (!result.Success)
-        {
-            return new PaginatedResult<AnimeDto>(result.Errors);
-        }
-        
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
+        return await
+            _repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<AnimeDto>> GetByIdsAsync(IEnumerable<int> ids)
     {
-        var models = await _repository.GetByIdsAsync(ids);
-        return models.ToDto();
+        var query = AnimeQuery.ByPk(ids)
+            .AsNoTracking()
+            .IncludeFullRelation();
+
+        return await
+            _repository.FindAsync(query);
+    }
+
+    public async Task<IEnumerable<AnimeDto>> GetAllAsync()
+    {
+        return await 
+            _repository.GetAllAsync();
+    }
+
+    public async Task<PaginatedResult<AnimeDto>> GetAllAsync(int page, int size)
+    {
+        var count = await
+            _repository.CountAsync();
+
+        var query = new AnimeQuery()
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Paginate(page, size)
+            .IncludeFullRelation();
+
+        var items = await
+            _repository.FindAsync(query);
+
+        return new PaginatedResult<AnimeDto>(items, page, size, count);
     }
 
     public async Task<PaginatedResult<AnimeDto>> GetAllNonAdultAsync(int page, int size)
     {
-        var result = await _repository
-            .GetAllNonAdultAsync(page, size);
+        var query = new AnimeQuery()
+            .AsNoTracking()
+            .AsSplitQuery()
+            .ExcludeAdultContent();
 
-        if (!result.Success)
-        {
-            return new PaginatedResult<AnimeDto>(result.Errors);
-        }
+        var count = await
+            _repository.CountAsync(query);
 
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
-    }
-    
-    public async Task<AnimeDto?> GetFirstByConditionAsync(Expression<Func<Anime, bool>> condition)
-    {
-        var model = await _repository.GetFirstByConditionAsync(condition);
-        return model?.ToDto();
+        var items = await
+            _repository.FindAsync(
+                query
+                    .Paginate(page, size)
+                    .IncludeFullRelation());
+
+
+        return new PaginatedResult<AnimeDto>(items, page, size, count);
     }
 
     public async Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count)
     {
-        var models = await _repository.GetMostRecentAsync(count);
-        return models.ToDto();
+        var query = new AnimeQuery()
+            .AsNoTracking()
+            .Recents(count)
+            .IncludeFullRelation();
+
+        return await
+            _repository.FindAsync(query);
     }
 
-    public async Task<IEnumerable<AnimeSummaryDto>> GetSummariesAsync(int count)
+    public async Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count)
     {
-        var models = await _repository
-            .GetSummariesAsync(count);
+        var query = new AnimeQuery()
+            .AsNoTracking()
+            .IncludeFullRelation()
+            .Limit(count);
 
-        return models.ToDto();
+        var result = await
+            _repository.FindAsync(query);
+
+        return result.ToSummary();
     }
 
     public async Task<Result<AnimeDto>> CreateAsync(AnimeDto entity)
@@ -110,7 +133,8 @@ public class AnimeHelper : IAnimeHelper
         {
             return Result<AnimeDto>.Failure(result.Errors);
         }
-        return Result<AnimeDto>.Success(result.Data.ToDto());
+
+        return Result<AnimeDto>.Success(result.Data);
     }
     
     public async Task<Result<AnimeDto>> UpdateAsync(AnimeDto entity)
@@ -133,12 +157,13 @@ public class AnimeHelper : IAnimeHelper
             return Result<AnimeDto>.Failure(result.Errors);
         }
         
-        return Result<AnimeDto>.Success(result.Data.ToDto());
+        return Result<AnimeDto>.Success(result.Data);
     }
     
     public async Task<bool> DeleteAsync(int id)
     {
-        return await _repository.DeleteAsync(id);
+        return await 
+            _repository.DeleteAsync(AnimeQuery.ByPk(id).AsNoTracking());
     }
 
     public async Task<PaginatedResult<AnimeDto>> SearchAsync(
@@ -146,7 +171,8 @@ public class AnimeHelper : IAnimeHelper
         int page,
         int size = 100)
     {
-        var validationResult = await _paramsValidator.ValidateAsync(parameters);
+        var validationResult = await 
+            _paramsValidator.ValidateAsync(parameters);
 
         if (!validationResult.IsValid)
         {
@@ -155,14 +181,48 @@ public class AnimeHelper : IAnimeHelper
             
             return new PaginatedResult<AnimeDto>(errors);
         }
-        
-        var result = await _repository.GetByParamsAsync(parameters, page, size);
 
-        if (!result.Success)
-        {
-            return new PaginatedResult<AnimeDto>(result.Errors);
-        }
-        
-        return new PaginatedResult<AnimeDto>(result.Items.ToDto(), page, size, result.TotalItems);
+        var query = new AnimeQuery()
+            .AsNoTracking()
+            .AsSplitQuery()
+            .WithFullTextSearch(parameters.Query)
+            .WithName(parameters.Name)
+            .WithEnglishName(parameters.EnglishName)
+            .WithSource(parameters.Source)
+            .WithType(parameters.Type)
+            .WithStatus(parameters.Status)
+            .WithStudio(parameters.Studio)
+            .WithScoreRange(parameters.MinScore, parameters.MaxScore)
+            .WithEpisodeRange(parameters.MinEpisodes, parameters.MaxEpisodes, parameters.Episodes)
+            .WithYearRange(parameters.MinReleaseYear, parameters.MaxReleaseYear)
+            .WithAirDateRange(
+                parameters.StartDateFrom,
+                parameters.StartDateTo,
+                parameters.EndDateFrom,
+                parameters.EndDateTo)
+            .WithGenres(
+                parameters.GenreId,
+                parameters.GenreName,
+                parameters.GenreNames)
+            .WithProducers(
+                parameters.ProducerId,
+                parameters.ProducerName,
+                parameters.ProducerNames)
+            .WithLicensors(
+                parameters.LicensorId,
+                parameters.LicensorName,
+                parameters.LicensorNames)
+            .ExcludeAdultContent(!parameters.IncludeAdultContext);
+
+        var count = await
+            _repository.CountAsync(query);
+
+        var items = await
+            _repository.FindAsync(
+                query
+                    .Paginate(page, size)
+                    .IncludeFullRelation());
+
+        return new PaginatedResult<AnimeDto>(items, page, size, count);
     }
 }

@@ -1,11 +1,10 @@
-using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Models;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
-using AnimeApi.Server.DataAccess.QueryHelpers;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Abstractions.Business.Mappers;
+using AnimeApi.Server.Core.SpecHelpers;
 
 namespace AnimeApi.Server.DataAccess.Repositories;
 
@@ -13,7 +12,7 @@ namespace AnimeApi.Server.DataAccess.Repositories;
 /// Represents a repository for managing and querying Anime data.
 /// </summary>
 /// <remarks>
-/// This class provides the implementation of the <see cref="IAnimeRepository"/> interface
+/// This class provides the implementation of the <see cref="BaseRepository{TEntity, TDto}"/>
 /// and serves as a mediator between the database and application logic,
 /// enabling operations such as retrieval, addition, update, and deletion of <see cref="Anime"/> entities.
 /// </remarks>
@@ -36,11 +35,8 @@ public class AnimeRepository : BaseRepository<Anime, AnimeDto>
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
-        var query = new AnimeQuery()
-            .ByPk(entity.Id);
-
         var anime = await 
-            FindFirstOrDefaultAsync(query);
+            FindFirstOrDefaultAsync(AnimeQuery.ByPk(entity.Id));
         
         if (anime is null)
         {
@@ -55,14 +51,14 @@ public class AnimeRepository : BaseRepository<Anime, AnimeDto>
         await UpdateRelations(existingEntity.Anime_Producers.ToList(), entity.Anime_Producers.ToList());
         await UpdateRelations(existingEntity.Anime_Licensors.ToList(), entity.Anime_Licensors.ToList());
 
-        var result = await _context.SaveChangesAsync() > 0;
+        var result = await Context.SaveChangesAsync() > 0;
 
         if (!result)
         {
             return Result<AnimeDto>.InternalFailure("update", "something went wrong during entity update.");
         }
         
-        _context.ChangeTracker.Clear();
+        Context.ChangeTracker.Clear();
         return Result<AnimeDto>.Success(anime);
     }
 
@@ -104,13 +100,13 @@ public class AnimeRepository : BaseRepository<Anime, AnimeDto>
         
         var toRemove = original.Where(o => !updatedIds.Contains(o.RelatedId)).ToList();
         
-        toRemove.ForEach(x => _context.Set<T>().Remove(x));
+        toRemove.ForEach(x => Context.Set<T>().Remove(x));
         
         var idsToAdd = updatedIds.Where(id => !originalIds.Contains(id)).ToList();
 
         var newRelations = idsToAdd
             .Select(id => new T { AnimeId = animeId, RelatedId = id });
             
-        await _context.Set<T>().AddRangeAsync(newRelations);
+        await Context.Set<T>().AddRangeAsync(newRelations);
     }
 }

@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.DataAccess.Extensions;

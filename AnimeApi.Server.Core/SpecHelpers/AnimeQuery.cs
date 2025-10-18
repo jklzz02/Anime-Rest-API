@@ -1,22 +1,21 @@
-﻿using AnimeApi.Server.Core;
-using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
+﻿using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.DataAccess.QueryHelpers;
+namespace AnimeApi.Server.Core.SpecHelpers;
 public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
 {
 
-    public AnimeQuery ByPk(int id)
+    public static AnimeQuery ByPk(int id)
     {
-        FilterBy(a => a.Id == id);
-        return this;
+        return new AnimeQuery()
+            .FilterBy(a => a.Id == id);
     }
 
-    public AnimeQuery ByPk(IEnumerable<int> ids)
+    public static AnimeQuery ByPk(IEnumerable<int> ids)
     {
-        FilterBy(a => ids.Contains(a.Id));
-        return this;
+        return new AnimeQuery()
+            .FilterBy(a => ids.Contains(a.Id));
     }
 
     public AnimeQuery WithFullTextSearch(string? query)
@@ -200,6 +199,17 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
 
         if (licensorNames?.Any() ?? false)
             FilterBy(a => licensorNames.All(l => a.Anime_Licensors.Any(al => al.Licensor.Name.ToLower() == l.ToLower())));
+
+        return this;
+    }
+
+    public AnimeQuery Recents(int count)
+    {
+        if (count <= 0)
+            throw new InvalidOperationException("Count must be greater than 0.");
+
+        SortBy(a => a.Started_Airing, SortDirections.Desc);
+        Limit(count);
 
         return this;
     }
