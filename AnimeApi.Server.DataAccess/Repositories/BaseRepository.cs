@@ -1,9 +1,8 @@
-﻿
+﻿using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.DataAccess.Context;
-using AnimeApi.Server.DataAccess.QueryHelpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Repositories
@@ -62,7 +61,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
             return _mapper.MapToDto(result);
         }
 
-        public async Task<Result<TDto>> AddAsync(TEntity entity)
+        public virtual async Task<Result<TDto>> AddAsync(TEntity entity)
         {
            var createdEntity = await 
                 _context.Set<TEntity>()
@@ -85,7 +84,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
                 : Result<IEnumerable<TDto>>.InternalFailure("Failed to add entities.", "An error occurred while saving the entities to the database.");
         }
 
-        public async Task<Result<TDto>> UpdateAsync(TEntity entity)
+        public virtual async Task<Result<TDto>> UpdateAsync(TEntity entity)
         {
             _context.Set<TEntity>().Update(entity);
             bool saveResult = await _context.SaveChangesAsync() > 0;
@@ -103,7 +102,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
                 : Result<IEnumerable<TDto>>.InternalFailure("Failed to update entities.", "An error occurred while saving the entities to the database.");
         }
 
-        public async Task<bool> DeleteAsync(IQuerySpec<TEntity> specification)
+        public virtual async Task<bool> DeleteAsync(IQuerySpec<TEntity> specification)
         {
             TDto? result = await
                 FindFirstOrDefaultAsync(specification);
@@ -141,18 +140,5 @@ namespace AnimeApi.Server.DataAccess.Repositories
         {
             return await CountAsync(specification) > 0;
         }
-    }
-
-    public interface IMapper<TEntity, TDto>
-        where TEntity : class
-        where TDto : class
-    {
-        TDto MapToDto(TEntity entity);
-
-        IEnumerable<TDto> MapToDto(IEnumerable<TEntity> entities);
-
-        TEntity MapToEntity(TDto dto);
-
-        IEnumerable<TEntity> MapToEntity(IEnumerable<TDto> dtos);
     }
 }

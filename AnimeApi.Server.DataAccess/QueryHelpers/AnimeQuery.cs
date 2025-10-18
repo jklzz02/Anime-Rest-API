@@ -7,6 +7,17 @@ namespace AnimeApi.Server.DataAccess.QueryHelpers;
 public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
 {
 
+    public AnimeQuery ByPk(int id)
+    {
+        FilterBy(a => a.Id == id);
+        return this;
+    }
+
+    public AnimeQuery ByPk(IEnumerable<int> ids)
+    {
+        FilterBy(a => ids.Contains(a.Id));
+        return this;
+    }
 
     public AnimeQuery WithFullTextSearch(string? query)
     {
