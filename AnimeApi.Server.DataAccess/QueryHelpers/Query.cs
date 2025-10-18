@@ -1,176 +1,169 @@
 ﻿using System.Linq.Expressions;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.QueryHelpers;
 
-public abstract class Query<TEntity, TDerived>
+public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
     where TEntity : class
-    where TDerived : Query<TEntity, TDerived>
+    where TDerived : QuerySpec<TEntity, TDerived>
 {
-    protected IQueryable<TEntity> _query;
-    public Query(IQueryable<TEntity> query)
-    {
-        _query = query;
-    }
-
-    public TDerived ApplyFilter(Expression<Func<TEntity, bool>>? filter)
-    {
-        if (filter != null)
-        {
-            _query = _query.Where(filter);
-        }
-
-        return (TDerived) this;
-    }
-
-    public TDerived ApplyFilters(IEnumerable<Expression<Func<TEntity, bool>>>? filters)
-    {
-        if (filters?.Any() ?? false)
-        {
-            _query = filters.Aggregate(_query, (current, filter) => current.Where(filter));
-        }
-        return (TDerived) this;
-    }
-
-    public TDerived ApplySorting(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction)
-    {
-        if (keySelector != null)
-        {
-            _query = direction == SortDirections.Desc
-                ? _query.OrderByDescending(keySelector)
-                : _query.OrderBy(keySelector);
-        }
-        return (TDerived) this;
-    }
-
-    public TDerived ApplySorting(SortAction<TEntity>? sortAction)
-    {
-        if (sortAction != null)
-        {
-            _query = sortAction.Direction == SortDirections.Desc
-                ? _query.OrderByDescending(sortAction.KeySelector)
-                : _query.OrderBy(sortAction.KeySelector);
-        }
-        return (TDerived) this;
-    }
-    
-    public TDerived ApplySorting(IEnumerable<SortAction<TEntity>> sortActions)
-    {
-        if (sortActions is null || !sortActions.Any())
-            return (TDerived)this;
-
-        IOrderedQueryable<TEntity>? orderedQuery = null;
-
-        foreach (var sortAction in sortActions)
-        {
-            if (orderedQuery == null)
-            {
-                orderedQuery = sortAction.Direction == SortDirections.Desc
-                    ? _query.OrderByDescending(sortAction.KeySelector)
-                    : _query.OrderBy(sortAction.KeySelector);
-            }
-            else
-            {
-                orderedQuery = sortAction.Direction == SortDirections.Desc
-                    ? orderedQuery.ThenByDescending(sortAction.KeySelector)
-                    : orderedQuery.ThenBy(sortAction.KeySelector);
-            }
-        }
-
-        if (orderedQuery != null)
-        {
-            _query = orderedQuery;
-        }
-
-        return (TDerived) this;
-    }
-
-    public TDerived ApplyPagination(int page, int size)
-    {
-        _query = _query
-            .Skip((page - 1) * size)
-            .Take(size);
-
-        return (TDerived) this;
-    }
-
-    public TDerived Limit(int size)
-    {
-        if (size <= 0)
-            throw new InvalidOperationException("Size must be greater than 0.");
-
-        _query = _query.Take(size);
-        return (TDerived) this;
-    }
-
-    public TDerived AsExpandable()
-    {
-        _query = _query.AsExpandableEFCore();
-        return (TDerived) this;
-    }
+    private readonly List<Expression<Func<TEntity, bool>>> _filters = new();
+    private readonly List<SortAction<TEntity>> _sortActions = new();
+    private readonly List<Func<IQueryable<TEntity>, IQueryable<TEntity>>> _includes = new();
+    private int? _skip;
+    private int? _take;
+    private bool _asExpandable;
+    private bool _asNoTracking;
+    private bool _asSplitQuery;
 
     public TDerived AsNoTracking()
     {
-        _query = _query.AsNoTracking();
-        return (TDerived) this;
+        _asNoTracking = true;
+        return (TDerived)this;
     }
 
     public TDerived AsSplitQuery()
     {
-        _query = _query.AsSplitQuery();
-        return (TDerived) this;
+        _asSplitQuery = true;
+        return (TDerived)this;
     }
 
-    public IQueryable<TEntity> Build()
-        => _query;
-}
-
-public class SortAction<TEntity>
-{
-    public Expression<Func<TEntity, object?>> KeySelector { get; }
-    public SortDirections Direction { get; }
-
-    private SortAction(Expression<Func<TEntity, object?>> keySelector, SortDirections direction)
+    public IQueryable<TEntity> Apply(IQueryable<TEntity> query)
     {
-        KeySelector = keySelector;
-        Direction = direction;
+        if (_asExpandable)
+        {
+            query = query.AsExpandableEFCore();
+        }
+
+        foreach (var filter in _filters)
+        {
+            query = query.Where(filter);
+        }
+
+        if (_sortActions.Any())
+        {
+            IOrderedQueryable<TEntity>? orderedQuery = null;
+
+            foreach (var sortAction in _sortActions)
+            {
+                if (orderedQuery == null)
+                {
+                    orderedQuery = sortAction.Direction == SortDirections.Desc
+                        ? query.OrderByDescending(sortAction.KeySelector)
+                        : query.OrderBy(sortAction.KeySelector);
+                }
+                else
+                {
+                    orderedQuery = sortAction.Direction == SortDirections.Desc
+                        ? orderedQuery.ThenByDescending(sortAction.KeySelector)
+                        : orderedQuery.ThenBy(sortAction.KeySelector);
+                }
+            }
+
+            if (orderedQuery != null)
+            {
+                query = orderedQuery;
+            }
+        }
+
+        if (_skip.HasValue)
+        {
+            query = query.Skip(_skip.Value);
+        }
+
+        if (_take.HasValue)
+        {
+            query = query.Take(_take.Value);
+        }
+
+        if (_asNoTracking)
+        {
+            query = query.AsNoTracking();
+        }
+
+        if (_asSplitQuery)
+        {
+            query = query.AsSplitQuery();
+        }
+
+        return query;
     }
 
-    public static SortAction<TEntity> Asc(Expression<Func<TEntity, object?>> keySelector)
-        => new(keySelector, SortDirections.Asc);
 
-    public static SortAction<TEntity> Desc(Expression<Func<TEntity, object?>> keySelector)
-        => new(keySelector, SortDirections.Desc);
-}
+    protected TDerived FilterBy(Expression<Func<TEntity, bool>>? filter)
+    {
+        if (filter != null)
+        {
+            _filters.Add(filter);
+        }
+        return (TDerived)this;
+    }
 
-public enum SortDirections
-{
-    Asc,
-    Desc
-}
+    protected TDerived FilterBy(IEnumerable<Expression<Func<TEntity, bool>>>? filters)
+    {
+        if (filters?.Any() ?? false)
+        {
+            _filters.AddRange(filters);
+        }
+        return (TDerived)this;
+    }
 
-public interface IQuery<TEntity> where TEntity : class
-{
-    IQuery<TEntity> ApplyFilter(Expression<Func<TEntity, bool>>? filter);
+    protected TDerived SortBy(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction)
+    {
+        if (keySelector != null)
+        {
+            _sortActions.Add(direction == SortDirections.Desc
+                ? SortAction<TEntity>.Desc(keySelector)
+                : SortAction<TEntity>.Asc(keySelector));
+        }
+        return (TDerived)this;
+    }
 
-    IQuery<TEntity> ApplyFilters(IEnumerable<Expression<Func<TEntity, bool>>>? filters);
+    protected TDerived SortBy(SortAction<TEntity>? sortAction)
+    {
+        if (sortAction != null)
+        {
+            _sortActions.Add(sortAction);
+        }
+        return (TDerived)this;
+    }
 
-    IQuery<TEntity> ApplySorting(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction);
+    protected TDerived SortBy(IEnumerable<SortAction<TEntity>> sortActions)
+    {
+        if (sortActions?.Any() ?? false)
+        {
+            _sortActions.AddRange(sortActions);
+        }
+        return (TDerived)this;
+    }
 
-    IQuery<TEntity> ApplySorting(SortAction<TEntity>? sortAction);
+    protected TDerived Paginate(int page, int size)
+    {
+        _skip = (page - 1) * size;
+        _take = size;
+        return (TDerived)this;
+    }
 
-    IQuery<TEntity> ApplySorting(IEnumerable<SortAction<TEntity>> sortActions);
+    protected TDerived Limit(int size)
+    {
+        if (size <= 0)
+            throw new InvalidOperationException("Size must be greater than 0.");
 
-    IQuery<TEntity> ApplyPagination(int page, int size);
+        _take = size;
+        return (TDerived)this;
+    }
 
-    IQuery<TEntity> Limit(int size);
+    public TDerived AsExpandable()
+    {
+        _asExpandable = true;
+        return (TDerived)this;
+    }
 
-    IQuery<TEntity> AsExpandable();
-
-    IQuery<TEntity> AsNoTracking();
-
-    IQuery<TEntity> AsSplitQuery();
-
-    IQueryable<TEntity> Build();
+    protected TDerived Include(Func<IQueryable<TEntity>, IQueryable<TEntity>> include)
+    {
+        _includes.Add(include);
+        return (TDerived)this;
+    }
 }

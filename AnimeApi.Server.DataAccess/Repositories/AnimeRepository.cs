@@ -44,7 +44,7 @@ public class AnimeRepository : IAnimeRepository
             .AsNoTracking()
             .AsSplitQuery()
             .IncludeFullRelation()
-            .ApplySorting(SortAction<Anime>.Desc(a => a.Score));
+            .SortBy(SortAction<Anime>.Desc(a => a.Score));
         
         return await query.Build().ToListAsync();
     }
@@ -65,8 +65,8 @@ public class AnimeRepository : IAnimeRepository
             .AsNoTracking()
             .AsSplitQuery()
             .IncludeFullRelation()
-            .ApplySorting(SortAction<Anime>.Desc(a => a.Score))
-            .ApplyPagination(page, size);
+            .SortBy(SortAction<Anime>.Desc(a => a.Score))
+            .Paginate(page, size);
         
         var entities = await query.Build().ToListAsync();
 
@@ -88,15 +88,15 @@ public class AnimeRepository : IAnimeRepository
             .AsSplitQuery()
             .AsExpandable()
             .IncludeFullRelation()
-            .ApplyFilters([
+            .FilterBy([
                 a => !string.IsNullOrEmpty(a.Rating),
                 a => !a.Rating.ToLower().Contains(Constants.Ratings.AdultContent),
             ])
-            .ApplySorting(SortAction<Anime>.Desc(a => a.Score));
+            .SortBy(SortAction<Anime>.Desc(a => a.Score));
 
         var count = await query.Build().CountAsync();
         var entities = await query
-            .ApplyPagination(page, size)
+            .Paginate(page, size)
             .Build()
             .ToListAsync();
 
@@ -109,7 +109,7 @@ public class AnimeRepository : IAnimeRepository
             .AsNoTracking()
             .AsSplitQuery()
             .IncludeFullRelation()
-            .ApplyFilter(a => ids.Contains(a.Id))
+            .FilterBy(a => ids.Contains(a.Id))
             .Build()
             .ToListAsync();
     }
@@ -126,14 +126,14 @@ public class AnimeRepository : IAnimeRepository
             .AsNoTracking()
             .AsSplitQuery()
             .IncludeFullRelation()
-            .ApplyFilters(
+            .FilterBy(
             [
                 a => a.Started_Airing != null,
                 a => a.Started_Airing <= DateTime.UtcNow,
                 a => !string.IsNullOrEmpty(a.Rating),
                 a => !a.Rating.Contains(Constants.Ratings.AdultContent)
             ])
-            .ApplySorting(
+            .SortBy(
             [
                 SortAction<Anime>.Desc(a => a.Started_Airing),
                 SortAction<Anime>.Desc(a => a.Score)
@@ -150,7 +150,7 @@ public class AnimeRepository : IAnimeRepository
             .AsNoTracking()
             .AsSplitQuery()
             .IncludeFullRelation()
-            .ApplyFilter(condition)
+            .FilterBy(condition)
             .Build()
             .FirstOrDefaultAsync();
     }
@@ -178,21 +178,21 @@ public class AnimeRepository : IAnimeRepository
 
         if (filters is not null)
         {
-           query.ApplyFilters(filters);
+           query.FilterBy(filters);
         }
 
         if (orderBy is not null)
         {
-          query.ApplySorting(orderBy, direction);
+          query.SortBy(orderBy, direction);
         }
         else
         {
-          query.ApplySorting(SortAction<Anime>.Desc(a => a.Score));
+          query.SortBy(SortAction<Anime>.Desc(a => a.Score));
         }
 
         var count = await query.Build().CountAsync();
         
-        query.ApplyPagination(page, size);
+        query.Paginate(page, size);
 
         var resultQuery = query.Build();
         var entities = await 
@@ -347,7 +347,7 @@ public class AnimeRepository : IAnimeRepository
         var query = new AnimeQuery(_context.Anime)
             .IncludeFullRelation()
             .AsSplitQuery()
-            .ApplyFilter(a => a.Id == id);
+            .FilterBy(a => a.Id == id);
 
         if (!trackEntity)
         {

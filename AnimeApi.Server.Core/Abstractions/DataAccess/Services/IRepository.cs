@@ -23,14 +23,14 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <param name="specification"></param>
     /// <returns></returns>
-    Task<TDto?> FindFirstOrDefaultAsync(ISpecification<TEntity> specification);
+    Task<TDto?> FindFirstOrDefaultAsync(IQuerySpec<TEntity> specification);
     
     /// <summary>
     /// 
     /// </summary>
     /// <param name="specification"></param>
     /// <returns></returns>
-    Task<IEnumerable<TDto>> FindAsync(ISpecification<TEntity> specification);
+    Task<IEnumerable<TDto>> FindAsync(IQuerySpec<TEntity> specification);
 
     /// <summary>
     /// 
@@ -43,7 +43,7 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <param name="specification"></param>
     /// <returns></returns>
-    Task<int> CountAsync(ISpecification<TEntity> specification);
+    Task<int> CountAsync(IQuerySpec<TEntity> specification);
 
     /// <summary>
     /// 
@@ -71,19 +71,19 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <param name="specification"></param>
     /// <returns></returns>
-    Task<bool> DeleteAsync(ISpecification<TEntity> specification);
+    Task<bool> DeleteAsync(IQuerySpec<TEntity> specification);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="specification"></param>
     /// <returns></returns>
-    Task<bool> DeleteRangeAsync(ISpecification<TEntity> specification);
+    Task<bool> DeleteRangeAsync(IQuerySpec<TEntity> specification);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="specification"></param>
     /// <returns></returns>
-    Task<bool> ExistsAsync(ISpecification<TEntity> specification);
+    Task<bool> ExistsAsync(IQuerySpec<TEntity> specification);
 }

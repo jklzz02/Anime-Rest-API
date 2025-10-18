@@ -3,6 +3,7 @@ using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.DataAccess.Context;
+using AnimeApi.Server.DataAccess.QueryHelpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Repositories
@@ -20,7 +21,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
             _mapper = mapper;
         }
 
-        public async Task<int> CountAsync(ISpecification<TEntity> specification)
+        public async Task<int> CountAsync(IQuerySpec<TEntity> specification)
         {
             return await
                 specification
@@ -29,7 +30,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
         }
 
 
-        public async Task<IEnumerable<TDto>> FindAsync(ISpecification<TEntity> specification)
+        public async Task<IEnumerable<TDto>> FindAsync(IQuerySpec<TEntity> specification)
         {
             List<TEntity> result = await
                 specification
@@ -39,7 +40,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
             return _mapper.MapToDto(result);
         }
 
-        public async Task<TDto?> FindFirstOrDefaultAsync(ISpecification<TEntity> specification)
+        public async Task<TDto?> FindFirstOrDefaultAsync(IQuerySpec<TEntity> specification)
         {
             TEntity? result = await
                 specification
@@ -102,7 +103,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
                 : Result<IEnumerable<TDto>>.InternalFailure("Failed to update entities.", "An error occurred while saving the entities to the database.");
         }
 
-        public async Task<bool> DeleteAsync(ISpecification<TEntity> specification)
+        public async Task<bool> DeleteAsync(IQuerySpec<TEntity> specification)
         {
             TDto? result = await
                 FindFirstOrDefaultAsync(specification);
@@ -117,7 +118,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteRangeAsync(ISpecification<TEntity> specification)
+        public async Task<bool> DeleteRangeAsync(IQuerySpec<TEntity> specification)
         {
             var result = await
                 FindAsync(specification);
@@ -136,7 +137,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
             return await _context.Set<TEntity>().CountAsync();
         }
 
-        public async Task<bool> ExistsAsync(ISpecification<TEntity> specification)
+        public async Task<bool> ExistsAsync(IQuerySpec<TEntity> specification)
         {
             return await CountAsync(specification) > 0;
         }
