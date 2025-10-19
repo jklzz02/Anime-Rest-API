@@ -118,6 +118,36 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
     }
 
 
+    public TDerived SortBy(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction)
+    {
+        if (keySelector != null)
+        {
+            _sortActions.Add(direction == SortDirections.Desc
+                ? SortAction<TEntity>.Desc(keySelector)
+                : SortAction<TEntity>.Asc(keySelector));
+        }
+        return (TDerived)this;
+    }
+
+    public TDerived SortBy(SortAction<TEntity>? sortAction)
+    {
+        if (sortAction != null)
+        {
+            _sortActions.Add(sortAction);
+        }
+
+        return (TDerived)this;
+    }
+
+    public TDerived SortBy(IEnumerable<SortAction<TEntity>> sortActions)
+    {
+        if (sortActions?.Any() ?? false)
+        {
+            _sortActions.AddRange(sortActions);
+        }
+        return (TDerived)this;
+    }
+
     protected TDerived FilterBy(Expression<Func<TEntity, bool>>? filter)
     {
         if (filter != null)
@@ -135,36 +165,6 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
             _filters.AddRange(filters);
         }
         
-        return (TDerived) this;
-    }
-
-    protected TDerived SortBy(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction)
-    {
-        if (keySelector != null)
-        {
-            _sortActions.Add(direction == SortDirections.Desc
-                ? SortAction<TEntity>.Desc(keySelector)
-                : SortAction<TEntity>.Asc(keySelector));
-        }
-        return (TDerived)this;
-    }
-
-    protected TDerived SortBy(SortAction<TEntity>? sortAction)
-    {
-        if (sortAction != null)
-        {
-            _sortActions.Add(sortAction);
-        }
-
-        return (TDerived) this;
-    }
-
-    protected TDerived SortBy(IEnumerable<SortAction<TEntity>> sortActions)
-    {
-        if (sortActions?.Any() ?? false)
-        {
-            _sortActions.AddRange(sortActions);
-        }
         return (TDerived) this;
     }
 
