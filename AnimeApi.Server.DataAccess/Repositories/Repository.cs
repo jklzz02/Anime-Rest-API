@@ -64,6 +64,8 @@ namespace AnimeApi.Server.DataAccess.Repositories
 
         public virtual async Task<Result<TDto>> AddAsync(TEntity entity)
         {
+            Detach(entity);
+            
            var createdEntity = await 
                 Context.Set<TEntity>()
                     .AddAsync(entity);
@@ -77,6 +79,8 @@ namespace AnimeApi.Server.DataAccess.Repositories
 
         public async Task<Result<IEnumerable<TDto>>> AddRangeAsync(IEnumerable<TEntity> entity)
         {
+            Detach(entity);
+            
             await Context.Set<TEntity>().AddRangeAsync(entity);
             bool saveResult = await Context.SaveChangesAsync() > 0;
 
@@ -87,6 +91,8 @@ namespace AnimeApi.Server.DataAccess.Repositories
 
         public virtual async Task<Result<TDto>> UpdateAsync(TEntity entity)
         {
+            Detach(entity);
+            
             Context.Set<TEntity>().Update(entity);
             bool saveResult = await Context.SaveChangesAsync() > 0;
             return saveResult
@@ -96,6 +102,8 @@ namespace AnimeApi.Server.DataAccess.Repositories
 
         public async Task<Result<IEnumerable<TDto>>> UpdateRangeAsync(IEnumerable<TEntity> entity)
         {
+            Detach(entity);
+            
             Context.Set<TEntity>().UpdateRange(entity);
             bool saveResult = await Context.SaveChangesAsync() > 0;
             return saveResult
@@ -140,6 +148,16 @@ namespace AnimeApi.Server.DataAccess.Repositories
         public async Task<bool> ExistsAsync(IQuerySpec<TEntity> specification)
         {
             return await CountAsync(specification) > 0;
+        }
+
+        protected void Detach(TEntity entity)
+        {
+            Context.Entry(entity).State = EntityState.Detached;
+        }
+
+        protected void Detach(IEnumerable<TEntity> entities)
+        {
+            entities.ToList().ForEach(Detach);
         }
     }
 }
