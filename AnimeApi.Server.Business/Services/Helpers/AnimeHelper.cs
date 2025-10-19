@@ -25,6 +25,7 @@ public class AnimeHelper : IAnimeHelper
     {
         _repository = repository;
         _validator = validator;
+        _mapper = mapper;
         _paramsValidator = paramsValidator;
     }
     

@@ -69,6 +69,13 @@ public interface IRepository<TEntity, TDto>
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    Task<Result<IEnumerable<TDto>>> UpdateRangeAsync(IEnumerable<TEntity> entity);
+
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="specification"></param>
     /// <returns></returns>
     Task<bool> DeleteAsync(IQuerySpec<TEntity> specification);
