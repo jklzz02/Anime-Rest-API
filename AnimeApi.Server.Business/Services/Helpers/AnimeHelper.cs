@@ -2,6 +2,7 @@ using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
@@ -63,6 +64,7 @@ public class AnimeHelper : IAnimeHelper
         var query = new AnimeQuery()
             .AsNoTracking()
             .AsSplitQuery()
+            .SortBy(a => a.Score, SortDirections.Desc)
             .Paginate(page, size)
             .IncludeFullRelation();
 
@@ -85,6 +87,7 @@ public class AnimeHelper : IAnimeHelper
         var items = await
             _repository.FindAsync(
                 query
+                    .SortBy(a => a.Score, SortDirections.Desc)
                     .Paginate(page, size)
                     .IncludeFullRelation());
 
@@ -108,6 +111,7 @@ public class AnimeHelper : IAnimeHelper
         var query = new AnimeQuery()
             .AsNoTracking()
             .IncludeFullRelation()
+            .SortBy(a => a.Score, SortDirections.Desc)
             .Limit(count);
 
         var result = await

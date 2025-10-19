@@ -22,7 +22,12 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDataAccess(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<AnimeDbContext>(options =>
-            options.UseNpgsql(new NpgsqlConnection(connectionString), pgSqlOptions => pgSqlOptions.EnableRetryOnFailure()));
+            options.UseNpgsql(new NpgsqlConnection(connectionString), pgSqlOptions =>
+            {
+                pgSqlOptions
+                    .EnableRetryOnFailure()
+                    .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            }));
 
         services.AddScoped<IRepository<Anime, AnimeDto>, AnimeRepository>();
         services.AddScoped<IRepository<Producer, ProducerDto>, Repository<Producer, ProducerDto>>();
