@@ -31,6 +31,6 @@ public record RefreshTokenDto
 
     public void Revoke()
     {
-        RevokedAt = DateTime.UtcNow;
+        RevokedAt = DateTime.UtcNow.ToUniversalTime();
     }
 }

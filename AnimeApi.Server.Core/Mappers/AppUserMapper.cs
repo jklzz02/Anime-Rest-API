@@ -17,7 +17,7 @@ public class AppUserMapper : Mapper<AppUser, AppUserDto>
             Username = appUser.Username,
             CreatedAt = appUser.Created_At,
             ProfilePictureUrl = appUser.Picture_Url,
-            Admin = appUser.Role.Access.EqualsIgnoreCase(UserAccess.Admin)
+            Admin = appUser.Role?.Access.EqualsIgnoreCase(UserAccess.Admin) ?? false
         };
     }
 

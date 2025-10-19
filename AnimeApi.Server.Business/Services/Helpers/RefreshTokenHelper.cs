@@ -64,6 +64,7 @@ public class RefreshTokenHelper : IRefreshTokenHelper
             _repository.FindFirstOrDefaultAsync(
                 new TokenQuery()
                     .ByToken(token)
+                    .AsNoTracking()
                 );
 
         if (dto is null)
@@ -82,7 +83,8 @@ public class RefreshTokenHelper : IRefreshTokenHelper
     public async Task<bool> RevokeByUserIdAsync(int userId)
     {
         var query = new TokenQuery()
-            .ByUser(userId);
+            .ByUser(userId)
+            .AsNoTracking();
 
         var tokens = await 
             _repository.FindAsync(query);

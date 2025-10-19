@@ -262,6 +262,18 @@ public partial class AnimeDbContext : DbContext
             entity.Property(e => e.Revoked_At)
                 .HasColumnType("timestampz");
 
+            entity.Property(e => e.Created_At)
+                .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+            );
+
+            entity.Property(e => e.Expires_At)
+                .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+            );
+
             entity
                 .HasIndex(e => e.Hashed_Token, "Refresh_Token_Hashed_Token__index");
         });

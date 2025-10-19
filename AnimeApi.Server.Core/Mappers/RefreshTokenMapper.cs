@@ -24,10 +24,10 @@ public class RefreshTokenMapper : Mapper<RefreshToken, RefreshTokenDto>, IMapper
         return new RefreshToken
         {
             Id = refreshToken.Id,
-            Created_At = refreshToken.CreatedAt,
-            Expires_At = refreshToken.ExpiresAt,
+            Created_At = refreshToken.CreatedAt.ToUniversalTime(),
+            Expires_At = refreshToken.ExpiresAt.ToUniversalTime(),
             Hashed_Token = refreshToken.HashedToken,
-            Revoked_At = refreshToken.RevokedAt,
+            Revoked_At = refreshToken.RevokedAt?.ToUniversalTime(),
             User_Id = refreshToken.UserId,
         };
     }

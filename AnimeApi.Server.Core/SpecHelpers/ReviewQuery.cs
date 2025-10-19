@@ -32,7 +32,7 @@ public class ReviewQuery : QuerySpec<Review, ReviewQuery>
 
     public ReviewQuery RecentByTimeSpan(TimeSpan span)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.UtcNow.ToUniversalTime();
         var range = now - span;
 
         FilterBy(r => r.Created_At <= now && r.Created_At >= range);
