@@ -5,7 +5,7 @@ using AnimeApi.Server.Core.Abstractions.Dto;
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
 public class BaseMapper<TEntity, TDto> : IMapper<TEntity, TDto>
-    where TEntity : class, IBaseModel, new()
+    where TEntity : class, IBaseEntity, new()
     where TDto : class, IBaseDto, new()
 {
     public TDto MapToDto(TEntity entity)

@@ -31,7 +31,7 @@ public class FavouritesRepository : IFavouritesRepository
         
         if (entity != null)
         {
-            return Result<Favourite>.ValidationFailure("Favourit" ,$"Favourite with anime id '{animeId}' and user id '{userId}' already exists.");
+            return Result<Favourite>.ValidationFailure("Favourite" ,$"Favourite with anime id '{animeId}' and user id '{userId}' already exists.");
         }
 
         var newEntity = new Favourite

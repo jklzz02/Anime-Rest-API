@@ -1,4 +1,3 @@
-using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
@@ -6,9 +5,9 @@ using static AnimeApi.Server.Core.Constants;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
-public class AppUserMapper : IMapper<AppUser, AppUserDto>
+public static class AppUserMapper
 {
-    public AppUserDto MapToDto(AppUser appUser)
+    public static AppUserDto ToDto(this AppUser appUser)
     {
         return new AppUserDto
         {
@@ -21,12 +20,7 @@ public class AppUserMapper : IMapper<AppUser, AppUserDto>
         };
     }
 
-    public IEnumerable<AppUserDto> MapToDto(IEnumerable<AppUser> entities)
-    {
-        throw new NotImplementedException();
-    }
-
-    public AppUser MapToEntity(AppUserDto appUserDto, int roleId)
+    public static AppUser ToEntity(this AppUserDto appUserDto, int roleId)
     {
         return new AppUser
         {
@@ -37,15 +31,5 @@ public class AppUserMapper : IMapper<AppUser, AppUserDto>
             Picture_Url = appUserDto.ProfilePictureUrl,
             Role_Id = roleId
         };
-    }
-
-    public AppUser MapToEntity(AppUserDto dto)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IEnumerable<AppUser> MapToEntity(IEnumerable<AppUserDto> dtos)
-    {
-        throw new NotImplementedException();
     }
 }

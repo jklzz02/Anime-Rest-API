@@ -1,10 +1,12 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using AnimeApi.Server.DataAccess.Repositories;
-using AnimeApi.Server.DataAccess.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Type = AnimeApi.Server.Core.Objects.Models.Type;
 
 namespace AnimeApi.Server.DataAccess.Extensions;
 
@@ -21,12 +23,14 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<AnimeDbContext>(options =>
             options.UseNpgsql(new NpgsqlConnection(connectionString), pgSqlOptions => pgSqlOptions.EnableRetryOnFailure()));
 
-        services.AddScoped<IAnimeRepository, AnimeRepository>();
-        services.AddScoped<IProducerRepository, ProducerRepository>();
-        services.AddScoped<IGenreRepository, GenreRepository>();
-        services.AddScoped<ILicensorRepository, LicensorRepository>();
-        services.AddScoped<ISourceRepository, SourceRepository>();
-        services.AddScoped<ITypeRepository, TypeRepository>();
+        services.AddScoped<IRepository<Anime, AnimeDto>, AnimeRepository>();
+        services.AddScoped<IRepository<Producer, ProducerDto>, Repository<Producer, ProducerDto>>();
+        services.AddScoped<IRepository<Genre, GenreDto>, Repository<Genre, GenreDto>>();
+        services.AddScoped<IRepository<Licensor, LicensorDto>, Repository<Licensor, LicensorDto>>();
+        services.AddScoped<IRepository<Type, TypeDto>, Repository<Type, TypeDto>>();
+        services.AddScoped<IRepository<Source, SourceDto>, Repository<Source, SourceDto>>();
+        services.AddScoped<IRepository<Favourite, FavouriteDto>, Repository<Favourite, FavouriteDto>>();
+
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFavouritesRepository, FavouritesRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();

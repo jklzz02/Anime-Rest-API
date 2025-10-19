@@ -1,6 +1,6 @@
 namespace AnimeApi.Server.Core.Abstractions.DataAccess.Models;
 
-public interface IBaseModel
+public interface IBaseEntity
 {
     int Id { get; set; }
     string Name { get; set; }

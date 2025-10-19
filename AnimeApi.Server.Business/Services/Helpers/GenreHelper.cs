@@ -1,42 +1,58 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Business.Extensions.Mappers;
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.SpecHelpers;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
 public class GenreHelper : IGenreHelper
 {
-    private readonly IGenreRepository _repository;
+    private readonly IRepository<Genre, GenreDto> _repository;
+    private readonly IMapper<Genre, GenreDto> _mapper;
     private readonly IBaseValidator<GenreDto> _validator;
-    public GenreHelper(IGenreRepository repository, IBaseValidator<GenreDto> validator)
+    public GenreHelper(
+        IRepository<Genre, GenreDto> repository,
+        IMapper<Genre, GenreDto> mapper,
+        IBaseValidator<GenreDto> validator)
     {
         _repository = repository;
+        _mapper = mapper;
         _validator = validator;
     }
 
     public async Task<GenreDto?> GetByIdAsync(int id)
     {
-        var model = await _repository.GetByIdAsync(id);
-        return model?.MapTo<GenreDto>();
+        var query = new BaseQuery()
+            .ById(id)
+            .AsNoTracking()
+            .ToQuerySpec<Genre>();
+
+        return await 
+            _repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<GenreDto>> GetByNameAsync(string name)
     {
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
-        
-        var models = await _repository.GetByNameAsync(name);
-        return models.MapTo<GenreDto>();
+
+        var query = new BaseQuery()
+            .ByName(name)
+            .AsNoTracking()
+            .ToQuerySpec<Genre>();
+
+        return await
+            _repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<GenreDto>> GetAllAsync()
     {
-        var models = await _repository.GetAllAsync();
-        return models.MapTo<GenreDto>();
+        return await 
+            _repository.GetAllAsync();
     }
 
     public async Task<Result<GenreDto>> CreateAsync(GenreDto entity)
@@ -44,12 +60,12 @@ public class GenreHelper : IGenreHelper
       
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
-        var ids = await _repository.GetExistingIdsAsync();
-        var names = await _repository.GetExistingNamesAsync();
+        var existing = await 
+            _repository.GetAllAsync();
 
         _validator
-            .WithExistingIds(ids)
-            .WithExistingNames(names);
+            .WithExistingIds(existing.Select(g => g.Id.GetValueOrDefault()))
+            .WithExistingNames(existing.Select(g => g.Name));
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
@@ -60,16 +76,14 @@ public class GenreHelper : IGenreHelper
             return Result<GenreDto>.Failure(errors);
         }
 
-        var model = entity.MapTo<Genre>();
-        var result = await _repository.AddAsync(model);
+        var result = await _repository.AddAsync(_mapper.MapToEntity(entity));
         
         if (result.IsFailure)
         {
             return Result<GenreDto>.Failure(result.Errors);
         }
         
-        var data = result.Data.MapTo<GenreDto>();
-        return Result<GenreDto>.Success(data);
+        return result;
     }
 
     public async Task<Result<GenreDto>> UpdateAsync(GenreDto entity)
@@ -85,20 +99,23 @@ public class GenreHelper : IGenreHelper
             return Result<GenreDto>.Failure(errors);
         }
 
-        var model = entity.MapTo<Genre>();
-        var result = await _repository.UpdateAsync(model);
+        var result = await _repository.UpdateAsync(_mapper.MapToEntity(entity));
         
         if (result.IsFailure)
         {
             return Result<GenreDto>.Failure(result.Errors);
         }
         
-        var data = result.Data.MapTo<GenreDto>();
-        return Result<GenreDto>.Success(data);
+        return result;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        return await _repository.DeleteAsync(id);
+        var query = new BaseQuery()
+            .ById(id)
+            .AsNoTracking()
+            .ToQuerySpec<Genre>();
+
+        return await _repository.DeleteAsync(query);
     }
 }

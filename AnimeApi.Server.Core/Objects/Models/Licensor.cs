@@ -2,7 +2,7 @@
 
 namespace AnimeApi.Server.Core.Objects.Models;
 
-public partial class Licensor : IBaseModel
+public partial class Licensor : IBaseEntity
 {
     public int Id { get; set; }
 

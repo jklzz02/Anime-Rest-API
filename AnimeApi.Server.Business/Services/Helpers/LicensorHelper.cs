@@ -1,51 +1,66 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Business.Extensions.Mappers;
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.SpecHelpers;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
 public class LicensorHelper : ILicensorHelper
 {
-    private readonly ILicensorRepository _repository;
+    private readonly IRepository<Licensor, LicensorDto> _repository;
+    private readonly IMapper<Licensor, LicensorDto> _mapper;
     private readonly IBaseValidator<LicensorDto> _validator;
-    public LicensorHelper(ILicensorRepository repository, IBaseValidator<LicensorDto> validator)
+    public LicensorHelper(
+        IRepository<Licensor, LicensorDto> repository,
+        IMapper<Licensor, LicensorDto> mapper,
+        IBaseValidator<LicensorDto> validator)
     {
         _repository = repository;
         _validator = validator;
+        _mapper = mapper;
     }
     public async Task<LicensorDto?> GetByIdAsync(int id)
     {
-        var model = await _repository.GetByIdAsync(id);
-        return model?.MapTo<LicensorDto>();
+        var query = new BaseQuery()
+            .ById(id)
+            .AsNoTracking()
+            .ToQuerySpec<Licensor>();
+
+        return await
+            _repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<LicensorDto>> GetByNameAsync(string name)
     {
-        var models = await _repository.GetByNameAsync(name);
-        return models.MapTo<LicensorDto>();
+        var query = new BaseQuery()
+            .ByName(name)
+            .AsNoTracking()
+            .ToQuerySpec<Licensor>();
+
+        return await
+            _repository.FindAsync(query);
     }
     
     public async Task<IEnumerable<LicensorDto>> GetAllAsync()
     {
-        var models = await _repository.GetAllAsync();
-        return models.MapTo<LicensorDto>();
+        return await 
+            _repository.GetAllAsync();
     }
 
     public async Task<Result<LicensorDto>> CreateAsync(LicensorDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
         
-        var ids = await _repository.GetExistingIdsAsync();
-        var names = await _repository.GetExistingNamesAsync();
+        var existing = await _repository.GetAllAsync();
 
         _validator
-            .WithExistingIds(ids)
-            .WithExistingNames(names);
+            .WithExistingIds(existing.Select(l => l.Id.GetValueOrDefault()))
+            .WithExistingNames(existing.Select(l => l.Name));
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
@@ -56,16 +71,15 @@ public class LicensorHelper : ILicensorHelper
             return Result<LicensorDto>.Failure(errors);
         }
         
-        var model = entity.MapTo<Licensor>();
-        var result = await _repository.AddAsync(model);
+        var result = 
+            await _repository.AddAsync(_mapper.MapToEntity(entity));
 
         if (result.IsFailure)
         {
             return Result<LicensorDto>.Failure(result.Errors);
         }
         
-        var data = result.Data.MapTo<LicensorDto>();
-        return Result<LicensorDto>.Success(data);
+        return result;
     }
 
     public async Task<Result<LicensorDto>> UpdateAsync(LicensorDto entity)
@@ -81,20 +95,24 @@ public class LicensorHelper : ILicensorHelper
             return Result<LicensorDto>.Failure(errors);
         }
         
-        var model = entity.MapTo<Licensor>();
-        var result = await _repository.UpdateAsync(model);
+        var result = await _repository.UpdateAsync(_mapper.MapToEntity(entity));
 
         if (result.IsFailure)
         {
             return Result<LicensorDto>.Failure(result.Errors);
         }
         
-        var data = result.Data.MapTo<LicensorDto>();
-        return Result<LicensorDto>.Success(data);
+        return result;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        return await _repository.DeleteAsync(id);
+        var query = new BaseQuery()
+            .ById(id)
+            .AsNoTracking()
+            .ToQuerySpec<Licensor>();
+
+        return await 
+            _repository.DeleteAsync(query);
     }
 }

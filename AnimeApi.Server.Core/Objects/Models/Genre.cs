@@ -2,7 +2,7 @@
 
 namespace AnimeApi.Server.Core.Objects.Models;
 
-public partial class Genre : IBaseModel
+public partial class Genre : IBaseEntity
 {
     public int Id { get; set; }
 

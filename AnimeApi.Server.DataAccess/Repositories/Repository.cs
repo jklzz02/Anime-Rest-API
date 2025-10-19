@@ -7,14 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Repositories
 {
-    public class BaseRepository<TEntity, TDto> : IRepository<TEntity, TDto>
+    public class Repository<TEntity, TDto> : IRepository<TEntity, TDto>
         where TEntity : class
         where TDto : class
     {
         protected AnimeDbContext Context {  get; }
         protected readonly IMapper<TEntity, TDto> _mapper;
 
-        public BaseRepository(AnimeDbContext context, IMapper<TEntity, TDto> mapper)
+        public Repository(AnimeDbContext context, IMapper<TEntity, TDto> mapper)
         {
             Context = context;
             _mapper = mapper;
@@ -56,6 +56,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
         {
             List<TEntity> result = await
                 Context.Set<TEntity>()
+                    .AsNoTracking()
                     .ToListAsync();
 
             return _mapper.MapToDto(result);

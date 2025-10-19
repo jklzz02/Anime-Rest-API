@@ -1,11 +1,12 @@
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
-public static class FavouritesMapper
+public class FavouritesMapper : IMapper<Favourite, FavouriteDto>
 {
-    public static FavouriteDto ToDto(this Favourite entity)
+    public FavouriteDto MapToDto(Favourite entity)
     {
         return new FavouriteDto
         {
@@ -14,7 +15,7 @@ public static class FavouritesMapper
         };
     }
 
-    public static Favourite ToModel(this FavouriteDto dto)
+    public Favourite MapToEntity(FavouriteDto dto)
     {
         return new Favourite
         {
@@ -23,13 +24,13 @@ public static class FavouritesMapper
         };
     }
 
-    public static IEnumerable<FavouriteDto> ToDto(this IEnumerable<Favourite> entities)
+    public IEnumerable<FavouriteDto> MapToDto( IEnumerable<Favourite> entities)
     {
-        return entities.Select(e => e.ToDto());
+        return entities.Select(MapToDto);
     }
 
-    public static IEnumerable<Favourite> ToModel(this IEnumerable<FavouriteDto> dto)
+    public IEnumerable<Favourite> MapToEntity(IEnumerable<FavouriteDto> dto)
     {
-        return dto.Select(d => d.ToModel());
+        return dto.Select(MapToEntity);
     }
 }

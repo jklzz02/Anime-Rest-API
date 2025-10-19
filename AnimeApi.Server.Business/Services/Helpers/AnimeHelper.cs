@@ -1,5 +1,5 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Business.Extensions.Mappers;
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
@@ -13,11 +13,13 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class AnimeHelper : IAnimeHelper
 {
     private readonly IRepository<Anime, AnimeDto> _repository;
+    private readonly IAnimeMapper _mapper;
     private readonly IValidator<AnimeDto> _validator;
     private readonly IValidator<AnimeSearchParameters> _paramsValidator;
     
     public AnimeHelper(
         IRepository<Anime, AnimeDto> repository,
+        IAnimeMapper mapper,
         IValidator<AnimeDto> validator,
         IValidator<AnimeSearchParameters> paramsValidator)
     {
@@ -125,8 +127,8 @@ public class AnimeHelper : IAnimeHelper
             
              return Result<AnimeDto>.Failure(errors);
         }
-        
-        var model = entity.ToModel(false);
+
+        var model = _mapper.MapToEntity(entity, false);
         var result = await _repository.AddAsync(model);
         
         if (result.IsFailure)
@@ -134,7 +136,7 @@ public class AnimeHelper : IAnimeHelper
             return Result<AnimeDto>.Failure(result.Errors);
         }
 
-        return Result<AnimeDto>.Success(result.Data);
+        return result;
     }
     
     public async Task<Result<AnimeDto>> UpdateAsync(AnimeDto entity)
@@ -150,14 +152,14 @@ public class AnimeHelper : IAnimeHelper
             return Result<AnimeDto>.Failure(errors);
         }
         
-        var model = entity.ToModel();
+        var model = _mapper.MapToEntity(entity);
         var result = await _repository.UpdateAsync(model);
         if (result.IsFailure)
         {
             return Result<AnimeDto>.Failure(result.Errors);
         }
         
-        return Result<AnimeDto>.Success(result.Data);
+        return result;
     }
     
     public async Task<bool> DeleteAsync(int id)

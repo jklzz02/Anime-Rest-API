@@ -208,7 +208,14 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
         if (count <= 0)
             throw new InvalidOperationException("Count must be greater than 0.");
 
-        SortBy(a => a.Started_Airing, SortDirections.Desc);
+        FilterBy([
+            a => a.Started_Airing != null,
+            a => a.Started_Airing <= DateTime.UtcNow,
+        ]);
+        SortBy([
+            SortAction<Anime>.Desc(a => a.Started_Airing),
+            SortAction<Anime>.Desc(a => a.Score)
+        ]);
         Limit(count);
 
         return this;

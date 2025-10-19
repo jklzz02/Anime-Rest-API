@@ -12,11 +12,11 @@ namespace AnimeApi.Server.DataAccess.Repositories;
 /// Represents a repository for managing and querying Anime data.
 /// </summary>
 /// <remarks>
-/// This class provides the implementation of the <see cref="BaseRepository{TEntity, TDto}"/>
+/// This class provides the implementation of the <see cref="Repository{TEntity, TDto}"/>
 /// and serves as a mediator between the database and application logic,
 /// enabling operations such as retrieval, addition, update, and deletion of <see cref="Anime"/> entities.
 /// </remarks>
-public class AnimeRepository : BaseRepository<Anime, AnimeDto>
+public class AnimeRepository : Repository<Anime, AnimeDto>
 {
     private readonly IAnimeMapper _animeMapper;
 

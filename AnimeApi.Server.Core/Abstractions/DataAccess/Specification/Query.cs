@@ -48,6 +48,11 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
             query = query.Where(filter);
         }
 
+        foreach (var include in _includes)
+        {
+            query = include(query);
+        }
+
         if (_sortActions.Any())
         {
             IOrderedQueryable<TEntity>? orderedQuery = null;

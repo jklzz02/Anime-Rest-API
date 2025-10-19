@@ -63,7 +63,7 @@ public class UserService : IUserService
         var role = await _roleRepository
             .GetByAccessAsync(Constants.UserAccess.User);
 
-        await _userRepository.CreateAsync(newUser.ToModel(role!.Id));
+        await _userRepository.CreateAsync(newUser.ToEntity(role!.Id));
         return newUser;
     }
 
