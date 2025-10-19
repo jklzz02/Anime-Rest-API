@@ -4,7 +4,7 @@ using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 using static AnimeApi.Server.Core.Constants;
 
-namespace AnimeApi.Server.Business.Extensions.Mappers;
+namespace AnimeApi.Server.Core.Mappers;
 
 public class AppUserMapper : Mapper<AppUser, AppUserDto>
 {

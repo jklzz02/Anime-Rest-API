@@ -2,7 +2,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 
-namespace AnimeApi.Server.Business.Extensions.Mappers;
+namespace AnimeApi.Server.Core.Mappers;
 
 public class RefreshTokenMapper : Mapper<RefreshToken, RefreshTokenDto>, IMapper<RefreshToken, RefreshTokenDto>
 {

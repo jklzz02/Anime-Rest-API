@@ -2,7 +2,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Models;
 using AnimeApi.Server.Core.Abstractions.Dto;
 
-namespace AnimeApi.Server.Business.Extensions.Mappers;
+namespace AnimeApi.Server.Core.Mappers;
 
 public class BaseMapper<TEntity, TDto> : Mapper<TEntity, TDto>, IMapper<TEntity, TDto>
     where TEntity : class, IBaseEntity, new()
