@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Abstractions.DataAccess;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
@@ -33,6 +34,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepository<Review, ReviewDto>, Repository<Review, ReviewDto>>();
         services.AddScoped<IRepository<AppUser, AppUserDto>, Repository<AppUser, AppUserDto>>();
         services.AddScoped<IRepository<RefreshToken, RefreshTokenDto>, Repository<RefreshToken, RefreshTokenDto>>();
+        services.AddScoped<IRoles, Roles>();
         
         return services;
     }

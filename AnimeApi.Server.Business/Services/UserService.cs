@@ -1,7 +1,12 @@
 using AnimeApi.Server.Core;
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.SpecHelpers;
 
 namespace AnimeApi.Server.Business.Services;
 
@@ -11,42 +16,52 @@ namespace AnimeApi.Server.Business.Services;
 /// </summary>
 public class UserService : IUserService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IRoleRepository _roleRepository;
+    private readonly IRepository<AppUser, AppUserDto> _userRepository;
+    private readonly IMapper<AppUser, AppUserDto> _mapper;
     
-    /// <summary>
-    /// Initializes a new instance of the <see cref="UserService"/> class.
-    /// </summary>
-    /// <param name="userRepository">The repository for managing user data.</param>
-    /// <param name="roleRepository">The repository for managing role data.</param>
-    public UserService(IUserRepository userRepository, IRoleRepository roleRepository)
+    public UserService(
+        IRepository<AppUser, AppUserDto> userRepository,
+        IMapper<AppUser, AppUserDto> mapper)
     {
         _userRepository = userRepository;
-        _roleRepository = roleRepository;
+        _mapper = mapper;
     }
 
     /// <inheritdoc />
     public async Task<AppUserDto?> GetByEmailAsync(string email)
     {
-        var user =  await _userRepository.GetByEmailAsync(email);
-        return user?.ToDto();
+        var query = new UserQuery()
+            .ByEmail(email)
+            .AsNoTracking();
+        
+        return await 
+            _userRepository.FindFirstOrDefaultAsync(query);
     }
 
     /// <inheritdoc />
     public async Task<AppUserDto?> GetByIdAsync(int id)
     {
-        var user = await _userRepository.GetByIdAsync(id);
-        return user?.ToDto();
+        var query = new UserQuery()
+            .ByPk(id)
+            .AsNoTracking();
+        
+        return await 
+            _userRepository.FindFirstOrDefaultAsync(query);
     }
 
     /// <inheritdoc />
     public async Task<AppUserDto> GetOrCreateUserAsync(AuthPayload payload)
     {
-        var existingUser = await _userRepository.GetByEmailAsync(payload.Email);
+        var query = new UserQuery()
+            .ByEmail(payload.Email)
+            .AsNoTracking();
+        
+        var existingUser = 
+            await _userRepository.FindFirstOrDefaultAsync(query);
 
         if (existingUser != null)
         {
-            return existingUser.ToDto();
+            return existingUser;
         }
 
         var newUser = new AppUserDto
@@ -58,22 +73,20 @@ public class UserService : IUserService
             Admin = false
         };
 
-        var role = await _roleRepository
-            .GetByAccessAsync(Constants.UserAccess.User);
-
-        await _userRepository.CreateAsync(newUser.ToEntity(role!.Id));
-        return newUser;
+        var result = await 
+            _userRepository.AddAsync(_mapper.MapToEntity(newUser));
+        
+        return result.Data;
     }
 
     /// <inheritdoc />
     public async Task<bool> DestroyUserAsync(string email)
     {
-        var user = await _userRepository.GetByEmailAsync(email);
-        if (user == null)
-        {
-            return false;
-        }
-
-        return await _userRepository.DestroyAsync(email);
+        var query = new UserQuery()
+            .ByEmail(email)
+            .AsNoTracking();
+        
+        return await 
+            _userRepository.DeleteAsync(query);
     }
 }
