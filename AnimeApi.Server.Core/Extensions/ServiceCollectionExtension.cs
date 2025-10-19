@@ -19,6 +19,9 @@ public static class ServiceCollectionExtension
         services.AddScoped<IMapper<Type, TypeDto>, BaseMapper<Type, TypeDto>>();
         services.AddScoped<IMapper<Source, SourceDto>, BaseMapper<Source, SourceDto>>();
         services.AddScoped<IMapper<Favourite, FavouriteDto>, FavouritesMapper>();
+        services.AddScoped<IMapper<Review, ReviewDto>, ReviewMapper>();
+        services.AddScoped<IMapper<RefreshToken, RefreshTokenDto>, RefreshTokenMapper>();
+        services.AddScoped<IMapper<AppUser, AppUserDto>, AppUserMapper>();
 
         return services;
     }

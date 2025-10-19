@@ -8,7 +8,7 @@ namespace AnimeApi.Server.Core.Mappers;
 /// <summary>
 /// Provides mapping methods for converting between <see cref="Anime"/> and <see cref="AnimeDto"/> objects.
 /// </summary>
-public class AnimeMapper : IAnimeMapper
+public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
 {
     private readonly IMapper<Producer, ProducerDto> _producerMapper;
     private readonly IMapper<Licensor, LicensorDto> _licensorMapper;
@@ -89,7 +89,7 @@ public class AnimeMapper : IAnimeMapper
         return entity;
     }
     
-    public AnimeDto MapToDto(Anime anime)
+    public override AnimeDto MapToDto(Anime anime)
     {
         ArgumentNullException.ThrowIfNull(anime, nameof(anime));
 
@@ -145,15 +145,9 @@ public class AnimeMapper : IAnimeMapper
         };
     }
 
-    public Anime MapToEntity(AnimeDto entity)
+    public override Anime MapToEntity(AnimeDto entity)
         => MapToEntity(entity, true);
 
     public IEnumerable<Anime> MapToEntity(IEnumerable<AnimeDto> anime, bool includeNavigation)
         => anime.Select(a => MapToEntity(a, includeNavigation));
-
-    public IEnumerable<Anime> MapToEntity(IEnumerable<AnimeDto> anime)
-        => anime.Select(a => MapToEntity(a));
-    
-    public IEnumerable<AnimeDto> MapToDto(IEnumerable<Anime> anime)
-        => anime.Select(a => MapToDto(a));
 }

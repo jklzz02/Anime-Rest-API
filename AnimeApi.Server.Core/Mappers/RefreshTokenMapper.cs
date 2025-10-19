@@ -1,11 +1,12 @@
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
-public static class RefreshTokenMapper
+public class RefreshTokenMapper : Mapper<RefreshToken, RefreshTokenDto>, IMapper<RefreshToken, RefreshTokenDto>
 {
-    public static RefreshTokenDto ToDto(this RefreshToken refreshToken)
+    public override RefreshTokenDto MapToDto(RefreshToken refreshToken)
     {
         return new RefreshTokenDto
         {
@@ -18,7 +19,7 @@ public static class RefreshTokenMapper
         };
     }
 
-    public static RefreshToken ToModel(this RefreshTokenDto refreshToken)
+    public override RefreshToken MapToEntity(RefreshTokenDto refreshToken)
     {
         return new RefreshToken
         {

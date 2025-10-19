@@ -41,6 +41,12 @@ public static class Constants
     {
         public const string Admin = "Admin";
         public const string User = "User";
+
+        public enum Roles
+        {
+            Admin = 1,
+            User = 2,
+        }
     }
 
     /// <summary>

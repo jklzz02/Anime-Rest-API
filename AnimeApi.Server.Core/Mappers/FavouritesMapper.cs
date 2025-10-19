@@ -4,9 +4,9 @@ using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
-public class FavouritesMapper : IMapper<Favourite, FavouriteDto>
+public class FavouritesMapper : Mapper<Favourite, FavouriteDto>
 {
-    public FavouriteDto MapToDto(Favourite entity)
+    public override FavouriteDto MapToDto(Favourite entity)
     {
         return new FavouriteDto
         {
@@ -15,22 +15,12 @@ public class FavouritesMapper : IMapper<Favourite, FavouriteDto>
         };
     }
 
-    public Favourite MapToEntity(FavouriteDto dto)
+    public override Favourite MapToEntity(FavouriteDto dto)
     {
         return new Favourite
         {
             User_Id = dto.UserId,
             Anime_Id = dto.AnimeId
         };
-    }
-
-    public IEnumerable<FavouriteDto> MapToDto( IEnumerable<Favourite> entities)
-    {
-        return entities.Select(MapToDto);
-    }
-
-    public IEnumerable<Favourite> MapToEntity(IEnumerable<FavouriteDto> dto)
-    {
-        return dto.Select(MapToEntity);
     }
 }

@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 
@@ -6,9 +7,9 @@ namespace AnimeApi.Server.Business.Extensions.Mappers;
 /// <summary>
 /// Provides mapping extensions for converting between <see cref="Review"/> and <see cref="ReviewDto"/> entities.
 /// </summary>
-public static class ReviewMapper
+public class ReviewMapper : Mapper<Review, ReviewDto>
 {
-    public static ReviewDto ToDto(this Review review)
+    public override ReviewDto MapToDto(Review review)
     {
         return new ReviewDto
         {
@@ -21,7 +22,7 @@ public static class ReviewMapper
         };
     }
 
-    public static Review ToModel(this ReviewDto review)
+    public override Review MapToEntity(ReviewDto review)
     {
         return new Review
         {
@@ -32,15 +33,5 @@ public static class ReviewMapper
           Anime_Id = review.AnimeId,
           User_Id = review.UserId,
         };
-    }
-
-    public static IEnumerable<ReviewDto> ToDto(this IEnumerable<Review> reviews)
-    {
-        return reviews.Select(r => r.ToDto());
-    }
-
-    public static IEnumerable<Review> ToModel(this IEnumerable<ReviewDto> reviews)
-    {
-        return reviews.Select(r => r.ToModel());
     }
 }

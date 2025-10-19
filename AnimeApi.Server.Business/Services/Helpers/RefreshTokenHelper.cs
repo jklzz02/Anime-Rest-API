@@ -2,14 +2,15 @@ using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
 public class RefreshTokenHelper : IRefreshTokenHelper
 {
-    private readonly IRefreshTokenRepository _repository;
+    private readonly IRepository<RefreshToken, RefreshTokenDto> _repository;
     
-    public RefreshTokenHelper(IRefreshTokenRepository repository)
+    public RefreshTokenHelper(IRepository<RefreshToken, RefreshTokenDto> repository)
     {
         _repository = repository;
     }

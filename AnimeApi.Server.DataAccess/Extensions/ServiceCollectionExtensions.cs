@@ -30,12 +30,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepository<Type, TypeDto>, Repository<Type, TypeDto>>();
         services.AddScoped<IRepository<Source, SourceDto>, Repository<Source, SourceDto>>();
         services.AddScoped<IRepository<Favourite, FavouriteDto>, Repository<Favourite, FavouriteDto>>();
-
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IFavouritesRepository, FavouritesRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<IReviewRepository, ReviewRepository>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IRepository<Review, ReviewDto>, Repository<Review, ReviewDto>>();
+        services.AddScoped<IRepository<AppUser, AppUserDto>, Repository<AppUser, AppUserDto>>();
+        services.AddScoped<IRepository<RefreshToken, RefreshTokenDto>, Repository<RefreshToken, RefreshTokenDto>>();
         
         return services;
     }

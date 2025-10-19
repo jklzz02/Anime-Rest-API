@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
@@ -5,9 +6,9 @@ using static AnimeApi.Server.Core.Constants;
 
 namespace AnimeApi.Server.Business.Extensions.Mappers;
 
-public static class AppUserMapper
+public class AppUserMapper : Mapper<AppUser, AppUserDto>
 {
-    public static AppUserDto ToDto(this AppUser appUser)
+    public override AppUserDto MapToDto(AppUser appUser)
     {
         return new AppUserDto
         {
@@ -20,7 +21,7 @@ public static class AppUserMapper
         };
     }
 
-    public static AppUser ToEntity(this AppUserDto appUserDto, int roleId)
+    public override AppUser MapToEntity(AppUserDto appUserDto)
     {
         return new AppUser
         {
@@ -29,7 +30,9 @@ public static class AppUserMapper
             Username = appUserDto.Username,
             Created_At = appUserDto.CreatedAt,
             Picture_Url = appUserDto.ProfilePictureUrl,
-            Role_Id = roleId
+            Role_Id = appUserDto.Admin 
+                ? (int) UserAccess.Roles.Admin
+                : (int) UserAccess.Roles.User,
         };
     }
 }
