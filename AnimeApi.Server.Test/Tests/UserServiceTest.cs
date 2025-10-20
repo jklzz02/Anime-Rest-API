@@ -1,7 +1,11 @@
 using AnimeApi.Server.Business.Services;
 using AnimeApi.Server.Core;
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
+using AnimeApi.Server.Core.Mappers;
 using AnimeApi.Server.Core.Objects.Auth;
+using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 using Moq;
 
@@ -9,8 +13,11 @@ namespace AnimeApi.Server.Test.Tests;
 
 public class UserServiceTest
 {
-    private readonly Mock<IUserRepository> _userRepositoryMock;
-    private readonly Mock<IRoleRepository> _roleRepositoryMock;
+    private Mock<IRepository<AppUser, AppUserDto>> _userRepositoryMock
+        => new();
+    private IMapper<AppUser, AppUserDto> _mapper
+        => new AppUserMapper();
+    
     private readonly UserService _service;
     private AppUser MockUser => new()
     {
@@ -25,9 +32,7 @@ public class UserServiceTest
 
     public UserServiceTest()
     {
-        _userRepositoryMock = new Mock<IUserRepository>();
-        _roleRepositoryMock = new Mock<IRoleRepository>();
-        _service = new UserService(_userRepositoryMock.Object, _roleRepositoryMock.Object);
+        _service = new UserService(_userRepositoryMock.Object, _mapper);
     }
 
     [Theory]
@@ -38,8 +43,8 @@ public class UserServiceTest
         var user = MockUser;
         user.Email = email;
         _userRepositoryMock
-            .Setup(r => r.GetByEmailAsync(email))
-            .ReturnsAsync(user);
+            .Setup(r => r.FindFirstOrDefaultAsync(It.IsAny<IQuerySpec<AppUser>>()))
+            .ReturnsAsync(_mapper.MapToDto(user));
 
         var result = await _service.GetByEmailAsync(email);
         
@@ -51,8 +56,8 @@ public class UserServiceTest
     public async Task GetById_Should_Return_Correct_User()
     {
         _userRepositoryMock
-            .Setup(r => r.GetByIdAsync(MockUser.Id))
-            .ReturnsAsync(MockUser);
+            .Setup(r => r.FindFirstOrDefaultAsync(It.IsAny<IQuerySpec<AppUser>>()))
+            .ReturnsAsync(_mapper.MapToDto(MockUser));
 
         var result = await _service.GetByIdAsync(MockUser.Id);
         
@@ -66,14 +71,14 @@ public class UserServiceTest
         var payload = new AuthPayload { Email = MockUser.Email };
 
         _userRepositoryMock
-            .Setup(r => r.GetByEmailAsync(MockUser.Email))
-            .ReturnsAsync(MockUser);
+            .Setup(r => r.FindFirstOrDefaultAsync(It.IsAny<IQuerySpec<AppUser>>()))
+            .ReturnsAsync(_mapper.MapToDto(MockUser));
 
         var result = await _service.GetOrCreateUserAsync(payload);
         
         Assert.NotNull(result);
         Assert.Equal(MockUser.Email, result.Email);
-        _userRepositoryMock.Verify(r => r.CreateAsync(It.IsAny<AppUser>()), Times.Never);
+        _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<AppUser>()), Times.Never);
     }
 
 
@@ -81,7 +86,6 @@ public class UserServiceTest
     public async Task GetOrCreateUser_Should_Create_New_User()
     {
         var email = "new@example.com";
-        var roleId = 1;
         var payload = new AuthPayload 
         { 
             Email = email,
@@ -89,12 +93,8 @@ public class UserServiceTest
         };
 
         _userRepositoryMock
-            .Setup(r => r.GetByEmailAsync(email))
-            .ReturnsAsync((AppUser?)null);
-
-        _roleRepositoryMock
-            .Setup(r => r.GetByAccessAsync(Constants.UserAccess.User))
-            .ReturnsAsync(new Role { Id = roleId });
+            .Setup(r => r.FindFirstOrDefaultAsync(It.IsAny<IQuerySpec<AppUser>>()))
+            .ReturnsAsync((AppUserDto?)null);
 
         var result = await _service.GetOrCreateUserAsync(payload);
         
@@ -112,11 +112,11 @@ public class UserServiceTest
         var user = expectedResult ? new AppUser { Email = email } : null;
         
         _userRepositoryMock
-            .Setup(r => r.GetByEmailAsync(email))
-            .ReturnsAsync(user);
+            .Setup(r => r.FindFirstOrDefaultAsync(It.IsAny<IQuerySpec<AppUser>>()))
+            .ReturnsAsync(_mapper.MapToDto(user));
 
         _userRepositoryMock
-            .Setup(r => r.DestroyAsync(email))
+            .Setup(r => r.DeleteAsync(It.IsAny<IQuerySpec<AppUser>>()))
             .ReturnsAsync(expectedResult);
 
         var result = await _service.DestroyUserAsync(email);
