@@ -149,7 +149,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    //[Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.CreateAsync(anime);
@@ -198,7 +198,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    //[Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);

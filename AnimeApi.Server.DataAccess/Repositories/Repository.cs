@@ -12,7 +12,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
         where TDto : class
     {
         protected AnimeDbContext Context { get; }
-        protected IMapper<TEntity, TDto> Mapper { get; }
+        protected IMapper<TEntity, TDto> Mapper { get; set; }
 
         public Repository(AnimeDbContext context, IMapper<TEntity, TDto> mapper)
         {

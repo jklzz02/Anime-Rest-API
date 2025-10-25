@@ -17,8 +17,6 @@ namespace AnimeApi.Server.DataAccess.Repositories;
 /// </remarks>
 public class AnimeRepository : Repository<Anime, AnimeDto>
 {
-    private readonly IAnimeMapper _animeMapper;
-
     /// <summary>
     /// Provides a repository for managing <see cref="Anime"/> entities and their corresponding data transfer objects (<see cref="AnimeDto"/>).
     /// </summary>
@@ -29,7 +27,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
     public AnimeRepository(AnimeDbContext context, IAnimeMapper mapper)
         : base(context, mapper)
     {
-        _animeMapper = mapper;
+        Mapper = mapper;
     }
 
     /// <inheritdoc />
@@ -37,7 +35,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
     {
         ArgumentNullException.ThrowIfNull(dto, nameof(dto));
 
-        var entity = _animeMapper.MapToEntity(dto);
+        var entity = Mapper.MapToEntity(dto);
 
         var anime = await 
             FindFirstOrDefaultAsync(AnimeQuery.ByPk(entity.Id).Tracked());
@@ -47,7 +45,8 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
             return Result<AnimeDto>.InternalFailure("update", $"there's no anime with id '{entity.Id}'.");
         }
 
-        var existingEntity = _animeMapper.MapToEntity(anime, false);
+        var mapper = (IAnimeMapper) Mapper;
+        var existingEntity = mapper.MapToEntity(anime, false);
 
 
         UpdateAnime(existingEntity, entity);
