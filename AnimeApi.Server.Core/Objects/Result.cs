@@ -1,28 +1,21 @@
-using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Core.Objects;
 
 public sealed class Result<T>
 {
-    [JsonProperty("data")]
     public T Data { get; }
 
-    [JsonIgnore]
     public IEnumerable<Error> Errors { get; }
 
-    [JsonIgnore]
     public bool IsSuccess
         => !Errors.Any();
 
-    [JsonIgnore]
     public bool IsFailure
         => !IsSuccess;
 
-    [JsonIgnore]
     public List<Error> InternalErrors
         => Errors.Where(e => e.IsInternal).ToList();
 
-    [JsonProperty("errors")]
     public List<Error> ValidationErrors
         => Errors.Where(e => e.IsValidation).ToList();
 

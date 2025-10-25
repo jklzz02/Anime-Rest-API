@@ -68,7 +68,7 @@ public class ProducerController : ControllerBase
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
-        return Ok(result);
+        return Ok(result.Data);
     }
 
     [HttpPut]
@@ -90,7 +90,7 @@ public class ProducerController : ControllerBase
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
-        return Ok(result);
+        return Ok(result.Data);
     }
     
     [HttpDelete]

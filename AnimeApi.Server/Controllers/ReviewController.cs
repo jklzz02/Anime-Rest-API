@@ -183,7 +183,7 @@ public class ReviewController : ControllerBase
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
 
-        return Ok(result);
+        return Ok(result.Data);
     }
 
     [Authorize]
@@ -219,7 +219,7 @@ public class ReviewController : ControllerBase
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
 
-        return Ok(result);
+        return Ok(result.Data);
     }
 
     [Authorize]
