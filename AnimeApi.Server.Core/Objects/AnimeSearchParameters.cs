@@ -93,7 +93,7 @@ namespace AnimeApi.Server.Core.Objects
         public DateTime? EndDateTo { get; set; } = null;
 
         [FromQuery(Name = "include_adult_content")]
-        public bool IncludeAdultContext { get; set; }
+        public bool IncludeAdultContent { get; set; }
 
         [JsonProperty("order_by")]
         [FromQuery(Name = "order_by")]

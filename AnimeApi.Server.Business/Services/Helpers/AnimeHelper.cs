@@ -206,7 +206,7 @@ public class AnimeHelper : IAnimeHelper
                 parameters.LicensorId,
                 parameters.LicensorName,
                 parameters.LicensorNames)
-            .ExcludeAdultContent(!parameters.IncludeAdultContext);
+            .ExcludeAdultContent(!parameters.IncludeAdultContent);
 
         var count = await
             _repository.CountAsync(query);
