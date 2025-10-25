@@ -27,19 +27,14 @@ public class SourceHelper : ISourceHelper
     
     public async Task<SourceDto?> GetByIdAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Source>();
-
+        var query = new BaseQuery<Source>().ById(id);
         return await
             _repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<SourceDto>> GetByNameAsync(string name)
     {
-        var query = new BaseQuery()
-            .ByName(name)
-            .ToQuerySpec<Source>();
+        var query = new BaseQuery<Source>().ByName(name);
 
         return await
             _repository.FindAsync(query);
@@ -106,10 +101,7 @@ public class SourceHelper : ISourceHelper
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Source>();
-
+        var query = new BaseQuery<Source>().ById(id);
         return await
             _repository.DeleteAsync(query);
     }

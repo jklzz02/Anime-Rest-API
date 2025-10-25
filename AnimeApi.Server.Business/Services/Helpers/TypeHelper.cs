@@ -24,9 +24,7 @@ public class TypeHelper : ITypeHelper
     
     public async Task<TypeDto?> GetByIdAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Type>();
+        var query = new BaseQuery<Type>().ById(id);
 
         return await
             _repository.FindFirstOrDefaultAsync(query);
@@ -34,9 +32,7 @@ public class TypeHelper : ITypeHelper
 
     public async Task<IEnumerable<TypeDto>> GetByNameAsync(string name)
     {
-        var query = new BaseQuery()
-            .ByName(name)
-            .ToQuerySpec<Type>();
+        var query = new BaseQuery<Type>().ByName(name);
 
         return await
             _repository.FindAsync(query);
@@ -104,9 +100,7 @@ public class TypeHelper : ITypeHelper
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Type>();
+        var query = new BaseQuery<Type>().ById(id);
 
         return await 
             _repository.DeleteAsync(query);

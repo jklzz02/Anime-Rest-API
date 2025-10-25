@@ -24,9 +24,7 @@ public class GenreHelper : IGenreHelper
 
     public async Task<GenreDto?> GetByIdAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Genre>();
+        var query = new BaseQuery<Genre>().ById(id);
 
         return await 
             _repository.FindFirstOrDefaultAsync(query);
@@ -36,9 +34,7 @@ public class GenreHelper : IGenreHelper
     {
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
 
-        var query = new BaseQuery()
-            .ByName(name)
-            .ToQuerySpec<Genre>();
+        var query = new BaseQuery<Genre>().ByName(name);
 
         return await
             _repository.FindAsync(query);
@@ -106,10 +102,8 @@ public class GenreHelper : IGenreHelper
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Genre>();
-
+        var query = new BaseQuery<Genre>().ById(id);
+        
         return await _repository.DeleteAsync(query);
     }
 }

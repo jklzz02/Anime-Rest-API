@@ -22,9 +22,7 @@ public class LicensorHelper : ILicensorHelper
     }
     public async Task<LicensorDto?> GetByIdAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Licensor>();
+        var query = new BaseQuery<Licensor>().ById(id);
 
         return await
             _repository.FindFirstOrDefaultAsync(query);
@@ -32,10 +30,8 @@ public class LicensorHelper : ILicensorHelper
 
     public async Task<IEnumerable<LicensorDto>> GetByNameAsync(string name)
     {
-        var query = new BaseQuery()
-            .ByName(name)
-            .ToQuerySpec<Licensor>();
-
+        var query = new BaseQuery<Licensor>().ByName(name);
+        
         return await
             _repository.FindAsync(query);
     }
@@ -101,9 +97,7 @@ public class LicensorHelper : ILicensorHelper
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Licensor>();
+        var query = new BaseQuery<Licensor>().ById(id);
 
         return await 
             _repository.DeleteAsync(query);

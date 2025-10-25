@@ -26,19 +26,15 @@ public class ProducerHelper : IProducerHelper
     }
     public async Task<ProducerDto?> GetByIdAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Producer>();
-
+        var query = new BaseQuery<Producer>().ById(id);
+        
         return await
             _repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<ProducerDto>> GetByNameAsync(string name)
     {
-        var query = new BaseQuery()
-            .ByName(name)
-            .ToQuerySpec<Producer>();
+        var query = new BaseQuery<Producer>().ByName(name);
 
         return await
             _repository.FindAsync(query);
@@ -105,9 +101,7 @@ public class ProducerHelper : IProducerHelper
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new BaseQuery()
-            .ById(id)
-            .ToQuerySpec<Producer>();
+        var query = new BaseQuery<Producer>().ById(id);
 
         return await
             _repository.DeleteAsync(query);
