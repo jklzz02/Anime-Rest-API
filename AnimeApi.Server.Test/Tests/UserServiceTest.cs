@@ -24,7 +24,7 @@ public class UserServiceTest
         Id = 1,
         Email = string.Empty,
         Username = string.Empty,
-        Picture_Url = String.Empty,
+        Picture_Url = string.Empty,
         Created_At = DateTime.UtcNow,
         Role_Id = 1,
         Role = new Role { Id = 1, Access = Constants.UserAccess.User },
@@ -32,7 +32,7 @@ public class UserServiceTest
 
     public UserServiceTest()
     {
-        _service = new UserService(_userRepositoryMock.Object, _mapper);
+        _service = new UserService(_userRepositoryMock.Object);
     }
 
     [Theory]
@@ -78,7 +78,7 @@ public class UserServiceTest
         
         Assert.NotNull(result);
         Assert.Equal(MockUser.Email, result.Email);
-        _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<AppUser>()), Times.Never);
+        _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<AppUserDto>()), Times.Never);
     }
 
 

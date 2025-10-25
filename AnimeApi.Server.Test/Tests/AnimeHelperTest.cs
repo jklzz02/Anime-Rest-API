@@ -1,11 +1,9 @@
 using AnimeApi.Server.Business.Services.Helpers;
-using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Test.Generators;
 using FluentValidation.Results;
 using Moq;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
-using AnimeApi.Server.Core.Mappers;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
@@ -18,11 +16,6 @@ public class AnimeHelperTest
     private readonly Mock<IRepository<Anime, AnimeDto>> _repositoryMock;
     private readonly Mock<IValidator<AnimeDto>> _validatorMock;
     private readonly Mock<IValidator<AnimeSearchParameters>> _searchParametersValidatorMock;
-    private IAnimeMapper _mapper
-        => new AnimeMapper(
-            new BaseMapper<Producer, ProducerDto>(),
-            new BaseMapper<Licensor, LicensorDto>(),
-            new BaseMapper<Genre, GenreDto>());
 
     public AnimeHelperTest()
     {
@@ -39,7 +32,6 @@ public class AnimeHelperTest
     {
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
             _searchParametersValidatorMock.Object);
         _repositoryMock
@@ -57,9 +49,10 @@ public class AnimeHelperTest
         var animeList = AnimeGenerator.GetMockAnimeDtoList();
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
-            _searchParametersValidatorMock.Object);        _repositoryMock
+            _searchParametersValidatorMock.Object);        
+        
+        _repositoryMock
             .Setup(r => r.GetAllAsync())
             .ReturnsAsync(animeList);
         
@@ -81,7 +74,6 @@ public class AnimeHelperTest
     {
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
             _searchParametersValidatorMock.Object);        
         
@@ -103,12 +95,11 @@ public class AnimeHelperTest
     {
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
             _searchParametersValidatorMock.Object);
         
         _repositoryMock
-            .Setup(r => r.AddAsync(It.IsAny<Anime>()))
+            .Setup(r => r.AddAsync(It.IsAny<AnimeDto>()))
             .ReturnsAsync(Result<AnimeDto>.Success(new AnimeDto()));
         
         var validationResult = new ValidationResult();
@@ -130,7 +121,6 @@ public class AnimeHelperTest
     {
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
             _searchParametersValidatorMock.Object);        
         
@@ -150,7 +140,6 @@ public class AnimeHelperTest
     {
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
             _searchParametersValidatorMock.Object);
         
@@ -168,12 +157,11 @@ public class AnimeHelperTest
     {
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
             _searchParametersValidatorMock.Object);
         
         _repositoryMock
-            .Setup(r => r.AddAsync(It.IsAny<Anime>()))
+            .Setup(r => r.AddAsync(It.IsAny<AnimeDto>()))
             .ReturnsAsync((AnimeDto entity) => Result<AnimeDto>.Success(entity));
         
         _validatorMock
@@ -195,12 +183,11 @@ public class AnimeHelperTest
         
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
             _searchParametersValidatorMock.Object);
         
         _repositoryMock
-            .Setup(r => r.AddAsync(It.IsAny<Anime>()))
+            .Setup(r => r.AddAsync(It.IsAny<AnimeDto>()))
             .ReturnsAsync((AnimeDto entity) =>
             {
                 anime.Add(entity);
@@ -230,15 +217,14 @@ public class AnimeHelperTest
         var anime = AnimeGenerator.GetMockAnimeList();
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
             _searchParametersValidatorMock.Object);
         
         _repositoryMock
             .Setup(r => r.DeleteAsync(It.IsAny<IQuerySpec<Anime>>()))
-            .ReturnsAsync((int passedId) =>
+            .ReturnsAsync((IQuerySpec<Anime> spec) =>
             {
-                return anime.Any(a => a.Id == passedId);
+                return spec.Apply(anime.AsQueryable()).Any();
             });
         
         var result = await service.DeleteAsync(id);
@@ -254,15 +240,14 @@ public class AnimeHelperTest
         var anime = AnimeGenerator.GetMockAnimeList();
         var service = new AnimeHelper(
             _repositoryMock.Object,
-            _mapper,
             _validatorMock.Object,
             _searchParametersValidatorMock.Object);
         
         _repositoryMock
             .Setup(r => r.DeleteAsync(It.IsAny<IQuerySpec<Anime>>()))
-            .ReturnsAsync((int passedId) =>
+            .ReturnsAsync((IQuerySpec<Anime> spec) =>
             {
-                var toBeRemoved = anime.First(a => a.Id == passedId);
+                var toBeRemoved = spec.Apply(anime.AsQueryable()).First();
                 anime.Remove(toBeRemoved);
                 return true;
             });

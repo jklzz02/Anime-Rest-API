@@ -1,7 +1,4 @@
-using AnimeApi.Server.Core;
-using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
-using AnimeApi.Server.Core.Abstractions.DataAccess;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
@@ -17,14 +14,10 @@ namespace AnimeApi.Server.Business.Services;
 public class UserService : IUserService
 {
     private readonly IRepository<AppUser, AppUserDto> _userRepository;
-    private readonly IMapper<AppUser, AppUserDto> _mapper;
     
-    public UserService(
-        IRepository<AppUser, AppUserDto> userRepository,
-        IMapper<AppUser, AppUserDto> mapper)
+    public UserService(IRepository<AppUser, AppUserDto> userRepository)
     {
         _userRepository = userRepository;
-        _mapper = mapper;
     }
 
     /// <inheritdoc />
