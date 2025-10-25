@@ -2,6 +2,10 @@ using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Core.Objects;
 
+/// <summary>
+/// Represents a paginated result object for handling collections of data with pagination metadata.
+/// </summary>
+/// <typeparam name="T">The type of data contained in the paginated result. Must be a reference type.</typeparam>
 public sealed class PaginatedResult<T> where T : class
 {
     [JsonIgnore]

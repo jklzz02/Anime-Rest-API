@@ -15,6 +15,7 @@ public class Roles : IRoles
         _context = context;
     }
 
+    /// <inheritdoc/>
     public async Task<Role> AdminAsync()
     {
         return await
@@ -22,6 +23,7 @@ public class Roles : IRoles
                 .FirstAsync(r => r.Access == Constants.UserAccess.Admin);
     }
     
+    /// <inheritdoc/>
     public async Task<Role> UserAsync()
     {
         return await

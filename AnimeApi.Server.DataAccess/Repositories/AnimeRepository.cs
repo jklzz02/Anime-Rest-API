@@ -9,21 +9,23 @@ using AnimeApi.Server.Core.SpecHelpers;
 namespace AnimeApi.Server.DataAccess.Repositories;
 
 /// <summary>
-/// Represents a repository for managing and querying Anime data.
+/// Represents the repository implementation for managing <see cref="Anime"/> entities within the data access layer.
 /// </summary>
 /// <remarks>
-/// This class provides the implementation of the <see cref="Repository{TEntity, TDto}"/>
-/// and serves as a mediator between the database and application logic,
-/// enabling operations such as retrieval, addition, update, and deletion of <see cref="Anime"/> entities.
+/// This class extends the generic <see cref="Repository{TEntity, TDto}"/> to provide specific functionality
+/// for handling <see cref="Anime"/> entities and their corresponding <see cref="AnimeDto"/> models.
 /// </remarks>
 public class AnimeRepository : Repository<Anime, AnimeDto>
 {
     private readonly IAnimeMapper _animeMapper;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AnimeRepository"/> class.
+    /// Provides a repository for managing <see cref="Anime"/> entities and their corresponding data transfer objects (<see cref="AnimeDto"/>).
     /// </summary>
-    /// <param name="context">The database context used for anime data operations.</param>
+    /// <remarks>
+    /// The <see cref="AnimeRepository"/> class includes specific operations and behavior tailored to the <see cref="Anime"/> entity
+    /// and its associated business logic, utilizing the provided <see cref="IAnimeMapper"/> for mapping.
+    /// </remarks>
     public AnimeRepository(AnimeDbContext context, IAnimeMapper mapper)
         : base(context, mapper)
     {

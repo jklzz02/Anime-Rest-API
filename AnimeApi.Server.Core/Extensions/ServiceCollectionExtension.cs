@@ -9,6 +9,12 @@ using Type = AnimeApi.Server.Core.Objects.Models.Type;
 namespace AnimeApi.Server.Core.Extensions;
 public static class ServiceCollectionExtension
 {
+    /// <summary>
+    /// Adds mapper dependencies to the IServiceCollection.
+    /// Registers various mapper interfaces and their corresponding implementations for dependency injection.
+    /// </summary>
+    /// <param name="services">The IServiceCollection to which the mapper services are to be added.</param>
+    /// <returns>The IServiceCollection with the mapper services added.</returns>
     public static IServiceCollection AddMappers(this IServiceCollection services)
     {
         services.AddScoped<IAnimeMapper, AnimeMapper>();

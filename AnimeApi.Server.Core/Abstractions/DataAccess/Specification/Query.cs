@@ -36,6 +36,7 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         return (TDerived) this;
     }
 
+    /// <inheritdoc/>
     public IQueryable<TEntity> Apply(IQueryable<TEntity> query)
     {
         if (_asExpandable)

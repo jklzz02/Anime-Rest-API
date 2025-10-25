@@ -61,6 +61,11 @@ public static class StringExtensions
             .ToUpperInvariant();
     }
 
+    /// <summary>
+    /// Normalizes a string by removing symbols, white spaces, and punctuation.
+    /// </summary>
+    /// <param name="str">The string to be normalized.</param>
+    /// <returns>The normalized string after removing unwanted characters.</returns>
     private static string Normalize(this string str)
     {
        return str
