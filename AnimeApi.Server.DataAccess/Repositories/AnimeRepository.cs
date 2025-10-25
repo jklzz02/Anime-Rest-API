@@ -31,12 +31,14 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
     }
 
     /// <inheritdoc />
-    public override async Task<Result<AnimeDto>> UpdateAsync(Anime entity)
+    public override async Task<Result<AnimeDto>> UpdateAsync(AnimeDto dto)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(dto, nameof(dto));
+
+        var entity = _animeMapper.MapToEntity(dto);
 
         var anime = await 
-            FindFirstOrDefaultAsync(AnimeQuery.ByPk(entity.Id));
+            FindFirstOrDefaultAsync(AnimeQuery.ByPk(entity.Id).Tracked());
         
         if (anime is null)
         {

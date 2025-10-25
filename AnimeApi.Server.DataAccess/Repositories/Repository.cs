@@ -62,8 +62,10 @@ namespace AnimeApi.Server.DataAccess.Repositories
             return _mapper.MapToDto(result);
         }
 
-        public virtual async Task<Result<TDto>> AddAsync(TEntity entity)
+        public virtual async Task<Result<TDto>> AddAsync(TDto dto)
         {
+            var entity = _mapper.MapToEntity(dto);
+
             Detach(entity);
             
            var createdEntity = await 
@@ -77,8 +79,10 @@ namespace AnimeApi.Server.DataAccess.Repositories
                 : Result<TDto>.InternalFailure("Failed to add entity.", "An error occurred while saving the entity to the database.");
         }
 
-        public async Task<Result<IEnumerable<TDto>>> AddRangeAsync(IEnumerable<TEntity> entity)
+        public virtual async Task<Result<IEnumerable<TDto>>> AddRangeAsync(IEnumerable<TDto> dto)
         {
+            var entity = _mapper.MapToEntity(dto);
+
             Detach(entity);
             
             await Context.Set<TEntity>().AddRangeAsync(entity);
@@ -89,8 +93,10 @@ namespace AnimeApi.Server.DataAccess.Repositories
                 : Result<IEnumerable<TDto>>.InternalFailure("Failed to add entities.", "An error occurred while saving the entities to the database.");
         }
 
-        public virtual async Task<Result<TDto>> UpdateAsync(TEntity entity)
+        public virtual async Task<Result<TDto>> UpdateAsync(TDto dto)
         {
+            var entity = _mapper.MapToEntity(dto);
+
             Detach(entity);
             
             Context.Set<TEntity>().Update(entity);
@@ -100,8 +106,10 @@ namespace AnimeApi.Server.DataAccess.Repositories
                 : Result<TDto>.InternalFailure("Failed to update entity.", "An error occurred while saving the entity to the database.");
         }
 
-        public async Task<Result<IEnumerable<TDto>>> UpdateRangeAsync(IEnumerable<TEntity> entity)
+        public virtual async Task<Result<IEnumerable<TDto>>> UpdateRangeAsync(IEnumerable<TDto> dto)
         {
+            var entity = _mapper.MapToEntity(dto);
+
             Detach(entity);
             
             Context.Set<TEntity>().UpdateRange(entity);
@@ -126,7 +134,7 @@ namespace AnimeApi.Server.DataAccess.Repositories
             return await Context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteRangeAsync(IQuerySpec<TEntity> specification)
+        public virtual async Task<bool> DeleteRangeAsync(IQuerySpec<TEntity> specification)
         {
             var result = await
                 FindAsync(specification);

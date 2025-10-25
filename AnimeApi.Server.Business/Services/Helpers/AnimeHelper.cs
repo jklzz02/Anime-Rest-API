@@ -1,5 +1,4 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
@@ -14,26 +13,22 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class AnimeHelper : IAnimeHelper
 {
     private readonly IRepository<Anime, AnimeDto> _repository;
-    private readonly IAnimeMapper _mapper;
     private readonly IValidator<AnimeDto> _validator;
     private readonly IValidator<AnimeSearchParameters> _paramsValidator;
     
     public AnimeHelper(
         IRepository<Anime, AnimeDto> repository,
-        IAnimeMapper mapper,
         IValidator<AnimeDto> validator,
         IValidator<AnimeSearchParameters> paramsValidator)
     {
         _repository = repository;
         _validator = validator;
-        _mapper = mapper;
         _paramsValidator = paramsValidator;
     }
     
     public async Task<AnimeDto?> GetByIdAsync(int id)
     {
         var query = AnimeQuery.ByPk(id)
-            .AsNoTracking()
             .IncludeFullRelation();
 
         return await
@@ -43,7 +38,6 @@ public class AnimeHelper : IAnimeHelper
     public async Task<IEnumerable<AnimeDto>> GetByIdsAsync(IEnumerable<int> ids)
     {
         var query = AnimeQuery.ByPk(ids)
-            .AsNoTracking()
             .IncludeFullRelation();
 
         return await
@@ -62,7 +56,6 @@ public class AnimeHelper : IAnimeHelper
             _repository.CountAsync();
 
         var query = new AnimeQuery()
-            .AsNoTracking()
             .AsSplitQuery()
             .SortBy(a => a.Score, SortDirections.Desc)
             .Paginate(page, size)
@@ -77,7 +70,6 @@ public class AnimeHelper : IAnimeHelper
     public async Task<PaginatedResult<AnimeDto>> GetAllNonAdultAsync(int page, int size)
     {
         var query = new AnimeQuery()
-            .AsNoTracking()
             .AsSplitQuery()
             .ExcludeAdultContent();
 
@@ -98,7 +90,6 @@ public class AnimeHelper : IAnimeHelper
     public async Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count)
     {
         var query = new AnimeQuery()
-            .AsNoTracking()
             .Recents(count)
             .IncludeFullRelation();
 
@@ -109,7 +100,6 @@ public class AnimeHelper : IAnimeHelper
     public async Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count)
     {
         var query = new AnimeQuery()
-            .AsNoTracking()
             .IncludeFullRelation()
             .SortBy(a => a.Score, SortDirections.Desc)
             .Limit(count);
@@ -133,8 +123,7 @@ public class AnimeHelper : IAnimeHelper
              return Result<AnimeDto>.Failure(errors);
         }
 
-        var model = _mapper.MapToEntity(entity, false);
-        var result = await _repository.AddAsync(model);
+        var result = await _repository.AddAsync(entity);
         
         if (result.IsFailure)
         {
@@ -157,8 +146,7 @@ public class AnimeHelper : IAnimeHelper
             return Result<AnimeDto>.Failure(errors);
         }
         
-        var model = _mapper.MapToEntity(entity);
-        var result = await _repository.UpdateAsync(model);
+        var result = await _repository.UpdateAsync(entity);
         if (result.IsFailure)
         {
             return Result<AnimeDto>.Failure(result.Errors);
@@ -170,7 +158,7 @@ public class AnimeHelper : IAnimeHelper
     public async Task<bool> DeleteAsync(int id)
     {
         return await 
-            _repository.DeleteAsync(AnimeQuery.ByPk(id).AsNoTracking());
+            _repository.DeleteAsync(AnimeQuery.ByPk(id));
     }
 
     public async Task<PaginatedResult<AnimeDto>> SearchAsync(
@@ -190,7 +178,6 @@ public class AnimeHelper : IAnimeHelper
         }
 
         var query = new AnimeQuery()
-            .AsNoTracking()
             .AsSplitQuery()
             .WithFullTextSearch(parameters.Query)
             .WithName(parameters.Name)

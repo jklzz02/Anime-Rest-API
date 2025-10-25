@@ -39,9 +39,7 @@ public class ReviewHelper : IReviewHelper
     /// <inheritdoc />
     public async Task<ReviewDto?> GetByIdAsync(int id)
     {
-        var query = new ReviewQuery()
-            .ByPk(id)
-            .AsNoTracking();
+        var query = new ReviewQuery().ByPk(id);
 
         return await
             _repository.FindFirstOrDefaultAsync(query);
@@ -50,9 +48,7 @@ public class ReviewHelper : IReviewHelper
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByAnimeIdAsync(int animeId)
     {
-        var query = new ReviewQuery()
-            .ByAnime(animeId)
-            .AsNoTracking();
+        var query = new ReviewQuery().ByAnime(animeId);
 
         return await
             _repository.FindAsync(query);
@@ -63,9 +59,7 @@ public class ReviewHelper : IReviewHelper
     {
         ArgumentException.ThrowIfNullOrEmpty(title);
 
-        var query = new ReviewQuery()
-            .ByAnime(title)
-            .AsNoTracking();
+        var query = new ReviewQuery().ByAnime(title);
 
         return await
             _repository.FindAsync(query);
@@ -74,9 +68,7 @@ public class ReviewHelper : IReviewHelper
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByUserIdAsync(int userId)
     {
-        var query = new ReviewQuery()
-            .ByUser(userId)
-            .AsNoTracking();
+        var query = new ReviewQuery().ByUser(userId);
 
         return await 
             _repository.FindAsync(query);
@@ -87,9 +79,7 @@ public class ReviewHelper : IReviewHelper
     {
         ArgumentException.ThrowIfNullOrEmpty(email);
 
-        var query = new ReviewQuery()
-            .ByEmail(email)
-            .AsNoTracking();
+        var query = new ReviewQuery().ByEmail(email);
 
         return await
             _repository.FindAsync(query);
@@ -98,9 +88,7 @@ public class ReviewHelper : IReviewHelper
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByDateAsync(DateTime date)
     {
-        var query = new ReviewQuery()
-            .ByDate(date)
-            .AsNoTracking();
+        var query = new ReviewQuery().ByDate(date);
 
         return await
             _repository.FindAsync(query);
@@ -110,7 +98,6 @@ public class ReviewHelper : IReviewHelper
     public async Task<IEnumerable<ReviewDto>> GetMostRecentByTimeSpanAsync(TimeSpan timeSpan)
     {
         var query = new ReviewQuery()
-            .AsNoTracking()
             .RecentByTimeSpan(timeSpan)
             .SortBy([
                 SortAction<Review>.Desc(r => r.Created_At),
@@ -125,8 +112,7 @@ public class ReviewHelper : IReviewHelper
     public async Task<IEnumerable<ReviewDto>> GetByMinScoreAsync(int minScore)
     {
         var query = new ReviewQuery()
-            .ByScoreRange(minScore, 10)
-            .AsNoTracking();
+            .ByScoreRange(minScore, 10);
 
         return await 
             _repository.FindAsync(query);
@@ -147,7 +133,7 @@ public class ReviewHelper : IReviewHelper
         }
 
         var result = await
-            _repository.AddAsync(_mapper.MapToEntity(entity));
+            _repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
@@ -172,7 +158,7 @@ public class ReviewHelper : IReviewHelper
         }
         
         var result = await _repository
-            .UpdateAsync(_mapper.MapToEntity(entity));
+            .UpdateAsync(entity);
         
         if (result.IsFailure)
         {

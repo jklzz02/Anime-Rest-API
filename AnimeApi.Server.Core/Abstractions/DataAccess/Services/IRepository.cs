@@ -50,28 +50,28 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<Result<TDto>> AddAsync(TEntity entity);
+    Task<Result<TDto>> AddAsync(TDto dto);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<Result<IEnumerable<TDto>>> AddRangeAsync(IEnumerable<TEntity> entity);
+    Task<Result<IEnumerable<TDto>>> AddRangeAsync(IEnumerable<TDto> dto);
     
     /// <summary>
     /// 
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<Result<TDto>> UpdateAsync(TEntity entity);
+    Task<Result<TDto>> UpdateAsync(TDto dto);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<Result<IEnumerable<TDto>>> UpdateRangeAsync(IEnumerable<TEntity> entity);
+    Task<Result<IEnumerable<TDto>>> UpdateRangeAsync(IEnumerable<TDto> dto);
 
     /// <summary>
     /// 

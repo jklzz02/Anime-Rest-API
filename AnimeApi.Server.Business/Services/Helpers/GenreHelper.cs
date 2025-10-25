@@ -13,15 +13,12 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class GenreHelper : IGenreHelper
 {
     private readonly IRepository<Genre, GenreDto> _repository;
-    private readonly IMapper<Genre, GenreDto> _mapper;
     private readonly IBaseValidator<GenreDto> _validator;
     public GenreHelper(
         IRepository<Genre, GenreDto> repository,
-        IMapper<Genre, GenreDto> mapper,
         IBaseValidator<GenreDto> validator)
     {
         _repository = repository;
-        _mapper = mapper;
         _validator = validator;
     }
 
@@ -29,7 +26,6 @@ public class GenreHelper : IGenreHelper
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Genre>();
 
         return await 
@@ -42,7 +38,6 @@ public class GenreHelper : IGenreHelper
 
         var query = new BaseQuery()
             .ByName(name)
-            .AsNoTracking()
             .ToQuerySpec<Genre>();
 
         return await
@@ -76,7 +71,7 @@ public class GenreHelper : IGenreHelper
             return Result<GenreDto>.Failure(errors);
         }
 
-        var result = await _repository.AddAsync(_mapper.MapToEntity(entity));
+        var result = await _repository.AddAsync(entity);
         
         if (result.IsFailure)
         {
@@ -99,7 +94,7 @@ public class GenreHelper : IGenreHelper
             return Result<GenreDto>.Failure(errors);
         }
 
-        var result = await _repository.UpdateAsync(_mapper.MapToEntity(entity));
+        var result = await _repository.UpdateAsync(entity);
         
         if (result.IsFailure)
         {
@@ -113,7 +108,6 @@ public class GenreHelper : IGenreHelper
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Genre>();
 
         return await _repository.DeleteAsync(query);

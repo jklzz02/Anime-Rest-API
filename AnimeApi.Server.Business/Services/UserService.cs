@@ -30,9 +30,7 @@ public class UserService : IUserService
     /// <inheritdoc />
     public async Task<AppUserDto?> GetByEmailAsync(string email)
     {
-        var query = new UserQuery()
-            .ByEmail(email)
-            .AsNoTracking();
+        var query = new UserQuery().ByEmail(email);
         
         return await 
             _userRepository.FindFirstOrDefaultAsync(query);
@@ -41,9 +39,7 @@ public class UserService : IUserService
     /// <inheritdoc />
     public async Task<AppUserDto?> GetByIdAsync(int id)
     {
-        var query = new UserQuery()
-            .ByPk(id)
-            .AsNoTracking();
+        var query = new UserQuery().ByPk(id);
         
         return await 
             _userRepository.FindFirstOrDefaultAsync(query);
@@ -52,9 +48,7 @@ public class UserService : IUserService
     /// <inheritdoc />
     public async Task<AppUserDto> GetOrCreateUserAsync(AuthPayload payload)
     {
-        var query = new UserQuery()
-            .ByEmail(payload.Email)
-            .AsNoTracking();
+        var query = new UserQuery().ByEmail(payload.Email);
         
         var existingUser = 
             await _userRepository.FindFirstOrDefaultAsync(query);
@@ -74,7 +68,7 @@ public class UserService : IUserService
         };
 
         var result = await 
-            _userRepository.AddAsync(_mapper.MapToEntity(newUser));
+            _userRepository.AddAsync(newUser);
         
         return result.Data;
     }
@@ -82,9 +76,7 @@ public class UserService : IUserService
     /// <inheritdoc />
     public async Task<bool> DestroyUserAsync(string email)
     {
-        var query = new UserQuery()
-            .ByEmail(email)
-            .AsNoTracking();
+        var query = new UserQuery().ByEmail(email);
         
         return await 
             _userRepository.DeleteAsync(query);

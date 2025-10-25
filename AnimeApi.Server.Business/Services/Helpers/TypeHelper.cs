@@ -1,5 +1,4 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
@@ -13,16 +12,13 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class TypeHelper : ITypeHelper
 {
     private readonly IRepository<Type, TypeDto> _repository;
-    private readonly IMapper<Type, TypeDto> _mapper;
     private readonly IBaseValidator<TypeDto> _validator;
 
     public TypeHelper(
         IRepository<Type, TypeDto> repository,
-        IMapper<Type, TypeDto> mapper,
         IBaseValidator<TypeDto> validator)
     {
         _repository = repository;
-        _mapper = mapper;
         _validator = validator;
     }
     
@@ -30,7 +26,6 @@ public class TypeHelper : ITypeHelper
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Type>();
 
         return await
@@ -41,7 +36,6 @@ public class TypeHelper : ITypeHelper
     {
         var query = new BaseQuery()
             .ByName(name)
-            .AsNoTracking()
             .ToQuerySpec<Type>();
 
         return await
@@ -75,7 +69,7 @@ public class TypeHelper : ITypeHelper
             return Result<TypeDto>.Failure(errors);
         }
         
-        var result = await _repository.AddAsync(_mapper.MapToEntity(entity));
+        var result = await _repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
@@ -98,7 +92,7 @@ public class TypeHelper : ITypeHelper
             return Result<TypeDto>.Failure(errors);
         }
 
-        var result = await _repository.UpdateAsync(_mapper.MapToEntity(entity));
+        var result = await _repository.UpdateAsync(entity);
         
         if (result.IsFailure)
         {
@@ -112,7 +106,6 @@ public class TypeHelper : ITypeHelper
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Type>();
 
         return await 

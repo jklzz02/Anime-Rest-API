@@ -28,7 +28,6 @@ public class ProducerHelper : IProducerHelper
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Producer>();
 
         return await
@@ -39,7 +38,6 @@ public class ProducerHelper : IProducerHelper
     {
         var query = new BaseQuery()
             .ByName(name)
-            .AsNoTracking()
             .ToQuerySpec<Producer>();
 
         return await
@@ -72,7 +70,7 @@ public class ProducerHelper : IProducerHelper
             return Result<ProducerDto>.Failure(errors);
         };
         
-        var result = await _repository.AddAsync(_mapper.MapToEntity(entity));
+        var result = await _repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
@@ -95,7 +93,7 @@ public class ProducerHelper : IProducerHelper
             return Result<ProducerDto>.Failure(errors);
         };
         
-        var result = await _repository.UpdateAsync(_mapper.MapToEntity(entity));
+        var result = await _repository.UpdateAsync(entity);
         
         if (result.IsFailure)
         {
@@ -109,7 +107,6 @@ public class ProducerHelper : IProducerHelper
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Producer>();
 
         return await

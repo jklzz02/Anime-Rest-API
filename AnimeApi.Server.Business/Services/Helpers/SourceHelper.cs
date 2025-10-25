@@ -29,7 +29,6 @@ public class SourceHelper : ISourceHelper
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Source>();
 
         return await
@@ -40,7 +39,6 @@ public class SourceHelper : ISourceHelper
     {
         var query = new BaseQuery()
             .ByName(name)
-            .AsNoTracking()
             .ToQuerySpec<Source>();
 
         return await
@@ -73,7 +71,7 @@ public class SourceHelper : ISourceHelper
             return Result<SourceDto>.Failure(errors);
         }
         
-        var result = await _repository.AddAsync(_mapper.MapToEntity(entity));
+        var result = await _repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
@@ -96,7 +94,7 @@ public class SourceHelper : ISourceHelper
             return Result<SourceDto>.Failure(errors);
         }
 
-        var result = await _repository.UpdateAsync(_mapper.MapToEntity(entity));
+        var result = await _repository.UpdateAsync(entity);
         
         if (result.IsFailure)
         {
@@ -110,7 +108,6 @@ public class SourceHelper : ISourceHelper
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Source>();
 
         return await

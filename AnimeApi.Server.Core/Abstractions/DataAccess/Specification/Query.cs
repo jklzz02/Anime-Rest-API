@@ -14,12 +14,12 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
     private int? _skip;
     private int? _take;
     private bool _asExpandable;
-    private bool _asNoTracking;
+    private bool _tracked;
     private bool _asSplitQuery;
 
-    public TDerived AsNoTracking()
+    public TDerived Tracked()
     {
-        _asNoTracking = true;
+        _tracked = true;
         return (TDerived) this;
     }
 
@@ -89,7 +89,7 @@ public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
             query = query.Take(_take.Value);
         }
 
-        if (_asNoTracking)
+        if (!_tracked)
         {
             query = query.AsNoTracking();
         }

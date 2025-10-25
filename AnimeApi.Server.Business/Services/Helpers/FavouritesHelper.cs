@@ -30,8 +30,7 @@ public class FavouritesHelper : IFavouritesHelper
     {
         var query = new FavouriteQuery()
             .ByUserId(userId)
-            .ByAnimeId(animeId)
-            .AsNoTracking();
+            .ByAnimeId(animeId);
 
         return await
             _repository.FindFirstOrDefaultAsync(query);
@@ -39,9 +38,7 @@ public class FavouritesHelper : IFavouritesHelper
 
     public async Task<IEnumerable<FavouriteDto>> GetFavouritesAsync(int userId)
     {
-        var query = new FavouriteQuery()
-            .ByUserId(userId)
-            .AsNoTracking();
+        var query = new FavouriteQuery().ByUserId(userId);
 
         return await
             _repository.FindAsync(query);
@@ -55,7 +52,7 @@ public class FavouritesHelper : IFavouritesHelper
             return Result<FavouriteDto>.Failure(validationResult.Errors.ToJsonKeyedErrors<FavouriteDto>());
         }
 
-        var result = await _repository.AddAsync(_mapper.MapToEntity(favourite));
+        var result = await _repository.AddAsync(favourite);
 
         return result.IsSuccess
             ? Result<FavouriteDto>.Success(result.Data)
@@ -66,8 +63,7 @@ public class FavouritesHelper : IFavouritesHelper
     {
         var query = new FavouriteQuery()
             .ByUserId(favourite.UserId)
-            .ByAnimeId(favourite.AnimeId)
-            .AsNoTracking();
+            .ByAnimeId(favourite.AnimeId);
 
         return await 
             _repository.DeleteAsync(query);
@@ -75,9 +71,7 @@ public class FavouritesHelper : IFavouritesHelper
 
     public async Task<int> GetFavouritesCountAsync(int animeId)
     {
-        var query = new FavouriteQuery()
-            .ByAnimeId(animeId)
-            .AsNoTracking();
+        var query = new FavouriteQuery().ByAnimeId(animeId);
 
         return await
             _repository.CountAsync(query);

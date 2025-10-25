@@ -23,9 +23,7 @@ public class RefreshTokenHelper : IRefreshTokenHelper
     
     public async Task<RefreshTokenDto?> GetByIdAsync(int id)
     {
-        var query = new TokenQuery()
-            .ByPk(id)
-            .AsNoTracking();
+        var query = new TokenQuery().ByPk(id);
 
         return await
             _repository.FindFirstOrDefaultAsync(query);
@@ -33,18 +31,14 @@ public class RefreshTokenHelper : IRefreshTokenHelper
 
     public async Task<RefreshTokenDto?> GetByTokenAsync(string token)
     {
-        var query = new TokenQuery()
-            .ByToken(token)
-            .AsNoTracking();
+        var query = new TokenQuery().ByToken(token);
 
         return await
             _repository.FindFirstOrDefaultAsync(query);
     }
     public async Task<RefreshTokenDto?> GetByUserIdAsync(int userId)
     {
-        var query = new TokenQuery()
-            .ByUser(userId)
-            .AsNoTracking();
+        var query = new TokenQuery().ByUser(userId);
 
         return await 
             _repository.FindFirstOrDefaultAsync(query);
@@ -54,7 +48,7 @@ public class RefreshTokenHelper : IRefreshTokenHelper
     {
         ArgumentNullException.ThrowIfNull(refreshToken, nameof(refreshToken));
         
-        var result = await _repository.AddAsync(_mapper.MapToEntity(refreshToken));
+        var result = await _repository.AddAsync(refreshToken);
         return result.Data;
     }
 
@@ -64,7 +58,6 @@ public class RefreshTokenHelper : IRefreshTokenHelper
             _repository.FindFirstOrDefaultAsync(
                 new TokenQuery()
                     .ByToken(token)
-                    .AsNoTracking()
                 );
 
         if (dto is null)
@@ -75,16 +68,14 @@ public class RefreshTokenHelper : IRefreshTokenHelper
         dto.Revoke();
 
         var result = await
-            _repository.UpdateAsync(_mapper.MapToEntity(dto));
+            _repository.UpdateAsync(dto);
 
         return result.IsSuccess;
     }
 
     public async Task<bool> RevokeByUserIdAsync(int userId)
     {
-        var query = new TokenQuery()
-            .ByUser(userId)
-            .AsNoTracking();
+        var query = new TokenQuery().ByUser(userId);
 
         var tokens = await 
             _repository.FindAsync(query);
@@ -92,16 +83,14 @@ public class RefreshTokenHelper : IRefreshTokenHelper
         tokens.ForEach(t => t.Revoke());
 
         var result = await
-            _repository.UpdateRangeAsync(_mapper.MapToEntity(tokens));
+            _repository.UpdateRangeAsync(tokens);
 
         return result.IsSuccess;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new TokenQuery()
-            .ByPk(id)
-            .AsNoTracking();
+        var query = new TokenQuery().ByPk(id);
 
         return await
             _repository.DeleteAsync(query);
@@ -109,9 +98,7 @@ public class RefreshTokenHelper : IRefreshTokenHelper
 
     public async Task<bool> DeleteByUserIdAsync(int userId)
     {
-        var query = new TokenQuery()
-                .ByUser(userId)
-                .AsNoTracking();
+        var query = new TokenQuery().ByUser(userId);
 
         return await
             _repository.DeleteAsync(query);

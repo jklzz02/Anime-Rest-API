@@ -1,5 +1,4 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
@@ -13,22 +12,18 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class LicensorHelper : ILicensorHelper
 {
     private readonly IRepository<Licensor, LicensorDto> _repository;
-    private readonly IMapper<Licensor, LicensorDto> _mapper;
     private readonly IBaseValidator<LicensorDto> _validator;
     public LicensorHelper(
         IRepository<Licensor, LicensorDto> repository,
-        IMapper<Licensor, LicensorDto> mapper,
         IBaseValidator<LicensorDto> validator)
     {
         _repository = repository;
         _validator = validator;
-        _mapper = mapper;
     }
     public async Task<LicensorDto?> GetByIdAsync(int id)
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Licensor>();
 
         return await
@@ -39,7 +34,6 @@ public class LicensorHelper : ILicensorHelper
     {
         var query = new BaseQuery()
             .ByName(name)
-            .AsNoTracking()
             .ToQuerySpec<Licensor>();
 
         return await
@@ -72,7 +66,7 @@ public class LicensorHelper : ILicensorHelper
         }
         
         var result = 
-            await _repository.AddAsync(_mapper.MapToEntity(entity));
+            await _repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
@@ -95,7 +89,7 @@ public class LicensorHelper : ILicensorHelper
             return Result<LicensorDto>.Failure(errors);
         }
         
-        var result = await _repository.UpdateAsync(_mapper.MapToEntity(entity));
+        var result = await _repository.UpdateAsync(entity);
 
         if (result.IsFailure)
         {
@@ -109,7 +103,6 @@ public class LicensorHelper : ILicensorHelper
     {
         var query = new BaseQuery()
             .ById(id)
-            .AsNoTracking()
             .ToQuerySpec<Licensor>();
 
         return await 
