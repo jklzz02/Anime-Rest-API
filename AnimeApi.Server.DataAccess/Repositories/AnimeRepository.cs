@@ -5,6 +5,7 @@ using AnimeApi.Server.DataAccess.Context;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.SpecHelpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Repositories;
 
@@ -31,28 +32,74 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
     }
 
     /// <inheritdoc />
+    public override  async Task<Result<AnimeDto>> AddAsync(AnimeDto dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto, nameof(dto));
+        
+        var mapper = (IAnimeMapper) Mapper;
+
+        var entity = mapper.MapToEntity(dto, false);
+        
+        var anime = await
+            Context.Anime.FirstOrDefaultAsync(a => a.Id == entity.Id);
+
+        if (anime != null)
+        {
+            return Result<AnimeDto>.ValidationFailure(
+                "Anime already exists", 
+                $"There is already an anime with the specified id '{dto.Id}'");
+        }
+        
+        var createdEntry = await
+            Context.AddAsync(entity);
+        
+       bool result = await 
+           Context.SaveChangesAsync() > 0;
+
+       if (!result)
+       {
+           Result<AnimeDto>.InternalFailure("Create", "No entity created");
+       }
+
+       var resultDto = mapper.MapToDto(createdEntry.Entity);
+       
+       Context.ChangeTracker.Clear();
+       return Result<AnimeDto>.Success(resultDto);
+    }
+
+    /// <inheritdoc />
     public override async Task<Result<AnimeDto>> UpdateAsync(AnimeDto dto)
     {
         ArgumentNullException.ThrowIfNull(dto, nameof(dto));
 
-        var entity = Mapper.MapToEntity(dto);
+        if (dto.Id.GetValueOrDefault() == 0)
+        {
+            return Result<AnimeDto>.ValidationFailure(
+                "Anime must have an ID", 
+                "Cannot update unexisting entry");
+        }
 
-        var anime = await 
-            FindFirstOrDefaultAsync(AnimeQuery.ByPk(entity.Id).Tracked());
+        var mapper = (IAnimeMapper) Mapper;
+        
+       var  entity = mapper.MapToEntity(dto, false);
+        
+        var anime = await
+            AnimeQuery
+                .ByPk(dto.Id.Value)
+                .IncludeFullRelation()
+                .Tracked()
+                .Apply(Context.Anime)
+                .FirstOrDefaultAsync();
         
         if (anime is null)
         {
             return Result<AnimeDto>.InternalFailure("update", $"there's no anime with id '{entity.Id}'.");
         }
 
-        var mapper = (IAnimeMapper) Mapper;
-        var existingEntity = mapper.MapToEntity(anime, false);
-
-
-        UpdateAnime(existingEntity, entity);
-        await UpdateRelations(existingEntity.Anime_Genres.ToList(), entity.Anime_Genres.ToList());
-        await UpdateRelations(existingEntity.Anime_Producers.ToList(), entity.Anime_Producers.ToList());
-        await UpdateRelations(existingEntity.Anime_Licensors.ToList(), entity.Anime_Licensors.ToList());
+        UpdateAnime(anime, entity);
+        await UpdateRelations(anime.Anime_Genres.ToList(), entity.Anime_Genres.ToList());
+        await UpdateRelations(anime.Anime_Producers.ToList(), entity.Anime_Producers.ToList());
+        await UpdateRelations(anime.Anime_Licensors.ToList(), entity.Anime_Licensors.ToList());
 
         var result = await Context.SaveChangesAsync() > 0;
 
@@ -61,8 +108,10 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
             return Result<AnimeDto>.InternalFailure("update", "something went wrong during entity update.");
         }
         
+        var resultDto = mapper.MapToDto(anime);
+        
         Context.ChangeTracker.Clear();
-        return Result<AnimeDto>.Success(anime);
+        return Result<AnimeDto>.Success(resultDto);
     }
 
     private void UpdateAnime(Anime original, Anime updated)
@@ -109,7 +158,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
 
         var newRelations = idsToAdd
             .Select(id => new T { AnimeId = animeId, RelatedId = id });
-            
+        
         await Context.Set<T>().AddRangeAsync(newRelations);
     }
 }

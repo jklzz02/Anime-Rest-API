@@ -283,6 +283,15 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
         return this;
     }
 
+    public AnimeQuery IncludeJunctions()
+    {
+        Include(q => q.Include(a => a.Anime_Genres));
+        Include(q => q.Include(a => a.Anime_Licensors));
+        Include(q => q.Include(a => a.Anime_Producers));
+
+        return this;
+    }
+
     public AnimeQuery IncludeFullRelation()
     {
         IncludeProducers();
