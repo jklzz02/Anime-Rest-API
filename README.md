@@ -5,7 +5,7 @@ ASP.NET Core Web API implementing Clean Architecture principles for anime data m
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-8.0-blueviolet)](https://dotnet.microsoft.com/apps/aspnet)
 [![Entity Framework Core](https://img.shields.io/badge/Entity_Framework_Core-8.0-512BD4)](https://learn.microsoft.com/ef/core/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-00758f)](https://www.mysql.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-316192?logo=postgresql&logoColor=white)](https://www.postgresql.org)
 [![FluentValidation](https://img.shields.io/badge/FluentValidation-11.x-brightgreen)](https://docs.fluentvalidation.net/)
 [![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D)](https://swagger.io/)
 [![JWT](https://img.shields.io/badge/JWT-Authentication-orange)](https://jwt.io/)
@@ -158,7 +158,7 @@ graph TB
 | ------------------ | ------------------------------- |
 | **Web API**        | ASP.NET Core, Swagger/OpenAPI   |
 | **Business Logic** | FluentValidation, Google Oauth2 |
-| **Data Access**    | Entity Framework Core, MySQL    |
+| **Data Access**    | Entity Framework Core, Postgre  |
 | **Authentication** | JWT Bearer tokens               |
 | **Testing**        | xUnit, Moq                      |
 
@@ -183,7 +183,7 @@ PostgreSQL allows for very efficient full text search.
 ### Prerequisites
 
 - .NET 8.0 SDK
-- MySQL Server 8.0+
+- PostgreSQL 16.0+
 - IDE (Visual Studio, VS Code, or Rider)
 
 ### Setup
