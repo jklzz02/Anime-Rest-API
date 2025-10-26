@@ -24,8 +24,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
         {
             FilterBy(a =>
                 EF.Functions.TrigramsAreSimilar(query, a.Name) ||
-                EF.Functions.TrigramsAreSimilar(query, a.English_Name) ||
-                EF.Functions.TrigramsAreSimilar(query, a.Other_Name));
+                EF.Functions.TrigramsAreSimilar(query, a.English_Name));
         }
 
         return this;
