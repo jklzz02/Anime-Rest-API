@@ -1,4 +1,4 @@
-using AnimeApi.Server.Business.Extensions.Mappers;
+using AnimeApi.Server.Core.Mappers;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.Test.Generators;
@@ -7,11 +7,17 @@ namespace AnimeApi.Server.Test.Tests;
 
 public class AnimeMapperTest
 {
+    private AnimeMapper _mapper
+        => new AnimeMapper(
+            new BaseMapper<Producer, ProducerDto>(),
+            new BaseMapper<Licensor, LicensorDto>(),
+            new BaseMapper<Genre, GenreDto>());
+    
     [Theory]
     [MemberData(nameof(AnimeGenerator.GetAnimeDtoToAnimeTestData), MemberType = typeof(AnimeGenerator))]
     public void ToDto_Should_Map_Properties_Correctly(AnimeDto dto, Anime model)
     {
-        var result = model.ToDto();
+        var result = _mapper.MapToDto(model);
         
         Assert.Equal(dto.Id, result.Id);
         Assert.Equal(dto.Name, result.Name);
@@ -40,8 +46,8 @@ public class AnimeMapperTest
     [MemberData(nameof(AnimeGenerator.GetAnimeDtoTestData), MemberType = typeof(AnimeGenerator))]
     public void ToDto_Round_Trip_Should_Preserve_Data(AnimeDto dto)
     {
-        var model = dto.ToModel();
-        var roundTrippedDto = model.ToDto();
+        var model = _mapper.MapToEntity(dto);
+        var roundTrippedDto = _mapper.MapToDto(model);
     
         Assert.Equal(dto.Id, roundTrippedDto.Id);
         Assert.Equal(dto.Name, roundTrippedDto.Name);
@@ -52,8 +58,8 @@ public class AnimeMapperTest
         Assert.Equal(dto.Duration, roundTrippedDto.Duration);
         Assert.Equal(dto.ImageUrl, roundTrippedDto.ImageUrl);
         Assert.Equal(dto.Score, roundTrippedDto.Score);
-        Assert.Equal(dto.StartedAiring, roundTrippedDto.StartedAiring);
-        Assert.Equal(dto.FinishedAiring, roundTrippedDto.FinishedAiring);
+        Assert.Equal(dto.StartedAiring?.ToUniversalTime(), roundTrippedDto.StartedAiring);
+        Assert.Equal(dto.FinishedAiring?.ToUniversalTime(), roundTrippedDto.FinishedAiring);
         Assert.Equal(dto.ReleaseYear, roundTrippedDto.ReleaseYear);
         Assert.Equal(dto.Synopsis, roundTrippedDto.Synopsis);
         Assert.Equal(dto.Studio, roundTrippedDto.Studio);
@@ -71,7 +77,7 @@ public class AnimeMapperTest
     [MemberData(nameof(AnimeGenerator.GetAnimeDtoToAnimeTestData), MemberType = typeof(AnimeGenerator))]
     public void ToModel_Should_Map_Properties_Correctly(AnimeDto dto, Anime model)
     {
-        var result = dto.ToModel();
+        var result = _mapper.MapToEntity(dto);
         
         Assert.Equal(model.Id, result.Id);
         Assert.Equal(model.Name, result.Name);
@@ -82,8 +88,8 @@ public class AnimeMapperTest
         Assert.Equal(model.Duration, result.Duration);
         Assert.Equal(model.Image_URL, result.Image_URL);
         Assert.Equal(model.Score, result.Score);
-        Assert.Equal(model.Started_Airing, result.Started_Airing);
-        Assert.Equal(model.Finished_Airing, result.Finished_Airing);
+        Assert.Equal(model.Started_Airing?.ToUniversalTime(), result.Started_Airing);
+        Assert.Equal(model.Finished_Airing?.ToUniversalTime(), result.Finished_Airing);
         Assert.Equal(model.Release_Year, result.Release_Year);
         Assert.Equal(model.Synopsis, result.Synopsis);
         Assert.Equal(model.Studio, result.Studio);
@@ -97,19 +103,24 @@ public class AnimeMapperTest
     }
     
     [Fact]
-    public void ToDto_Should_Return_Null_When_Model_Is_Null()
+    public void ToDto_Should_Throw_When_Model_Is_Null()
     {
         Anime model = null;
-        var result = model?.ToDto();
-        Assert.Null(result);
+
+        var ex = Record.Exception(() => _mapper.MapToDto(model));
+
+        Assert.NotNull(ex);
+        Assert.IsType<ArgumentNullException>(ex);
     }
 
     [Fact]
-    public void ToModel_Should_Return_Null_When_Dto_Is_Null()
+    public void ToModel_Should_Throw_When_Dto_Is_Null()
     {
         AnimeDto dto = null;
-        var result = dto?.ToModel();
-        Assert.Null(result);
+        var ex = Record.Exception(() => _mapper.MapToEntity(dto));
+
+        Assert.NotNull(ex);
+        Assert.IsType<ArgumentNullException>(ex);
     }
     
     [Fact]
@@ -122,7 +133,7 @@ public class AnimeMapperTest
             Anime_Producers = new List<AnimeProducer>()
         };
 
-        var dto = model.ToDto();
+        var dto = _mapper.MapToDto(model);
     
         Assert.Empty(dto.Genres);
         Assert.Empty(dto.Licensors);

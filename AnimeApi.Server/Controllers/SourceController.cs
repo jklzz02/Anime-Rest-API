@@ -68,7 +68,7 @@ public class SourceController : Controller
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
-        return Ok(result);
+        return Ok(result.Data);
     }
 
     [HttpPut]
@@ -85,7 +85,7 @@ public class SourceController : Controller
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
-        return Ok(result);
+        return Ok(result.Data);
     }
     
     [HttpDelete]

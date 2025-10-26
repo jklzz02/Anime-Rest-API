@@ -70,7 +70,7 @@ public class LicensorController : ControllerBase
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
 
-        return Ok(result);
+        return Ok(result.Data);
     }
 
     [HttpPut]
@@ -92,7 +92,7 @@ public class LicensorController : ControllerBase
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
-        return Ok(result);
+        return Ok(result.Data);
     }
 
     [HttpDelete]

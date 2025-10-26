@@ -1,20 +1,22 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Business.Extensions.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.SpecHelpers;
 using Type = AnimeApi.Server.Core.Objects.Models.Type;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
 public class TypeHelper : ITypeHelper
 {
-    private readonly ITypeRepository _repository;
+    private readonly IRepository<Type, TypeDto> _repository;
     private readonly IBaseValidator<TypeDto> _validator;
 
-    public TypeHelper(ITypeRepository repository, IBaseValidator<TypeDto> validator)
+    public TypeHelper(
+        IRepository<Type, TypeDto> repository,
+        IBaseValidator<TypeDto> validator)
     {
         _repository = repository;
         _validator = validator;
@@ -22,32 +24,36 @@ public class TypeHelper : ITypeHelper
     
     public async Task<TypeDto?> GetByIdAsync(int id)
     {
-        var model = await _repository.GetByIdAsync(id);
-        return model?.MapTo<TypeDto>();
+        var query = new BaseQuery<Type>().ById(id);
+
+        return await
+            _repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<TypeDto>> GetByNameAsync(string name)
     {
-        var models = await _repository.GetByNameAsync(name);
-        return models.MapTo<TypeDto>();
+        var query = new BaseQuery<Type>().ByName(name);
+
+        return await
+            _repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<TypeDto>> GetAllAsync()
     {
-        var models = await _repository.GetAllAsync();
-        return models.MapTo<TypeDto>();
+        return await 
+            _repository.GetAllAsync();
     }
 
     public async Task<Result<TypeDto>> CreateAsync(TypeDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
-        var ids = await _repository.GetExistingIdsAsync();
-        var names = await _repository.GetExistingNamesAsync();
-        
+        var existing = await 
+            _repository.GetAllAsync();
+
         _validator
-            .WithExistingIds(ids)
-            .WithExistingNames(names);
+            .WithExistingIds(existing.Select(t => t.Id.GetValueOrDefault()))
+            .WithExistingNames(existing.Select(t => t.Name));
         
         var validationResult = await _validator.ValidateAsync(entity);
 
@@ -59,16 +65,14 @@ public class TypeHelper : ITypeHelper
             return Result<TypeDto>.Failure(errors);
         }
         
-        var model = entity.MapTo<Type>();
-        var result = await _repository.AddAsync(model);
+        var result = await _repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
             return Result<TypeDto>.Failure(result.Errors);
         }
         
-        var data = result.Data.MapTo<TypeDto>();
-        return Result<TypeDto>.Success(data);
+        return result;
     }
 
     public async Task<Result<TypeDto>> UpdateAsync(TypeDto entity)
@@ -84,20 +88,21 @@ public class TypeHelper : ITypeHelper
             return Result<TypeDto>.Failure(errors);
         }
 
-        var model = entity.MapTo<Type>();
-        var result = await _repository.UpdateAsync(model);
+        var result = await _repository.UpdateAsync(entity);
         
         if (result.IsFailure)
         {
             return Result<TypeDto>.Failure(result.Errors);
         }
-        
-        var data = result.Data.MapTo<TypeDto>();
-        return Result<TypeDto>.Success(data);
+     
+        return result;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        return await _repository.DeleteAsync(id);
+        var query = new BaseQuery<Type>().ById(id);
+
+        return await 
+            _repository.DeleteAsync(query);
     }
 }

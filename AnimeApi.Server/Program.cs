@@ -2,6 +2,7 @@ using System.Text;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Exceptions;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.DataAccess.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
@@ -49,13 +50,14 @@ public class Program
             });
 
         builder.Services
+            .AddMappers()
             .AddDataAccess(connectionString!)
+            .AddBusiness()
+            .AddIdentity()
             .AddMemoryCache(options =>
             {
                 options.SizeLimit = Constants.Cache.CacheSize;
             })
-            .AddBusiness()
-            .AddIdentity()
             .AddAuthentication(Constants.Authentication.DefaultScheme)
             .AddJwtBearer(Constants.Authentication.DefaultScheme, options =>
             {

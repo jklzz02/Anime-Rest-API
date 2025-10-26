@@ -28,4 +28,9 @@ public record RefreshTokenDto
     [JsonIgnore]
     public bool IsActive 
         => !IsRevoked && !IsExpired;
+
+    public void Revoke()
+    {
+        RevokedAt = DateTime.UtcNow.ToUniversalTime();
+    }
 }

@@ -9,16 +9,16 @@ public record AppUserDto
     public int Id { get; init; }
 
     [JsonProperty("username")]
-    public required string Username { get; init; }
-    
+    public string Username { get; init; } = string.Empty;
+
     [JsonProperty("email")]
-    public required string Email { get; init; }
-    
+    public string Email { get; init; } = string.Empty;
+
     [JsonProperty("profile_picture")]
-    public required string ProfilePictureUrl { get; init; }
+    public string ProfilePictureUrl { get; init; } = string.Empty;
     
     [JsonProperty("created_at")]
-    public required DateTime CreatedAt { get; init; }
+    public DateTime CreatedAt { get; init; }
     
     [JsonProperty("admin")]
     public bool Admin { get; init; }

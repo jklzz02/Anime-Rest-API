@@ -102,7 +102,7 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Type).WithMany(p => p.Animes)
                 .HasForeignKey(d => d.TypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("Anime_Type_Id_fk");
         });
 
@@ -118,16 +118,14 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Genres)
                 .HasForeignKey(d => d.AnimeId)
-                .HasConstraintName("Anime_Genre_ibfk_1");
+                .HasConstraintName("Anime_Genre_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(d => d.Genre).WithMany(p => p.Anime_Genres)
                 .HasForeignKey(d => d.GenreId)
-                .HasConstraintName("Anime_Genre_ibfk_2");
+                .HasConstraintName("Anime_Genre_ibfk_2")
+                .OnDelete(DeleteBehavior.Cascade);
         });
-        
-        modelBuilder.Entity<AnimeGenre>()
-            .Navigation(ag => ag.Genre)
-            .AutoInclude();
 
         modelBuilder.Entity<AnimeLicensor>(entity =>
         {
@@ -141,16 +139,14 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Licensors)
                 .HasForeignKey(d => d.AnimeId)
-                .HasConstraintName("Anime_Licensor_ibfk_1");
+                .HasConstraintName("Anime_Licensor_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(d => d.Licensor).WithMany(p => p.Anime_Licensors)
                 .HasForeignKey(d => d.LicensorId)
-                .HasConstraintName("Anime_Licensor_ibfk_2");
+                .HasConstraintName("Anime_Licensor_ibfk_2")
+                .OnDelete(DeleteBehavior.Cascade);
         });
-        
-        modelBuilder.Entity<AnimeLicensor>()
-            .Navigation(al => al.Licensor)
-            .AutoInclude();
 
         modelBuilder.Entity<AnimeProducer>(entity =>
         {
@@ -164,16 +160,14 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Producers)
                 .HasForeignKey(d => d.AnimeId)
-                .HasConstraintName("Anime_Producer_ibfk_1");
+                .HasConstraintName("Anime_Producer_ibfk_1")
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(d => d.Producer).WithMany(p => p.Anime_Producers)
                 .HasForeignKey(d => d.ProducerId)
-                .HasConstraintName("Anime_Producer_ibfk_2");
+                .HasConstraintName("Anime_Producer_ibfk_2")
+                .OnDelete(DeleteBehavior.Cascade);
         });
-        
-        modelBuilder.Entity<AnimeProducer>()
-            .Navigation(al => al.Producer)
-            .AutoInclude();
 
         modelBuilder.Entity<Genre>(entity =>
         {
@@ -206,6 +200,9 @@ public partial class AnimeDbContext : DbContext
                 .HasMaxLength(255);
 
             entity.Property(e => e.Created_At)
+                .HasConversion(
+                    c => c.ToUniversalTime(),
+                    c => DateTime.SpecifyKind(c, DateTimeKind.Utc))
                 .HasColumnType("timestampz");
             
             entity.HasOne<Role>(e => e.Role).WithMany(r => r.Users)
@@ -261,6 +258,18 @@ public partial class AnimeDbContext : DbContext
             
             entity.Property(e => e.Revoked_At)
                 .HasColumnType("timestampz");
+
+            entity.Property(e => e.Created_At)
+                .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+            );
+
+            entity.Property(e => e.Expires_At)
+                .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+            );
 
             entity
                 .HasIndex(e => e.Hashed_Token, "Refresh_Token_Hashed_Token__index");

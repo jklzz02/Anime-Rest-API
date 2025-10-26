@@ -1,9 +1,12 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Business.Extensions.Mappers;
+using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.SpecHelpers;
 using FluentValidation;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
@@ -14,7 +17,8 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 /// </summary>
 public class ReviewHelper : IReviewHelper
 {
-    private readonly IReviewRepository _repository;
+    private readonly IRepository<Review, ReviewDto> _repository;
+    private readonly IMapper<Review, ReviewDto> _mapper;
     private readonly IValidator<ReviewDto> _validator;
     
     /// <summary>
@@ -22,24 +26,32 @@ public class ReviewHelper : IReviewHelper
     /// </summary>
     /// <param name="repository">The repository for accessing and managing review data.</param>
     /// <param name="validator">The validator for validating review data.</param>
-    public ReviewHelper(IReviewRepository repository, IValidator<ReviewDto> validator)
+    public ReviewHelper(
+        IRepository<Review, ReviewDto> repository,
+        IMapper<Review, ReviewDto> mapper,
+        IValidator<ReviewDto> validator)
     {
         _repository = repository;
+        _mapper = mapper;
         _validator = validator;
     }
 
     /// <inheritdoc />
     public async Task<ReviewDto?> GetByIdAsync(int id)
     {
-        var review = await _repository.GetByIdAsync(id);
-        return review?.ToDto();
+        var query = new ReviewQuery().ByPk(id);
+
+        return await
+            _repository.FindFirstOrDefaultAsync(query);
     }
 
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByAnimeIdAsync(int animeId)
     {
-        var reviews = await _repository.GetByAnimeIdAsync(animeId);
-        return reviews.ToDto();
+        var query = new ReviewQuery().ByAnime(animeId);
+
+        return await
+            _repository.FindAsync(query);
     }
 
     /// <inheritdoc />
@@ -47,45 +59,63 @@ public class ReviewHelper : IReviewHelper
     {
         ArgumentException.ThrowIfNullOrEmpty(title);
 
-        var reviews = await _repository.GetByAnimeTitleAsync(title);
-        return reviews.ToDto();
+        var query = new ReviewQuery().ByAnime(title);
+
+        return await
+            _repository.FindAsync(query);
     }
     
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByUserIdAsync(int userId)
     {
-        var reviews = await _repository.GetByUserIdAsync(userId);
-        return reviews.ToDto();
+        var query = new ReviewQuery().ByUser(userId);
+
+        return await 
+            _repository.FindAsync(query);
     }
     
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByUserEmailAsync(string email)
     {
         ArgumentException.ThrowIfNullOrEmpty(email);
-        
-        var reviews = await _repository.GetByUserEmailAsync(email);
-        return reviews.ToDto();
+
+        var query = new ReviewQuery().ByEmail(email);
+
+        return await
+            _repository.FindAsync(query);
     }
     
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByDateAsync(DateTime date)
     {
-        var reviews = await _repository.GetByDateAsync(date);
-        return reviews.ToDto();
+        var query = new ReviewQuery().ByDate(date);
+
+        return await
+            _repository.FindAsync(query);
     }
 
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetMostRecentByTimeSpanAsync(TimeSpan timeSpan)
     {
-        var reviews = await _repository.GetMostRecentByTimespanAsync(timeSpan);
-        return reviews.ToDto();
+        var query = new ReviewQuery()
+            .RecentByTimeSpan(timeSpan)
+            .SortBy([
+                SortAction<Review>.Desc(r => r.Created_At),
+                SortAction<Review>.Desc(r => r.Score)
+            ]);
+
+        return await
+            _repository.FindAsync(query);
     }
 
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByMinScoreAsync(int minScore)
     {
-        var reviews = await _repository.GetByMinScoreAsync(minScore);
-        return reviews.ToDto();
+        var query = new ReviewQuery()
+            .ByScoreRange(minScore, 10);
+
+        return await 
+            _repository.FindAsync(query);
     }
 
     /// <inheritdoc />
@@ -101,17 +131,16 @@ public class ReviewHelper : IReviewHelper
             
             return Result<ReviewDto>.Failure(errors);
         }
-        
-        var result = await _repository
-            .CreateAsync(entity.ToModel());
+
+        var result = await
+            _repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
             return Result<ReviewDto>.Failure(result.Errors);
         }
-        
-        var data = result.Data.ToDto();
-        return Result<ReviewDto>.Success(data);
+
+        return result;
     }
 
     /// <inheritdoc />
@@ -129,20 +158,23 @@ public class ReviewHelper : IReviewHelper
         }
         
         var result = await _repository
-            .UpdateAsync(entity.ToModel());
+            .UpdateAsync(entity);
         
         if (result.IsFailure)
         {
             return Result<ReviewDto>.Failure(result.Errors);
         }
-        
-        var data = result.Data.ToDto();
-        return Result<ReviewDto>.Success(data);
+     
+        return result;
     }
 
     /// <inheritdoc />
     public async Task<bool> DeleteAsync(int id)
     {
-        return await _repository.DeleteAsync(id);
+        var query = new ReviewQuery()
+            .ByPk(id);
+
+        return await
+            _repository.DeleteAsync(query);
     }
 }
