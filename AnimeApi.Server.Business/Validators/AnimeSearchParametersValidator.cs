@@ -6,26 +6,16 @@ namespace AnimeApi.Server.Business.Validators;
 
 public class AnimeSearchParametersValidator : AbstractValidator<AnimeSearchParameters>
 {
-    private readonly IEnumerable<string> _validOrderByEntries =
-        typeof(Constants.OrderBy.Fields)
-            .GetFields()
-            .Select(f => f.GetRawConstantValue()?.ToString()!);
-
-    private readonly IEnumerable<string> _validSortOrderEntries =
-        typeof(Constants.OrderBy.StringDirections)
-            .GetFields()
-            .Select(f => f.GetRawConstantValue()?.ToString()!);
-
     public AnimeSearchParametersValidator()
     {
         RuleFor(a => a.OrderBy)
-            .Must(a => _validOrderByEntries.Contains(a))
+            .Must(a => Constants.OrderBy.Fields.ValidFields.Contains(a))
             .When(a => !string.IsNullOrEmpty(a.OrderBy))
-            .WithMessage($"Invalid order by field. Choose among: ({string.Join(", ", _validOrderByEntries)})");
+            .WithMessage($"Invalid order by field. Choose among: ({string.Join(", ", Constants.OrderBy.Fields.ValidFields)})");
         
         RuleFor(a => a.SortOrder)
-            .Must(a => _validSortOrderEntries.Contains(a))
+            .Must(a => Constants.OrderBy.StringDirections.Directions.Contains(a))
             .When(a => !string.IsNullOrEmpty(a.SortOrder))
-            .WithMessage($"Invalid sort order. Choose among: ({string.Join(", ", _validSortOrderEntries)})");
+            .WithMessage($"Invalid sort order. Choose among: ({string.Join(", ", Constants.OrderBy.StringDirections.Directions)})");
     }
 }

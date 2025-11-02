@@ -206,6 +206,9 @@ public class AnimeHelper : IAnimeHelper
                 parameters.LicensorId,
                 parameters.LicensorName,
                 parameters.LicensorNames)
+            .WithSorting(
+                parameters.OrderBy,
+                parameters.SortOrder)
             .ExcludeAdultContent(!parameters.IncludeAdultContent);
 
         var count = await

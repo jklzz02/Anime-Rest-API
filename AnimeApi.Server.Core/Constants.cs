@@ -117,6 +117,15 @@ public static class Constants
             public const string ReleaseYear = "year";
             public const string ReleaseDate = "release_date";
             public const string Score = "score";
+
+            public static readonly string[] ValidFields =
+            [
+                Id,
+                Name,
+                ReleaseYear,
+                ReleaseDate,
+                Score
+            ];
         }
 
         /// <summary>
@@ -126,6 +135,12 @@ public static class Constants
         {
             public const string Ascending = "asc";
             public const string Descending = "desc";
+
+            public static readonly string[] Directions = 
+            [
+                Ascending,
+                Descending
+            ]; 
         }
     }
 }

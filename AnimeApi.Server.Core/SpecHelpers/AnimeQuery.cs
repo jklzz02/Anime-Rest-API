@@ -1,4 +1,5 @@
 ﻿using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -198,6 +199,49 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
 
         if (licensorNames?.Any() ?? false)
             FilterBy(a => licensorNames.All(l => a.Anime_Licensors.Any(al => al.Licensor.Name.ToLower() == l.ToLower())));
+
+        return this;
+    }
+
+    public AnimeQuery WithSorting(string? field, string? order)
+    {
+        if (string.IsNullOrWhiteSpace(field) || string.IsNullOrWhiteSpace(order))
+        {
+            return this;
+        }
+
+        if (!Constants.OrderBy.Fields.ValidFields.Contains(field.ToLower()))
+        {
+            throw new ArgumentException(
+                $"Invalid order by field. Choose among: ({string.Join(", ", Constants.OrderBy.Fields.ValidFields)})");
+        }
+
+        if (!Constants.OrderBy.StringDirections.Directions.Contains(order.ToLower()))
+        {             
+            throw new ArgumentException(
+                $"Invalid sort order. Choose among: ({string.Join(", ", Constants.OrderBy.StringDirections.Directions)})");
+        }
+
+        bool ascending = order.EqualsIgnoreCase(Constants.OrderBy.StringDirections.Ascending);
+
+        SortBy(field.ToLowerNormalized() switch
+        {
+            Constants.OrderBy.Fields.Id => ascending
+                ? SortAction<Anime>.Asc(a => a.Id)
+                : SortAction<Anime>.Desc(a => a.Id),
+            Constants.OrderBy.Fields.Name => ascending
+                ? SortAction<Anime>.Asc(a => a.Name)
+                : SortAction<Anime>.Desc(a => a.Name),
+            Constants.OrderBy.Fields.ReleaseYear => ascending
+                ? SortAction<Anime>.Asc(a => a.Release_Year)
+                : SortAction<Anime>.Desc(a => a.Release_Year),
+            Constants.OrderBy.Fields.ReleaseDate => ascending
+                ? SortAction<Anime>.Asc(a => a.Started_Airing)
+                : SortAction<Anime>.Desc(a => a.Started_Airing),
+            _ => ascending
+                ? SortAction<Anime>.Asc(a => a.Score)
+                : SortAction<Anime>.Desc(a => a.Score),
+        });
 
         return this;
     }
