@@ -12,16 +12,24 @@ namespace AnimeApi.Server.Controllers;
 public class GenreController : ControllerBase
 {
     private readonly IGenreHelper _helper;
-    public GenreController(IGenreHelper helper)
+    private readonly ICachingService _cache;
+
+    public GenreController(IGenreHelper helper, ICachingService cache)
     {
         _helper = helper;
+        _cache = cache;
     }
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
-        var genres = await _helper.GetAllAsync();
+        var genres = await
+            _cache
+                .GetOrCreateAsync(
+                    () => _helper.GetAllAsync(),
+                    Constants.Cache.MinCachedItemSize);
+        
         return Ok(genres);
     }
 

@@ -12,17 +12,23 @@ namespace AnimeApi.Server.Controllers;
 public class ProducerController : ControllerBase
 {
     private readonly IProducerHelper _helper;
+    private readonly ICachingService _cache;
     
-    public ProducerController(IProducerHelper helper)
+    public ProducerController(IProducerHelper helper, ICachingService cache)
     {
         _helper = helper;
+        _cache = cache;
     }
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
-        var producers = await _helper.GetAllAsync();
+        var producers = await
+            _cache.GetOrCreateAsync(
+                () => _helper.GetAllAsync(),
+                Constants.Cache.MinCachedItemSize);
+        
         return Ok(producers);
     }
     

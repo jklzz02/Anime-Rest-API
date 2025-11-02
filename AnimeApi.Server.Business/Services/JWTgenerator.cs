@@ -42,12 +42,12 @@ public class JwtGenerator : IJwtGenerator
             throw new ConfigurationException("'Authentication:Jwt:Audience'");
 
         List<Claim> claims = 
-            [
-                new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new (JwtRegisteredClaimNames.Email, user.Email),
-                new (JwtRegisteredClaimNames.Name, user.Username),
-                new (ClaimTypes.Role, user.Admin ? UserAccess.Admin : UserAccess.User)
-            ];
+        [
+            new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new (JwtRegisteredClaimNames.Email, user.Email),
+            new (JwtRegisteredClaimNames.Name, user.Username),
+            new (ClaimTypes.Role, user.Admin ? UserAccess.Admin : UserAccess.User)
+        ];
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

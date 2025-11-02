@@ -12,16 +12,23 @@ namespace AnimeApi.Server.Controllers;
 public class LicensorController : ControllerBase
 {
     private readonly ILicensorHelper _helper;
-    public LicensorController(ILicensorHelper helper)
+    private readonly ICachingService _cache;
+
+    public LicensorController(ILicensorHelper helper, ICachingService cache)
     {
         _helper = helper;
+        _cache = cache;
     }
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
-        var licensors = await _helper.GetAllAsync();
+        var licensors = await
+            _cache.GetOrCreateAsync(
+                () => _helper.GetAllAsync(),
+                Constants.Cache.MinCachedItemSize);
+
         return Ok(licensors);
     }
 

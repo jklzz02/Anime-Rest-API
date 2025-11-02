@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IReviewHelper, ReviewHelper>();
         services.AddScoped<IRefreshTokenHelper, RefreshTokenHelper>();
 
-        services.AddScoped<ICachingService, CachingService>();
+        services.AddSingleton<ICachingService, CachingService>();
         
         return services;
     }

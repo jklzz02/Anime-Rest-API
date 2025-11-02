@@ -28,17 +28,16 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
     public AnimeRepository(AnimeDbContext context, IAnimeMapper mapper)
         : base(context, mapper)
     {
-        Mapper = mapper;
     }
 
     /// <inheritdoc />
     public override  async Task<Result<AnimeDto>> AddAsync(AnimeDto dto)
     {
         ArgumentNullException.ThrowIfNull(dto, nameof(dto));
-        
-        var mapper = (IAnimeMapper) Mapper;
 
-        var entity = mapper.MapToEntity(dto, false);
+        var entity = Mapper
+            .AsSpecific<IAnimeMapper>()
+            .MapToEntity(dto, false);
         
         var anime = await
             Context.Anime.FirstOrDefaultAsync(a => a.Id == entity.Id);
@@ -61,7 +60,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
            Result<AnimeDto>.InternalFailure("Create", "No entity created");
        }
 
-       var resultDto = mapper.MapToDto(createdEntry.Entity);
+       var resultDto = Mapper.MapToDto(createdEntry.Entity);
        
        Context.ChangeTracker.Clear();
        return Result<AnimeDto>.Success(resultDto);
@@ -79,9 +78,9 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
                 "Cannot update unexisting entry");
         }
 
-        var mapper = (IAnimeMapper) Mapper;
-        
-       var  entity = mapper.MapToEntity(dto, false);
+       var  entity = Mapper
+            .AsSpecific<IAnimeMapper>()
+            .MapToEntity(dto, false);
         
         var anime = await
             AnimeQuery
@@ -108,7 +107,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
             return Result<AnimeDto>.InternalFailure("update", "something went wrong during entity update.");
         }
         
-        var resultDto = mapper.MapToDto(anime);
+        var resultDto = Mapper.MapToDto(anime);
         
         Context.ChangeTracker.Clear();
         return Result<AnimeDto>.Success(resultDto);

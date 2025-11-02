@@ -1,3 +1,4 @@
+using System.Net;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
@@ -6,6 +7,7 @@ using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Controllers;
 
@@ -36,11 +38,10 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, int size = Constants.Pagination.MaxPageSize, bool includeAdultContent = false)
+    public async Task<IActionResult> GetAllsync([FromQuery] int page = 1, int size = Constants.Pagination.MaxPageSize, bool includeAdultContent = false)
     {
          var result = await _cache
              .GetOrCreateAsync(
-                 $"anime-page{page}-size{size}-include{includeAdultContent}",
                  () => includeAdultContent ? 
                      _helper.GetAllAsync(page, size) :
                      _helper.GetAllNonAdultAsync(page, size), 
@@ -67,7 +68,6 @@ public class AnimeController : ControllerBase
     {
         var anime = await _cache
             .GetOrCreateAsync(
-                $"anime-id-{id}",
                 () => _helper.GetByIdAsync(id));
         
         if (anime is null)
@@ -88,8 +88,13 @@ public class AnimeController : ControllerBase
         int page = 1,
         int size = Constants.Pagination.MaxPageSize)
     {
-        var result = await _helper
-            .SearchAsync(parameters, page, size);
+        var result = await 
+            _cache
+                .GetOrCreateAsync(
+                    new { parameters, page, size },
+                    () =>_helper.SearchAsync(parameters, page, size),
+                    Constants.Cache.DefaultCachedItemSize,
+                    TimeSpan.FromMinutes(2));
         
         if (!result.Success)
         {
@@ -120,10 +125,10 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetRelatedAsync([FromQuery] int id, int count = 10)
     {
         var http = _httpClientFactory.CreateClient();
-        var response = await http
-            .GetAsync($"{_recommenderDomain}/v1/recommend?anime_id={id}&limit={count}");
+        var response = await
+            http.GetAsync($"{_recommenderDomain}/v1/recommend?anime_id={id}&limit={count}");
 
-        if (!response.IsSuccessStatusCode)
+        if (response is null || response.StatusCode == HttpStatusCode.ServiceUnavailable)
         {
             return StatusCode(StatusCodes.Status503ServiceUnavailable, "Request failed");
         }

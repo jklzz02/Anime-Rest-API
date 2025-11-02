@@ -1,6 +1,10 @@
+﻿using System.Linq.Expressions;
+using System.Security.Cryptography;
+using System.Text;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Business.Services;
 
@@ -50,16 +54,24 @@ public class CachingService : ICachingService
     }
 
     /// <inheritdoc />
+    public async Task<T?> GetOrCreateAsync<T>(Expression<Func<Task<T>>> factory)
+        => await GetOrCreateAsync(AutoKey(factory), factory.Compile(), DefaultItemSize, DefaultExpiration);
+
+    /// <inheritdoc />
+    public async Task<T?> GetOrCreateAsync<T>(Expression<Func<Task<T>>> factory, int size)
+        => await GetOrCreateAsync(AutoKey(factory), factory.Compile(), size, DefaultExpiration);
+
+    /// <inheritdoc />
+    public async Task<T?> GetOrCreateAsync<T>(Expression<Func<Task<T>>> factory, int size, TimeSpan expiration)
+        => await GetOrCreateAsync(AutoKey(factory), factory.Compile(), size, expiration);
+
+    /// <inheritdoc />
     public async Task<T?> GetOrCreateAsync<T>(object key, Func<Task<T>> factory)
-    {
-        return await GetOrCreateAsync(key, factory, DefaultItemSize, DefaultExpiration);
-    }
+        => await GetOrCreateAsync(key, factory, DefaultItemSize, DefaultExpiration);
 
     /// <inheritdoc />
     public async Task<T?> GetOrCreateAsync<T>(object key, Func<Task<T>> factory, int size)
-    {
-        return await GetOrCreateAsync(key, factory, size, DefaultExpiration);
-    }
+        => await GetOrCreateAsync(key, factory, size, DefaultExpiration);
 
     /// <inheritdoc />
     public async Task<T?> GetOrCreateAsync<T>(object key, Func<Task<T>> factory, int size, TimeSpan expiration)
@@ -76,7 +88,7 @@ public class CachingService : ICachingService
                 .Set(
                     NormalizeKey(key),
                     value,
-                    new MemoryCacheEntryOptions 
+                    new MemoryCacheEntryOptions
                     {
                         AbsoluteExpirationRelativeToNow = expiration,
                         Size = size
@@ -88,15 +100,139 @@ public class CachingService : ICachingService
 
     /// <inheritdoc />
     public bool HasKey(object key)
-    {
-        return _cache.TryGetValue(NormalizeKey(key), out _);
-    }
+        => _cache.TryGetValue(NormalizeKey(key), out _);
 
     /// <inheritdoc />
     public void Remove(object key)
+        => _cache.Remove(NormalizeKey(key));
+
+    /// <summary>
+    /// Returns a unique key based on the provided expression.
+    /// </summary>
+    /// <param name="expression">An <see cref="Expression"/>.</param>
+    /// <returns>The automatic unique key.</returns>
+    private string AutoKey(Expression expression)
     {
-        _cache.Remove(NormalizeKey(key));
+        var extracted = ExtractValue(expression);
+        var keyData = new
+        {
+            Expression = expression.ToString(),
+            Extracted = extracted
+        };
+        return NormalizeKey(keyData);
     }
-    
-    private string NormalizeKey(object key) => key.ToString()!.ToLowerInvariant();
+
+    /// <summary>
+    /// Normalizes the cache key by serializing and hashing it.
+    /// </summary>
+    /// <param name="key">The key to be normalized.</param>
+    /// <returns>The normalized key.</returns>
+    private string NormalizeKey(object key)
+        => Hash(SerializeKey(key));
+
+    /// <summary>
+    /// Normalizes the cache key by converting it to a string.
+    /// </summary>
+    /// <param name="key">The key to be serialized.</param>
+    /// <returns>A serialized key.</returns>
+    private string SerializeKey(object key)
+    {
+        return key switch
+        {
+            null => "null",
+            string s => s,
+            ValueType v => v.ToString(),
+            _ => JsonConvert.SerializeObject(key, new JsonSerializerSettings
+            {
+                Formatting = Formatting.None,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                NullValueHandling = NullValueHandling.Include
+            })
+        };
+    }
+
+    /// <summary>
+    /// Returns the SHA256 hash of the given string.
+    /// </summary>
+    /// <param name="str">The string to be hashed.</param>
+    /// <returns>The hashed string.</returns>
+    private string Hash(string str)
+    {
+        using var sha = SHA256.Create();
+        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(str));
+        return Convert.ToHexString(bytes);
+    }
+
+    /// <summary>
+    /// Extracts the value represented by the given expression.
+    /// </summary>
+    /// <param name="expression">The <see cref="Expression"/> to extract the values from.</param>
+    /// <returns>The extracted values</returns>
+    private object? ExtractValue(Expression expression)
+    {
+        try
+        {
+            switch (expression)
+            {
+                case LambdaExpression lambdaExpr:
+                    return ExtractValue(lambdaExpr.Body);
+
+                case ConstantExpression constant:
+                    return constant.Value;
+
+                case MemberExpression member:
+                    {
+                        object? container = null;
+
+                        if (member.Expression is not null)
+                            container = ExtractValue(member.Expression);
+
+                        if (member.Member is System.Reflection.FieldInfo field)
+                            return field.IsStatic ? field.GetValue(null) : field.GetValue(container);
+
+                        if (member.Member is System.Reflection.PropertyInfo property)
+                            return property.GetMethod?.IsStatic == true
+                                ? property.GetValue(null)
+                                : property.GetValue(container);
+                        break;
+                    }
+
+                case ConditionalExpression conditional:
+                    {
+                        var testValue = ExtractValue(conditional.Test);
+                        if (testValue is bool condition)
+                            return ExtractValue(condition ? conditional.IfTrue : conditional.IfFalse);
+
+                        return new
+                        {
+                            Test = conditional.Test.ToString(),
+                            IfTrue = conditional.IfTrue.ToString(),
+                            IfFalse = conditional.IfFalse.ToString()
+                        };
+                    }
+
+                case MethodCallExpression methodCall:
+                    {
+                        var target = ExtractValue(methodCall.Object);
+                        var args = methodCall.Arguments.Select(ExtractValue).ToArray();
+                        return new
+                        {
+                            Target = target == null ? null : new { Type = target.GetType().FullName, Value = target },
+                            Method = methodCall.Method.Name,
+                            Args = args
+                        };
+                    }
+            }
+
+            if (typeof(Task)?.IsAssignableFrom(expression?.Type) ?? false)
+                return expression.ToString();
+
+            var lambda = Expression.Lambda(expression);
+            return lambda.Compile().DynamicInvoke();
+        }
+        catch
+        {
+            return expression?.ToString();
+        }
+    }
 }

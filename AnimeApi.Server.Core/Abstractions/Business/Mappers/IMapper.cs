@@ -11,4 +11,7 @@ public interface IMapper<TEntity, TDto>
     TEntity MapToEntity(TDto dto);
 
     IEnumerable<TEntity> MapToEntity(IEnumerable<TDto> dtos);
+
+    TSpecific AsSpecific<TSpecific>()
+        where TSpecific : class, IMapper<TEntity, TDto>;
 }
