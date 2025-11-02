@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
 using AnimeApi.Server.Core;
@@ -15,6 +16,7 @@ namespace AnimeApi.Server.Business.Services;
 public class CachingService : ICachingService
 {
     private readonly IMemoryCache _cache;
+    private static readonly ConcurrentDictionary<Expression, Delegate> _compiledLambdas = new();
 
     public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromMinutes(Constants.Cache.DefaultExpirationMinutes);
 
@@ -141,7 +143,7 @@ public class CachingService : ICachingService
         {
             null => "null",
             string s => s,
-            ValueType v => v.ToString(),
+            ValueType v => v.ToString()!,
             _ => JsonConvert.SerializeObject(key, new JsonSerializerSettings
             {
                 Formatting = Formatting.None,
@@ -227,8 +229,9 @@ public class CachingService : ICachingService
             if (typeof(Task)?.IsAssignableFrom(expression?.Type) ?? false)
                 return expression.ToString();
 
-            var lambda = Expression.Lambda(expression);
-            return lambda.Compile().DynamicInvoke();
+            var lambda = _compiledLambdas.GetOrAdd(expression, expr => Expression.Lambda(expr).Compile());
+            
+            return lambda.DynamicInvoke();
         }
         catch
         {

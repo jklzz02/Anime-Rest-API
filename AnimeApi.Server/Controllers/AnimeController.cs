@@ -7,7 +7,6 @@ using AnimeApi.Server.Core.Objects.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Controllers;
 
@@ -40,13 +39,19 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAllsync([FromQuery] int page = 1, int size = Constants.Pagination.MaxPageSize, bool includeAdultContent = false)
     {
-         var result = await _cache
-             .GetOrCreateAsync(
-                 () => includeAdultContent ? 
-                     _helper.GetAllAsync(page, size) :
-                     _helper.GetAllNonAdultAsync(page, size), 
-                 Constants.Cache.MinCachedItemSize);
-         
+        var result = 
+           includeAdultContent
+           ? await 
+                _cache
+                    .GetOrCreateAsync(
+                        () => _helper.GetAllAsync(page, size),
+                        Constants.Cache.DefaultCachedItemSize)
+            : await
+                _cache
+                    .GetOrCreateAsync(
+                         () => _helper.GetAllNonAdultAsync(page, size),
+                         Constants.Cache.DefaultCachedItemSize);
+
         if (!result.Success)
         {
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
