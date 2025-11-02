@@ -78,26 +78,15 @@ public class CachingService : ICachingService
     /// <inheritdoc />
     public async Task<T?> GetOrCreateAsync<T>(object key, Func<Task<T>> factory, int size, TimeSpan expiration)
     {
-        if (_cache.TryGetValue(NormalizeKey(key), out T? value))
+        return await _cache.GetOrCreateAsync(
+        NormalizeKey(key),
+        async entry =>
         {
-            return value;
-        }
+            entry.AbsoluteExpirationRelativeToNow = expiration;
+            entry.Size = size;
 
-        value = await factory();
-        if (value is not null)
-        {
-            _cache
-                .Set(
-                    NormalizeKey(key),
-                    value,
-                    new MemoryCacheEntryOptions
-                    {
-                        AbsoluteExpirationRelativeToNow = expiration,
-                        Size = size
-                    });
-        }
-
-        return value;
+            return await factory();
+        });
     }
 
     /// <inheritdoc />
