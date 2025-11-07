@@ -236,7 +236,16 @@ public class AuthController : ControllerBase
 
     private void ClearTokenCookies()
     {
-        Response.Cookies.Delete(Constants.Authentication.AccessTokenCookieName);
-        Response.Cookies.Delete(Constants.Authentication.RefreshTokenCookieName);
+        var deleteOptions = new CookieOptions
+        {
+            HttpOnly = _cookieOptions.HttpOnly,
+            Secure = _cookieOptions.Secure,
+            SameSite = _cookieOptions.SameSite,
+            Path = _cookieOptions.Path,
+            Domain = _cookieOptions.Domain
+        };
+        
+        Response.Cookies.Delete(Constants.Authentication.AccessTokenCookieName, deleteOptions);
+        Response.Cookies.Delete(Constants.Authentication.RefreshTokenCookieName, deleteOptions);
     }
 }

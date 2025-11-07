@@ -117,6 +117,7 @@ public static class Constants
             public const string ReleaseYear = "year";
             public const string ReleaseDate = "release_date";
             public const string Score = "score";
+            public const string Episodes = "episodes";
 
             public static readonly string[] ValidFields =
             [
@@ -124,7 +125,8 @@ public static class Constants
                 Name,
                 ReleaseYear,
                 ReleaseDate,
-                Score
+                Score,
+                Episodes
             ];
         }
 

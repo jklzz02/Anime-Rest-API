@@ -29,6 +29,7 @@ public class RefreshTokenMapper : Mapper<RefreshToken, RefreshTokenDto>, IMapper
             Hashed_Token = refreshToken.HashedToken,
             Revoked_At = refreshToken.RevokedAt?.ToUniversalTime(),
             User_Id = refreshToken.UserId,
+            User = null,
         };
     }
 }

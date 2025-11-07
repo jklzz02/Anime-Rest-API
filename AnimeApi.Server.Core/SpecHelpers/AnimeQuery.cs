@@ -238,6 +238,9 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
             Constants.OrderBy.Fields.ReleaseDate => ascending
                 ? SortAction<Anime>.Asc(a => a.Started_Airing)
                 : SortAction<Anime>.Desc(a => a.Started_Airing),
+            Constants.OrderBy.Fields.Episodes => ascending
+                ? SortAction<Anime>.Asc(a => a.Episodes)
+                : SortAction<Anime>.Desc(a => a.Episodes),
             _ => ascending
                 ? SortAction<Anime>.Asc(a => a.Score)
                 : SortAction<Anime>.Desc(a => a.Score),
