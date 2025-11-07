@@ -209,7 +209,7 @@ public partial class AnimeDbContext : DbContext
                 .HasForeignKey(e => e.Role_Id)
                 .HasConstraintName("User_Role_Id_fk");
             
-            entity.HasOne<RefreshToken>(e => e.RefreshToken)
+            entity.HasOne(e => e.RefreshToken)
                 .WithOne(e => e.User);
         });
         

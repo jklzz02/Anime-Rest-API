@@ -77,15 +77,11 @@ public class RefreshTokenHelper : IRefreshTokenHelper
     {
         var query = new TokenQuery().ByUser(userId);
 
-        var tokens = await 
-            _repository.FindAsync(query);
-
-        tokens.ForEach(t => t.Revoke());
-
+        
         var result = await
-            _repository.UpdateRangeAsync(tokens);
-
-        return result.IsSuccess;
+            _repository.DeleteAsync(query);
+        
+        return result;
     }
 
     public async Task<bool> DeleteAsync(int id)
