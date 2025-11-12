@@ -17,14 +17,7 @@ public class AuthController : ControllerBase
     private readonly IUserService _userService;
     private readonly IJwtGenerator _jwtGenerator;
     private readonly IRefreshTokenService _refreshTokenService;
-    private readonly CookieOptions _cookieOptions = new()
-    {
-        HttpOnly = true,
-        Secure = true,
-        SameSite = SameSiteMode.None,
-        Path = "/",
-        Domain = null
-    };
+    private readonly CookieOptions _cookieOptions;
 
     public AuthController(
         IUserService userService,
@@ -34,6 +27,14 @@ public class AuthController : ControllerBase
         _userService = userService;
         _jwtGenerator = jwtGenerator;
         _refreshTokenService = refreshTokenService;
+        
+        _cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/"
+        };
     }
 
     [HttpPost("google")]
@@ -145,14 +146,13 @@ public class AuthController : ControllerBase
             Username = string.Empty
         });
 
-        await _refreshTokenService
-            .RevokeByUserIdAsync(userDto.Id);
+        await _refreshTokenService.RevokeByUserIdAsync(userDto.Id);
 
         var accessToken = _jwtGenerator.GenerateToken(userDto);
-
         var refreshToken = await _refreshTokenService.CreateAsync(userDto.Id);
 
         SetTokenCookies(accessToken, refreshToken);
+        
         return Ok(new
         {
             access_token = accessToken
@@ -189,18 +189,26 @@ public class AuthController : ControllerBase
         });
     }
 
+    [Authorize]
     [HttpPost("cookie/logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> WebLogout()
     {
-        var refreshTokenFromCookie = Request.Cookies[Constants.Authentication.RefreshTokenCookieName];
+        var email = User.FindFirst(ClaimTypes.Email);
+        var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
 
-        if (!string.IsNullOrEmpty(refreshTokenFromCookie))
+        if (user is null)
         {
-            await _refreshTokenService.RevokeAsync(refreshTokenFromCookie);
+            return Unauthorized("User not found.");
         }
 
+        // Revoke all refresh tokens for this user
+        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
+
+        // Clear the cookies
         ClearTokenCookies();
+        
         return NoContent();
     }
 
@@ -212,7 +220,6 @@ public class AuthController : ControllerBase
             Secure = _cookieOptions.Secure,
             SameSite = _cookieOptions.SameSite,
             Path = _cookieOptions.Path,
-            Domain = _cookieOptions.Domain,
             MaxAge = TimeSpan.FromMinutes(Constants.Authentication.AccessTokenExpirationMinutes)
         };
 
@@ -222,16 +229,18 @@ public class AuthController : ControllerBase
             Secure = _cookieOptions.Secure,
             SameSite = _cookieOptions.SameSite,
             Path = _cookieOptions.Path,
-            Domain = _cookieOptions.Domain,
-            Expires = new DateTimeOffset(refreshToken.MetaData.ExpiresAt),
             MaxAge = TimeSpan.FromDays(Constants.Authentication.RefreshTokenExpirationDays)
         };
 
-        Response.Cookies
-            .Append(Constants.Authentication.AccessTokenCookieName, accessToken, accessTokenOptions);
+        Response.Cookies.Append(
+            Constants.Authentication.AccessTokenCookieName, 
+            accessToken, 
+            accessTokenOptions);
 
-        Response.Cookies
-            .Append(Constants.Authentication.RefreshTokenCookieName, refreshToken.Token, refreshTokenOptions);
+        Response.Cookies.Append(
+            Constants.Authentication.RefreshTokenCookieName, 
+            refreshToken.Token, 
+            refreshTokenOptions);
     }
 
     private void ClearTokenCookies()
@@ -241,10 +250,9 @@ public class AuthController : ControllerBase
             HttpOnly = _cookieOptions.HttpOnly,
             Secure = _cookieOptions.Secure,
             SameSite = _cookieOptions.SameSite,
-            Path = _cookieOptions.Path,
-            Domain = _cookieOptions.Domain
+            Path = _cookieOptions.Path
         };
-        
+
         Response.Cookies.Delete(Constants.Authentication.AccessTokenCookieName, deleteOptions);
         Response.Cookies.Delete(Constants.Authentication.RefreshTokenCookieName, deleteOptions);
     }

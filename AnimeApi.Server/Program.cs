@@ -144,7 +144,9 @@ public class Program
                     var result = JsonConvert.SerializeObject(new
                     {
                         error = Constants.Remark.InternalServerError,
-                        details = app.Environment.IsDevelopment() ? ex.Message : "An unexpected error occurred."
+                        details = app.Environment.IsDevelopment() 
+                            ? ex.Message
+                            : "An unexpected error occurred."
                     });
 
                     await context.Response.WriteAsync(result);
