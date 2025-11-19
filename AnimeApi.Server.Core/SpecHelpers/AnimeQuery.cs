@@ -101,6 +101,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
     {
         if (minScore.HasValue)
             FilterBy(a => a.Score >= minScore);
+
         if (maxScore.HasValue)
             FilterBy(a => a.Score <= maxScore);
 
@@ -112,14 +113,15 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
         if (exactEpisodes.HasValue)
         {
             FilterBy(a => a.Episodes == exactEpisodes);
+
+            return this;
         }
-        else
-        {
-            if (minEpisodes.HasValue)
-                FilterBy(a => a.Episodes >= minEpisodes);
-            if (maxEpisodes.HasValue)
-                FilterBy(a => a.Episodes <= maxEpisodes);
-        }
+
+        if (minEpisodes.HasValue)
+            FilterBy(a => a.Episodes >= minEpisodes);
+
+        if (maxEpisodes.HasValue)
+            FilterBy(a => a.Episodes <= maxEpisodes);
 
         return this;
     }
@@ -128,6 +130,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
     {
         if (minYear.HasValue)
             FilterBy(a => a.Release_Year >= minYear);
+        
         if (maxYear.HasValue)
             FilterBy(a => a.Release_Year <= maxYear && a.Release_Year != 0);
 
@@ -142,10 +145,13 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
     {
         if (startFrom.HasValue)
             FilterBy(a => a.Started_Airing >= startFrom.Value.ToUniversalTime());
+
         if (startTo.HasValue)
             FilterBy(a => a.Started_Airing <= startTo.Value.ToUniversalTime());
+        
         if (endFrom.HasValue)
             FilterBy(a => a.Finished_Airing >= endFrom.Value.ToUniversalTime());
+        
         if (endTo.HasValue)
             FilterBy(a => a.Finished_Airing <= endTo.Value.ToUniversalTime());
 
@@ -229,18 +235,23 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
             Constants.OrderBy.Fields.Id => ascending
                 ? SortAction<Anime>.Asc(a => a.Id)
                 : SortAction<Anime>.Desc(a => a.Id),
+
             Constants.OrderBy.Fields.Name => ascending
                 ? SortAction<Anime>.Asc(a => a.Name)
                 : SortAction<Anime>.Desc(a => a.Name),
+
             Constants.OrderBy.Fields.ReleaseYear => ascending
                 ? SortAction<Anime>.Asc(a => a.Release_Year)
                 : SortAction<Anime>.Desc(a => a.Release_Year),
+
             Constants.OrderBy.Fields.ReleaseDate => ascending
                 ? SortAction<Anime>.Asc(a => a.Started_Airing)
                 : SortAction<Anime>.Desc(a => a.Started_Airing),
+
             Constants.OrderBy.Fields.Episodes => ascending
                 ? SortAction<Anime>.Asc(a => a.Episodes)
                 : SortAction<Anime>.Desc(a => a.Episodes),
+
             _ => ascending
                 ? SortAction<Anime>.Asc(a => a.Score)
                 : SortAction<Anime>.Desc(a => a.Score),
@@ -320,12 +331,14 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
     public AnimeQuery IncludeFavourites()
     {
         Include(q => q.Include(a => a.Favourites));
+        
         return this;
     }
 
     public AnimeQuery IncludeReviews()
     {
         Include(q => q.Include(a => a.Reviews));
+
         return this;
     }
 
