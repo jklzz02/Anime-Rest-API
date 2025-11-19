@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 
-public abstract class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
+public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
     where TEntity : class
     where TDerived : QuerySpec<TEntity, TDerived>
 {

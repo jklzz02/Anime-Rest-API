@@ -4,7 +4,7 @@ using AnimeApi.Server.Core.Objects.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.Core.SpecHelpers;
-public class AnimeQuery : QuerySpec<Anime, AnimeQuery>, IQuerySpec<Anime>
+public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
 {
 
     public static AnimeQuery ByPk(int id)
