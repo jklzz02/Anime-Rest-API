@@ -16,21 +16,13 @@ public class AnimeController : ControllerBase
 {
     private readonly IAnimeHelper _helper;
     private readonly ICachingService _cache;
-    private readonly string _recommenderDomain;
-    private readonly IHttpClientFactory _httpClientFactory;
     
     public AnimeController(
         IAnimeHelper helper,
-        ICachingService cachingService,
-        IConfiguration configuration,
-        IHttpClientFactory httpClientFactory)
+        ICachingService cachingService)
     {
         _helper = helper;
         _cache = cachingService;
-        _recommenderDomain = configuration
-            .GetValue<string>("Authorization:RecommenderDomain")!;
-        
-        _httpClientFactory = httpClientFactory;
     }
 
     [HttpGet]
@@ -120,29 +112,6 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetSummariesAsync([FromQuery] int count)
     {
         var result = await _helper.GetSummariesAsync(count);
-        return Ok(result);
-    }
-
-    [HttpGet]
-    [Route("related")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetRelatedAsync([FromQuery] int id, int count = 10)
-    {
-        var http = _httpClientFactory.CreateClient();
-        var response = await
-            http.GetAsync($"{_recommenderDomain}/v1/recommend?anime_id={id}&limit={count}");
-
-        if (response is null || response.StatusCode == HttpStatusCode.ServiceUnavailable)
-        {
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Request failed");
-        }
-        
-        var ids = await response.Content
-            .ReadFromJsonAsync<List<int>>() ?? [];
-
-        var result = await _helper.GetByIdsAsync(ids);
-        
         return Ok(result);
     }
 
