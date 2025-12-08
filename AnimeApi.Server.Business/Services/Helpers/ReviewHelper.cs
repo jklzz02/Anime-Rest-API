@@ -36,6 +36,21 @@ public class ReviewHelper : IReviewHelper
         _validator = validator;
     }
 
+    public async Task<PaginatedResult<ReviewDto>> GetAllAsync(int page, int size)
+    {
+        var query = new ReviewQuery()
+            .SortBy(SortAction<Review>.Desc(r => r.Created_At))
+            .Paginate(page, size);
+
+        var count = await
+            _repository.CountAsync();
+        
+        var result = await
+            _repository.FindAsync(query);
+        
+        return new PaginatedResult<ReviewDto>(result, page,  size, count);
+    }
+
     /// <inheritdoc />
     public async Task<ReviewDto?> GetByIdAsync(int id)
     {

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
@@ -19,6 +20,27 @@ public class ReviewController : ControllerBase
     {
         _reviewHelper = reviewHelper;
         _userService = userService;
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAllAsync(int page = 1, int size = Constants.Pagination.MaxPageSize)
+    {
+        if (size > Constants.Pagination.MaxPageSize)
+            return BadRequest($"Page size cannot be greater than '{Constants.Pagination.MaxPageSize}'");
+        
+        if (page <= 0)
+            return  BadRequest($"Page must be greater than zero");
+        
+        var result = await _reviewHelper.GetAllAsync(page, size);
+
+        if (!result.HasItems)
+        {
+            return NotFound();
+        }
+        
+        return Ok(result);
     }
 
     [HttpGet]

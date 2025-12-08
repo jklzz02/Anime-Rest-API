@@ -9,6 +9,14 @@ namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 public interface IReviewHelper
 {
     /// <summary>
+    /// Retrieves a <see cref="PaginatedResult{T}"/> of all reviews.
+    /// </summary>
+    /// <param name="page">The page to retrieve</param>
+    /// <param name="size">The amount of entities to retrieve.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="PaginatedResult{T}"/>.</returns>
+    Task<PaginatedResult<ReviewDto>> GetAllAsync(int page, int size);
+    
+    /// <summary>
     /// Retrieves a <see cref="ReviewDto"/> by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the review to retrieve.</param>
