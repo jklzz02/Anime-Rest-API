@@ -1,5 +1,4 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
@@ -18,7 +17,6 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class ReviewHelper : IReviewHelper
 {
     private readonly IRepository<Review, ReviewDto> _repository;
-    private readonly IMapper<Review, ReviewDto> _mapper;
     private readonly IValidator<ReviewDto> _validator;
     
     /// <summary>
@@ -28,18 +26,16 @@ public class ReviewHelper : IReviewHelper
     /// <param name="validator">The validator for validating review data.</param>
     public ReviewHelper(
         IRepository<Review, ReviewDto> repository,
-        IMapper<Review, ReviewDto> mapper,
         IValidator<ReviewDto> validator)
     {
         _repository = repository;
-        _mapper = mapper;
         _validator = validator;
     }
 
     public async Task<PaginatedResult<ReviewDto>> GetAllAsync(int page, int size)
     {
         var query = new ReviewQuery()
-            .SortBy(SortAction<Review>.Desc(r => r.Created_At))
+            .SortBy(r => r.Created_At, SortDirections.Desc)
             .Paginate(page, size);
 
         var count = await
