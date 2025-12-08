@@ -79,6 +79,13 @@ public class UserController : ControllerBase
             UserId = user.Id,
             AnimeId = animeId
         };
+
+        var favourites = await _favouritesHelper.GetFavouritesAsync(user.Id);
+
+        if (favourites.Any(f => f.UserId == user.Id && f.AnimeId == animeId))
+        {
+            return BadRequest();
+        }
         
         var result = await _favouritesHelper.AddFavouriteAsync(favourite);
         
