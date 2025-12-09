@@ -57,7 +57,11 @@ public class AnimeHelper : IAnimeHelper
 
         var query = new AnimeQuery()
             .AsSplitQuery()
-            .SortBy(a => a.Score, SortDirections.Desc)
+            .SortBy([
+                SortAction<Anime>.Desc(a => a.Score),
+                SortAction<Anime>.Desc(a => a.Release_Year),
+                SortAction<Anime>.Asc(a => a.Name),
+            ])
             .Paginate(page, size)
             .IncludeFullRelation();
 
