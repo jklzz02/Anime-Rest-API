@@ -65,6 +65,9 @@ public class AuthController : ControllerBase
             Picture = payload.Picture,
             Username = string.Empty
         });
+        
+        await _refreshTokenService.RevokeByUserIdAsync(userDto.Id);
+        
         var accessToken = _jwtGenerator.GenerateToken(userDto);
         var refreshToken = await _refreshTokenService.CreateAsync(userDto.Id);
 
@@ -203,12 +206,9 @@ public class AuthController : ControllerBase
             return Unauthorized("User not found.");
         }
 
-        // Revoke all refresh tokens for this user
         await _refreshTokenService.RevokeByUserIdAsync(user.Id);
 
-        // Clear the cookies
         ClearTokenCookies();
-        
         return NoContent();
     }
 
