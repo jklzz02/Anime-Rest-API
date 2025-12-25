@@ -132,7 +132,7 @@ public class ReviewHelper : IReviewHelper
     /// <inheritdoc />
     public async Task<Result<ReviewDto>> CreateAsync(ReviewDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
@@ -157,7 +157,7 @@ public class ReviewHelper : IReviewHelper
     /// <inheritdoc />
     public async Task<Result<ReviewDto>> UpdateAsync(ReviewDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)

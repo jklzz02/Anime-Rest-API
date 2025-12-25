@@ -1,5 +1,4 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
@@ -13,15 +12,13 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 public class SourceHelper : ISourceHelper
 {
     private readonly IRepository<Source, SourceDto> _repository;
-    private readonly IMapper<Source, SourceDto> _mapper;
     private readonly IBaseValidator<SourceDto> _validator;
+    
     public SourceHelper(
         IRepository<Source, SourceDto> repository,
-        IMapper<Source, SourceDto> mapper,
         IBaseValidator<SourceDto> validator)
     {
         _repository = repository;
-        _mapper = mapper;
         _validator = validator;
     }
     
@@ -78,7 +75,7 @@ public class SourceHelper : ISourceHelper
 
     public async Task<Result<SourceDto>> UpdateAsync(SourceDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)

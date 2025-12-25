@@ -18,12 +18,18 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "ConnectionStrings:DefaultConnection");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authorization:ClientDomain");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Audience");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Issuer");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Secret");
+        
         var connectionString = builder.Configuration
-            .GetConnectionString("DefaultConnection") ?? throw new ConfigurationException("DefaultConnection");
+            .GetConnectionString("DefaultConnection");
 
         var clientDomain = builder.Configuration
             .GetSection("Authorization")
-            .GetValue<string>("ClientDomain") ?? throw new ConfigurationException("Authorization:ClientDomain");
+            .GetValue<string>("ClientDomain");
 
         builder.Services.AddCors(options =>
         {
@@ -64,10 +70,10 @@ public class Program
                 var config = builder.Configuration.GetSection("Authentication:Jwt");
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidIssuer = config["Issuer"] ?? throw new ConfigurationException("Authentication:Jwt:Issuer"),
-                    ValidAudience = config["Audience"] ?? throw new ConfigurationException("Authentication:Jwt:Audience"),
+                    ValidIssuer = config["Issuer"],
+                    ValidAudience = config["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(config["Secret"] ?? throw new ConfigurationException("Authentication:Jwt:Secret"))),
+                        Encoding.UTF8.GetBytes(config["Secret"]!)),
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateIssuerSigningKey = true,

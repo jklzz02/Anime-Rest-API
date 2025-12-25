@@ -116,7 +116,7 @@ public class AnimeHelper : IAnimeHelper
 
     public async Task<Result<AnimeDto>> CreateAsync(AnimeDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
@@ -139,7 +139,7 @@ public class AnimeHelper : IAnimeHelper
     
     public async Task<Result<AnimeDto>> UpdateAsync(AnimeDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)

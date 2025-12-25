@@ -44,7 +44,7 @@ public class LicensorHelper : ILicensorHelper
 
     public async Task<Result<LicensorDto>> CreateAsync(LicensorDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         
         var existing = await _repository.GetAllAsync();
 
@@ -74,7 +74,7 @@ public class LicensorHelper : ILicensorHelper
 
     public async Task<Result<LicensorDto>> UpdateAsync(LicensorDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)

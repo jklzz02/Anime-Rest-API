@@ -14,7 +14,7 @@ public class ReviewMapper : Mapper<Review, ReviewDto>
         return new ReviewDto
         {
           Id = review.Id,
-          Content = review.Content ?? string.Empty,
+          Content = review.Content,
           CreatedAt = review.Created_At,
           Score = review.Score,
           AnimeId = review.Anime_Id,

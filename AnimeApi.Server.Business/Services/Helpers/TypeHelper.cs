@@ -46,7 +46,7 @@ public class TypeHelper : ITypeHelper
 
     public async Task<Result<TypeDto>> CreateAsync(TypeDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         var existing = await 
             _repository.GetAllAsync();
@@ -77,7 +77,7 @@ public class TypeHelper : ITypeHelper
 
     public async Task<Result<TypeDto>> UpdateAsync(TypeDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)

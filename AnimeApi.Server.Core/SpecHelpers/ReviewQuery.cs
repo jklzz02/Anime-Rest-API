@@ -9,6 +9,10 @@ public class ReviewQuery : QuerySpec<Review, ReviewQuery>
     public ReviewQuery ByPk(int id)
         => FilterBy(r =>  r.Id == id);
 
+    public ReviewQuery ByText(string textQuery)
+        => FilterBy(r => EF.Functions.TrigramsAreSimilar(r.Content, textQuery));
+    
+
     public ReviewQuery ByUser(int userId)
         => FilterBy(r => r.User_Id == userId);
 

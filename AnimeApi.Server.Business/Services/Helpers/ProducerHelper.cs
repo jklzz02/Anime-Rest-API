@@ -48,7 +48,7 @@ public class ProducerHelper : IProducerHelper
 
     public async Task<Result<ProducerDto>> CreateAsync(ProducerDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         
         var existing = await 
             _repository.GetAllAsync();
@@ -78,7 +78,7 @@ public class ProducerHelper : IProducerHelper
 
     public async Task<Result<ProducerDto>> UpdateAsync(ProducerDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)

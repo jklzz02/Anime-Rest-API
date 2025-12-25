@@ -27,19 +27,14 @@ public class JwtGenerator : IJwtGenerator
     /// <inheritdoc/>
     public string GenerateToken(AppUserDto user)
     {
+        ConfigurationException.ThrowIfEmpty(_configuration, "Authentication:Jwt:Secret");
+        ConfigurationException.ThrowIfEmpty(_configuration, "Authentication:Jwt:Issuer");
+        ConfigurationException.ThrowIfEmpty(_configuration, "Authentication:Jwt:Audience");
+        
         var secrets = _configuration.GetSection("Authentication:Jwt");
-
         var secret = secrets.GetSection("Secret").Value;
-        if (string.IsNullOrEmpty(secret))
-            throw new ConfigurationException("Authentication:Jwt:Secret");
-
         var issuer = secrets.GetSection("Issuer").Value;
-        if (string.IsNullOrEmpty(issuer))
-            throw new ConfigurationException("Authentication:Jwt:Issuer'");
-
         var audience = secrets.GetSection("Audience").Value;
-        if (string.IsNullOrEmpty(audience))
-            throw new ConfigurationException("'Authentication:Jwt:Audience'");
 
         List<Claim> claims = 
         [

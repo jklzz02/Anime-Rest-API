@@ -46,7 +46,7 @@ public class RefreshTokenHelper : IRefreshTokenHelper
 
     public async Task<RefreshTokenDto?> AddAsync(RefreshTokenDto refreshToken)
     {
-        ArgumentNullException.ThrowIfNull(refreshToken, nameof(refreshToken));
+        ArgumentNullException.ThrowIfNull(refreshToken);
         
         var result = await _repository.AddAsync(refreshToken);
         return result.Data;

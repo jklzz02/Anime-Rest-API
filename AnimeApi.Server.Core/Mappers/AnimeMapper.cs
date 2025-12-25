@@ -26,7 +26,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
 
     public Anime MapToEntity(AnimeDto dto, bool includeNavigation)
     {
-        ArgumentNullException.ThrowIfNull(dto, nameof(dto));
+        ArgumentNullException.ThrowIfNull(dto);
 
         var entity =  new Anime
         {
@@ -57,7 +57,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
                 {
                     GenreId = g.Id ?? 0,
                     AnimeId = dto.Id ?? 0,
-                    Genre = includeNavigation ? _genreMapper.MapToEntity(g) : null
+                    Genre = includeNavigation? _genreMapper.MapToEntity(g) : null
                 })
                 .ToList() ?? new List<AnimeGenre>(),
 
@@ -91,7 +91,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
     
     public override AnimeDto MapToDto(Anime anime)
     {
-        ArgumentNullException.ThrowIfNull(anime, nameof(anime));
+        ArgumentNullException.ThrowIfNull(anime);
 
         return new AnimeDto()
         {

@@ -7,7 +7,7 @@ public record ReviewDto
     [JsonProperty("id")]
     public int Id { get; init; }
     [JsonProperty("content")]
-    public string Content { get; init; } = "";
+    public string Content { get; init; }
     [JsonProperty("score")]
     public decimal Score { get; init; }
     [JsonProperty("anime_id")]

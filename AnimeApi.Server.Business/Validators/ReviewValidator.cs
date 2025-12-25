@@ -34,6 +34,8 @@ public class ReviewValidator : AbstractValidator<ReviewDto>
         
         RuleFor(r => r.Content)
             .NotEmpty()
+            .MinimumLength(100)
+            .WithMessage("content must be at least 100 characters long")
             .WithMessage("cannot be empty")
             .MaximumLength(5000)
             .WithMessage("cannot be longer than 5000 characters");

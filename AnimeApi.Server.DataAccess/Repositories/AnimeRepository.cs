@@ -33,7 +33,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
     /// <inheritdoc />
     public override  async Task<Result<AnimeDto>> AddAsync(AnimeDto dto)
     {
-        ArgumentNullException.ThrowIfNull(dto, nameof(dto));
+        ArgumentNullException.ThrowIfNull(dto);
 
         var entity = Mapper
             .AsSpecific<IAnimeMapper>()
@@ -69,7 +69,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
     /// <inheritdoc />
     public override async Task<Result<AnimeDto>> UpdateAsync(AnimeDto dto)
     {
-        ArgumentNullException.ThrowIfNull(dto, nameof(dto));
+        ArgumentNullException.ThrowIfNull(dto);
 
         if (dto.Id.GetValueOrDefault() == 0)
         {
@@ -78,13 +78,13 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
                 "Cannot update unexisting entry");
         }
 
-       var  entity = Mapper
+        var  entity = Mapper
             .AsSpecific<IAnimeMapper>()
             .MapToEntity(dto, false);
         
         var anime = await
             AnimeQuery
-                .ByPk(dto.Id.Value)
+                .ByPk(dto.Id.GetValueOrDefault())
                 .IncludeFullRelation()
                 .Tracked()
                 .Apply(Context.Anime)

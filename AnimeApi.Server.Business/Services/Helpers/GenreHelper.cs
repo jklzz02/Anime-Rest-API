@@ -32,7 +32,7 @@ public class GenreHelper : IGenreHelper
 
     public async Task<IEnumerable<GenreDto>> GetByNameAsync(string name)
     {
-        ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
+        ArgumentException.ThrowIfNullOrEmpty(name);
 
         var query = new BaseQuery<Genre>().ByName(name);
 
@@ -49,7 +49,7 @@ public class GenreHelper : IGenreHelper
     public async Task<Result<GenreDto>> CreateAsync(GenreDto entity)
     {
       
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
         
         var existing = await 
             _repository.GetAllAsync();
@@ -79,7 +79,7 @@ public class GenreHelper : IGenreHelper
 
     public async Task<Result<GenreDto>> UpdateAsync(GenreDto entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         var validationResult = await _validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
