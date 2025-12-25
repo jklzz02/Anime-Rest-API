@@ -1,4 +1,5 @@
-using System.Security.Cryptography;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using AnimeApi.Server.Business.Services;
 using AnimeApi.Server.Core.Exceptions;
 using AnimeApi.Server.Core.Objects.Dto;
@@ -9,106 +10,190 @@ namespace AnimeApi.Server.Test.Tests;
 
 public class JwtGeneratorTest
 {
-    private readonly Mock<IConfiguration> _configMock = new();
-    private readonly Mock<IConfigurationSection> _jwtSectionMock = new();
-    private readonly Mock<IConfigurationSection> _secretSectionMock = new();
-    private readonly Mock<IConfigurationSection> _issuerSectionMock = new();
-    private readonly Mock<IConfigurationSection> _audienceSectionMock = new();
+    private const string ValidSecret = "ThisIsAVerySecureSecretKeyForTestingPurposesOnly123!";
+    private const string ValidIssuer = "TestIssuer";
+    private const string ValidAudience = "TestAudience";
 
-    private AppUserDto DummyUser => new()
+    private static AppUserDto CreateTestUser() => new()
     {
-        Id = 0,
-        Email = string.Empty,
-        Username = string.Empty,
+        Id = 1,
+        Email = "test@test.com",
+        Username = "testuser",
         ProfilePictureUrl = string.Empty,
         CreatedAt = DateTime.UtcNow,
-        Admin = false
+        Admin = true
     };
 
-    private readonly JwtGenerator _generator;
-
-    public JwtGeneratorTest()
+    private static Mock<IConfiguration> CreateConfigurationMock(
+        string? secret = ValidSecret,
+        string? issuer = ValidIssuer,
+        string? audience = ValidAudience)
     {
-        _configMock
-            .Setup(x => x.GetSection("Authentication:Jwt")).Returns(_jwtSectionMock.Object);
-        
-        _secretSectionMock
-            .Setup(x => x.Value).Returns(GenerateRandomSecret());
-        
-        _generator = new JwtGenerator(_configMock.Object);
+        var configMock = new Mock<IConfiguration>();
+
+        var jwtSectionMock = new Mock<IConfigurationSection>();
+        configMock.Setup(x => x.GetSection("Authentication:Jwt")).Returns(jwtSectionMock.Object);
+
+        var secretSectionMock = new Mock<IConfigurationSection>();
+        secretSectionMock.Setup(x => x.Value).Returns(secret);
+        secretSectionMock.Setup(x => x.Path).Returns("Authentication:Jwt:Secret");
+        secretSectionMock.Setup(x => x.GetChildren()).Returns(secret != null ? new[] { secretSectionMock.Object } : Enumerable.Empty<IConfigurationSection>());
+        jwtSectionMock.Setup(x => x.GetSection("Secret")).Returns(secretSectionMock.Object);
+        configMock.Setup(x => x.GetSection("Authentication:Jwt:Secret")).Returns(secretSectionMock.Object);
+
+        var issuerSectionMock = new Mock<IConfigurationSection>();
+        issuerSectionMock.Setup(x => x.Value).Returns(issuer);
+        issuerSectionMock.Setup(x => x.Path).Returns("Authentication:Jwt:Issuer");
+        issuerSectionMock.Setup(x => x.GetChildren()).Returns(issuer != null ? new[] { issuerSectionMock.Object } : Enumerable.Empty<IConfigurationSection>());
+        jwtSectionMock.Setup(x => x.GetSection("Issuer")).Returns(issuerSectionMock.Object);
+        configMock.Setup(x => x.GetSection("Authentication:Jwt:Issuer")).Returns(issuerSectionMock.Object);
+
+        var audienceSectionMock = new Mock<IConfigurationSection>();
+        audienceSectionMock.Setup(x => x.Value).Returns(audience);
+        audienceSectionMock.Setup(x => x.Path).Returns("Authentication:Jwt:Audience");
+        audienceSectionMock.Setup(x => x.GetChildren()).Returns(audience != null ? new[] { audienceSectionMock.Object } : Enumerable.Empty<IConfigurationSection>());
+        jwtSectionMock.Setup(x => x.GetSection("Audience")).Returns(audienceSectionMock.Object);
+        configMock.Setup(x => x.GetSection("Authentication:Jwt:Audience")).Returns(audienceSectionMock.Object);
+
+        return configMock;
     }
 
     [Fact]
     public void GenerateToken_Should_Generate_Valid_Token()
     {
-        var user = new AppUserDto
-        {
-            Id = 1,
-            Email = "test@test.com",
-            Username = "test",
-            ProfilePictureUrl = string.Empty,
-            CreatedAt = DateTime.UtcNow,
-            Admin = true
-        };
+        var configMock = CreateConfigurationMock();
+        var generator = new JwtGenerator(configMock.Object);
+        var user = CreateTestUser();
 
-        _issuerSectionMock.Setup(x => x.Value).Returns("issuer");
-        _audienceSectionMock.Setup(x => x.Value).Returns("audience");
-
-        _jwtSectionMock.Setup(x => x.GetSection("Secret")).Returns(_secretSectionMock.Object);
-        _jwtSectionMock.Setup(x => x.GetSection("Issuer")).Returns(_issuerSectionMock.Object);
-        _jwtSectionMock.Setup(x => x.GetSection("Audience")).Returns(_audienceSectionMock.Object);
-
-        var token = _generator.GenerateToken(user);
+        var token = generator.GenerateToken(user);
 
         Assert.NotNull(token);
         Assert.NotEmpty(token);
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        
+        Assert.Equal(user.Id.ToString(), jwtToken.Subject);
+        Assert.Equal(user.Email, jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value);
+        Assert.Equal(user.Username, jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Name).Value);
+        Assert.Equal(ValidIssuer, jwtToken.Issuer);
+        Assert.Contains(ValidAudience, jwtToken.Audiences);
     }
 
     [Fact]
-    public void GenerateToken_Should_Throw_When_Secret_Missing()
+    public void GenerateToken_Should_Include_Admin_Role_When_User_Is_Admin()
     {
-        _secretSectionMock.Setup(x => x.Value).Returns(string.Empty);
-        _issuerSectionMock.Setup(x => x.Value).Returns("issuer");
-        _audienceSectionMock.Setup(x => x.Value).Returns("audience");
+        var configMock = CreateConfigurationMock();
+        var generator = new JwtGenerator(configMock.Object);
+        var adminUser = CreateTestUser() with { Admin = true };
 
-        _jwtSectionMock.Setup(x => x.GetSection("Secret")).Returns(_secretSectionMock.Object);
-        _jwtSectionMock.Setup(x => x.GetSection("Issuer")).Returns(_issuerSectionMock.Object);
-        _jwtSectionMock.Setup(x => x.GetSection("Audience")).Returns(_audienceSectionMock.Object);
+        var token = generator.GenerateToken(adminUser);
 
-        Assert.Throws<ConfigurationException>(() => _generator.GenerateToken(DummyUser));
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        var roleClaim = jwtToken.Claims.First(c => c.Type == ClaimTypes.Role);
+        
+        Assert.Equal("Admin", roleClaim.Value);
     }
 
     [Fact]
-    public void GenerateToken_Should_Throw_When_Issuer_Missing()
+    public void GenerateToken_Should_Include_User_Role_When_User_Is_Not_Admin()
     {
-        _issuerSectionMock.Setup(x => x.Value).Returns(string.Empty);
-        _audienceSectionMock.Setup(x => x.Value).Returns("audience");
+        var configMock = CreateConfigurationMock();
+        var generator = new JwtGenerator(configMock.Object);
+        var regularUser = CreateTestUser() with { Admin = false };
 
-        _jwtSectionMock.Setup(x => x.GetSection("Secret")).Returns(_secretSectionMock.Object);
-        _jwtSectionMock.Setup(x => x.GetSection("Issuer")).Returns(_issuerSectionMock.Object);
-        _jwtSectionMock.Setup(x => x.GetSection("Audience")).Returns(_audienceSectionMock.Object);
+        var token = generator.GenerateToken(regularUser);
 
-        Assert.Throws<ConfigurationException>(() => _generator.GenerateToken(DummyUser));
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        var roleClaim = jwtToken.Claims.First(c => c.Type == ClaimTypes.Role);
+        
+        Assert.Equal("User", roleClaim.Value);
     }
 
     [Fact]
-    public void GenerateToken_Should_Throw_When_Audience_Missing()
+    public void GenerateToken_Should_Throw_ConfigurationException_When_Secret_Missing()
     {
-        _issuerSectionMock.Setup(x => x.Value).Returns("issuer");
-        _audienceSectionMock.Setup(x => x.Value).Returns(string.Empty);
+        var configMock = CreateConfigurationMock(secret: null);
+        var generator = new JwtGenerator(configMock.Object);
+        var user = CreateTestUser();
 
-        _jwtSectionMock.Setup(x => x.GetSection("Secret")).Returns(_secretSectionMock.Object);
-        _jwtSectionMock.Setup(x => x.GetSection("Issuer")).Returns(_issuerSectionMock.Object);
-        _jwtSectionMock.Setup(x => x.GetSection("Audience")).Returns(_audienceSectionMock.Object);
-
-        Assert.Throws<ConfigurationException>(() => _generator.GenerateToken(DummyUser));
+        var exception = Assert.Throws<ConfigurationException>(() => generator.GenerateToken(user));
+        Assert.Equal("Authentication:Jwt:Secret", exception.ConfigurationKey);
     }
-    
-    private static string GenerateRandomSecret(int byteLength = 32)
+
+    [Fact]
+    public void GenerateToken_Should_Throw_ConfigurationException_When_Secret_Empty()
     {
-        var bytes = new byte[byteLength];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(bytes);
-        return Convert.ToBase64String(bytes);
+        var configMock = CreateConfigurationMock(secret: string.Empty);
+        var generator = new JwtGenerator(configMock.Object);
+        var user = CreateTestUser();
+
+        var exception = Assert.Throws<ConfigurationException>(() => generator.GenerateToken(user));
+        Assert.Equal("Authentication:Jwt:Secret", exception.ConfigurationKey);
+    }
+
+    [Fact]
+    public void GenerateToken_Should_Throw_ConfigurationException_When_Issuer_Missing()
+    {
+        var configMock = CreateConfigurationMock(issuer: null);
+        var generator = new JwtGenerator(configMock.Object);
+        var user = CreateTestUser();
+
+        var exception = Assert.Throws<ConfigurationException>(() => generator.GenerateToken(user));
+        Assert.Equal("Authentication:Jwt:Issuer", exception.ConfigurationKey);
+    }
+
+    [Fact]
+    public void GenerateToken_Should_Throw_ConfigurationException_When_Issuer_Empty()
+    {
+        var configMock = CreateConfigurationMock(issuer: string.Empty);
+        var generator = new JwtGenerator(configMock.Object);
+        var user = CreateTestUser();
+
+        var exception = Assert.Throws<ConfigurationException>(() => generator.GenerateToken(user));
+        Assert.Equal("Authentication:Jwt:Issuer", exception.ConfigurationKey);
+    }
+
+    [Fact]
+    public void GenerateToken_Should_Throw_ConfigurationException_When_Audience_Missing()
+    {
+        var configMock = CreateConfigurationMock(audience: null);
+        var generator = new JwtGenerator(configMock.Object);
+        var user = CreateTestUser();
+
+        var exception = Assert.Throws<ConfigurationException>(() => generator.GenerateToken(user));
+        Assert.Equal("Authentication:Jwt:Audience", exception.ConfigurationKey);
+    }
+
+    [Fact]
+    public void GenerateToken_Should_Throw_ConfigurationException_When_Audience_Empty()
+    {
+        var configMock = CreateConfigurationMock(audience: string.Empty);
+        var generator = new JwtGenerator(configMock.Object);
+        var user = CreateTestUser();
+
+        var exception = Assert.Throws<ConfigurationException>(() => generator.GenerateToken(user));
+        Assert.Equal("Authentication:Jwt:Audience", exception.ConfigurationKey);
+    }
+
+    [Fact]
+    public void GenerateToken_Should_Set_Token_Expiration()
+    {
+        var configMock = CreateConfigurationMock();
+        var generator = new JwtGenerator(configMock.Object);
+        var user = CreateTestUser();
+        var beforeGeneration = DateTime.UtcNow;
+
+        var token = generator.GenerateToken(user);
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        var afterGeneration = DateTime.UtcNow;
+
+        Assert.NotNull(jwtToken.ValidTo);
+        Assert.True(jwtToken.ValidTo >= beforeGeneration.AddHours(2).AddMinutes(-1));
+        Assert.True(jwtToken.ValidTo <= afterGeneration.AddHours(2).AddMinutes(1));
     }
 }
