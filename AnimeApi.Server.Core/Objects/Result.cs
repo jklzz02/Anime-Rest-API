@@ -27,7 +27,7 @@ public sealed class Result<T>
     /// such as validation or internal processing issues.
     /// The collection is empty in case of a successful operation.
     /// </remarks>
-    public IEnumerable<Error> Errors { get; }
+    public IReadOnlyList<Error> Errors { get; }
 
     /// <summary>
     /// Indicates whether the operation represented by this result was successful.
@@ -72,7 +72,7 @@ public sealed class Result<T>
     private Result(T data, IEnumerable<Error> errors)
     {
         Data = data;
-        Errors = errors;
+        Errors = errors.ToList();
     }
 
     /// Creates a success result associated with the provided data.

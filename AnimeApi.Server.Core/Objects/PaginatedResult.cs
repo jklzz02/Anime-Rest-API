@@ -9,7 +9,7 @@ namespace AnimeApi.Server.Core.Objects;
 public sealed class PaginatedResult<T> where T : class
 {
     [JsonIgnore]
-    public List<Error> Errors { get; } = [];
+    public IReadOnlyList<Error> Errors { get; } = [];
     
     [JsonIgnore]
     public List<Error> ValidationErrors => 
@@ -48,7 +48,7 @@ public sealed class PaginatedResult<T> where T : class
     
     public PaginatedResult(Error error)
     {
-        Errors.Add(error);
+        Errors = [ error ];
         Items = [];
         Page = 1;
         TotalItems = 0;
