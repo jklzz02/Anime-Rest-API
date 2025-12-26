@@ -92,6 +92,27 @@ public class ReviewController : ControllerBase
     }
 
     [HttpGet]
+    [Route("q")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByQueryAsync(string query)
+    {
+        var result = await _reviewHelper.GetByTextSearchAsync(query);
+
+        if (result.ValidationErrors.Any())
+        {
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
+        }
+
+        if (!result.Data.Any())
+        {
+            return NotFound();
+        }
+        
+        return Ok(result.Data);
+    }
+
+    [HttpGet]
     [Route("user/{userId:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -162,29 +183,19 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByScoreAsync([FromQuery] int minScore, [FromQuery] int maxScore)
     {
-        if (minScore >= maxScore)
-        {
-            return BadRequest("The min score cannot be greater than or equal to the max score.");
-        }
+        var result = await _reviewHelper.GetByScoreAsync(minScore, maxScore);
 
-        if (minScore <= 0)
+        if (result.ValidationErrors.Any())
         {
-            return BadRequest("The min score cannot be less than or equal to zero.");
-        }
-
-        if (maxScore > 10)
-        {
-            return BadRequest("The max score cannot be greater than ten.");
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
         
-        var reviews = await _reviewHelper.GetByScoreAsync(minScore, maxScore);
-
-        if (!reviews.Any()) 
+        if (!result.Data.Any())
         {
             return NotFound();
         }
 
-        return Ok(reviews);
+        return Ok(result);
     }
 
     [Authorize]

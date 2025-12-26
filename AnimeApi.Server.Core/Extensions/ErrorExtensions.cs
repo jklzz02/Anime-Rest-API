@@ -29,15 +29,20 @@ public static class ErrorExtensions
     {
         return string.Join(" | ", errors.Select(e => e.ToSingleLineString()));
     }
-
+    
     /// <summary>
     /// Converts a collection of <see cref="Error"/> objects into a dictionary where the keys are the error messages
-    /// and the values are the corresponding error details.
+    /// and the values are the list of corresponding error details.
     /// </summary>
     /// <param name="errors">A collection of <see cref="Error"/> objects to be converted into key-value pairs.</param>
-    /// <returns>A dictionary where each key is an error message and the corresponding value is the error details.</returns>
-    public static Dictionary<string, string> ToKeyValuePairs(this IEnumerable<Error> errors)
+    /// <returns>A dictionary where each key is an error message and the value is a list of error details.</returns>
+    public static Dictionary<string, List<string>> ToKeyValuePairs(this IEnumerable<Error> errors)
     {
-        return errors.ToDictionary(e => e.Message, e => e.Details);
+        return errors
+            .GroupBy(e => e.Message)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.Details).ToList()
+            );
     }
 }

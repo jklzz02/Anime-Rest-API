@@ -84,6 +84,21 @@ public class ReviewHelper : IReviewHelper
         return await 
             _repository.FindAsync(query);
     }
+
+    /// <inheritdoc />
+    public async Task<Result<IEnumerable<ReviewDto>>> GetByTextSearchAsync(string text)
+    {
+        if (text.Length >= 200)
+        {
+            return Result<IEnumerable<ReviewDto>>.ValidationFailure("lenght", "cannot be greater than 200 characters");
+        }
+        
+        var query = new ReviewQuery().ByText(text);
+        var results = await
+            _repository.FindAsync(query);
+
+        return Result<IEnumerable<ReviewDto>>.Success(results);
+    }
     
     /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByUserEmailAsync(string email)
@@ -120,13 +135,48 @@ public class ReviewHelper : IReviewHelper
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<ReviewDto>> GetByScoreAsync(int minScore, int maxScore)
+    public async Task<Result<IEnumerable<ReviewDto>>> GetByScoreAsync(int minScore, int maxScore)
     {
+        List<Error> errors = [];
+        
+        if (minScore >= maxScore)
+        {
+            errors.Add(
+                Error.Validation(
+                    nameof(minScore),
+                    "The min score cannot be greater than or equal to the max score.")
+                );
+        }
+
+        if (minScore <= 0)
+        {
+            errors.Add(
+                Error.Validation(
+                    nameof(minScore),
+                    "The min score cannot be less than or equal to zero."));
+        }
+
+        if (maxScore > 10)
+        {
+            errors.Add(
+                Error.Validation(
+                    nameof(minScore),
+                    "The max score cannot be greater than ten.")
+                );
+        }
+
+        if (errors.Any())
+        {
+            return Result<IEnumerable<ReviewDto>>.Failure(errors);
+        }
+        
         var query = new ReviewQuery()
             .ByScoreRange(minScore, maxScore);
         
-        return await
+        var results = await
             _repository.FindAsync(query);
+        
+        return Result<IEnumerable<ReviewDto>>.Success(results);
     }
 
     /// <inheritdoc />

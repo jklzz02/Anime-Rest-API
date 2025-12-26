@@ -1,4 +1,4 @@
-using System.Net;
+using System.ComponentModel.DataAnnotations;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
@@ -106,10 +106,9 @@ public class AnimeController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet]
-    [Route("summary")]
+    [HttpGet("summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetSummariesAsync([FromQuery] int count)
+    public async Task<IActionResult> GetSummariesAsync([FromQuery, Range(1, int.MaxValue)] int count)
     {
         var result = await _helper.GetSummariesAsync(count);
         return Ok(result);
@@ -118,7 +117,7 @@ public class AnimeController : ControllerBase
     [HttpGet]
     [Route("recent")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetRecentAsync([FromQuery]int count)
+    public async Task<IActionResult> GetRecentAsync([FromQuery, Range(1, int.MaxValue)] int count)
     {
         var result = await _helper.GetMostRecentAsync(count);
         return Ok(result);

@@ -71,7 +71,14 @@ public interface IReviewHelper
     /// <param name="minScore">The minimum score threshold for retrieving reviews.</param>
     /// <param name="maxScore">The maximum score threshold for retrieving reviews.</param>
     /// <return>A task that represents the asynchronous operation. The task result contains a collection of <see cref="ReviewDto"/> that meet the minimum score condition.</return>
-    Task<IEnumerable<ReviewDto>> GetByScoreAsync(int minScore, int maxScore);
+    Task<Result<IEnumerable<ReviewDto>>> GetByScoreAsync(int minScore, int maxScore);
+
+    /// <summary>
+    /// Retrieves a collection of <see cref="ReviewDto"/> by full text search.
+    /// </summary>
+    /// <param name="text">The text query to match against.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a collection of <see cref="ReviewDto"/> that matches the full text search.</returns>
+    Task<Result<IEnumerable<ReviewDto>>> GetByTextSearchAsync(string text);
 
     /// <summary>
     /// Creates a new <see cref="ReviewDto"/> in the system.
