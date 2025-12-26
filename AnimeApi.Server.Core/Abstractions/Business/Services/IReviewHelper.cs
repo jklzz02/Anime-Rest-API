@@ -66,11 +66,12 @@ public interface IReviewHelper
     Task<IEnumerable<ReviewDto>> GetMostRecentByTimeSpanAsync(TimeSpan timeSpan);
 
     /// <summary>
-    /// Retrieves a collection of <see cref="ReviewDto"/> that have a score greater than or equal to the specified minimum score.
+    /// Retrieves a collection of <see cref="ReviewDto"/> that have a score greater than or equal to the specified minimum score nad that have a score less than or equal than the maximum score.
     /// </summary>
     /// <param name="minScore">The minimum score threshold for retrieving reviews.</param>
+    /// <param name="maxScore">The maximum score threshold for retrieving reviews.</param>
     /// <return>A task that represents the asynchronous operation. The task result contains a collection of <see cref="ReviewDto"/> that meet the minimum score condition.</return>
-    Task<IEnumerable<ReviewDto>> GetByMinScoreAsync(int minScore);
+    Task<IEnumerable<ReviewDto>> GetByScoreAsync(int minScore, int maxScore);
 
     /// <summary>
     /// Creates a new <see cref="ReviewDto"/> in the system.

@@ -156,12 +156,28 @@ public class ReviewController : ControllerBase
     }
 
     [HttpGet]
-    [Route("score/{minScore:int:min(1)}")]
+    [Route("score")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByMinScoreAsync([FromQuery] int minScore)
+    public async Task<IActionResult> GetByScoreAsync([FromQuery] int minScore, [FromQuery] int maxScore)
     {
-        var reviews = await _reviewHelper.GetByMinScoreAsync(minScore);
+        if (minScore >= maxScore)
+        {
+            return BadRequest("The min score cannot be greater than or equal to the max score.");
+        }
+
+        if (minScore <= 0)
+        {
+            return BadRequest("The min score cannot be less than or equal to zero.");
+        }
+
+        if (maxScore > 10)
+        {
+            return BadRequest("The max score cannot be greater than ten.");
+        }
+        
+        var reviews = await _reviewHelper.GetByScoreAsync(minScore, maxScore);
 
         if (!reviews.Any()) 
         {

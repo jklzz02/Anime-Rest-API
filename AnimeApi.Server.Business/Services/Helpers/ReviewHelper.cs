@@ -120,12 +120,12 @@ public class ReviewHelper : IReviewHelper
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<ReviewDto>> GetByMinScoreAsync(int minScore)
+    public async Task<IEnumerable<ReviewDto>> GetByScoreAsync(int minScore, int maxScore)
     {
         var query = new ReviewQuery()
-            .ByScoreRange(minScore, 10);
-
-        return await 
+            .ByScoreRange(minScore, maxScore);
+        
+        return await
             _repository.FindAsync(query);
     }
 
