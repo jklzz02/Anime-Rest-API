@@ -44,6 +44,11 @@ public class AnimeController : ControllerBase
                          () => _helper.GetAllNonAdultAsync(page, size),
                          Constants.Cache.DefaultCachedItemSize);
 
+        if (result is null)
+        {
+            return NotFound();
+        }
+
         if (!result.Success)
         {
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
@@ -92,6 +97,11 @@ public class AnimeController : ControllerBase
                     () =>_helper.SearchAsync(parameters, page, size),
                     Constants.Cache.DefaultCachedItemSize,
                     TimeSpan.FromMinutes(2));
+
+        if (result is null)
+        {
+            return NotFound();
+        }
         
         if (!result.Success)
         {
@@ -135,7 +145,7 @@ public class AnimeController : ControllerBase
         if (result.IsFailure)
         {
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
-        };
+        }
 
         return Ok(result.Data);
     }
