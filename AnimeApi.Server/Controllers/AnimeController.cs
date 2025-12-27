@@ -29,7 +29,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAllsync([FromQuery] int page = 1, int size = Constants.Pagination.MaxPageSize, bool includeAdultContent = false)
+    public async Task<IActionResult> GetAllAsync([FromQuery] int page = 1, int size = Constants.Pagination.MaxPageSize, bool includeAdultContent = false)
     {
         var result = 
            includeAdultContent
