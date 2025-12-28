@@ -123,7 +123,7 @@ public class AnimeController : ControllerBase
     [HttpGet("summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetSummariesAsync(
-        [FromQuery, Range(1, int.MaxValue), DefaultValue(12)] int count)
+        [FromQuery, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
         var result = await _helper.GetSummariesAsync(count);
         return Ok(result);
@@ -133,7 +133,7 @@ public class AnimeController : ControllerBase
     [Route("recent")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRecentAsync(
-        [FromQuery, Range(1, int.MaxValue), DefaultValue(12)] int count)
+        [FromQuery, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
         var result = await _helper.GetMostRecentAsync(count);
         return Ok(result);
