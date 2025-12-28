@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
@@ -33,10 +35,11 @@ public class ProducerController : ControllerBase
     }
     
     [HttpGet]
-    [Route("{id:int:min(1)}")]
+    [Route("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+    public async Task<IActionResult> GetByIdAsync(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
         var producer = await _helper.GetByIdAsync(id);
         

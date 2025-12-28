@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
@@ -25,14 +27,10 @@ public class ReviewController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAllAsync(int page = 1, int size = Constants.Pagination.MaxPageSize)
+    public async Task<IActionResult> GetAllAsync(
+        [FromQuery, Range(1, int.MaxValue), DefaultValue(1)] int page,
+        [FromQuery, Range(1, Constants.Pagination.MaxPageSize), DefaultValue(Constants.Pagination.MaxPageSize)] int size)
     {
-        if (size > Constants.Pagination.MaxPageSize)
-            return BadRequest($"Page size cannot be greater than '{Constants.Pagination.MaxPageSize}'");
-        
-        if (page <= 0)
-            return  BadRequest($"Page must be greater than zero");
-        
         var result = await _reviewHelper.GetAllAsync(page, size);
 
         if (!result.HasItems)
@@ -47,7 +45,7 @@ public class ReviewController : ControllerBase
     [Route("{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+    public async Task<IActionResult> GetByIdAsync([FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
         var review = await _reviewHelper.GetByIdAsync(id);
 
@@ -63,7 +61,7 @@ public class ReviewController : ControllerBase
     [Route("anime/{animeId:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByAnimeIdAsync([FromRoute] int animeId)
+    public async Task<IActionResult> GetByAnimeIdAsync([FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int animeId)
     {
         var reviews = await _reviewHelper.GetByAnimeIdAsync(animeId);
 
@@ -79,7 +77,8 @@ public class ReviewController : ControllerBase
     [Route("anime/title/{title:minlength(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByAnimeTitleAsync([FromRoute] string title) 
+    public async Task<IActionResult> GetByAnimeTitleAsync(
+        [FromRoute, MaxLength(Constants.MaxTextQueryLength), MinLength(1)] string title) 
     {
         var reviews = await _reviewHelper.GetByTitleAsync(title);
 
@@ -95,7 +94,8 @@ public class ReviewController : ControllerBase
     [Route("q")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByQueryAsync(string query)
+    public async Task<IActionResult> GetByQueryAsync(
+        [FromRoute, MaxLength(Constants.MaxTextQueryLength), MinLength(1)] string query)
     {
         var result = await _reviewHelper.GetByTextSearchAsync(query);
 
@@ -116,7 +116,7 @@ public class ReviewController : ControllerBase
     [Route("user/{userId:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByUserIdAsync([FromRoute] int id) 
+    public async Task<IActionResult> GetByUserIdAsync([FromRoute, Range(1, int.MaxValue) ,DefaultValue(1)] int id) 
     {
         var reviews = await _reviewHelper.GetByUserIdAsync(id);
 
@@ -181,7 +181,9 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByScoreAsync([FromQuery] int minScore, [FromQuery] int maxScore)
+    public async Task<IActionResult> GetByScoreAsync(
+        [FromQuery, Range(1, 10)] int minScore,
+        [FromQuery, Range(1, 10)] int maxScore)
     {
         var result = await _reviewHelper.GetByScoreAsync(minScore, maxScore);
 
@@ -278,7 +280,9 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> UpdatePartialAsync(int id, [FromBody] JsonPatchDocument<ReviewDto> patchDocument)
+    public async Task<IActionResult> UpdatePartialAsync(
+        [FromRoute, Range(1, int.MaxValue)] int id, 
+        [FromBody] JsonPatchDocument<ReviewDto> patchDocument)
     {
         var email = User.Claims
             .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
@@ -327,7 +331,7 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+    public async Task<IActionResult> DeleteAsync([FromRoute, Range(1, int.MaxValue)] int id)
     {
         var email = User.Claims
             .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;

@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
@@ -27,10 +29,11 @@ public class TypeController : ControllerBase
     }
     
     [HttpGet]
-    [Route("{id:int:min(1)}")]
+    [Route("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+    public async Task<IActionResult> GetByIdAsync(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
         var type = await _helper.GetByIdAsync(id);
         
@@ -47,7 +50,8 @@ public class TypeController : ControllerBase
     [Route("name/{name}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
+    public async Task<IActionResult> GetByNameAsync(
+        [FromRoute, MaxLength(Constants.MaxTextQueryLength)] string name)
     {
         var type = await _helper.GetByNameAsync(name);
         
@@ -94,12 +98,13 @@ public class TypeController : ControllerBase
     }
     
     [HttpDelete]
-    [Route("{id:int:min(1)}")]
+    [Route("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+    public async Task<IActionResult> DeleteAsync(
+        [FromRoute, Range(1, int.MaxValue)] int id)
     {
         var result = await _helper.DeleteAsync(id);
         

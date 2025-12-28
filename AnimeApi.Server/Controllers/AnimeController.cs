@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
@@ -29,7 +30,10 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAllAsync([FromQuery] int page = 1, int size = Constants.Pagination.MaxPageSize, bool includeAdultContent = false)
+    public async Task<IActionResult> GetAllAsync(
+        [FromQuery, Range(1, int.MaxValue), DefaultValue(1)] int page, 
+        [FromQuery, Range(1, Constants.Pagination.MaxPageSize), DefaultValue(Constants.Pagination.MaxPageSize)] int size, 
+        bool includeAdultContent = false)
     {
         var result = 
            includeAdultContent
@@ -66,7 +70,7 @@ public class AnimeController : ControllerBase
     [Route("{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+    public async Task<IActionResult> GetByIdAsync([FromRoute, Range(1, int.MaxValue)] int id)
     {
         var anime = await _cache
             .GetOrCreateAsync(
@@ -87,8 +91,8 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByParametersAsync(
         [FromQuery] AnimeSearchParameters parameters,
-        int page = 1,
-        int size = Constants.Pagination.MaxPageSize)
+        [FromQuery, Range(1, int.MaxValue), DefaultValue(1)] int page,
+        [FromQuery, Range(1, Constants.Pagination.MaxPageSize), DefaultValue(Constants.Pagination.MaxPageSize)] int size)
     {
         var result = await 
             _cache
@@ -118,7 +122,8 @@ public class AnimeController : ControllerBase
 
     [HttpGet("summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetSummariesAsync([FromQuery, Range(1, int.MaxValue)] int count)
+    public async Task<IActionResult> GetSummariesAsync(
+        [FromQuery, Range(1, int.MaxValue), DefaultValue(12)] int count)
     {
         var result = await _helper.GetSummariesAsync(count);
         return Ok(result);
@@ -127,7 +132,8 @@ public class AnimeController : ControllerBase
     [HttpGet]
     [Route("recent")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetRecentAsync([FromQuery, Range(1, int.MaxValue)] int count)
+    public async Task<IActionResult> GetRecentAsync(
+        [FromQuery, Range(1, int.MaxValue), DefaultValue(12)] int count)
     {
         var result = await _helper.GetMostRecentAsync(count);
         return Ok(result);
@@ -156,7 +162,9 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> UpdatePartialAsync(int id, [FromBody] JsonPatchDocument<AnimeDto> patchDocument)
+    public async Task<IActionResult> UpdatePartialAsync(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id,
+        [FromBody] JsonPatchDocument<AnimeDto> patchDocument)
     {
         var anime = await _helper.GetByIdAsync(id);
 
@@ -205,7 +213,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]   
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+    public async Task<IActionResult> DeleteAsync([FromRoute, Range(1, int.MaxValue)] int id)
     {
         var result = await _helper.DeleteAsync(id);
 

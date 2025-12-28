@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
@@ -64,7 +65,8 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> AddFavouriteAsync([FromBody] int animeId)
+    public async Task<IActionResult> AddFavouriteAsync(
+        [FromBody, Range(1, int.MaxValue)] int animeId)
     {
         var email = User.FindFirst(ClaimTypes.Email);
         var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
@@ -124,11 +126,12 @@ public class UserController : ControllerBase
     
     [HttpDelete]
     [Authorize]
-    [Route("favourite/{id:int:min(1)}")]
+    [Route("favourite/{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DestroyFavouriteAsync([FromRoute] int id)
+    public async Task<IActionResult> DestroyFavouriteAsync(
+        [FromRoute, Range(1, int.MaxValue)] int id)
     {
         var email = User.FindFirst(ClaimTypes.Email);
         var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);

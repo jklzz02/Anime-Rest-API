@@ -7,6 +7,7 @@ public static class Constants
 {
     public const string App = "AnimeApi";
     public const int SerializerMaxDepth = 64;
+    public const int MaxTextQueryLength = 60;
 
     /// <summary>
     /// Contains constants related to authentication mechanisms and configurations within the application.
