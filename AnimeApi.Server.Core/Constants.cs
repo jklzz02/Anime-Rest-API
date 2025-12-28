@@ -5,7 +5,9 @@ namespace AnimeApi.Server.Core;
 /// </summary>
 public static class Constants
 {
+    /// <summary> Represents the name of the application. </summary>
     public const string App = "AnimeApi";
+    
     public const int SerializerMaxDepth = 64;
     public const int MaxTextQueryLength = 60;
     public const int DefaultRetrieveCount = 12;
@@ -22,6 +24,9 @@ public static class Constants
         public const string AccessTokenCookieName = "access_token";
     }
 
+    /// <summary>
+    /// Contains constants related to CORS policies used throughout the application.
+    /// </summary>
     public static class Cors
     {
         public const string ClientPolicy = "allow-client";
@@ -41,9 +46,22 @@ public static class Constants
     /// </summary>
     public static class UserAccess
     {
+        /// <summary>
+        /// Represents the "Admin" user access role within the application,
+        /// indicating administrative privileges for managing and accessing
+        /// restricted resources or functionalities.
+        /// </summary>
         public const string Admin = "Admin";
+        
+        /// <summary>
+        /// Represents the "User" user access role within the application,
+        /// indicating standard user privileges for accessing restricted resources or functionalities.
+        /// </summary>
         public const string User = "User";
 
+        /// <summary>
+        /// Defines the roles associated with user access levels in the application.
+        /// </summary>
         public enum Roles
         {
             Admin = 1,

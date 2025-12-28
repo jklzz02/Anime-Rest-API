@@ -67,7 +67,7 @@ public class AnimeController : ControllerBase
     }
     
     [HttpGet]
-    [Route("{id:int:min(1)}")]
+    [Route("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute, Range(1, int.MaxValue)] int id)
@@ -208,7 +208,7 @@ public class AnimeController : ControllerBase
     }
     
     [HttpDelete]
-    [Route("{id:int:min(1)}")]
+    [Route("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]   
     [ProducesResponseType(StatusCodes.Status404NotFound)]
