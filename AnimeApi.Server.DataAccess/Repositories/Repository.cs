@@ -39,6 +39,16 @@ public class Repository<TEntity, TDto> : IRepository<TEntity, TDto>
     }
 
     /// <inheritdoc />
+    public async Task<IEnumerable<TResult>> FindAsync<TResult>(IQuerySpec<TEntity> specification)
+        where TResult : class, new()
+    {
+        return await specification
+            .Apply(Context.Set<TEntity>())
+            .Select(Mapper.Projection<TResult>())
+            .ToListAsync();
+    }
+
+    /// <inheritdoc />
     public async Task<TDto?> FindFirstOrDefaultAsync(IQuerySpec<TEntity> specification)
     {
         var entity = await specification
@@ -46,6 +56,16 @@ public class Repository<TEntity, TDto> : IRepository<TEntity, TDto>
             .FirstOrDefaultAsync();
 
         return entity is null ? null : Mapper.MapToDto(entity);
+    }
+
+    /// <inheritdoc />
+    public async Task<TResult?> FindFirstOrDefaultAsync<TResult>(IQuerySpec<TEntity> specification)
+        where TResult : class, new()
+    {
+        return await specification
+            .Apply(Context.Set<TEntity>())
+            .Select(Mapper.Projection<TResult>())
+            .FirstOrDefaultAsync();
     }
 
     /// <inheritdoc />

@@ -108,10 +108,8 @@ public class AnimeHelper : IAnimeHelper
             .SortBy(a => a.Score, SortDirections.Desc)
             .Limit(count);
 
-        var result = await
-            _repository.FindAsync(query);
-
-        return result.ToSummary();
+        return await
+            _repository.FindAsync<AnimeSummary>(query);
     }
 
     public async Task<Result<AnimeDto>> CreateAsync(AnimeDto entity)

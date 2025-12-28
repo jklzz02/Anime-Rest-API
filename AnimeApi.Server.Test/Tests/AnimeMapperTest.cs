@@ -1,4 +1,5 @@
 using AnimeApi.Server.Core.Mappers;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.Test.Generators;
@@ -100,6 +101,19 @@ public class AnimeMapperTest
         Assert.Equal(model.Anime_Genres.Count, result.Anime_Genres.Count);
         Assert.Equal(model.Anime_Licensors.Count, result.Anime_Licensors.Count);
         Assert.Equal(model.Anime_Producers.Count, result.Anime_Producers.Count);
+    }
+
+    [Theory]
+    [MemberData(nameof(AnimeGenerator.GetAnimeTestData), MemberType = typeof(AnimeGenerator))]
+    public void Projection_To_Summary_Should_Work_Correctly(Anime model)
+    {
+        AnimeSummary projectedSummary = _mapper.ProjectTo<AnimeSummary>(model);
+        Assert.Equal(model.Id, projectedSummary.Id);
+        Assert.Equal(model.Name, projectedSummary.Name);
+        Assert.Equal(model.Image_URL, projectedSummary.Image_URL);
+        Assert.Equal(model.Score, projectedSummary.Score);
+        Assert.Equal(model.Rating, projectedSummary.Rating);
+        Assert.Equal(model.Release_Year, projectedSummary.Release_Year);
     }
     
     [Fact]

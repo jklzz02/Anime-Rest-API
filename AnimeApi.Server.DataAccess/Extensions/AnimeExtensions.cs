@@ -11,9 +11,9 @@ public static class AnimeExtensions
         {
             Id = entity.Id,
             Name = entity.Name,
-            ImageUrl = entity.Image_URL,
+            Image_URL = entity.Image_URL,
             Score = entity.Score,
-            ReleaseYear = entity.Release_Year,
+            Release_Year = entity.Release_Year,
             Rating = entity.Rating
         };
     }

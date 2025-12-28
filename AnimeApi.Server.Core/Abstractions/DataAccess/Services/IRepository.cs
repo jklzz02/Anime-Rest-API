@@ -23,19 +23,37 @@ public interface IRepository<TEntity, TDto>
     Task<IEnumerable<TDto>> GetAllAsync();
 
     /// <summary>
-    /// Retrieves the first entity that matches the provided specification as a data transfer object (DTO) from the repository.
-    /// </summary>
-    /// <param name="specification">The query specification defining the criteria to match the entity.</param>
-    /// <returns>A task representing the asynchronous operation. The task result contains the DTO representing the first matched entity, or null if no match is found.</returns>
-    Task<TDto?> FindFirstOrDefaultAsync(IQuerySpec<TEntity> specification);
-
-    /// <summary>
     /// Retrieves entities matching the specified query specification as a collection of data transfer objects (DTOs).
     /// </summary>
     /// <param name="specification">The query specification defining the criteria for retrieving entities.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of DTOs for the entities matching the query specification.</returns>
     Task<IEnumerable<TDto>> FindAsync(IQuerySpec<TEntity> specification);
 
+    /// <summary>
+    ///  Retrieves a collection of entities projected to {TResult}.
+    /// </summary>
+    /// <param name="specification">The query specification defining the criteria for retrieving entities to project.</param>
+    /// <typeparam name="TResult">The type to project to</typeparam>
+    /// <returns>A task representing the asynchronous operation. The task result contains a collection of projected entities.</returns>
+    Task<IEnumerable<TResult>> FindAsync<TResult>(IQuerySpec<TEntity> specification)
+        where TResult : class, new();
+
+    /// <summary>
+    /// Retrieves the first entity that matches the provided specification projected to {TResult}.
+    /// </summary>
+    /// <param name="specification">The query specification defining the criteria for retrieving entity to project.</param>
+    /// <typeparam name="TResult">The type to project to.</typeparam>
+    /// <returns>A task representing the asynchronous operation. The task result contains the first matched projected entity, or null if no match is found.</returns>
+    Task<TResult?> FindFirstOrDefaultAsync<TResult>(IQuerySpec<TEntity> specification)
+        where TResult : class, new();
+    
+    /// <summary>
+    /// Retrieves the first entity that matches the provided specification as a data transfer object (DTO) from the repository.
+    /// </summary>
+    /// <param name="specification">The query specification defining the criteria to match the entity.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains the DTO representing the first matched entity, or null if no match is found.</returns>
+    Task<TDto?> FindFirstOrDefaultAsync(IQuerySpec<TEntity> specification);
+    
     /// <summary>
     /// Retrieves the total count of entities in the repository.
     /// </summary>

@@ -192,6 +192,15 @@ public static class AnimeGenerator
             }
         ];
     }
+
+    public static IEnumerable<object[]> GetAnimeTestData()
+    {
+        IEnumerable<Anime> anime = GetMockAnimeList();
+        foreach (var item in anime)
+        {
+            yield return [item];
+        }
+    }
     
     public static List<AnimeDto> GetMockAnimeDtoList()
     {
