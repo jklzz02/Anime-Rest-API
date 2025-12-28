@@ -4,6 +4,7 @@ using AnimeApi.Server.Core.Objects.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.Core.SpecHelpers;
+
 public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
 {
 
@@ -281,12 +282,16 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
     public AnimeQuery ExcludeAdultContent(bool exclude)
     {
         if (exclude)
-            FilterBy(a =>
-                !string.IsNullOrEmpty(a.Rating) &&
-                !a.Rating.ToLower().Contains(Constants.Ratings.AdultContent));
+            FilterBy([
+                a => !string.IsNullOrEmpty(a.Rating),
+                a => a.Rating.Trim() != string.Empty,
+                a => !a.Rating.Trim().StartsWith(Constants.Ratings.AdultContent),
+                a => a.Anime_Genres.All(ag => ag.Genre.Name.Trim().ToLower() != "hentai")
+            ]);
 
         return this;
     }
+    
     public AnimeQuery ExcludeAdultContent()
         => ExcludeAdultContent(true);
 
