@@ -12,7 +12,7 @@ public class Repository<TEntity, TDto> : IRepository<TEntity, TDto>
     where TDto : class
 {
     protected AnimeDbContext Context { get; }
-    protected IMapper<TEntity, TDto> Mapper { get; set; }
+    protected IMapper<TEntity, TDto> Mapper { get; }
 
     public Repository(AnimeDbContext context, IMapper<TEntity, TDto> mapper)
     {
