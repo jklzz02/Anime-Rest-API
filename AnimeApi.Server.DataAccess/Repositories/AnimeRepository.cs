@@ -57,7 +57,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
 
        if (!result)
        {
-           Result<AnimeDto>.InternalFailure("Create", "No entity created");
+          return Result<AnimeDto>.InternalFailure("Create", "No entity created");
        }
 
        var resultDto = Mapper.MapToDto(createdEntry.Entity);
