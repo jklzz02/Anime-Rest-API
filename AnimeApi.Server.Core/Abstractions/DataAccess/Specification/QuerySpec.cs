@@ -43,15 +43,15 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         {
             query = query.AsExpandableEFCore();
         }
-
-        foreach (var filter in _filters)
-        {
-            query = query.Where(filter);
-        }
-
+        
         foreach (var include in _includes)
         {
             query = include(query);
+        }
+        
+        foreach (var filter in _filters)
+        {
+            query = query.Where(filter);
         }
 
         if (_sortActions.Any())
@@ -117,8 +117,7 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         _asExpandable = true;
         return (TDerived)this;
     }
-
-
+    
     public TDerived SortBy(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction)
     {
         if (keySelector != null)
