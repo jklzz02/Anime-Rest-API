@@ -1,4 +1,5 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Exceptions;
@@ -23,6 +24,7 @@ public class Program
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Audience");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Issuer");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Secret");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "RateLimiter:Enabled");
         
         var connectionString = builder.Configuration
             .GetConnectionString("DefaultConnection");
@@ -30,6 +32,15 @@ public class Program
         var clientDomain = builder.Configuration
             .GetSection("Authorization")
             .GetValue<string>("ClientDomain");
+        
+        var rateLimiterEnabled = builder.Configuration
+            .GetValue<bool>("RateLimiter:Enabled");
+
+        if (rateLimiterEnabled)
+        {
+            ConfigurationException.ThrowIfEmpty(builder.Configuration, "RateLimiter:MaxRequestsPerMinute");
+            ConfigurationException.ThrowIfEmpty(builder.Configuration, "RateLimiter:QueueLimit");
+        }
 
         builder.Services.AddCors(options =>
         {
@@ -125,7 +136,33 @@ public class Program
                 }
             });
         });
+        
+        builder.Services.AddRateLimiter(options =>
+        {
+            var config = builder.Configuration.GetSection("RateLimiter");
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            
+            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+            {
+                if (context.User?.IsInRole(Constants.UserAccess.Admin) == true)
+                {
+                    return RateLimitPartition.GetNoLimiter(Constants.UserAccess.Admin);
+                }
 
+                var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: ip,
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = config.GetValue<int>("MaxRequestsPerMinute"),
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = config.GetValue<int>("QueueLimit"),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+                    });
+            });
+        });
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -165,6 +202,11 @@ public class Program
         app.UseCors(Constants.Cors.ClientPolicy);
 
         app.UseAuthentication();
+
+        if (rateLimiterEnabled)
+        {
+            app.UseRateLimiter();
+        }
 
         app.UseAuthorization();
 
