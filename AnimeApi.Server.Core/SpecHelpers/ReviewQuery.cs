@@ -1,9 +1,9 @@
-﻿
-using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
+﻿using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.Core.SpecHelpers;
+
 public class ReviewQuery : QuerySpec<Review, ReviewQuery>
 {
     public ReviewQuery ByPk(int id)

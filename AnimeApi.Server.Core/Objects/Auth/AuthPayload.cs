@@ -8,7 +8,10 @@ public record AuthPayload
 
     public string Username
     {
-        get => string.IsNullOrWhiteSpace(_username) ? Email.EmailToUsername() : _username; 
+        get => string.IsNullOrWhiteSpace(_username)
+            ? Email.EmailToUsername()
+            : _username; 
+        
         init => _username = value;
     }
     

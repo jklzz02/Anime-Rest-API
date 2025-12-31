@@ -25,7 +25,7 @@ public class UserService : IUserService
     {
         var query = new UserQuery().ByEmail(email);
         
-        return await 
+        return await
             _userRepository.FindFirstOrDefaultAsync(query);
     }
 
@@ -34,7 +34,7 @@ public class UserService : IUserService
     {
         var query = new UserQuery().ByPk(id);
         
-        return await 
+        return await
             _userRepository.FindFirstOrDefaultAsync(query);
     }
 
@@ -43,8 +43,8 @@ public class UserService : IUserService
     {
         var query = new UserQuery().ByEmail(payload.Email);
         
-        var existingUser = 
-            await _userRepository.FindFirstOrDefaultAsync(query);
+        var existingUser = await
+            _userRepository.FindFirstOrDefaultAsync(query);
 
         if (existingUser != null)
         {
@@ -56,7 +56,7 @@ public class UserService : IUserService
             Username = payload.Username,
             Email = payload.Email,
             CreatedAt = DateTime.UtcNow,
-            ProfilePictureUrl = payload.Picture ?? string.Empty,
+            ProfilePictureUrl = payload.Picture,
             Admin = false
         };
 

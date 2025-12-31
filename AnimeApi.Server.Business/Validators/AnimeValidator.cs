@@ -10,33 +10,33 @@ public class AnimeValidator : AbstractValidator<AnimeDto>
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-                .WithMessage("The 'title' field cannot be empty.")
+            .WithMessage("The 'title' field cannot be empty.")
             .MaximumLength(255)
-                .WithMessage("The 'title' field cannot be longer than 255 characters.");
+            .WithMessage("The 'title' field cannot be longer than 255 characters.");
         
         RuleFor(x => x.EnglishName)
             .NotEmpty()
-                .WithMessage("The 'english_title' field cannot be empty.")
+            .WithMessage("The 'english_title' field cannot be empty.")
             .MaximumLength(255)
-                .WithMessage("The 'english_title' field cannot be longer than 255 characters.");
+            .WithMessage("The 'english_title' field cannot be longer than 255 characters.");
         
         RuleFor(x => x.OtherName)
             .NotEmpty()
-                .WithMessage("The 'other_title' field cannot be empty.")
+            .WithMessage("The 'other_title' field cannot be empty.")
             .MaximumLength(255)
-                .WithMessage("The 'other_title' field cannot be longer than 255 characters.");
+            .WithMessage("The 'other_title' field cannot be longer than 255 characters.");
         
         RuleFor(x => x.Synopsis)
             .NotEmpty()
-                .WithMessage("The 'synopsis' cannot be empty.")
+            .WithMessage("The 'synopsis' cannot be empty.")
             .MaximumLength(5000)
-                .WithMessage("The 'synopsis' cannot be longer than 5000 characters.'");
+            .WithMessage("The 'synopsis' cannot be longer than 5000 characters.'");
         
         RuleFor(x => x.ImageUrl)
             .NotEmpty()
-                .WithMessage("The 'image_url' cannot be empty.")
+            .WithMessage("The 'image_url' cannot be empty.")
             .MaximumLength(255)
-                .WithMessage("The 'image_url' cannot be longer than 255 characters.'");
+            .WithMessage("The 'image_url' cannot be longer than 255 characters.'");
         
         RuleFor(x => x.Episodes)
             .NotEmpty()
@@ -45,9 +45,9 @@ public class AnimeValidator : AbstractValidator<AnimeDto>
         
         RuleFor(x => x.Duration)
             .NotEmpty()
-                .WithMessage("The 'duration' cannot be empty.")
+            .WithMessage("The 'duration' cannot be empty.")
             .MaximumLength(255)
-                .WithMessage("The 'duration' cannot be longer than 255 characters.");
+            .WithMessage("The 'duration' cannot be longer than 255 characters.");
 
         RuleFor(x => x.ReleaseYear)
             .GreaterThanOrEqualTo(1950)
@@ -55,15 +55,15 @@ public class AnimeValidator : AbstractValidator<AnimeDto>
         
         RuleFor(x => x.Status)
             .NotEmpty()
-                .WithMessage("The 'status' cannot be empty.'")
+            .WithMessage("The 'status' cannot be empty.'")
             .MaximumLength(50)
-                .WithMessage("The 'status' cannot be longer than 50 characters.'");
+            .WithMessage("The 'status' cannot be longer than 50 characters.'");
 
         RuleFor(x => x.Rating)
             .NotEmpty()
-                .WithMessage("The 'rating' cannot be empty.")
+            .WithMessage("The 'rating' cannot be empty.")
             .MaximumLength(100)
-                .WithMessage("The 'rating' cannot be longer than 100 characters.");
+            .WithMessage("The 'rating' cannot be longer than 100 characters.");
         
         RuleFor(x => x.Score)
             .GreaterThanOrEqualTo(0)

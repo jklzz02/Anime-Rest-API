@@ -12,9 +12,14 @@ public class TokenHasher : ITokenHasher
 
     public TokenHasher(IConfiguration configuration)
     {
+        
+        ArgumentNullException.ThrowIfNull(configuration);
+        ConfigurationException.ThrowIfEmpty(configuration, "Authentication:RefreshToken");
+        ConfigurationException.ThrowIfEmpty(configuration, "Authentication:RefreshToken:Secret");
+
         _secret = configuration
-            .GetSection("Authentication:RefreshToken")?
-            .GetSection("Secret")?.Value ?? throw new ConfigurationException("Authentication:RefreshToken:Secret");
+            .GetSection("Authentication:RefreshToken")
+            .GetSection("Secret").Value!;
     }
     
     /// <inheritdoc />

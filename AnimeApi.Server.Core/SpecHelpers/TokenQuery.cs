@@ -1,8 +1,8 @@
-﻿
-using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
+﻿using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Core.SpecHelpers;
+
 public class TokenQuery : QuerySpec<RefreshToken, TokenQuery>
 {
     public TokenQuery ByPk(int id)
