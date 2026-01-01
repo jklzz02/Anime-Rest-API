@@ -103,9 +103,8 @@ public class AuthController : ControllerBase
             return Unauthorized("User not found.");
 
         var accessToken = _jwtGenerator.GenerateToken(user);
+        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
         var newRefresh = await _refreshTokenService.CreateAsync(user.Id);
-
-        await _refreshTokenService.RevokeAsync(request.RefreshToken);
 
         return Ok(new
         {
@@ -191,9 +190,9 @@ public class AuthController : ControllerBase
         if (user is null)
             return Unauthorized("User not found.");
 
+        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
         var accessToken = _jwtGenerator.GenerateToken(user);
         var newRefresh = await _refreshTokenService.CreateAsync(user.Id);
-        await _refreshTokenService.RevokeAsync(refreshTokenFromCookie);
 
         SetTokenCookies(accessToken, newRefresh);
 
