@@ -20,7 +20,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "ConnectionStrings:DefaultConnection");
-        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authorization:ClientDomain");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authorization:XClientKey");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Audience");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Issuer");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Secret");
@@ -33,11 +33,16 @@ public class Program
             .GetSection("Authorization")
             .GetValue<string>("ClientDomain");
         
+        var clientKey = builder.Configuration
+            .GetSection("Authorization")
+            .GetValue<string>("XClientKey");
+        
         var rateLimiterEnabled = builder.Configuration
             .GetValue<bool>("RateLimiter:Enabled");
 
         if (rateLimiterEnabled)
         {
+            ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authorization:ClientDomain");
             ConfigurationException.ThrowIfEmpty(builder.Configuration, "RateLimiter:MaxRequestsPerMinute");
             ConfigurationException.ThrowIfEmpty(builder.Configuration, "RateLimiter:QueueLimit");
         }
@@ -144,6 +149,14 @@ public class Program
             
             options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
             {
+                var origin = context.Request.Headers.Origin.ToString();
+                var requestClientKey = context.Request.Headers["X-client-key"].ToString();
+                
+                if (origin == clientDomain && clientKey == requestClientKey)
+                {
+                    return RateLimitPartition.GetNoLimiter(clientDomain);
+                }
+                
                 if (context.User?.IsInRole(Constants.UserAccess.Admin) == true)
                 {
                     return RateLimitPartition.GetNoLimiter(Constants.UserAccess.Admin);
