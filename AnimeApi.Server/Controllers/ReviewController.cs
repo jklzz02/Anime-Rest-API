@@ -5,6 +5,7 @@ using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.RequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -28,10 +29,9 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAllAsync(
-        [FromQuery, Range(1, int.MaxValue), DefaultValue(1)] int page,
-        [FromQuery, Range(1, Constants.Pagination.MaxPageSize), DefaultValue(Constants.Pagination.MaxPageSize)] int size)
+        [FromQuery] Pagination pagination)
     {
-        var result = await _reviewHelper.GetAllAsync(page, size);
+        var result = await _reviewHelper.GetAllAsync(pagination.Page, pagination.Size);
 
         if (!result.HasItems)
         {

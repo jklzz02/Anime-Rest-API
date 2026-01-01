@@ -5,6 +5,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.RequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -31,8 +32,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAllAsync(
-        [FromQuery, Range(1, int.MaxValue), DefaultValue(1)] int page, 
-        [FromQuery, Range(1, Constants.Pagination.MaxPageSize), DefaultValue(Constants.Pagination.MaxPageSize)] int size, 
+        [FromQuery] Pagination pagination, 
         bool includeAdultContent = false)
     {
         var result = 
@@ -40,12 +40,12 @@ public class AnimeController : ControllerBase
            ? await 
                 _cache
                     .GetOrCreateAsync(
-                        () => _helper.GetAllAsync(page, size),
+                        () => _helper.GetAllAsync(pagination.Page, pagination.Size),
                         Constants.Cache.DefaultCachedItemSize)
             : await
                 _cache
                     .GetOrCreateAsync(
-                         () => _helper.GetAllNonAdultAsync(page, size),
+                         () => _helper.GetAllNonAdultAsync(pagination.Page, pagination.Size),
                          Constants.Cache.DefaultCachedItemSize);
 
         if (result is null)
@@ -91,14 +91,13 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByParametersAsync(
         [FromQuery] AnimeSearchParameters parameters,
-        [FromQuery, Range(1, int.MaxValue), DefaultValue(1)] int page,
-        [FromQuery, Range(1, Constants.Pagination.MaxPageSize), DefaultValue(Constants.Pagination.MaxPageSize)] int size)
+        [FromQuery] Pagination pagination)
     {
         var result = await 
             _cache
                 .GetOrCreateAsync(
-                    new { parameters, page, size },
-                    () =>_helper.SearchAsync(parameters, page, size),
+                    new { parameters, pagination.Page, pagination.Size },
+                    () =>_helper.SearchAsync(parameters, pagination.Page, pagination.Size),
                     Constants.Cache.DefaultCachedItemSize,
                     TimeSpan.FromMinutes(2));
 
