@@ -1,22 +1,26 @@
 using System.Security.Cryptography;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.SpecHelpers;
+using LinqKit;
 
 namespace AnimeApi.Server.Business.Services;
 
 public class RefreshTokenService : IRefreshTokenService
 {
     private readonly ITokenHasher _hasher;
-    private readonly IRefreshTokenHelper _helper;
+    private readonly IRepository<RefreshToken, RefreshTokenDto> _repository;
     
     public RefreshTokenService(
         ITokenHasher tokenHasher,
-        IRefreshTokenHelper refreshTokenHelper)
+        IRepository<RefreshToken, RefreshTokenDto> repository)
     {
         _hasher = tokenHasher;
-        _helper = refreshTokenHelper;
+        _repository = repository;
     }
 
     public async Task<RefreshTokenResult> CreateAsync(int userId)
@@ -32,7 +36,8 @@ public class RefreshTokenService : IRefreshTokenService
             UserId = userId
         };
 
-        var saved = await _helper.AddAsync(refreshToken);
+        var saved = await 
+            _repository.AddAsync(refreshToken);
 
         if (saved is null)
         {
@@ -42,14 +47,19 @@ public class RefreshTokenService : IRefreshTokenService
         return new RefreshTokenResult
         {
             Token = token,
-            MetaData = saved
+            MetaData = saved.Data
         };
     }
 
     public async Task<RefreshTokenValidation> ValidateAsync(string token)
     {
         var hashed = _hasher.Hash(token);
-        var refreshToken = await _helper.GetByTokenAsync(hashed);
+        
+        var query = new TokenQuery()
+            .ByToken(hashed);
+        
+        var refreshToken = await 
+            _repository.FindFirstOrDefaultAsync(query);
 
         return new RefreshTokenValidation
         {
@@ -60,13 +70,34 @@ public class RefreshTokenService : IRefreshTokenService
 
     public async Task<bool> RevokeAsync(string token)
     {
-        var hashed = _hasher.Hash(token);
-        return await _helper.RevokeAsync(hashed);
+        var dto = await
+            _repository.FindFirstOrDefaultAsync(
+                new TokenQuery()
+                    .ByToken(token)
+            );
+
+        if (dto is null)
+        {
+            return false;
+        }
+
+        dto.Revoke();
+
+        var result = await
+            _repository.UpdateAsync(dto);
+
+        return result.IsSuccess;
     }
     
     public async Task<bool> RevokeByUserIdAsync(int userId)
     {
-        return await _helper.RevokeByUserIdAsync(userId);
+        var query = new TokenQuery()
+            .ByUser(userId);
+        
+        var result = await
+            _repository.DeleteAsync(query);
+        
+        return result;
     }
 
     private string GenerateToken()
