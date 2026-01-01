@@ -3,6 +3,7 @@ using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
+using AnimeApi.Server.Core.Extensions;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
@@ -37,22 +38,32 @@ public class AuthController : ControllerBase
         };
     }
 
-    [HttpPost("google")]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+    public async Task<IActionResult> Login([FromBody] AuthRequest request)
     {
         GoogleJsonWebSignature.Payload payload;
 
-        if (string.IsNullOrEmpty(request?.IdToken))
+        if (string.IsNullOrEmpty(request?.Provider))
+        {
+            return BadRequest($"Target provider is required choose,");
+        }
+
+        if (!Constants.Auth.IdentityProvider.Providers.ContainsIgnoreCase(request.Provider))
+        {
+            return BadRequest($"Invalid  provider '{request.Provider}'.");
+        }
+
+        if (string.IsNullOrEmpty(request?.Token))
         {
             return BadRequest("Google ID token is required.");
         }
 
         try
         {
-            payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
+            payload = await GoogleJsonWebSignature.ValidateAsync(request.Token);
         }
         catch (InvalidJwtException)
         {
@@ -120,22 +131,22 @@ public class AuthController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("cookie/google")]
+    [HttpPost("cookie")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GoogleLoginCookie([FromBody] GoogleLoginRequest request)
+    public async Task<IActionResult> CookieLogin([FromBody] AuthRequest request)
     {
         GoogleJsonWebSignature.Payload payload;
 
-        if (string.IsNullOrEmpty(request?.IdToken))
+        if (string.IsNullOrEmpty(request?.Token))
         {
             return BadRequest("Google ID token is required.");
         }
 
         try
         {
-            payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
+            payload = await GoogleJsonWebSignature.ValidateAsync(request.Token);
         }
         catch (InvalidJwtException)
         {
@@ -167,7 +178,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> WebRefresh()
     {
-        var refreshTokenFromCookie = Request.Cookies[Constants.Authentication.RefreshTokenCookieName];
+        var refreshTokenFromCookie = Request.Cookies[Constants.Auth.RefreshTokenCookieName];
 
         if (string.IsNullOrEmpty(refreshTokenFromCookie))
             return Unauthorized("Refresh token not found.");
@@ -220,7 +231,7 @@ public class AuthController : ControllerBase
             Secure = _cookieOptions.Secure,
             SameSite = _cookieOptions.SameSite,
             Path = _cookieOptions.Path,
-            MaxAge = TimeSpan.FromMinutes(Constants.Authentication.AccessTokenExpirationMinutes)
+            MaxAge = TimeSpan.FromMinutes(Constants.Auth.AccessTokenExpirationMinutes)
         };
 
         var refreshTokenOptions = new CookieOptions
@@ -229,16 +240,16 @@ public class AuthController : ControllerBase
             Secure = _cookieOptions.Secure,
             SameSite = _cookieOptions.SameSite,
             Path = _cookieOptions.Path,
-            MaxAge = TimeSpan.FromDays(Constants.Authentication.RefreshTokenExpirationDays)
+            MaxAge = TimeSpan.FromDays(Constants.Auth.RefreshTokenExpirationDays)
         };
 
         Response.Cookies.Append(
-            Constants.Authentication.AccessTokenCookieName, 
+            Constants.Auth.AccessTokenCookieName, 
             accessToken, 
             accessTokenOptions);
 
         Response.Cookies.Append(
-            Constants.Authentication.RefreshTokenCookieName, 
+            Constants.Auth.RefreshTokenCookieName, 
             refreshToken.Token, 
             refreshTokenOptions);
     }
@@ -253,7 +264,7 @@ public class AuthController : ControllerBase
             Path = _cookieOptions.Path
         };
 
-        Response.Cookies.Delete(Constants.Authentication.AccessTokenCookieName, deleteOptions);
-        Response.Cookies.Delete(Constants.Authentication.RefreshTokenCookieName, deleteOptions);
+        Response.Cookies.Delete(Constants.Auth.AccessTokenCookieName, deleteOptions);
+        Response.Cookies.Delete(Constants.Auth.RefreshTokenCookieName, deleteOptions);
     }
 }

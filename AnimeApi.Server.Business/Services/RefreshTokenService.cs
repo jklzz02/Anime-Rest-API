@@ -26,7 +26,7 @@ public class RefreshTokenService : IRefreshTokenService
         var refreshToken = new RefreshTokenDto
         {
             CreatedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddDays(Constants.Authentication.RefreshTokenExpirationDays),
+            ExpiresAt = DateTime.UtcNow.AddDays(Constants.Auth.RefreshTokenExpirationDays),
             HashedToken = hashed,
             RevokedAt = null,
             UserId = userId

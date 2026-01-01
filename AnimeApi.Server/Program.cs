@@ -75,8 +75,8 @@ public class Program
             {
                 options.SizeLimit = Constants.Cache.CacheSize;
             })
-            .AddAuthentication(Constants.Authentication.DefaultScheme)
-            .AddJwtBearer(Constants.Authentication.DefaultScheme, options =>
+            .AddAuthentication(Constants.Auth.DefaultScheme)
+            .AddJwtBearer(Constants.Auth.DefaultScheme, options =>
             {
                 var config = builder.Configuration.GetSection("Authentication:Jwt");
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -98,7 +98,7 @@ public class Program
                     {
                         if (string.IsNullOrEmpty(context.Token))
                         {
-                            context.Token = context.Request.Cookies[Constants.Authentication.AccessTokenCookieName];
+                            context.Token = context.Request.Cookies[Constants.Auth.AccessTokenCookieName];
                         }
                         return Task.CompletedTask;
                     }
@@ -111,13 +111,13 @@ public class Program
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = Constants.App, Version = "v1" });
 
-            c.AddSecurityDefinition(Constants.Authentication.DefaultScheme, new OpenApiSecurityScheme
+            c.AddSecurityDefinition(Constants.Auth.DefaultScheme, new OpenApiSecurityScheme
             {
                 Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
                 Name = "Authorization",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = Constants.Authentication.DefaultScheme,
+                Scheme = Constants.Auth.DefaultScheme,
                 BearerFormat = "JWT"
             });
 
@@ -129,7 +129,7 @@ public class Program
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = Constants.Authentication.DefaultScheme
+                            Id = Constants.Auth.DefaultScheme
                         }
                     },
                     Array.Empty<string>()

@@ -14,7 +14,7 @@ public class TokenHasher : ITokenHasher
     {
         
         ArgumentNullException.ThrowIfNull(configuration);
-        ConfigurationException.ThrowIfEmpty(configuration, "Authentication:RefreshToken");
+        ConfigurationException.ThrowIfMissing(configuration, "Authentication:RefreshToken");
         ConfigurationException.ThrowIfEmpty(configuration, "Authentication:RefreshToken:Secret");
 
         _secret = configuration

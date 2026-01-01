@@ -15,13 +15,30 @@ public static class Constants
     /// <summary>
     /// Contains constants related to authentication mechanisms and configurations within the application.
     /// </summary>
-    public static class Authentication
+    public static class Auth
     {
         public const string DefaultScheme = "Bearer";
         public const int RefreshTokenExpirationDays = 15;
         public const int AccessTokenExpirationMinutes = 15;
         public const string RefreshTokenCookieName = "refresh_token";
         public const string AccessTokenCookieName = "access_token";
+
+        /// <summary>
+        /// Contains constants related to accepted identity providers.
+        /// </summary>
+        public static class IdentityProvider
+        {
+            public const string Apple =  "Apple";
+            public const string Google = "Google";
+            public const string Facebook = "Facebook";
+
+            public static readonly IReadOnlyList<string> Providers = 
+            [
+                Apple,
+                Google,
+                Facebook
+            ];
+        }
     }
 
     /// <summary>
@@ -139,7 +156,7 @@ public static class Constants
             public const string Score = "score";
             public const string Episodes = "episodes";
 
-            public static readonly string[] ValidFields =
+            public static readonly IReadOnlyList<string> ValidFields =
             [
                 Id,
                 Name,
@@ -158,7 +175,7 @@ public static class Constants
             public const string Ascending = "asc";
             public const string Descending = "desc";
 
-            public static readonly string[] Directions = 
+            public static readonly IReadOnlyList<string> Directions = 
             [
                 Ascending,
                 Descending
