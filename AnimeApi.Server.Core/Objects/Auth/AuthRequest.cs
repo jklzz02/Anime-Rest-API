@@ -22,5 +22,5 @@ public class AuthRequest
     /// The targeted identity provider.
     /// </summary>
     [JsonProperty("provider")]
-    public string Provider { get; set; } = string.Empty;
+    public Constants.Auth.IdentityProvider Provider { get; set; }
 }

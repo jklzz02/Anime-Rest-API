@@ -26,18 +26,10 @@ public static class Constants
         /// <summary>
         /// Contains constants related to accepted identity providers.
         /// </summary>
-        public static class IdentityProvider
+        public enum IdentityProvider
         {
-            public const string Apple =  "Apple";
-            public const string Google = "Google";
-            public const string Facebook = "Facebook";
-
-            public static readonly IReadOnlyList<string> Providers = 
-            [
-                Apple,
-                Google,
-                Facebook
-            ];
+            Google,
+            Facebook
         }
     }
 

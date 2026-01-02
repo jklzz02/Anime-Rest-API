@@ -4,10 +4,13 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Extensions;
+using AnimeApi.Server.Core.Objects.Dto;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Controllers;
 
@@ -18,9 +21,11 @@ public class AuthController : ControllerBase
     private readonly IUserService _userService;
     private readonly IJwtGenerator _jwtGenerator;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IHttpClientFactory _clientFactory;
     private readonly CookieOptions _cookieOptions;
 
     public AuthController(
+        IHttpClientFactory client,
         IUserService userService,
         IJwtGenerator jwtGenerator,
         IRefreshTokenService refreshTokenService)
@@ -28,6 +33,7 @@ public class AuthController : ControllerBase
         _userService = userService;
         _jwtGenerator = jwtGenerator;
         _refreshTokenService = refreshTokenService;
+        _clientFactory = client;
         
         _cookieOptions = new CookieOptions
         {
@@ -44,43 +50,33 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] AuthRequest request)
     {
-        GoogleJsonWebSignature.Payload payload;
-
-        if (string.IsNullOrEmpty(request?.Provider))
-        {
-            return BadRequest($"Target provider is required choose on of: {string.Join(", ", Constants.Auth.IdentityProvider.Providers)}");
-        }
-
-        if (!Constants.Auth.IdentityProvider.Providers.ContainsIgnoreCase(request.Provider))
-        {
-            return BadRequest($"Invalid  provider '{request.Provider}'. Choose on of: {string.Join(", ", Constants.Auth.IdentityProvider.Providers)}");
-        }
-
+        
         if (string.IsNullOrEmpty(request?.Token))
         {
-            return BadRequest("Google ID token is required.");
+            return BadRequest("Access Token is required.");
         }
-
-        try
-        {
-            payload = await GoogleJsonWebSignature.ValidateAsync(request.Token);
-        }
-        catch (InvalidJwtException)
-        {
-            return Unauthorized("Invalid Google ID token.");
-        }
-
-        var userDto = await _userService.GetOrCreateUserAsync(new AuthPayload
-        {
-            Email = payload.Email,
-            Picture = payload.Picture,
-            Username = string.Empty
-        });
         
-        await _refreshTokenService.RevokeByUserIdAsync(userDto.Id);
+        var result = request.Provider switch
+        {
+            Constants.Auth.IdentityProvider.Google =>
+                await ProcessGoogleTokenAsync(request.Token),
+            
+            Constants.Auth.IdentityProvider.Facebook =>
+                await ProcessFacebookTokenAsync(request.Token),
+
+            _ =>
+                Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid provider.")
+        };
+
+        if (result.IsFailure)
+        {
+            return Unauthorized(result.Errors.ToKeyValuePairs());
+        }
         
-        var accessToken = _jwtGenerator.GenerateToken(userDto);
-        var refreshToken = await _refreshTokenService.CreateAsync(userDto.Id);
+        await _refreshTokenService.RevokeByUserIdAsync(result.Data.Id);
+        
+        var accessToken = _jwtGenerator.GenerateToken(result.Data);
+        var refreshToken = await _refreshTokenService.CreateAsync(result.Data.Id);
 
         return Ok(new
         {
@@ -140,29 +136,30 @@ public class AuthController : ControllerBase
 
         if (string.IsNullOrEmpty(request?.Token))
         {
-            return BadRequest("Google ID token is required.");
+            return BadRequest("Access token is required.");
+        }
+        
+        var result = request.Provider switch
+        {
+            Constants.Auth.IdentityProvider.Google =>
+                await ProcessGoogleTokenAsync(request.Token),
+            
+            Constants.Auth.IdentityProvider.Facebook =>
+                await ProcessFacebookTokenAsync(request.Token),
+
+            _ =>
+                Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid provider.")
+        };
+
+        if (result.IsFailure)
+        {
+            return Unauthorized(result.Errors.ToKeyValuePairs());
         }
 
-        try
-        {
-            payload = await GoogleJsonWebSignature.ValidateAsync(request.Token);
-        }
-        catch (InvalidJwtException)
-        {
-            return Unauthorized("Invalid Google ID token.");
-        }
+        await _refreshTokenService.RevokeByUserIdAsync(result.Data.Id);
 
-        var userDto = await _userService.GetOrCreateUserAsync(new AuthPayload
-        {
-            Email = payload.Email,
-            Picture = payload.Picture,
-            Username = string.Empty
-        });
-
-        await _refreshTokenService.RevokeByUserIdAsync(userDto.Id);
-
-        var accessToken = _jwtGenerator.GenerateToken(userDto);
-        var refreshToken = await _refreshTokenService.CreateAsync(userDto.Id);
+        var accessToken = _jwtGenerator.GenerateToken(result.Data);
+        var refreshToken = await _refreshTokenService.CreateAsync(result.Data.Id);
 
         SetTokenCookies(accessToken, refreshToken);
         
@@ -265,5 +262,68 @@ public class AuthController : ControllerBase
 
         Response.Cookies.Delete(Constants.Auth.AccessTokenCookieName, deleteOptions);
         Response.Cookies.Delete(Constants.Auth.RefreshTokenCookieName, deleteOptions);
+    }
+
+    private async Task<Result<AppUserDto>> ProcessFacebookTokenAsync(string token)
+    {
+        var client = _clientFactory.CreateClient();
+        var url = QueryHelpers.AddQueryString(
+            "https://graph.facebook.com/v24.0/me",
+            new Dictionary<string, string>
+            {
+                ["access_token"] = token,
+                ["fields"] = "name,email,picture{url}"
+            }!
+        );
+
+        var result = await client
+            .GetAsync(url);
+
+        if (!result.IsSuccessStatusCode)
+        {
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Facebook Access token is invalid.");
+        }
+        
+        var response = await result.Content.ReadAsStringAsync();
+        var payload = JsonConvert
+            .DeserializeObject<FacebookResponse>(response);
+
+        if (payload is null)
+        {
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Facebook Access token is invalid.");
+        }
+
+        var user = await
+            _userService.GetOrCreateUserAsync(new AuthPayload
+            {
+                Email = payload.Email,
+                Picture = payload.Picture.Data.Url,
+                Username = payload.Name
+            });
+        
+        return Result<AppUserDto>.Success(user);
+    }
+
+    private async Task<Result<AppUserDto>> ProcessGoogleTokenAsync(string token)
+    {
+        try
+        {
+            GoogleJsonWebSignature.Payload payload = await 
+                GoogleJsonWebSignature.ValidateAsync(token);
+            
+            var userDto = await 
+            _userService.GetOrCreateUserAsync(new AuthPayload
+            {
+                Email = payload.Email,
+                Picture = payload.Picture,
+                Username = string.Empty
+            });
+            
+            return Result<AppUserDto>.Success(userDto);
+        }
+        catch (InvalidJwtException)
+        {
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid Google ID token.");
+        }
     }
 }
