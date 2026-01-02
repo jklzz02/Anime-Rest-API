@@ -1,4 +1,5 @@
 using AnimeApi.Server.Business.Extensions;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
@@ -28,17 +29,23 @@ public class AnimeHelper : IAnimeHelper
     
     public async Task<AnimeDto?> GetByIdAsync(int id)
     {
-        var query = AnimeQuery.ByPk(id)
+        var query = new AnimeQuery()
+            .ByPk(id)
             .IncludeFullRelation();
 
         return await
             _repository.FindFirstOrDefaultAsync(query);
     }
 
-    public async Task<IEnumerable<AnimeDto>> GetByIdsAsync(IEnumerable<int> ids)
+    public Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids)
+        =>  GetByIdAsync(ids, Constants.OrderBy.Fields.Score, Constants.OrderBy.StringDirections.Descending);
+
+    public async Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids, string orderBy, string direction)
     {
-        var query = AnimeQuery.ByPk(ids)
-            .IncludeFullRelation();
+        var  query = new AnimeQuery()
+            .ByPk(ids)
+            .IncludeFullRelation()
+            .WithSorting(orderBy, direction);
 
         return await
             _repository.FindAsync(query);
@@ -160,7 +167,7 @@ public class AnimeHelper : IAnimeHelper
     public async Task<bool> DeleteAsync(int id)
     {
         return await 
-            _repository.DeleteAsync(AnimeQuery.ByPk(id));
+            _repository.DeleteAsync(new AnimeQuery().ByPk(id));
     }
 
     public async Task<PaginatedResult<AnimeDto>> SearchAsync(

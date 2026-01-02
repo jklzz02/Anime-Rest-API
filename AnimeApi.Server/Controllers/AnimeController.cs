@@ -83,6 +83,28 @@ public class AnimeController : ControllerBase
 
         return Ok(anime);
     }
+
+    [HttpPost]
+    [Route("target")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByIdsAsync([FromBody] TargetAnimeParams targetParams)
+    {
+        var anime = await _cache
+            .GetOrCreateAsync(
+                () => _helper.GetByIdAsync(
+                    targetParams.TargetAnimeIds,
+                    targetParams.OrderBy,
+                    targetParams.SortOrder));
+
+        if (anime is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(anime);
+    }
     
     [HttpGet]
     [Route("search")]

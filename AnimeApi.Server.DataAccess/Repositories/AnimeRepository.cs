@@ -83,7 +83,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
             .MapToEntity(dto, false);
         
         var anime = await
-            AnimeQuery
+            new AnimeQuery()
                 .ByPk(dto.Id.GetValueOrDefault())
                 .IncludeFullRelation()
                 .Tracked()

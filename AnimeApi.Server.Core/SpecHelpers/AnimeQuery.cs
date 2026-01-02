@@ -8,17 +8,11 @@ namespace AnimeApi.Server.Core.SpecHelpers;
 public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
 {
 
-    public static AnimeQuery ByPk(int id)
-    {
-        return new AnimeQuery()
-            .FilterBy(a => a.Id == id);
-    }
+    public AnimeQuery ByPk(int id)
+        => FilterBy(a => a.Id == id);
 
-    public static AnimeQuery ByPk(IEnumerable<int> ids)
-    {
-        return new AnimeQuery()
-            .FilterBy(a => ids.Contains(a.Id));
-    }
+    public AnimeQuery ByPk(IEnumerable<int> id)
+        =>  FilterBy(a => id.Contains(a.Id));
 
     public AnimeQuery WithFullTextSearch(string? query)
     {
