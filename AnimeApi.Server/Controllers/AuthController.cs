@@ -48,12 +48,12 @@ public class AuthController : ControllerBase
 
         if (string.IsNullOrEmpty(request?.Provider))
         {
-            return BadRequest($"Target provider is required choose,");
+            return BadRequest($"Target provider is required choose on of: {string.Join(", ", Constants.Auth.IdentityProvider.Providers)}");
         }
 
         if (!Constants.Auth.IdentityProvider.Providers.ContainsIgnoreCase(request.Provider))
         {
-            return BadRequest($"Invalid  provider '{request.Provider}'.");
+            return BadRequest($"Invalid  provider '{request.Provider}'. Choose on of: {string.Join(", ", Constants.Auth.IdentityProvider.Providers)}");
         }
 
         if (string.IsNullOrEmpty(request?.Token))
