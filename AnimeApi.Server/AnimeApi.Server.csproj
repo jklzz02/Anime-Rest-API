@@ -24,8 +24,4 @@
       <ProjectReference Include="..\AnimeApi.Server.DataAccess\AnimeApi.Server.DataAccess.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="RequestModels\RequestValidators\" />
-    </ItemGroup>
-
 </Project>
