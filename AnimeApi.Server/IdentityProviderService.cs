@@ -137,7 +137,7 @@ public class IdentityProviderService
 
         if (tokenData is null)
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid Facebook Access token.");
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Facebook token exchange failed.");
         }
 
         var userResponse = await client.GetAsync(
@@ -149,7 +149,7 @@ public class IdentityProviderService
 
         if (fbUser is null)
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid Facebook Access token.");
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Failed to retrieve facebook user.");
         }
         
         var user = await _userService.GetOrCreateUserAsync(new AuthPayload
@@ -202,13 +202,19 @@ public class IdentityProviderService
             })
         );
 
+        if (!tokenResponse.IsSuccessStatusCode)
+        {
+            return Result<AppUserDto>
+                .ValidationFailure("Unauthorized", "Discord token exchange failed.");
+        }
+
         var tokenJson = await tokenResponse.Content.ReadAsStringAsync();
         var token = JsonConvert.DeserializeObject<DiscordToken>(tokenJson);
 
         if (token is null)
         {
             return Result<AppUserDto>
-                .ValidationFailure("Unauthorized", "Invalid Discord token.");
+                .ValidationFailure("Unauthorized", "Discord token exchange failed.");
         }
 
         var userRequest = new HttpRequestMessage(
@@ -217,15 +223,22 @@ public class IdentityProviderService
 
         userRequest.Headers.Authorization =
             new AuthenticationHeaderValue("Bearer", token.AccessToken);
-
+        
         var userResponse = await client.SendAsync(userRequest);
+
+        if (!userResponse.IsSuccessStatusCode)
+        {
+            return Result<AppUserDto>
+                .ValidationFailure("Unauthorized", "Invalid Discord access token.");
+        }
+        
         var userJson = await userResponse.Content.ReadAsStringAsync();
         var discordUser = JsonConvert.DeserializeObject<DiscordResponse>(userJson);
         
         if (discordUser is null)
         {
             return Result<AppUserDto>
-                .ValidationFailure("Unauthorized", "Invalid Discord user.");            
+                .ValidationFailure("Unauthorized", "Failed to retrieve Discord user.");
         }
 
         var user = await _userService.GetOrCreateUserAsync(new AuthPayload
