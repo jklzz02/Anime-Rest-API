@@ -21,6 +21,8 @@ public class Program
 
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "ConnectionStrings:DefaultConnection");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authorization:XClientKey");
+        ConfigurationException.ThrowIfMissing(builder.Configuration,"Authentication:Facebook");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Facebook:AppId");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Audience");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Issuer");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Secret");
@@ -76,6 +78,7 @@ public class Program
             .AddDataAccess(connectionString!)
             .AddBusiness()
             .AddIdentity()
+            .AddScoped<IdentityProviderService>()
             .AddMemoryCache(options =>
             {
                 options.SizeLimit = Constants.Cache.CacheSize;
