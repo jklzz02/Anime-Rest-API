@@ -1,4 +1,3 @@
-using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Objects.Dto;
 using FluentValidation;
 
@@ -31,6 +30,14 @@ public class ReviewValidator : AbstractValidator<ReviewDto>
             .WithMessage("must be greater than or equal to 0")
             .LessThanOrEqualTo(10)
             .WithMessage("must be less than or equal to 10");
+
+        RuleFor(r => r.Title)
+            .NotEmpty()
+            .WithMessage("cannot be empty")
+            .MinimumLength(10)
+            .WithMessage("title must be at least 10 characters long")
+            .MaximumLength(30)
+            .WithMessage("title cannot be longer than 30 characters");
         
         RuleFor(r => r.Content)
             .NotEmpty()

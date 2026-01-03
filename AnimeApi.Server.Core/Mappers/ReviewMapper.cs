@@ -14,6 +14,7 @@ public class ReviewMapper : Mapper<Review, ReviewDto>
         return new ReviewDto
         {
           Id = review.Id,
+          Title = review.Title,
           Content = review.Content,
           CreatedAt = review.Created_At,
           Score = review.Score,
@@ -27,6 +28,7 @@ public class ReviewMapper : Mapper<Review, ReviewDto>
         return new Review
         {
           Id = review.Id,
+          Title = review.Title,
           Content = review.Content,
           Created_At = review.CreatedAt,
           Score = review.Score,

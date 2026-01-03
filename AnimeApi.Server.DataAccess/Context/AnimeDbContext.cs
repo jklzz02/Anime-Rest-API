@@ -281,6 +281,11 @@ public partial class AnimeDbContext : DbContext
                 .HasName("PRIMARY");
             
             entity.ToTable("review");
+
+            entity.Property(e => e.Title)
+                .HasMaxLength(30)
+                .UseCollation("utf8mb3_general_ci")
+                .IsRequired();
             
             entity.Property(e => e.Content)
                 .HasMaxLength(5000)

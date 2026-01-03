@@ -393,6 +393,12 @@ namespace AnimeApi.Server.DataAccess.Migrations
                     b.Property<decimal>("Score")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .UseCollation("utf8mb3_general_ci");
+
                     b.Property<int>("User_Id")
                         .HasColumnType("integer");
 
