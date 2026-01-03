@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace AnimeApi.Server.Core.Objects;
+namespace AnimeApi.Server.Core.Objects.Auth;
 
 public record FacebookResponse
 {

@@ -9,7 +9,6 @@ using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Controllers;
@@ -19,6 +18,7 @@ namespace AnimeApi.Server.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IConfiguration _configuration;
     private readonly IJwtGenerator _jwtGenerator;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IHttpClientFactory _clientFactory;
@@ -26,11 +26,13 @@ public class AuthController : ControllerBase
 
     public AuthController(
         IHttpClientFactory client,
+        IConfiguration configuration,
         IUserService userService,
         IJwtGenerator jwtGenerator,
         IRefreshTokenService refreshTokenService)
     {
         _userService = userService;
+        _configuration = configuration;
         _jwtGenerator = jwtGenerator;
         _refreshTokenService = refreshTokenService;
         _clientFactory = client;
@@ -58,11 +60,12 @@ public class AuthController : ControllerBase
         
         var result = request.Provider switch
         {
-            Constants.Auth.IdentityProvider.Google =>
-                await ProcessGoogleTokenAsync(request.Token),
+            Constants.Auth.IdentityProvider.Google when !string.IsNullOrEmpty(request.Token) 
+                => await ProcessGoogleAuthAsync(request.Token),
             
-            Constants.Auth.IdentityProvider.Facebook =>
-                await ProcessFacebookTokenAsync(request.Token),
+            Constants.Auth.IdentityProvider.Facebook 
+                when !string.IsNullOrEmpty(request.Code) && !string.IsNullOrEmpty(request.RedirectUri) && !string.IsNullOrEmpty(request.CodeVerifier) 
+                => await ProcessFacebookAuthAsync(request.Code, request.RedirectUri, request.CodeVerifier),
 
             _ =>
                 Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid provider.")
@@ -141,11 +144,12 @@ public class AuthController : ControllerBase
         
         var result = request.Provider switch
         {
-            Constants.Auth.IdentityProvider.Google =>
-                await ProcessGoogleTokenAsync(request.Token),
+            Constants.Auth.IdentityProvider.Google when !string.IsNullOrEmpty(request.Token) 
+                => await ProcessGoogleAuthAsync(request.Token),
             
-            Constants.Auth.IdentityProvider.Facebook =>
-                await ProcessFacebookTokenAsync(request.Token),
+            Constants.Auth.IdentityProvider.Facebook  
+                when !string.IsNullOrEmpty(request.Code) && !string.IsNullOrEmpty(request.RedirectUri) && !string.IsNullOrEmpty(request.CodeVerifier)
+                => await ProcessFacebookAuthAsync(request.Code, request.RedirectUri, request.CodeVerifier),
 
             _ =>
                 Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid provider.")
@@ -263,48 +267,55 @@ public class AuthController : ControllerBase
         Response.Cookies.Delete(Constants.Auth.AccessTokenCookieName, deleteOptions);
         Response.Cookies.Delete(Constants.Auth.RefreshTokenCookieName, deleteOptions);
     }
-
-    private async Task<Result<AppUserDto>> ProcessFacebookTokenAsync(string token)
+    private async Task<Result<AppUserDto>> ProcessFacebookAuthAsync(string code, string redirectUri, string codeVerifier)
     {
+        var appId = _configuration["Authorization:Facebook:AppId"];
+        
         var client = _clientFactory.CreateClient();
-        var url = QueryHelpers.AddQueryString(
-            "https://graph.facebook.com/v24.0/me",
-            new Dictionary<string, string>
+        var tokenResponse = await client.PostAsync(
+            "https://graph.facebook.com/v17.0/oauth/access_token",
+            new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["access_token"] = token,
-                ["fields"] = "name,email,picture{url}"
-            }!
+                ["client_id"] = "<FACEBOOK_APP_ID>",
+                ["redirect_uri"] = redirectUri,
+                ["code_verifier"] = codeVerifier,
+                ["code"] = code,
+                ["grant_type"] = "authorization_code"
+            })
         );
 
-        var result = await client
-            .GetAsync(url);
+        tokenResponse.EnsureSuccessStatusCode();
+        var content = await tokenResponse.Content.ReadAsStringAsync();
+        var tokenData = JsonConvert.DeserializeObject<FacebookToken>(content);
 
-        if (!result.IsSuccessStatusCode)
+        if (tokenData is null)
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Facebook Access token is invalid.");
-        }
-        
-        var response = await result.Content.ReadAsStringAsync();
-        var payload = JsonConvert
-            .DeserializeObject<FacebookResponse>(response);
-
-        if (payload is null)
-        {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Facebook Access token is invalid.");
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid Facebook Access token.");
         }
 
-        var user = await
-            _userService.GetOrCreateUserAsync(new AuthPayload
-            {
-                Email = payload.Email,
-                Picture = payload.Picture.Data.Url,
-                Username = payload.Name
-            });
+        var userResponse = await client.GetAsync(
+            $"https://graph.facebook.com/v24.0/me?fields=name,email,picture&access_token={tokenData.AccessToken}"
+        );
+
+        var userContent = await userResponse.Content.ReadAsStringAsync();
+        var fbUser = JsonConvert.DeserializeObject<FacebookResponse>(userContent);
+
+        if (fbUser is null)
+        {
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid Facebook Access token.");
+        }
         
+        var user = await _userService.GetOrCreateUserAsync(new AuthPayload
+        {
+            Email = fbUser.Email,
+            Picture = fbUser.Picture.Data.Url,
+            Username = fbUser.Name
+        });
+
         return Result<AppUserDto>.Success(user);
     }
 
-    private async Task<Result<AppUserDto>> ProcessGoogleTokenAsync(string token)
+    private async Task<Result<AppUserDto>> ProcessGoogleAuthAsync(string token)
     {
         try
         {

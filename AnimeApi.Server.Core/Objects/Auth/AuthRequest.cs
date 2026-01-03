@@ -13,14 +13,32 @@ namespace AnimeApi.Server.Core.Objects.Auth;
 public class AuthRequest
 {
     /// <summary>
-    /// The unique access token.
-    /// </summary>
-    [JsonProperty("token")]
-    public string Token { get; set; } = string.Empty;
-    
-    /// <summary>
     /// The targeted identity provider.
     /// </summary>
     [JsonProperty("provider")]
     public Constants.Auth.IdentityProvider Provider { get; set; }
+    
+    /// <summary>
+    /// The access token.
+    /// </summary>
+    [JsonProperty("token")]
+    public string? Token { get; set; }
+    
+    /// <summary>
+    /// The challenge code.
+    /// </summary>
+    [JsonProperty("code")]
+    public string? Code { get; set; }
+    
+    /// <summary>
+    /// The challenge code verifier.
+    /// </summary>
+    [JsonProperty("code_verifier")]
+    public string? CodeVerifier { get; set; }
+    
+    /// <summary>
+    /// OAuth redirect URI.
+    /// </summary>
+    [JsonProperty("redirect_uri")]
+    public string? RedirectUri { get; set; }
 }
