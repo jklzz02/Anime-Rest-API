@@ -20,6 +20,9 @@ public class IdentityProviderService
         IHttpClientFactory clientFactory, 
         IUserService userService)
     {
+        ConfigurationException.ThrowIfMissing(configuration, "Authentication:Google");
+        ConfigurationException.ThrowIfEmpty(configuration, "Authentication:Google:ClientId");
+        
         ConfigurationException.ThrowIfMissing(configuration, "Authentication:Facebook");
         ConfigurationException.ThrowIfEmpty(configuration, "Authentication:Facebook:AppId");
         
@@ -83,6 +86,11 @@ public class IdentityProviderService
             })
         );
 
+        if (!tokenResponse.IsSuccessStatusCode)
+        {
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Facebook token exchange failed.");
+        }
+
         var content = await tokenResponse.Content.ReadAsStringAsync();
         var tokenData = JsonConvert.DeserializeObject<FacebookToken>(content);
 
@@ -123,7 +131,12 @@ public class IdentityProviderService
         try
         {
             GoogleJsonWebSignature.Payload payload = await 
-                GoogleJsonWebSignature.ValidateAsync(request.Token);
+                GoogleJsonWebSignature.ValidateAsync(
+                    request.Token,
+                    new GoogleJsonWebSignature.ValidationSettings
+                    {
+                        Audience = [ _configuration["Authentication:Google:ClientId"]]
+                    });
             
             var userDto = await 
                 _userService.GetOrCreateUserAsync(new AuthPayload

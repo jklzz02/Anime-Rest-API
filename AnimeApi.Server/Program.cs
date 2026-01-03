@@ -21,6 +21,8 @@ public class Program
 
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "ConnectionStrings:DefaultConnection");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authorization:XClientKey");
+        ConfigurationException.ThrowIfMissing(builder.Configuration, "Authentication:Google");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Google:ClientId");
         ConfigurationException.ThrowIfMissing(builder.Configuration,"Authentication:Facebook");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Facebook:AppId");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Audience");
