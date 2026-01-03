@@ -256,14 +256,14 @@ public class AuthController : ControllerBase
     }
     private async Task<Result<AppUserDto>> ProcessFacebookAuthAsync(string code, string redirectUri, string codeVerifier)
     {
-        var appId = _configuration["Authorization:Facebook:AppId"];
+        var appId = _configuration["Authentication:Facebook:AppId"];
         
         var client = _clientFactory.CreateClient();
         var tokenResponse = await client.PostAsync(
             "https://graph.facebook.com/v17.0/oauth/access_token",
             new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["client_id"] = "<FACEBOOK_APP_ID>",
+                ["client_id"] = appId!,
                 ["redirect_uri"] = redirectUri,
                 ["code_verifier"] = codeVerifier,
                 ["code"] = code,
@@ -271,7 +271,6 @@ public class AuthController : ControllerBase
             })
         );
 
-        tokenResponse.EnsureSuccessStatusCode();
         var content = await tokenResponse.Content.ReadAsStringAsync();
         var tokenData = JsonConvert.DeserializeObject<FacebookToken>(content);
 
