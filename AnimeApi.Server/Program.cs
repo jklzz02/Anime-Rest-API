@@ -24,6 +24,9 @@ public class Program
         ConfigurationException.ThrowIfMissing(builder.Configuration, "Authentication:Google");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Google:ClientId");
         ConfigurationException.ThrowIfMissing(builder.Configuration,"Authentication:Facebook");
+        ConfigurationException.ThrowIfMissing(builder.Configuration, "Authentication:Discord");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Discord:ClientId");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Discord:ClientSecret");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Facebook:AppId");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Audience");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Issuer");

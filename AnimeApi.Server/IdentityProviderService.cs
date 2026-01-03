@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Exceptions;
@@ -26,6 +27,10 @@ public class IdentityProviderService
         ConfigurationException.ThrowIfMissing(configuration, "Authentication:Facebook");
         ConfigurationException.ThrowIfEmpty(configuration, "Authentication:Facebook:AppId");
         
+        ConfigurationException.ThrowIfMissing(configuration, "Authentication:Discord");
+        ConfigurationException.ThrowIfEmpty(configuration, "Authentication:Discord:ClientId");
+        ConfigurationException.ThrowIfEmpty(configuration, "Authentication:Discord:ClientSecret");
+        
         _configuration = configuration;
         _clientFactory = clientFactory;
         _userService = userService;
@@ -41,10 +46,46 @@ public class IdentityProviderService
             Constants.Auth.IdentityProvider.Facebook  
                 => await ProcessFacebookAuthAsync(request),
             
+            Constants.Auth.IdentityProvider.Discord
+                => await ProcessDiscordAuthAsync(request),
+            
             _ => Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid identity provider.")
         };
         
         return result;
+    }
+    
+    private async Task<Result<AppUserDto>> ProcessGoogleAuthAsync(AuthRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Token))
+        {
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Missing Google ID token.");
+        }
+        
+        try
+        {
+            GoogleJsonWebSignature.Payload payload = await 
+                GoogleJsonWebSignature.ValidateAsync(
+                    request.Token,
+                    new GoogleJsonWebSignature.ValidationSettings
+                    {
+                        Audience = [ _configuration["Authentication:Google:ClientId"]]
+                    });
+            
+            var userDto = await 
+                _userService.GetOrCreateUserAsync(new AuthPayload
+                {
+                    Email = payload.Email,
+                    Picture = payload.Picture,
+                    Username = string.Empty
+                });
+            
+            return Result<AppUserDto>.Success(userDto);
+        }
+        catch (InvalidJwtException)
+        {
+            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid Google ID token.");
+        }
     }
     
     private async Task<Result<AppUserDto>> ProcessFacebookAuthAsync(AuthRequest request)
@@ -120,37 +161,80 @@ public class IdentityProviderService
 
         return Result<AppUserDto>.Success(user);
     }
-    
-    private async Task<Result<AppUserDto>> ProcessGoogleAuthAsync(AuthRequest request)
+
+    private async Task<Result<AppUserDto>> ProcessDiscordAuthAsync(AuthRequest request)
     {
-        if (string.IsNullOrEmpty(request.Token))
+        List<Error> errors = [];
+
+        if (string.IsNullOrEmpty(request.Code))
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Missing Google ID token.");
+            errors.Add(Error.Validation("Unauthorized", "Missing Discord Authorization code."));
+        }
+
+        if (string.IsNullOrEmpty(request.RedirectUri))
+        {
+            errors.Add(Error.Validation("Unauthorized", "Missing Discord Redirect URI."));
+        }
+
+        if (string.IsNullOrEmpty(request.CodeVerifier))
+        {
+            errors.Add(Error.Validation("Unauthorized", "Missing Discord Code Verifier."));
         }
         
-        try
+        if (errors.Any())
         {
-            GoogleJsonWebSignature.Payload payload = await 
-                GoogleJsonWebSignature.ValidateAsync(
-                    request.Token,
-                    new GoogleJsonWebSignature.ValidationSettings
-                    {
-                        Audience = [ _configuration["Authentication:Google:ClientId"]]
-                    });
-            
-            var userDto = await 
-                _userService.GetOrCreateUserAsync(new AuthPayload
-                {
-                    Email = payload.Email,
-                    Picture = payload.Picture,
-                    Username = string.Empty
-                });
-            
-            return Result<AppUserDto>.Success(userDto);
+            return Result<AppUserDto>.ValidationFailure(
+                "Unauthorized", "Missing Discord OAuth parameters.");
         }
-        catch (InvalidJwtException)
+
+        var client = _clientFactory.CreateClient();
+
+        var tokenResponse = await client.PostAsync(
+            "https://discord.com/api/oauth2/token",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["client_id"] = _configuration["Authentication:Discord:ClientId"]!,
+                ["client_secret"] = _configuration["Authentication:Discord:ClientSecret"]!,
+                ["grant_type"] = "authorization_code",
+                ["code"] = request.Code!,
+                ["redirect_uri"] = request.RedirectUri!,
+                ["code_verifier"] = request.CodeVerifier!
+            })
+        );
+
+        var tokenJson = await tokenResponse.Content.ReadAsStringAsync();
+        var token = JsonConvert.DeserializeObject<DiscordToken>(tokenJson);
+
+        if (token is null)
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid Google ID token.");
+            return Result<AppUserDto>
+                .ValidationFailure("Unauthorized", "Invalid Discord token.");
         }
+
+        var userRequest = new HttpRequestMessage(
+            HttpMethod.Get,
+            "https://discord.com/api/users/@me");
+
+        userRequest.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", token.AccessToken);
+
+        var userResponse = await client.SendAsync(userRequest);
+        var userJson = await userResponse.Content.ReadAsStringAsync();
+        var discordUser = JsonConvert.DeserializeObject<DiscordResponse>(userJson);
+        
+        if (discordUser is null)
+        {
+            return Result<AppUserDto>
+                .ValidationFailure("Unauthorized", "Invalid Discord user.");            
+        }
+
+        var user = await _userService.GetOrCreateUserAsync(new AuthPayload
+        {
+            Email = discordUser.Email,
+            Username = discordUser.Username,
+            Picture = discordUser.AvatarUrl
+        });
+
+        return Result<AppUserDto>.Success(user);
     }
 }

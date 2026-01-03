@@ -29,7 +29,8 @@ public static class Constants
         public enum IdentityProvider
         {
             Google,
-            Facebook
+            Facebook,
+            Discord
         }
     }
 
