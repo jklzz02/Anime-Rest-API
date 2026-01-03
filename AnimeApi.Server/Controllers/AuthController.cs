@@ -52,12 +52,6 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] AuthRequest request)
     {
-        
-        if (string.IsNullOrEmpty(request?.Token))
-        {
-            return BadRequest("Access Token is required.");
-        }
-        
         var result = request.Provider switch
         {
             Constants.Auth.IdentityProvider.Google when !string.IsNullOrEmpty(request.Token) 
@@ -135,13 +129,6 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CookieLogin([FromBody] AuthRequest request)
     {
-        GoogleJsonWebSignature.Payload payload;
-
-        if (string.IsNullOrEmpty(request?.Token))
-        {
-            return BadRequest("Access token is required.");
-        }
-        
         var result = request.Provider switch
         {
             Constants.Auth.IdentityProvider.Google when !string.IsNullOrEmpty(request.Token) 
