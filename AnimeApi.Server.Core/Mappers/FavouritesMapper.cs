@@ -10,8 +10,8 @@ public class FavouritesMapper : Mapper<Favourite, FavouriteDto>
     {
         return new FavouriteDto
         {
-            UserId = entity.User_Id,
-            AnimeId = entity.Anime_Id
+            UserId = entity.UserId,
+            AnimeId = entity.AnimeId
         };
     }
 
@@ -19,8 +19,8 @@ public class FavouritesMapper : Mapper<Favourite, FavouriteDto>
     {
         return new Favourite
         {
-            User_Id = dto.UserId,
-            Anime_Id = dto.AnimeId
+            UserId = dto.UserId,
+            AnimeId = dto.AnimeId
         };
     }
 }

@@ -15,8 +15,8 @@ public class AppUserMapper : Mapper<AppUser, AppUserDto>
             Id = appUser.Id,
             Email = appUser.Email,
             Username = appUser.Username,
-            CreatedAt = appUser.Created_At,
-            ProfilePictureUrl = appUser.Picture_Url,
+            CreatedAt = appUser.CreatedAt,
+            ProfilePictureUrl = appUser.PictureUrl,
             Admin = appUser.Role?.Access.EqualsIgnoreCase(UserAccess.Admin) ?? false
         };
     }
@@ -28,9 +28,9 @@ public class AppUserMapper : Mapper<AppUser, AppUserDto>
             Id = appUserDto.Id,
             Email = appUserDto.Email,
             Username = appUserDto.Username,
-            Created_At = appUserDto.CreatedAt,
-            Picture_Url = appUserDto.ProfilePictureUrl,
-            Role_Id = appUserDto.Admin 
+            CreatedAt = appUserDto.CreatedAt,
+            PictureUrl = appUserDto.ProfilePictureUrl,
+            RoleId = appUserDto.Admin 
                 ? (int) UserAccess.Roles.Admin
                 : (int) UserAccess.Roles.User,
         };

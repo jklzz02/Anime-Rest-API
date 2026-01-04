@@ -8,5 +8,5 @@ public partial class Licensor : IBaseEntity
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<AnimeLicensor> Anime_Licensors { get; set; } = new List<AnimeLicensor>();
+    public virtual ICollection<AnimeLicensor> AnimeLicensors { get; set; } = new List<AnimeLicensor>();
 }

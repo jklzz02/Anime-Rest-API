@@ -8,5 +8,5 @@ public partial class Genre : IBaseEntity
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<AnimeGenre> Anime_Genres { get; set; } = new List<AnimeGenre>();
+    public virtual ICollection<AnimeGenre> AnimeGenres { get; set; } = new List<AnimeGenre>();
 }

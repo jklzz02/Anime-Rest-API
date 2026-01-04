@@ -6,23 +6,23 @@ public partial class Anime
 
     public string Name { get; set; } = null!;
 
-    public string English_Name { get; set; } = null!;
+    public string EnglishName { get; set; } = null!;
 
-    public string Other_Name { get; set; } = null!;
+    public string OtherName { get; set; } = null!;
 
     public string Synopsis { get; set; } = null!;
 
-    public string Image_URL { get; set; } = null!;
+    public string ImageUrl { get; set; } = null!;
 
     public int Episodes { get; set; }
 
     public string Duration { get; set; } = null!;
 
-    public int Release_Year { get; set; }
+    public int ReleaseYear { get; set; }
 
-    public DateTime? Started_Airing { get; set; }
+    public DateTime? StartedAiring { get; set; }
 
-    public DateTime? Finished_Airing { get; set; }
+    public DateTime? FinishedAiring { get; set; }
 
     public string Rating { get; set; } = null!;
 
@@ -36,19 +36,19 @@ public partial class Anime
 
     public int? SourceId { get; set; }
 
-    public string? Trailer_image_url { get; set; }
+    public string? TrailerImageUrl { get; set; }
 
-    public string? Trailer_url { get; set; }
+    public string? TrailerUrl { get; set; }
 
-    public string? Trailer_embed_url { get; set; }
+    public string? TrailerEmbedUrl { get; set; }
 
     public string? Background { get; set; }
 
-    public virtual ICollection<AnimeGenre> Anime_Genres { get; set; } = new List<AnimeGenre>();
+    public virtual ICollection<AnimeGenre> AnimeGenres { get; set; } = new List<AnimeGenre>();
 
-    public virtual ICollection<AnimeLicensor> Anime_Licensors { get; set; } = new List<AnimeLicensor>();
+    public virtual ICollection<AnimeLicensor> AnimeLicensors { get; set; } = new List<AnimeLicensor>();
 
-    public virtual ICollection<AnimeProducer> Anime_Producers { get; set; } = new List<AnimeProducer>();
+    public virtual ICollection<AnimeProducer> AnimeProducers { get; set; } = new List<AnimeProducer>();
     
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     

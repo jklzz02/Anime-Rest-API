@@ -3,10 +3,10 @@ namespace AnimeApi.Server.Core.Objects.Models;
 public class RefreshToken
 {
     public int Id { get; set; }
-    public string Hashed_Token { get; set; } = null!;
-    public DateTime Created_At { get; set; }
-    public DateTime Expires_At { get; set; }
-    public DateTime? Revoked_At { get; set; }
-    public int User_Id { get; set; }
+    public string HashedToken { get; set; } = null!;
+    public DateTime CreatedAt { get; set; }
+    public DateTime ExpiresAt { get; set; }
+    public DateTime? RevokedAt { get; set; }
+    public int UserId { get; set; }
     public AppUser User { get; set; } = null!;
 }

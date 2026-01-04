@@ -38,6 +38,22 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [HttpGet("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByIdAsync([FromRoute, Range(1, int.MaxValue)] int id)
+    {
+        var user = await
+            _userService.GetPublicUserAsync(id);
+        
+        if (user is null)
+        {
+            return NotFound();
+        }
+        
+        return Ok(user);
+    }
+
     [Authorize]
     [HttpGet("favourite")]
     [ProducesResponseType(StatusCodes.Status200OK)]

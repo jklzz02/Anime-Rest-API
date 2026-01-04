@@ -8,5 +8,5 @@ public partial class Source : IBaseEntity
 
     public string Name { get; set; }
 
-    public virtual ICollection<Anime> Animes { get; set; } = new List<Anime>();
+    public virtual ICollection<Anime> Anime { get; set; } = new List<Anime>();
 }

@@ -16,10 +16,10 @@ public class ReviewMapper : Mapper<Review, ReviewDto>
           Id = review.Id,
           Title = review.Title,
           Content = review.Content,
-          CreatedAt = review.Created_At,
+          CreatedAt = review.CreatedAt,
           Score = review.Score,
-          AnimeId = review.Anime_Id,
-          UserId = review.User_Id,
+          AnimeId = review.AnimeId,
+          UserId = review.UserId,
         };
     }
 
@@ -30,10 +30,10 @@ public class ReviewMapper : Mapper<Review, ReviewDto>
           Id = review.Id,
           Title = review.Title,
           Content = review.Content,
-          Created_At = review.CreatedAt,
+          CreatedAt = review.CreatedAt,
           Score = review.Score,
-          Anime_Id = review.AnimeId,
-          User_Id = review.UserId,
+          AnimeId = review.AnimeId,
+          UserId = review.UserId,
         };
     }
 }

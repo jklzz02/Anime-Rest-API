@@ -20,7 +20,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         {
             FilterBy(a =>
                 EF.Functions.TrigramsAreSimilar(query, a.Name) ||
-                EF.Functions.TrigramsAreSimilar(query, a.English_Name));
+                EF.Functions.TrigramsAreSimilar(query, a.EnglishName));
         }
 
         return this;
@@ -37,7 +37,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
     public AnimeQuery WithEnglishName(string? englishName)
     {
         if (!string.IsNullOrWhiteSpace(englishName))
-            FilterBy(a => a.English_Name.Contains(englishName));
+            FilterBy(a => a.EnglishName.Contains(englishName));
 
         return this;
     }
@@ -124,10 +124,10 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
     public AnimeQuery WithYearRange(int? minYear, int? maxYear)
     {
         if (minYear.HasValue)
-            FilterBy(a => a.Release_Year >= minYear);
+            FilterBy(a => a.ReleaseYear >= minYear);
         
         if (maxYear.HasValue)
-            FilterBy(a => a.Release_Year <= maxYear && a.Release_Year != 0);
+            FilterBy(a => a.ReleaseYear <= maxYear && a.ReleaseYear != 0);
 
         return this;
     }
@@ -139,16 +139,16 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         DateTime? endTo)
     {
         if (startFrom.HasValue)
-            FilterBy(a => a.Started_Airing >= startFrom.Value.ToUniversalTime());
+            FilterBy(a => a.StartedAiring >= startFrom.Value.ToUniversalTime());
 
         if (startTo.HasValue)
-            FilterBy(a => a.Started_Airing <= startTo.Value.ToUniversalTime());
+            FilterBy(a => a.StartedAiring <= startTo.Value.ToUniversalTime());
         
         if (endFrom.HasValue)
-            FilterBy(a => a.Finished_Airing >= endFrom.Value.ToUniversalTime());
+            FilterBy(a => a.FinishedAiring >= endFrom.Value.ToUniversalTime());
         
         if (endTo.HasValue)
-            FilterBy(a => a.Finished_Airing <= endTo.Value.ToUniversalTime());
+            FilterBy(a => a.FinishedAiring <= endTo.Value.ToUniversalTime());
 
         return this;
     }
@@ -159,13 +159,13 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         IEnumerable<string>? genreNames = null)
     {
         if (genreId.HasValue)
-            FilterBy(a => a.Anime_Genres.Any(g => g.GenreId == genreId));
+            FilterBy(a => a.AnimeGenres.Any(g => g.GenreId == genreId));
 
         if (!string.IsNullOrWhiteSpace(genreName))
-            FilterBy(a => a.Anime_Genres.Any(g => g.Genre.Name.ToLower().Contains(genreName.ToLower())));
+            FilterBy(a => a.AnimeGenres.Any(g => g.Genre.Name.ToLower().Contains(genreName.ToLower())));
 
         if (genreNames?.Any() ?? false)
-            FilterBy(a => genreNames.All(g => a.Anime_Genres.Any(ag => ag.Genre.Name.ToLower() == g.ToLower())));
+            FilterBy(a => genreNames.All(g => a.AnimeGenres.Any(ag => ag.Genre.Name.ToLower() == g.ToLower())));
 
         return this;
     }
@@ -176,13 +176,13 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         IEnumerable<string>? producerNames = null)
     {
         if (producerId.HasValue)
-            FilterBy(a => a.Anime_Producers.Any(p => p.ProducerId == producerId));
+            FilterBy(a => a.AnimeProducers.Any(p => p.ProducerId == producerId));
 
         if (!string.IsNullOrWhiteSpace(producerName))
-            FilterBy(a => a.Anime_Producers.Any(p => p.Producer.Name.ToLower().Contains(producerName.ToLower())));
+            FilterBy(a => a.AnimeProducers.Any(p => p.Producer.Name.ToLower().Contains(producerName.ToLower())));
 
         if (producerNames?.Any() ?? false)
-            FilterBy(a => producerNames.All(p => a.Anime_Producers.Any(ap => ap.Producer.Name.ToLower() == p.ToLower())));
+            FilterBy(a => producerNames.All(p => a.AnimeProducers.Any(ap => ap.Producer.Name.ToLower() == p.ToLower())));
 
         return this;
     }
@@ -193,13 +193,13 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         IEnumerable<string>? licensorNames = null)
     {
         if (licensorId.HasValue)
-            FilterBy(a => a.Anime_Licensors.Any(l => l.LicensorId == licensorId));
+            FilterBy(a => a.AnimeLicensors.Any(l => l.LicensorId == licensorId));
 
         if (!string.IsNullOrWhiteSpace(licensorName))
-            FilterBy(a => a.Anime_Licensors.Any(l => l.Licensor.Name.ToLower().Contains(licensorName.ToLower())));
+            FilterBy(a => a.AnimeLicensors.Any(l => l.Licensor.Name.ToLower().Contains(licensorName.ToLower())));
 
         if (licensorNames?.Any() ?? false)
-            FilterBy(a => licensorNames.All(l => a.Anime_Licensors.Any(al => al.Licensor.Name.ToLower() == l.ToLower())));
+            FilterBy(a => licensorNames.All(l => a.AnimeLicensors.Any(al => al.Licensor.Name.ToLower() == l.ToLower())));
 
         return this;
     }
@@ -236,12 +236,12 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
                 : SortAction<Anime>.Desc(a => a.Name),
 
             Constants.OrderBy.Fields.ReleaseYear => ascending
-                ? SortAction<Anime>.Asc(a => a.Release_Year)
-                : SortAction<Anime>.Desc(a => a.Release_Year),
+                ? SortAction<Anime>.Asc(a => a.ReleaseYear)
+                : SortAction<Anime>.Desc(a => a.ReleaseYear),
 
             Constants.OrderBy.Fields.ReleaseDate => ascending
-                ? SortAction<Anime>.Asc(a => a.Started_Airing)
-                : SortAction<Anime>.Desc(a => a.Started_Airing),
+                ? SortAction<Anime>.Asc(a => a.StartedAiring)
+                : SortAction<Anime>.Desc(a => a.StartedAiring),
 
             Constants.OrderBy.Fields.Episodes => ascending
                 ? SortAction<Anime>.Asc(a => a.Episodes)
@@ -261,11 +261,11 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
             throw new InvalidOperationException("Count must be greater than 0.");
 
         FilterBy([
-            a => a.Started_Airing != null,
-            a => a.Started_Airing <= DateTime.UtcNow,
+            a => a.StartedAiring != null,
+            a => a.StartedAiring <= DateTime.UtcNow,
         ]);
         SortBy([
-            SortAction<Anime>.Desc(a => a.Started_Airing),
+            SortAction<Anime>.Desc(a => a.StartedAiring),
             SortAction<Anime>.Desc(a => a.Score)
         ]);
         Limit(count);
@@ -280,7 +280,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
                 a => !string.IsNullOrEmpty(a.Rating),
                 a => a.Rating.Trim() != string.Empty,
                 a => !a.Rating.Trim().StartsWith(Constants.Ratings.AdultContent),
-                a => a.Anime_Genres.All(ag => ag.Genre.Name.Trim().ToLower() != "hentai")
+                a => a.AnimeGenres.All(ag => ag.Genre.Name.Trim().ToLower() != "hentai")
             ]);
 
         return this;
@@ -291,7 +291,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
 
     public AnimeQuery IncludeProducers()
     {
-        Include(q => q.Include(a => a.Anime_Producers)
+        Include(q => q.Include(a => a.AnimeProducers)
             .ThenInclude(ap => ap.Producer));
 
         return this;
@@ -299,7 +299,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
 
     public AnimeQuery IncludeLicensors()
     {
-        Include(q => q.Include(a => a.Anime_Licensors)
+        Include(q => q.Include(a => a.AnimeLicensors)
                 .ThenInclude(al => al.Licensor));
         
         return this;
@@ -307,7 +307,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
 
     public AnimeQuery IncludeGenres()
     {
-        Include(q => q.Include(a => a.Anime_Genres)
+        Include(q => q.Include(a => a.AnimeGenres)
                 .ThenInclude(ag => ag.Genre));
         
         return this;
@@ -343,9 +343,9 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
 
     public AnimeQuery IncludeJunctions()
     {
-        Include(q => q.Include(a => a.Anime_Genres));
-        Include(q => q.Include(a => a.Anime_Licensors));
-        Include(q => q.Include(a => a.Anime_Producers));
+        Include(q => q.Include(a => a.AnimeGenres));
+        Include(q => q.Include(a => a.AnimeLicensors));
+        Include(q => q.Include(a => a.AnimeProducers));
 
         return this;
     }

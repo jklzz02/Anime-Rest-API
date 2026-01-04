@@ -6,8 +6,8 @@ namespace AnimeApi.Server.Core.SpecHelpers;
 public class FavouriteQuery : QuerySpec<Favourite, FavouriteQuery>
 {
     public FavouriteQuery ByUserId(int userId)
-        => FilterBy(f => f.User_Id == userId);
+        => FilterBy(f => f.UserId == userId);
     
     public FavouriteQuery ByAnimeId(int animeId)
-        => FilterBy(f => f.Anime_Id == animeId);
+        => FilterBy(f => f.AnimeId == animeId);
 }

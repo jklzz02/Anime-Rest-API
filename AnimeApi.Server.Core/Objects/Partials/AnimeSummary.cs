@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace AnimeApi.Server.Core.Objects;
+namespace AnimeApi.Server.Core.Objects.Partials;
 
 public class AnimeSummary
 {
@@ -11,7 +11,7 @@ public class AnimeSummary
     public string Name { get; set; } = null!;
     
     [JsonProperty("image_url")]
-    public string Image_URL { get; set; } = null!;
+    public string ImageUrl { get; set; } = null!;
     
     [JsonProperty("score")]
     public decimal Score { get; set; }
@@ -20,5 +20,5 @@ public class AnimeSummary
     public string Rating { get; set; } = null!;
     
     [JsonProperty("release_year")]
-    public int Release_Year { get; set; }
+    public int ReleaseYear { get; set; }
 }

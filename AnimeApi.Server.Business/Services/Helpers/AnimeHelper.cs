@@ -6,6 +6,7 @@ using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.Core.SpecHelpers;
 using FluentValidation;
 
@@ -69,7 +70,7 @@ public class AnimeHelper : IAnimeHelper
             .AsSplitQuery()
             .SortBy([
                 SortAction<Anime>.Desc(a => a.Score),
-                SortAction<Anime>.Desc(a => a.Release_Year),
+                SortAction<Anime>.Desc(a => a.ReleaseYear),
                 SortAction<Anime>.Asc(a => a.Name),
             ])
             .Paginate(page, size)

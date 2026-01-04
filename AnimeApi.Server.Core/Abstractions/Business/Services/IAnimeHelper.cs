@@ -1,5 +1,6 @@
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Partials;
 
 namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 

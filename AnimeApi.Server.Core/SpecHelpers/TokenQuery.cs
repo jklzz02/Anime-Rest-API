@@ -9,8 +9,8 @@ public class TokenQuery : QuerySpec<RefreshToken, TokenQuery>
         => FilterBy(t => t.Id == id);
 
     public TokenQuery ByToken(string token)
-        => FilterBy(t => t.Hashed_Token == token);
+        => FilterBy(t => t.HashedToken == token);
 
     public TokenQuery ByUser(int userId)
-        => FilterBy(t => t.User_Id == userId);
+        => FilterBy(t => t.UserId == userId);
 }

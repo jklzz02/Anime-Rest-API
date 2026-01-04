@@ -96,9 +96,9 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
         }
 
         UpdateAnime(anime, entity);
-        await UpdateRelations(anime.Anime_Genres.ToList(), entity.Anime_Genres.ToList());
-        await UpdateRelations(anime.Anime_Producers.ToList(), entity.Anime_Producers.ToList());
-        await UpdateRelations(anime.Anime_Licensors.ToList(), entity.Anime_Licensors.ToList());
+        await UpdateRelations(anime.AnimeGenres.ToList(), entity.AnimeGenres.ToList());
+        await UpdateRelations(anime.AnimeProducers.ToList(), entity.AnimeProducers.ToList());
+        await UpdateRelations(anime.AnimeLicensors.ToList(), entity.AnimeLicensors.ToList());
 
         var result = await Context.SaveChangesAsync() > 0;
 
@@ -116,18 +116,18 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
     private void UpdateAnime(Anime original, Anime updated)
     {
         original.Name = updated.Name;
-        original.English_Name = updated.English_Name;
-        original.Other_Name = updated.Other_Name;
+        original.EnglishName = updated.EnglishName;
+        original.OtherName = updated.OtherName;
         original.Synopsis = updated.Synopsis;
-        original.Image_URL = updated.Image_URL;
+        original.ImageUrl = updated.ImageUrl;
         original.TypeId = updated.TypeId;
         original.SourceId = updated.SourceId;
         original.Episodes = updated.Episodes;
         original.Duration = updated.Duration;
         original.SourceId = updated.SourceId;
-        original.Release_Year = updated.Release_Year;
-        original.Started_Airing = updated.Started_Airing;
-        original.Finished_Airing = updated.Finished_Airing;
+        original.ReleaseYear = updated.ReleaseYear;
+        original.StartedAiring = updated.StartedAiring;
+        original.FinishedAiring = updated.FinishedAiring;
         original.Rating = updated.Rating;
         original.Studio = updated.Studio;
         original.Score = updated.Score;

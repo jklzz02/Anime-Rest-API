@@ -35,7 +35,7 @@ public class ReviewHelper : IReviewHelper
     public async Task<PaginatedResult<ReviewDto>> GetAllAsync(int page, int size)
     {
         var query = new ReviewQuery()
-            .SortBy(r => r.Created_At, SortDirections.Desc)
+            .SortBy(r => r.CreatedAt, SortDirections.Desc)
             .Paginate(page, size);
 
         var count = await
@@ -126,7 +126,7 @@ public class ReviewHelper : IReviewHelper
         var query = new ReviewQuery()
             .RecentByTimeSpan(timeSpan)
             .SortBy([
-                SortAction<Review>.Desc(r => r.Created_At),
+                SortAction<Review>.Desc(r => r.CreatedAt),
                 SortAction<Review>.Desc(r => r.Score)
             ]);
 

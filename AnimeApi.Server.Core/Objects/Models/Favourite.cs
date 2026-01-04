@@ -2,8 +2,8 @@ namespace AnimeApi.Server.Core.Objects.Models;
 
 public class Favourite
 {
-    public int User_Id { get; set; }
-    public int Anime_Id { get; set; }
+    public int UserId { get; set; }
+    public int AnimeId { get; set; }
     
     public AppUser User { get; set; } = null!;
     

@@ -8,5 +8,5 @@ public partial class Producer : IBaseEntity
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<AnimeProducer> Anime_Producers { get; set; } = new List<AnimeProducer>();
+    public virtual ICollection<AnimeProducer> AnimeProducers { get; set; } = new List<AnimeProducer>();
 }

@@ -32,27 +32,27 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
         {
             Id = dto.Id ?? 0,
             Name = dto.Name,
-            English_Name = dto.EnglishName,
-            Other_Name = dto.OtherName,
+            EnglishName = dto.EnglishName,
+            OtherName = dto.OtherName,
             Synopsis = dto.Synopsis,
-            Image_URL = dto.ImageUrl,
+            ImageUrl = dto.ImageUrl,
             TypeId = dto.Type?.Id ?? 0,
             Episodes = dto.Episodes,
             Duration = dto.Duration,
             SourceId = dto.Source?.Id ?? 0,
-            Release_Year = dto.ReleaseYear,
-            Started_Airing = dto.StartedAiring?.ToUniversalTime(),
-            Finished_Airing = dto.FinishedAiring?.ToUniversalTime(),
+            ReleaseYear = dto.ReleaseYear,
+            StartedAiring = dto.StartedAiring?.ToUniversalTime(),
+            FinishedAiring = dto.FinishedAiring?.ToUniversalTime(),
             Rating = dto.Rating,
             Studio = dto.Studio,
             Score = dto.Score,
             Status = dto.Status,
             Background = dto.Background,
-            Trailer_url = dto.TrailerUrl,
-            Trailer_embed_url = dto.TrailerEmbedUrl,
-            Trailer_image_url = dto.TrailerImageUrl,
+            TrailerUrl = dto.TrailerUrl,
+            TrailerEmbedUrl = dto.TrailerEmbedUrl,
+            TrailerImageUrl = dto.TrailerImageUrl,
 
-            Anime_Genres = dto.Genres?
+            AnimeGenres = dto.Genres?
                 .Select(g => new AnimeGenre
                 {
                     GenreId = g.Id ?? 0,
@@ -61,7 +61,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
                 })
                 .ToList() ?? new List<AnimeGenre>(),
 
-            Anime_Producers = dto.Producers?
+            AnimeProducers = dto.Producers?
                 .Select(p => new AnimeProducer
                 {
                     ProducerId = p.Id ?? 0,
@@ -70,7 +70,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
                 })
                 .ToList() ?? new List<AnimeProducer>(),
 
-            Anime_Licensors = dto.Licensors?
+            AnimeLicensors = dto.Licensors?
                 .Select(l => new AnimeLicensor
                 {
                     LicensorId = l.Id ?? 0,
@@ -97,29 +97,29 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
         {
             Id = anime.Id,
             Name = anime.Name,
-            EnglishName = anime.English_Name,
-            OtherName = anime.Other_Name,
+            EnglishName = anime.EnglishName,
+            OtherName = anime.OtherName,
             Synopsis = anime.Synopsis,
-            ImageUrl = anime.Image_URL,
+            ImageUrl = anime.ImageUrl,
             Type = new TypeDto {Id = anime.Type?.Id ?? anime.TypeId, Name = anime.Type?.Name},
             Episodes = anime.Episodes,
             Duration = anime.Duration,
             Source = new SourceDto {Id = anime.Source?.Id ?? anime.SourceId, Name = anime.Source?.Name},
-            ReleaseYear = anime.Release_Year,
-            StartedAiring = anime.Started_Airing,
-            FinishedAiring = anime.Finished_Airing,
+            ReleaseYear = anime.ReleaseYear,
+            StartedAiring = anime.StartedAiring,
+            FinishedAiring = anime.FinishedAiring,
             Rating = anime.Rating,
             Studio = anime.Studio,
             Score = anime.Score,
             Status = anime.Status,
             Background = anime.Background,
-            TrailerUrl = anime.Trailer_url,
-            TrailerEmbedUrl = anime.Trailer_embed_url,
-            TrailerImageUrl = anime.Trailer_image_url,
+            TrailerUrl = anime.TrailerUrl,
+            TrailerEmbedUrl = anime.TrailerEmbedUrl,
+            TrailerImageUrl = anime.TrailerImageUrl,
             FavouritesCount = anime.Favourites.Count(),
             ReviewCount = anime.Favourites.Count(),
             
-            Genres = anime.Anime_Genres
+            Genres = anime.AnimeGenres
                 .Select(ag => new GenreDto
                 {
                     Id = ag.GenreId,
@@ -127,7 +127,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
                 })
                 .ToList(),
             
-            Producers = anime.Anime_Producers
+            Producers = anime.AnimeProducers
                 .Select(ap => new ProducerDto
                 {
                     Id = ap.ProducerId,
@@ -135,7 +135,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
                 })
                 .ToList(),
             
-            Licensors = anime.Anime_Licensors
+            Licensors = anime.AnimeLicensors
                 .Select(al => new LicensorDto
                 {
                     Id = al.LicensorId,

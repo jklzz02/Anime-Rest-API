@@ -17,15 +17,15 @@ public partial class AnimeDbContext : DbContext
 
     public virtual DbSet<Anime> Anime { get; set; }
 
-    public virtual DbSet<AnimeGenre> Anime_Genres { get; set; }
+    public virtual DbSet<AnimeGenre> AnimeGenres { get; set; }
 
-    public virtual DbSet<AnimeLicensor> Anime_Licensors { get; set; }
+    public virtual DbSet<AnimeLicensor> AnimeLicensors { get; set; }
 
-    public virtual DbSet<AnimeProducer> Anime_Producers { get; set; }
+    public virtual DbSet<AnimeProducer> AnimeProducers { get; set; }
     
     public virtual DbSet<AppUser> Users { get; set; }
     
-    public virtual DbSet<Favourite> User_Favourites { get; set; }
+    public virtual DbSet<Favourite> UserFavourites { get; set; }
     
     public virtual DbSet<Review> Reviews { get; set; }
     
@@ -53,13 +53,13 @@ public partial class AnimeDbContext : DbContext
 
             entity.ToTable("anime");
 
-            entity.HasIndex(e => e.English_Name, "Anime_English_Name_index");
+            entity.HasIndex(e => e.EnglishName, "Anime_English_Name_index");
 
             entity.HasIndex(e => e.Episodes, "Anime_Episodes_index");
 
             entity.HasIndex(e => e.Name, "Anime_Name_index");
 
-            entity.HasIndex(e => e.Release_Year, "Anime_Release_Year_index");
+            entity.HasIndex(e => e.ReleaseYear, "Anime_Release_Year_index");
 
             entity.HasIndex(e => e.Score, "Anime_Score_index");
 
@@ -69,19 +69,34 @@ public partial class AnimeDbContext : DbContext
 
             entity.Property(e => e.Background).HasMaxLength(1000);
             entity.Property(e => e.Duration).HasMaxLength(255);
-            entity.Property(e => e.Image_URL).HasMaxLength(255);
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.Name)
                 .UseCollation("utf8mb3_general_ci");
+
+            entity.Property(e => e.ImageUrl)
+                .HasColumnName("Image_URL");
             
-            entity.Property(e => e.Started_Airing)
+            entity.Property(e => e.ReleaseYear)
+                .HasColumnName("Release_Year");
+            
+            entity.Property(e => e.StartedAiring)
+                .HasColumnName("Started_Airing")
                 .HasColumnType("timestamptz");
             
-            entity.Property(e => e.Finished_Airing)
+            entity.Property(e => e.FinishedAiring)
+                .HasColumnName("Finished_Airing")
                 .HasColumnType("timestamptz");
             
-            entity.Property(e => e.Other_Name)
+            entity.Property(e => e.EnglishName)
+                .HasColumnName("English_Name")
                 .HasMaxLength(255)
                 .UseCollation("utf8mb3_general_ci");
+            
+            entity.Property(e => e.OtherName)
+                .HasColumnName("Other_Name")
+                .HasMaxLength(255)
+                .UseCollation("utf8mb3_general_ci");
+            
             entity.Property(e => e.Rating).HasMaxLength(100);
             entity.Property(e => e.Score).HasPrecision(3, 1);
             entity.Property(e => e.Status).HasMaxLength(50);
@@ -91,16 +106,23 @@ public partial class AnimeDbContext : DbContext
             entity.Property(e => e.Synopsis)
                 .HasMaxLength(5000)
                 .UseCollation("utf8mb3_general_ci");
-            entity.Property(e => e.Trailer_embed_url).HasMaxLength(255);
-            entity.Property(e => e.Trailer_image_url).HasMaxLength(255);
-            entity.Property(e => e.Trailer_url).HasMaxLength(255);
+            
+            entity.Property(e => e.TrailerEmbedUrl)
+                .HasColumnName("Trailer_embed_url")
+                .HasMaxLength(255);
+            entity.Property(e => e.TrailerImageUrl)
+                .HasColumnName("Trailer_image_url")
+                .HasMaxLength(255);
+            entity.Property(e => e.TrailerUrl)
+                .HasColumnName("Trailer_url")
+                .HasMaxLength(255);
 
-            entity.HasOne(d => d.Source).WithMany(p => p.Animes)
+            entity.HasOne(d => d.Source).WithMany(p => p.Anime)
                 .HasForeignKey(d => d.SourceId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("Anime_Source_Id_fk");
 
-            entity.HasOne(d => d.Type).WithMany(p => p.Animes)
+            entity.HasOne(d => d.Type).WithMany(p => p.Anime)
                 .HasForeignKey(d => d.TypeId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("Anime_Type_Id_fk");
@@ -116,12 +138,12 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasIndex(e => e.GenreId, "GenreId");
 
-            entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Genres)
+            entity.HasOne(d => d.Anime).WithMany(p => p.AnimeGenres)
                 .HasForeignKey(d => d.AnimeId)
                 .HasConstraintName("Anime_Genre_ibfk_1")
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(d => d.Genre).WithMany(p => p.Anime_Genres)
+            entity.HasOne(d => d.Genre).WithMany(p => p.AnimeGenres)
                 .HasForeignKey(d => d.GenreId)
                 .HasConstraintName("Anime_Genre_ibfk_2")
                 .OnDelete(DeleteBehavior.Cascade);
@@ -137,12 +159,12 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasIndex(e => e.LicensorId, "LicensorId");
 
-            entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Licensors)
+            entity.HasOne(d => d.Anime).WithMany(p => p.AnimeLicensors)
                 .HasForeignKey(d => d.AnimeId)
                 .HasConstraintName("Anime_Licensor_ibfk_1")
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(d => d.Licensor).WithMany(p => p.Anime_Licensors)
+            entity.HasOne(d => d.Licensor).WithMany(p => p.AnimeLicensors)
                 .HasForeignKey(d => d.LicensorId)
                 .HasConstraintName("Anime_Licensor_ibfk_2")
                 .OnDelete(DeleteBehavior.Cascade);
@@ -158,12 +180,12 @@ public partial class AnimeDbContext : DbContext
 
             entity.HasIndex(e => e.ProducerId, "ProducerId");
 
-            entity.HasOne(d => d.Anime).WithMany(p => p.Anime_Producers)
+            entity.HasOne(d => d.Anime).WithMany(p => p.AnimeProducers)
                 .HasForeignKey(d => d.AnimeId)
                 .HasConstraintName("Anime_Producer_ibfk_1")
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(d => d.Producer).WithMany(p => p.Anime_Producers)
+            entity.HasOne(d => d.Producer).WithMany(p => p.AnimeProducers)
                 .HasForeignKey(d => d.ProducerId)
                 .HasConstraintName("Anime_Producer_ibfk_2")
                 .OnDelete(DeleteBehavior.Cascade);
@@ -196,17 +218,22 @@ public partial class AnimeDbContext : DbContext
             entity.Property(e => e.Username)
                 .HasMaxLength(255);
 
-            entity.Property(e => e.Picture_Url)
+            entity.Property(e => e.PictureUrl)
+                .HasColumnName("Picture_Url")
                 .HasMaxLength(255);
 
-            entity.Property(e => e.Created_At)
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("Created_At")
                 .HasConversion(
                     c => c.ToUniversalTime(),
                     c => DateTime.SpecifyKind(c, DateTimeKind.Utc))
                 .HasColumnType("timestampz");
+
+            entity.Property(e => e.RoleId)
+                .HasColumnName("Role_Id");
             
             entity.HasOne<Role>(e => e.Role).WithMany(r => r.Users)
-                .HasForeignKey(e => e.Role_Id)
+                .HasForeignKey(e => e.RoleId)
                 .HasConstraintName("User_Role_Id_fk");
             
             entity.HasOne(e => e.RefreshToken)
@@ -219,18 +246,24 @@ public partial class AnimeDbContext : DbContext
 
         modelBuilder.Entity<Favourite>(entity =>
         {
-            entity.HasKey(e => new { e.User_Id, e.Anime_Id })
+            entity.HasKey(e => new { User_Id = e.UserId, Anime_Id = e.AnimeId })
                 .HasName("PRIMARY");;
             
             entity.ToTable("user_favourites");
             
             entity.HasOne(e => e.User).WithMany(u => u.Favourites)
-                .HasForeignKey(e => e.User_Id)
+                .HasForeignKey(e => e.UserId)
                 .HasConstraintName("User_Favourites_User_Id_fk");
             
             entity.HasOne(e => e.Anime).WithMany(a => a.Favourites)
-                .HasForeignKey(e => e.Anime_Id)
+                .HasForeignKey(e => e.AnimeId)
                 .HasConstraintName("User_Favourites_Anime_Id_fk");
+
+            entity.Property(e => e.AnimeId)
+                .HasColumnName("Anime_Id");
+            
+            entity.Property(e => e.UserId)
+                .HasColumnName("User_Id");
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>
@@ -242,37 +275,44 @@ public partial class AnimeDbContext : DbContext
             
             entity.HasOne(e => e.User)
                 .WithOne(e => e.RefreshToken)
-                .HasForeignKey<RefreshToken>(e => e.User_Id)
+                .HasForeignKey<RefreshToken>(e => e.UserId)
                 .HasConstraintName("RefreshToken_User_Id_fk")
                 .OnDelete(DeleteBehavior.Cascade);
             
-            entity.Property(e => e.Hashed_Token)
+            entity.Property(e => e.HashedToken)
                 .IsRequired()
+                .HasColumnName("Hashed_Token")
                 .HasMaxLength(500);
             
-            entity.Property(e => e.Created_At)
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("Created_At")
                 .HasColumnType("timestampz");
             
-            entity.Property(e => e.Expires_At)
+            entity.Property(e => e.ExpiresAt)
+                .HasColumnName("Expires_At")
                 .HasColumnType("timestampz");
             
-            entity.Property(e => e.Revoked_At)
+            entity.Property(e => e.RevokedAt)
+                .HasColumnName("Revoked_At")
                 .HasColumnType("timestampz");
 
-            entity.Property(e => e.Created_At)
+            entity.Property(e => e.CreatedAt)
                 .HasConversion(
                 v => v.ToUniversalTime(),
                 v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
             );
 
-            entity.Property(e => e.Expires_At)
+            entity.Property(e => e.ExpiresAt)
                 .HasConversion(
                 v => v.ToUniversalTime(),
                 v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
             );
+            
+            entity.Property(e => e.UserId)
+                .HasColumnName("User_Id");
 
             entity
-                .HasIndex(e => e.Hashed_Token, "Refresh_Token_Hashed_Token__index");
+                .HasIndex(e => e.HashedToken, "Refresh_Token_Hashed_Token__index");
         });
 
         modelBuilder.Entity<Review>(entity =>
@@ -292,12 +332,21 @@ public partial class AnimeDbContext : DbContext
                 .UseCollation("utf8mb3_general_ci")
                 .IsRequired();
             
+            entity.Property(e => e.AnimeId)
+                .HasColumnName("Anime_Id");
+            
+            entity.Property(e => e.UserId)
+                .HasColumnName("User_Id");
+            
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("Created_At");
+            
             entity.HasOne(r => r.Anime).WithMany(a => a.Reviews)
-                .HasForeignKey(r => r.Anime_Id)
+                .HasForeignKey(r => r.AnimeId)
                 .HasConstraintName("Anime_Id_fk");
             
             entity.HasOne(r => r.User).WithMany(u => u.Reviews)
-                .HasForeignKey(r => r.User_Id)
+                .HasForeignKey(r => r.UserId)
                 .HasConstraintName("User_Id_Fk");
         });
 

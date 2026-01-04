@@ -11,11 +11,11 @@ public class RefreshTokenMapper : Mapper<RefreshToken, RefreshTokenDto>, IMapper
         return new RefreshTokenDto
         {
             Id = refreshToken.Id,
-            CreatedAt = refreshToken.Created_At,
-            ExpiresAt = refreshToken.Expires_At,
-            HashedToken = refreshToken.Hashed_Token,
-            RevokedAt = refreshToken.Revoked_At,
-            UserId = refreshToken.User_Id,
+            CreatedAt = refreshToken.CreatedAt,
+            ExpiresAt = refreshToken.ExpiresAt,
+            HashedToken = refreshToken.HashedToken,
+            RevokedAt = refreshToken.RevokedAt,
+            UserId = refreshToken.UserId,
         };
     }
 
@@ -24,11 +24,11 @@ public class RefreshTokenMapper : Mapper<RefreshToken, RefreshTokenDto>, IMapper
         return new RefreshToken
         {
             Id = refreshToken.Id,
-            Created_At = refreshToken.CreatedAt.ToUniversalTime(),
-            Expires_At = refreshToken.ExpiresAt.ToUniversalTime(),
-            Hashed_Token = refreshToken.HashedToken,
-            Revoked_At = refreshToken.RevokedAt?.ToUniversalTime(),
-            User_Id = refreshToken.UserId,
+            CreatedAt = refreshToken.CreatedAt.ToUniversalTime(),
+            ExpiresAt = refreshToken.ExpiresAt.ToUniversalTime(),
+            HashedToken = refreshToken.HashedToken,
+            RevokedAt = refreshToken.RevokedAt?.ToUniversalTime(),
+            UserId = refreshToken.UserId,
         };
     }
 }

@@ -2,6 +2,7 @@ using AnimeApi.Server.Core.Mappers;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.Test.Generators;
 
 namespace AnimeApi.Server.Test.Tests;
@@ -82,25 +83,25 @@ public class AnimeMapperTest
         
         Assert.Equal(model.Id, result.Id);
         Assert.Equal(model.Name, result.Name);
-        Assert.Equal(model.English_Name, result.English_Name);
-        Assert.Equal(model.Other_Name, result.Other_Name);
+        Assert.Equal(model.EnglishName, result.EnglishName);
+        Assert.Equal(model.OtherName, result.OtherName);
         Assert.Equal(model.TypeId, result.TypeId);
         Assert.Equal(model.SourceId, result.SourceId);
         Assert.Equal(model.Duration, result.Duration);
-        Assert.Equal(model.Image_URL, result.Image_URL);
+        Assert.Equal(model.ImageUrl, result.ImageUrl);
         Assert.Equal(model.Score, result.Score);
-        Assert.Equal(model.Started_Airing?.ToUniversalTime(), result.Started_Airing);
-        Assert.Equal(model.Finished_Airing?.ToUniversalTime(), result.Finished_Airing);
-        Assert.Equal(model.Release_Year, result.Release_Year);
+        Assert.Equal(model.StartedAiring?.ToUniversalTime(), result.StartedAiring);
+        Assert.Equal(model.FinishedAiring?.ToUniversalTime(), result.FinishedAiring);
+        Assert.Equal(model.ReleaseYear, result.ReleaseYear);
         Assert.Equal(model.Synopsis, result.Synopsis);
         Assert.Equal(model.Studio, result.Studio);
         Assert.Equal(model.Status, result.Status);
-        Assert.Equal(model.Trailer_url, result.Trailer_url);
-        Assert.Equal(model.Trailer_image_url, result.Trailer_image_url);
-        Assert.Equal(model.Trailer_embed_url, result.Trailer_embed_url);
-        Assert.Equal(model.Anime_Genres.Count, result.Anime_Genres.Count);
-        Assert.Equal(model.Anime_Licensors.Count, result.Anime_Licensors.Count);
-        Assert.Equal(model.Anime_Producers.Count, result.Anime_Producers.Count);
+        Assert.Equal(model.TrailerUrl, result.TrailerUrl);
+        Assert.Equal(model.TrailerImageUrl, result.TrailerImageUrl);
+        Assert.Equal(model.TrailerEmbedUrl, result.TrailerEmbedUrl);
+        Assert.Equal(model.AnimeGenres.Count, result.AnimeGenres.Count);
+        Assert.Equal(model.AnimeLicensors.Count, result.AnimeLicensors.Count);
+        Assert.Equal(model.AnimeProducers.Count, result.AnimeProducers.Count);
     }
 
     [Theory]
@@ -110,10 +111,10 @@ public class AnimeMapperTest
         AnimeSummary projectedSummary = _mapper.ProjectTo<AnimeSummary>(model);
         Assert.Equal(model.Id, projectedSummary.Id);
         Assert.Equal(model.Name, projectedSummary.Name);
-        Assert.Equal(model.Image_URL, projectedSummary.Image_URL);
+        Assert.Equal(model.ImageUrl, projectedSummary.ImageUrl);
         Assert.Equal(model.Score, projectedSummary.Score);
         Assert.Equal(model.Rating, projectedSummary.Rating);
-        Assert.Equal(model.Release_Year, projectedSummary.Release_Year);
+        Assert.Equal(model.ReleaseYear, projectedSummary.ReleaseYear);
     }
     
     [Fact]
@@ -142,9 +143,9 @@ public class AnimeMapperTest
     {
         var model = new Anime
         {
-            Anime_Genres = new List<AnimeGenre>(),
-            Anime_Licensors = new List<AnimeLicensor>(),
-            Anime_Producers = new List<AnimeProducer>()
+            AnimeGenres = new List<AnimeGenre>(),
+            AnimeLicensors = new List<AnimeLicensor>(),
+            AnimeProducers = new List<AnimeProducer>()
         };
 
         var dto = _mapper.MapToDto(model);

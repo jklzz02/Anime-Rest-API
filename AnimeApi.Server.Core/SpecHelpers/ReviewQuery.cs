@@ -14,7 +14,7 @@ public class ReviewQuery : QuerySpec<Review, ReviewQuery>
     
 
     public ReviewQuery ByUser(int userId)
-        => FilterBy(r => r.User_Id == userId);
+        => FilterBy(r => r.UserId == userId);
 
     public ReviewQuery ByUser(string username)
         => FilterBy(r => EF.Functions.TrigramsAreSimilar(r.User.Username, username));
@@ -23,7 +23,7 @@ public class ReviewQuery : QuerySpec<Review, ReviewQuery>
         => FilterBy(r => r.User.Email == email);
 
     public ReviewQuery ByAnime(int animeId)
-        => FilterBy(r => r.Anime_Id == animeId);
+        => FilterBy(r => r.AnimeId == animeId);
 
     public ReviewQuery ByAnime(string title)
         => FilterBy(r => EF.Functions.TrigramsAreSimilar(r.Anime.Name, title));
@@ -32,14 +32,14 @@ public class ReviewQuery : QuerySpec<Review, ReviewQuery>
         => FilterBy(r => r.Score >= min && r.Score <= max);
 
     public ReviewQuery ByDate(DateTime date)
-        => FilterBy(r => r.Created_At.Date == date.Date);
+        => FilterBy(r => r.CreatedAt.Date == date.Date);
 
     public ReviewQuery RecentByTimeSpan(TimeSpan span)
     {
         var now = DateTime.UtcNow.ToUniversalTime();
         var range = now - span;
 
-        FilterBy(r => r.Created_At <= now && r.Created_At >= range);
+        FilterBy(r => r.CreatedAt <= now && r.CreatedAt >= range);
 
         return this;
     }

@@ -3,6 +3,7 @@ using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.Core.SpecHelpers;
 
 namespace AnimeApi.Server.Business.Services;
@@ -36,6 +37,13 @@ public class UserService : IUserService
         
         return await
             _userRepository.FindFirstOrDefaultAsync(query);
+    }
+
+    public async Task<PublicUser?> GetPublicUserAsync(int id)
+    {
+        var  query = new UserQuery().ByPk(id);
+        return await
+            _userRepository.FindFirstOrDefaultAsync<PublicUser>(query);
     }
 
     /// <inheritdoc />
