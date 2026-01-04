@@ -56,6 +56,23 @@ public class ReviewController : ControllerBase
         return Ok(review);
     }
 
+    [HttpGet("detailed/{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDetailedByIdAsync([FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
+    {
+        var review = await
+            _reviewHelper
+                .GetDetailedByIdAsync(id);
+
+        if (review is null)
+        {
+            return NotFound();
+        }
+        
+        return Ok(review);
+    }
+
     [HttpGet("anime/{animeId:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

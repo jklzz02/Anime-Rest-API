@@ -57,6 +57,17 @@ public class ReviewHelper : IReviewHelper
     }
 
     /// <inheritdoc />
+    public async Task<ReviewDetailedDto?> GetDetailedByIdAsync(int id)
+    {
+        var query = new ReviewQuery()
+            .ByPk(id);
+        
+        return await
+            _repository
+                .FindFirstOrDefaultAsync<ReviewDetailedDto>(query);
+    }
+
+    /// <inheritdoc />
     public async Task<IEnumerable<ReviewDto>> GetByAnimeIdAsync(int animeId)
     {
         var query = new ReviewQuery().ByAnime(animeId);

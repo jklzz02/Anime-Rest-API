@@ -23,10 +23,10 @@ public record ReviewDetailedDto
     [JsonProperty("created_at")]
     public DateTime CreatedAt { get; set; }
     
-    [JsonProperty("user")]
+    [JsonProperty("score")]
     public decimal Score { get; set; }
     
-    [JsonProperty("public_user")]
+    [JsonProperty("user")]
     public PublicUser User { get; init; } = new();
     
     [JsonProperty("anime")]

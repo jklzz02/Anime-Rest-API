@@ -43,4 +43,10 @@ public class ReviewQuery : QuerySpec<Review, ReviewQuery>
 
         return this;
     }
+    
+    public ReviewQuery IncludeUser()
+        => Include(q => q.Include(r => r.User));
+    
+    public ReviewQuery IncludeAnime()
+        => Include(q => q.Include(r => r.Anime));
 }

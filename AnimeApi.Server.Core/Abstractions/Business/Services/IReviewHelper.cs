@@ -24,6 +24,13 @@ public interface IReviewHelper
     Task<ReviewDto?> GetByIdAsync(int id);
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<ReviewDetailedDto?> GetDetailedByIdAsync(int id);
+
+    /// <summary>
     /// Retrieves a collection of <see cref="ReviewDto"/> associated with a specific user identifier.
     /// </summary>
     /// <param name="userId">The unique identifier of the user whose reviews are to be retrieved.</param>

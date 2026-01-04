@@ -25,7 +25,7 @@ public abstract class Mapper<TEntity, TDto> : IMapper<TEntity, TDto>
             ?? throw new InvalidOperationException($"Could not cast into '{nameof(TSpecific)}'");
     }
 
-    public Expression<Func<TEntity, TResult>> Projection<TResult>()
+    public virtual Expression<Func<TEntity, TResult>> Projection<TResult>()
         where TResult : class, new()
     {
         var entityType = typeof(TEntity);
