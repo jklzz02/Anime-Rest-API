@@ -34,8 +34,7 @@ public class ProducerController : ControllerBase
         return Ok(producers);
     }
     
-    [HttpGet]
-    [Route("{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(
@@ -51,8 +50,7 @@ public class ProducerController : ControllerBase
         return Ok(producer);
     }
 
-    [HttpGet]
-    [Route("name/{name}")]
+    [HttpGet("name/{name}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
@@ -102,8 +100,7 @@ public class ProducerController : ControllerBase
         return Ok(result.Data);
     }
     
-    [HttpDelete]
-    [Route("{id:int:min(1)}")]
+    [HttpDelete("{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

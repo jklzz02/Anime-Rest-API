@@ -34,8 +34,7 @@ public class LicensorController : ControllerBase
         return Ok(licensors);
     }
 
-    [HttpGet]
-    [Route("{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByIdAsync(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
@@ -50,8 +49,7 @@ public class LicensorController : ControllerBase
         return Ok(licensor);
     }
 
-    [HttpGet]
-    [Route("name/{name}")]
+    [HttpGet("name/{name}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByNameAsync(
@@ -106,8 +104,7 @@ public class LicensorController : ControllerBase
         return Ok(result.Data);
     }
 
-    [HttpDelete]
-    [Route("{id:int}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

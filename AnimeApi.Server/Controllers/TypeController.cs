@@ -28,8 +28,7 @@ public class TypeController : ControllerBase
         return Ok(types);
     }
     
-    [HttpGet]
-    [Route("{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(
@@ -46,8 +45,7 @@ public class TypeController : ControllerBase
         return Ok(type);
     }
     
-    [HttpGet]
-    [Route("name/{name}")]
+    [HttpGet("name/{name}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByNameAsync(
@@ -97,8 +95,7 @@ public class TypeController : ControllerBase
         return Ok(result.Data);
     }
     
-    [HttpDelete]
-    [Route("{id:int}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

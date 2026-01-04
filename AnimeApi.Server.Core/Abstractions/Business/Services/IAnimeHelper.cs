@@ -9,9 +9,12 @@ public interface IAnimeHelper
     Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids);
     Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids, string orderBy, string direction);
     Task<IEnumerable<AnimeDto>> GetAllAsync();
-    Task<PaginatedResult<AnimeDto>> GetAllAsync(int page, int size = 100);
+    Task<PaginatedResult<AnimeDto>> GetAllAsync(int page, int size);
     Task<PaginatedResult<AnimeDto>> GetAllNonAdultAsync(int page, int size);
     Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count);
+    Task<AnimeSummary?> GetSummaryByIdAsync(int id);
+    Task<IEnumerable<AnimeSummary>> GetSummariesByIdAsync(IEnumerable<int> ids);
+    Task<IEnumerable<AnimeSummary>> GetSummariesByIdAsync(IEnumerable<int> ids, string orderBy, string direction);
     Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count); 
     Task<Result<AnimeDto>> CreateAsync(AnimeDto entity);
     Task<Result<AnimeDto>> UpdateAsync(AnimeDto entity);

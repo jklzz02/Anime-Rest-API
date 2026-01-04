@@ -41,8 +41,7 @@ public class ReviewController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet]
-    [Route("{id:int:min(1)}")]
+    [HttpGet("{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
@@ -57,8 +56,7 @@ public class ReviewController : ControllerBase
         return Ok(review);
     }
 
-    [HttpGet]
-    [Route("anime/{animeId:int:min(1)}")]
+    [HttpGet("anime/{animeId:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByAnimeIdAsync([FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int animeId)
@@ -73,8 +71,7 @@ public class ReviewController : ControllerBase
         return Ok(reviews);
     }
 
-    [HttpGet]
-    [Route("anime/title/{title:minlength(1)}")]
+    [HttpGet("anime/title/{title:minlength(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByAnimeTitleAsync(
@@ -90,8 +87,7 @@ public class ReviewController : ControllerBase
         return Ok(reviews);
     }
 
-    [HttpGet]
-    [Route("q")]
+    [HttpGet("q")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByQueryAsync(
@@ -112,8 +108,7 @@ public class ReviewController : ControllerBase
         return Ok(result.Data);
     }
 
-    [HttpGet]
-    [Route("user/{userId:int:min(1)}")]
+    [HttpGet("user/{userId:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByUserIdAsync([FromRoute, Range(1, int.MaxValue) ,DefaultValue(1)] int id) 
@@ -128,8 +123,7 @@ public class ReviewController : ControllerBase
         return Ok(reviews);
     }
 
-    [HttpGet]
-    [Route("user/email/{email:minlength(1)}")]
+    [HttpGet("user/email/{email:minlength(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByUserEmailAsync([FromRoute] string email)
@@ -144,8 +138,7 @@ public class ReviewController : ControllerBase
         return Ok(reviews);
     }
 
-    [HttpGet]
-    [Route("date")]
+    [HttpGet("date")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByDateAsync([FromQuery] DateTime date)
@@ -160,8 +153,7 @@ public class ReviewController : ControllerBase
         return Ok(reviews);
     }
 
-    [HttpGet]
-    [Route("recent")]
+    [HttpGet("recent")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMostRecentAsync([FromQuery] TimeSpan timeSpan)
@@ -176,8 +168,7 @@ public class ReviewController : ControllerBase
         return Ok(reviews);
     }
 
-    [HttpGet]
-    [Route("score")]
+    [HttpGet("score")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -325,8 +316,7 @@ public class ReviewController : ControllerBase
     }
 
     [Authorize]
-    [HttpDelete]
-    [Route("{id:int:min(1)}")]
+    [HttpDelete("{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

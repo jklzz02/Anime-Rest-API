@@ -66,8 +66,7 @@ public class AnimeController : ControllerBase
         return Ok(result);
     }
     
-    [HttpGet]
-    [Route("{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute, Range(1, int.MaxValue)] int id)
@@ -141,17 +140,53 @@ public class AnimeController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("summary")]
+    [HttpGet("summary/{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetSummariesAsync(
-        [FromQuery, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSummaryAsync([FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var result = await _helper.GetSummariesAsync(count);
-        return Ok(result);
+        var summary = await _helper.GetSummaryByIdAsync(id);
+        
+        if (summary is null)
+        {
+            return NotFound();
+        }
+        
+        return Ok(summary);
     }
 
-    [HttpGet]
-    [Route("recent")]
+    [HttpGet("summaries/count/{count:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSummariesAsync(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
+    {
+        var summaries = await _helper.GetSummariesAsync(count);
+        return Ok(summaries);
+    }
+    
+    [HttpPost("summaries/target")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSummariesByIdsAsync([FromBody] TargetAnimeParams targetParams)
+    {
+        var summaries = await _cache
+            .GetOrCreateAsync(
+                () => _helper.GetSummariesByIdAsync(
+                    targetParams.TargetAnimeIds,
+                    targetParams.OrderBy,
+                    targetParams.SortOrder));
+
+        if (summaries is null)
+        {
+            return NotFound();
+        }
+        
+        return Ok(summaries);
+    }
+    
+    [HttpGet("recent")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRecentAsync(
         [FromQuery, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
@@ -177,8 +212,7 @@ public class AnimeController : ControllerBase
         return Ok(result.Data);
     }
     
-    [HttpPatch]
-    [Route("{id:int:min(1)}")]
+    [HttpPatch("{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -228,8 +262,7 @@ public class AnimeController : ControllerBase
         return Ok(result.Data);
     }
     
-    [HttpDelete]
-    [Route("{id:int}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]   
     [ProducesResponseType(StatusCodes.Status404NotFound)]

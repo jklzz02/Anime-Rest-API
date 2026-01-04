@@ -38,7 +38,10 @@ public class AnimeHelper : IAnimeHelper
     }
 
     public Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids)
-        =>  GetByIdAsync(ids, Constants.OrderBy.Fields.Score, Constants.OrderBy.StringDirections.Descending);
+        =>  GetByIdAsync(
+            ids,
+            Constants.OrderBy.Fields.Score,
+            Constants.OrderBy.StringDirections.Descending);
 
     public async Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids, string orderBy, string direction)
     {
@@ -108,6 +111,31 @@ public class AnimeHelper : IAnimeHelper
             _repository.FindAsync(query);
     }
 
+    public async Task<AnimeSummary?> GetSummaryByIdAsync(int id)
+    {
+        return await
+            _repository.FindFirstOrDefaultAsync<AnimeSummary>(new AnimeQuery().ByPk(id));
+    }
+    
+    public async Task<IEnumerable<AnimeSummary>> GetSummariesByIdAsync(IEnumerable<int> ids)
+        => await GetSummariesByIdAsync(
+            ids,
+            Constants.OrderBy.Fields.Score,
+            Constants.OrderBy.StringDirections.Descending);
+
+    public async Task<IEnumerable<AnimeSummary>> GetSummariesByIdAsync(
+        IEnumerable<int> ids,
+        string orderBy,
+        string direction)
+    {
+        var query = new AnimeQuery()
+            .ByPk(ids)
+            .WithSorting(orderBy, direction);
+        
+        return await
+            _repository.FindAsync<AnimeSummary>(query);
+    }
+
     public async Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count)
     {
         var query = new AnimeQuery()
@@ -117,6 +145,22 @@ public class AnimeHelper : IAnimeHelper
 
         return await
             _repository.FindAsync<AnimeSummary>(query);
+    }
+
+    public async Task<PaginatedResult<AnimeSummary>> GetSummariesAsync(int page, int size)
+    {
+        var count = await
+            _repository.CountAsync();
+        
+        var query = new AnimeQuery()
+            .IncludeFullRelation()
+            .SortBy(a => a.Score, SortDirections.Desc)
+            .Paginate(page, size);
+        
+        var items = await
+            _repository.FindAsync<AnimeSummary>(query);
+        
+        return new PaginatedResult<AnimeSummary>(items, page, size, count);
     }
 
     public async Task<Result<AnimeDto>> CreateAsync(AnimeDto entity)
