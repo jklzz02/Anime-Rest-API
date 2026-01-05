@@ -83,8 +83,7 @@ public abstract class Mapper<TEntity, TDto> : IMapper<TEntity, TDto>
         where TSource : class
         where TDest : class
     {
-        if (selector.Body is not MemberExpression member ||
-            member.Member is not PropertyInfo prop ||
+        if (selector.Body is not MemberExpression { Member: PropertyInfo prop } ||
             prop.DeclaringType != typeof(TEntity) ||
             prop.PropertyType != typeof(TSource))
         {
