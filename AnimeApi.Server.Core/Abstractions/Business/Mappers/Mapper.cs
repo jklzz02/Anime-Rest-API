@@ -1,5 +1,5 @@
-﻿
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace AnimeApi.Server.Core.Abstractions.Business.Mappers;
 
@@ -7,51 +7,67 @@ public abstract class Mapper<TEntity, TDto> : IMapper<TEntity, TDto>
     where TEntity : class, new()
     where TDto : class, new()
 {
-    public abstract TDto MapToDto(TEntity entity);
+    private readonly Dictionary<ProfileKey, LambdaExpression> _profiles = new();
 
-    public abstract TEntity MapToEntity(TDto dto);
+    public abstract TDto MapToDto(TEntity entity);
     
+    public abstract TEntity MapToEntity(TDto dto);
+
     public IEnumerable<TDto> MapToDto(IEnumerable<TEntity> entities)
         => entities.Select(MapToDto);
 
-
     public IEnumerable<TEntity> MapToEntity(IEnumerable<TDto> dto)
         => dto.Select(MapToEntity);
-
+    
     public TSpecific AsSpecific<TSpecific>()
         where TSpecific : class, IMapper<TEntity, TDto>
     {
         return this as TSpecific 
-            ?? throw new InvalidOperationException($"Could not cast into '{nameof(TSpecific)}'");
+               ?? throw new InvalidOperationException($"Could not cast into '{nameof(TSpecific)}'");
     }
 
-    public virtual Expression<Func<TEntity, TResult>> Projection<TResult>()
+    public Expression<Func<TEntity, TResult>> Projection<TResult>()
         where TResult : class, new()
     {
-        var entityType = typeof(TEntity);
-        var resultType = typeof(TResult);
-
-        var entityParam = Expression.Parameter(entityType, "e");
+        var entityParam = Expression.Parameter(typeof(TEntity), "e");
         var bindings = new List<MemberBinding>();
 
-        foreach (var resultProp in resultType.GetProperties())
+        foreach (var resultProp in typeof(TResult).GetProperties())
         {
-            if (!resultProp.CanWrite)
+            if (!resultProp.CanWrite || !resultProp.CanRead)
+            {
                 continue;
+            }
 
-            var entityProp = entityType.GetProperty(resultProp.Name);
+            var entityProp = typeof(TEntity).GetProperty(resultProp.Name);
             if (entityProp == null)
+            {
                 continue;
+            }
 
-            if (entityProp.PropertyType != resultProp.PropertyType)
+            Expression valueExpr;
+            
+            if (resultProp.PropertyType.IsAssignableFrom(entityProp.PropertyType))
+            {
+                valueExpr = Expression.Property(entityParam, entityProp);
+            }
+            else if (_profiles.TryGetValue(
+                new ProfileKey(entityProp.PropertyType, resultProp.PropertyType),
+                out var profile))
+            {
+                var sourceAccess = Expression.Property(entityParam, entityProp);
+                valueExpr = Inline(profile, sourceAccess);
+            }
+            else
+            {
                 continue;
+            }
 
-            var propertyAccess = Expression.Property(entityParam, entityProp);
-            bindings.Add(Expression.Bind(resultProp, propertyAccess));
+            bindings.Add(Expression.Bind(resultProp, valueExpr));
         }
 
         var body = Expression.MemberInit(
-            Expression.New(resultType),
+            Expression.New(typeof(TResult)),
             bindings);
 
         return Expression.Lambda<Func<TEntity, TResult>>(body, entityParam);
@@ -60,4 +76,38 @@ public abstract class Mapper<TEntity, TDto> : IMapper<TEntity, TDto>
     public TResult ProjectTo<TResult>(TEntity entity)
         where TResult : class, new()
         => Projection<TResult>().Compile().Invoke(entity);
+
+    protected void Profile<TSource, TDest>(
+        Expression<Func<TEntity, TSource>> selector,
+        Expression<Func<TSource, TDest>> projection)
+        where TSource : class
+        where TDest : class
+    {
+        if (selector.Body is not MemberExpression member ||
+            member.Member is not PropertyInfo prop ||
+            prop.DeclaringType != typeof(TEntity) ||
+            prop.PropertyType != typeof(TSource))
+        {
+            throw new ArgumentException(
+                "Selector must be a direct property access on the entity");
+        }
+
+        _profiles[new ProfileKey(typeof(TSource), typeof(TDest))] = projection;
+    }
+
+    private static Expression Inline(
+        LambdaExpression lambda,
+        Expression argument)
+        => new ReplaceVisitor(lambda.Parameters[0], argument)
+            .Visit(lambda.Body)!;
+
+    private sealed class ReplaceVisitor(ParameterExpression source, Expression target) : ExpressionVisitor
+    {
+        protected override Expression VisitParameter(ParameterExpression node)
+            => node == source
+                ? target
+                : base.VisitParameter(node);
+    }
+
+    private readonly record struct ProfileKey(Type SourceType, Type TargetType);
 }

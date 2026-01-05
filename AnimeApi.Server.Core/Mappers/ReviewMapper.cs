@@ -11,6 +11,30 @@ namespace AnimeApi.Server.Core.Mappers;
 /// </summary>
 public class ReviewMapper : Mapper<Review, ReviewDto>
 {
+    public ReviewMapper()
+    {
+        Profile(
+            r => r.User,
+            u => new PublicUser
+            {
+                Id = u.Id,
+                Username = u.Username,
+                PictureUrl =  u.PictureUrl,
+            });
+        
+        Profile(
+            r => r.Anime,
+            a => new AnimeSummary
+            {
+                Id = a.Id,
+                Name = a.Name,
+                ImageUrl = a.ImageUrl,
+                Score =  a.Score,
+                Rating = a.Rating,
+                ReleaseYear =  a.ReleaseYear,
+            });
+    }
+    
     public override ReviewDto MapToDto(Review review)
     {
         return new ReviewDto
@@ -37,42 +61,5 @@ public class ReviewMapper : Mapper<Review, ReviewDto>
           AnimeId = review.AnimeId,
           UserId = review.UserId,
         };
-    }
-
-    public override Expression<Func<Review, TResult>> Projection<TResult>()
-    {
-        if (typeof(TResult) == typeof(ReviewDetailedDto))
-        {
-            Expression<Func<Review, ReviewDetailedDto>> expr =
-                r => new ReviewDetailedDto
-                {
-                    Id = r.Id,
-                    Title = r.Title,
-                    Content = r.Content,
-                    CreatedAt = r.CreatedAt,
-                    Score = r.Score,
-                    AnimeId = r.AnimeId,
-                    UserId = r.UserId,
-                    User = new PublicUser
-                    {
-                        Id = r.User.Id,
-                        Username = r.User.Username,
-                        PictureUrl = r.User.PictureUrl
-                    },
-                    Anime = new AnimeSummary
-                    {
-                        Id = r.Anime.Id,
-                        Name = r.Anime.Name,
-                        ImageUrl = r.Anime.ImageUrl,
-                        Score = r.Anime.Score,
-                        Rating = r.Anime.Rating,
-                        ReleaseYear = r.Anime.ReleaseYear
-                    }
-                };
-
-            return expr as Expression<Func<Review, TResult>>;
-        }
-        
-        return base.Projection<TResult>();
     }
 }
