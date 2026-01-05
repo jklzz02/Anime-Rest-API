@@ -71,7 +71,10 @@ public class AnimeHelper : IAnimeHelper
             .SortBy([
                 SortAction<Anime>.Desc(a => a.Score),
                 SortAction<Anime>.Desc(a => a.ReleaseYear),
+                SortAction<Anime>.Asc(a => a.Reviews.Count),
                 SortAction<Anime>.Asc(a => a.Name),
+                SortAction<Anime>.Asc(a => a.Favourites.Count),
+                SortAction<Anime>.Asc(a => a.Id)
             ])
             .Paginate(page, size)
             .IncludeFullRelation();

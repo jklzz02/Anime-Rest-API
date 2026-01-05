@@ -16,24 +16,62 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
     private bool _asExpandable;
     private bool _tracked;
     private bool _asSplitQuery;
+    private bool _isPaginated;
 
     public TDerived Tracked()
     {
         _tracked = true;
-        return (TDerived) this;
+        return (TDerived)this;
     }
 
     public TDerived AsSplitQuery()
     {
         _asSplitQuery = true;
-        return (TDerived) this;
+        return (TDerived)this;
     }
 
     public TDerived Paginate(int page, int size)
     {
+        if (page <= 0)
+        {
+            throw new ArgumentException("Page must be greater than 0.", nameof(page));
+        }
+
+        if (size <= 0)
+        {
+            throw new ArgumentException("Size must be greater than 0.", nameof(size));
+        }
+
+        if (_take.HasValue)
+        {
+            throw new InvalidOperationException($"Cannot use {nameof(Paginate)} after {nameof(Limit)}. Use one or the other.");
+        }
+        
         _skip = (page - 1) * size;
         _take = size;
-        return (TDerived) this;
+        _isPaginated = true;
+        
+        return (TDerived)this;
+    }
+
+    public TDerived Limit(int size)
+    {
+        if (size <= 0)
+            throw new ArgumentException("Size must be greater than 0.", nameof(size));
+
+        if (_isPaginated)
+        {
+            throw new InvalidOperationException($"Cannot use {nameof(Limit)} after {nameof(Paginate)}. Use one or the other.");
+        }
+
+        _take = size;
+        return (TDerived)this;
+    }
+
+    public TDerived AsExpandable()
+    {
+        _asExpandable = true;
+        return (TDerived)this;
     }
 
     /// <inheritdoc/>
@@ -102,21 +140,6 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
 
         return query;
     }
-
-    public TDerived Limit(int size)
-    {
-        if (size <= 0)
-            throw new InvalidOperationException("Size must be greater than 0.");
-
-        _take = size;
-        return (TDerived)this;
-    }
-
-    public TDerived AsExpandable()
-    {
-        _asExpandable = true;
-        return (TDerived)this;
-    }
     
     public TDerived SortBy(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction)
     {
@@ -155,7 +178,7 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
             _filters.Add(filter);
         }
         
-        return (TDerived) this;
+        return (TDerived)this;
     }
 
     protected TDerived FilterBy(IEnumerable<Expression<Func<TEntity, bool>>>? filters)
@@ -165,13 +188,13 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
             _filters.AddRange(filters);
         }
         
-        return (TDerived) this;
+        return (TDerived)this;
     }
 
     protected TDerived Include(Func<IQueryable<TEntity>, IQueryable<TEntity>> include)
     {
         _includes.Add(include);
-        return (TDerived) this;
+        return (TDerived)this;
     }
 }
 
