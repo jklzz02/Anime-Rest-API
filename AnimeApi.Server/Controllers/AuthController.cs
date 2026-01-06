@@ -55,10 +55,13 @@ public class AuthController : ControllerBase
             return Unauthorized(result.Errors.ToKeyValuePairs());
         }
         
-        await _refreshTokenService.RevokeByUserIdAsync(result.Data.Id);
+        var user = await
+            _userService.GetOrCreateUserAsync(result.Data);
         
-        var accessToken = _jwtGenerator.GenerateToken(result.Data);
-        var refreshToken = await _refreshTokenService.CreateAsync(result.Data.Id);
+        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
+        
+        var accessToken = _jwtGenerator.GenerateToken(user);
+        var refreshToken = await _refreshTokenService.CreateAsync(user.Id);
 
         return Ok(new
         {
@@ -121,11 +124,15 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(result.Errors.ToKeyValuePairs());
         }
+        
+        var user = await
+            _userService
+                .GetOrCreateUserAsync(result.Data);
 
-        await _refreshTokenService.RevokeByUserIdAsync(result.Data.Id);
+        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
 
-        var accessToken = _jwtGenerator.GenerateToken(result.Data);
-        var refreshToken = await _refreshTokenService.CreateAsync(result.Data.Id);
+        var accessToken = _jwtGenerator.GenerateToken(user);
+        var refreshToken = await _refreshTokenService.CreateAsync(user.Id);
 
         SetTokenCookies(accessToken, refreshToken);
         

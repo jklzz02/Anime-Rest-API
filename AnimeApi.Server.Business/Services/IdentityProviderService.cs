@@ -4,7 +4,6 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Exceptions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
-using AnimeApi.Server.Core.Objects.Dto;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -14,13 +13,11 @@ namespace AnimeApi.Server.Business.Services;
 public class IdentityProviderService : IIdentityProviderService
 {
     private readonly IHttpClientFactory _clientFactory;
-    private readonly IUserService _userService;
     private readonly IConfiguration _configuration;
     
     public IdentityProviderService(
         IConfiguration configuration,
-        IHttpClientFactory clientFactory, 
-        IUserService userService)
+        IHttpClientFactory clientFactory)
     {
         ConfigurationException.ThrowIfMissing(configuration, "Authentication:Google");
         ConfigurationException.ThrowIfEmpty(configuration, "Authentication:Google:ClientId");
@@ -34,10 +31,9 @@ public class IdentityProviderService : IIdentityProviderService
         
         _configuration = configuration;
         _clientFactory = clientFactory;
-        _userService = userService;
     }
     
-    public async Task<Result<AppUserDto>> ProcessIdentityProviderAsync(AuthRequest request)
+    public async Task<Result<AuthPayload>> ProcessIdentityProviderAsync(AuthRequest request)
     {
         var result = request.Provider switch
         {
@@ -50,17 +46,17 @@ public class IdentityProviderService : IIdentityProviderService
             Constants.Auth.IdentityProvider.Discord
                 => await ProcessDiscordAuthAsync(request),
             
-            _ => Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid identity provider.")
+            _ => Result<AuthPayload>.ValidationFailure("Unauthorized", "Invalid identity provider.")
         };
         
         return result;
     }
     
-    private async Task<Result<AppUserDto>> ProcessGoogleAuthAsync(AuthRequest request)
+    private async Task<Result<AuthPayload>> ProcessGoogleAuthAsync(AuthRequest request)
     {
         if (string.IsNullOrEmpty(request.Token))
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Missing Google ID token.");
+            return Result<AuthPayload>.ValidationFailure("Unauthorized", "Missing Google ID token.");
         }
         
         try
@@ -71,25 +67,22 @@ public class IdentityProviderService : IIdentityProviderService
                     new GoogleJsonWebSignature.ValidationSettings
                     {
                         Audience = [ _configuration["Authentication:Google:ClientId"]]
-                    });
+                    });;
             
-            var userDto = await 
-                _userService.GetOrCreateUserAsync(new AuthPayload
-                {
-                    Email = payload.Email,
-                    Picture = payload.Picture,
-                    Username = string.Empty
-                });
-            
-            return Result<AppUserDto>.Success(userDto);
+            return Result<AuthPayload>.Success(new AuthPayload
+            {
+                Email = payload.Email,
+                Picture = payload.Picture,
+                Username = string.Empty
+            });
         }
         catch (InvalidJwtException)
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Invalid Google ID token.");
+            return Result<AuthPayload>.ValidationFailure("Unauthorized", "Invalid Google ID token.");
         }
     }
     
-    private async Task<Result<AppUserDto>> ProcessFacebookAuthAsync(AuthRequest request)
+    private async Task<Result<AuthPayload>> ProcessFacebookAuthAsync(AuthRequest request)
     {
         List<Error> errors = [];
 
@@ -110,7 +103,7 @@ public class IdentityProviderService : IIdentityProviderService
 
         if (errors.Any())
         {
-            return Result<AppUserDto>.Failure(errors);
+            return Result<AuthPayload>.Failure(errors);
         }
         
         var appId = _configuration["Authentication:Facebook:AppId"];
@@ -130,7 +123,7 @@ public class IdentityProviderService : IIdentityProviderService
 
         if (!tokenResponse.IsSuccessStatusCode)
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Facebook token exchange failed.");
+            return Result<AuthPayload>.ValidationFailure("Unauthorized", "Facebook token exchange failed.");
         }
 
         var content = await tokenResponse.Content.ReadAsStringAsync();
@@ -138,7 +131,7 @@ public class IdentityProviderService : IIdentityProviderService
 
         if (tokenData is null)
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Facebook token exchange failed.");
+            return Result<AuthPayload>.ValidationFailure("Unauthorized", "Facebook token exchange failed.");
         }
 
         var userResponse = await client.GetAsync(
@@ -150,20 +143,18 @@ public class IdentityProviderService : IIdentityProviderService
 
         if (fbUser is null)
         {
-            return Result<AppUserDto>.ValidationFailure("Unauthorized", "Failed to retrieve facebook user.");
+            return Result<AuthPayload>.ValidationFailure("Unauthorized", "Failed to retrieve facebook user.");
         }
         
-        var user = await _userService.GetOrCreateUserAsync(new AuthPayload
+        return Result<AuthPayload>.Success(new AuthPayload
         {
             Email = fbUser.Email,
             Picture = fbUser.Picture.Data.Url,
             Username = fbUser.Name
         });
-
-        return Result<AppUserDto>.Success(user);
     }
 
-    private async Task<Result<AppUserDto>> ProcessDiscordAuthAsync(AuthRequest request)
+    private async Task<Result<AuthPayload>> ProcessDiscordAuthAsync(AuthRequest request)
     {
         List<Error> errors = [];
 
@@ -184,7 +175,7 @@ public class IdentityProviderService : IIdentityProviderService
         
         if (errors.Any())
         {
-            return Result<AppUserDto>.ValidationFailure(
+            return Result<AuthPayload>.ValidationFailure(
                 "Unauthorized", "Missing Discord OAuth parameters.");
         }
 
@@ -205,7 +196,7 @@ public class IdentityProviderService : IIdentityProviderService
 
         if (!tokenResponse.IsSuccessStatusCode)
         {
-            return Result<AppUserDto>
+            return Result<AuthPayload>
                 .ValidationFailure("Unauthorized", "Discord token exchange failed.");
         }
 
@@ -214,7 +205,7 @@ public class IdentityProviderService : IIdentityProviderService
 
         if (token is null)
         {
-            return Result<AppUserDto>
+            return Result<AuthPayload>
                 .ValidationFailure("Unauthorized", "Discord token exchange failed.");
         }
 
@@ -229,7 +220,7 @@ public class IdentityProviderService : IIdentityProviderService
 
         if (!userResponse.IsSuccessStatusCode)
         {
-            return Result<AppUserDto>
+            return Result<AuthPayload>
                 .ValidationFailure("Unauthorized", "Invalid Discord access token.");
         }
         
@@ -238,17 +229,15 @@ public class IdentityProviderService : IIdentityProviderService
         
         if (discordUser is null)
         {
-            return Result<AppUserDto>
+            return Result<AuthPayload>
                 .ValidationFailure("Unauthorized", "Failed to retrieve Discord user.");
         }
 
-        var user = await _userService.GetOrCreateUserAsync(new AuthPayload
+        return Result<AuthPayload>.Success(new AuthPayload
         {
             Email = discordUser.Email,
             Username = discordUser.Username,
             Picture = discordUser.AvatarUrl
         });
-
-        return Result<AppUserDto>.Success(user);
     }
 }
