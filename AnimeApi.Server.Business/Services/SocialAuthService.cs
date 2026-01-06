@@ -10,12 +10,12 @@ using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Business.Services;
 
-public class IdentityProviderService : IIdentityProviderService
+public class SocialAuthService : ISocialAuthService
 {
     private readonly IHttpClientFactory _clientFactory;
     private readonly IConfiguration _configuration;
     
-    public IdentityProviderService(
+    public SocialAuthService(
         IConfiguration configuration,
         IHttpClientFactory clientFactory)
     {
@@ -33,7 +33,8 @@ public class IdentityProviderService : IIdentityProviderService
         _clientFactory = clientFactory;
     }
     
-    public async Task<Result<AuthPayload>> ProcessIdentityProviderAsync(AuthRequest request)
+    /// <inheritdoc/>
+    public async Task<Result<AuthPayload>> AuthenticateUserAsync(AuthRequest request)
     {
         var result = request.Provider switch
         {

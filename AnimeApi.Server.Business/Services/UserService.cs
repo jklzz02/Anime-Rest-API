@@ -39,6 +39,7 @@ public class UserService : IUserService
             _userRepository.FindFirstOrDefaultAsync(query);
     }
 
+    /// <inheritdoc />
     public async Task<PublicUser?> GetPublicUserAsync(int id)
     {
         var  query = new UserQuery().ByPk(id);

@@ -17,7 +17,7 @@ public class AuthController : ControllerBase
     private readonly IUserService _userService;
     private readonly IJwtGenerator _jwtGenerator;
     private readonly IRefreshTokenService _refreshTokenService;
-    private readonly IIdentityProviderService _identityProviderService;
+    private readonly ISocialAuthService _socialAuthService;
     private readonly CookieOptions _cookieOptions;
     
 
@@ -25,12 +25,12 @@ public class AuthController : ControllerBase
         IUserService userService,
         IJwtGenerator jwtGenerator,
         IRefreshTokenService refreshTokenService,
-        IIdentityProviderService identityProviderService)
+        ISocialAuthService socialAuthService)
     {
         _userService = userService;
         _jwtGenerator = jwtGenerator;
         _refreshTokenService = refreshTokenService;
-        _identityProviderService = identityProviderService;
+        _socialAuthService = socialAuthService;
         
         _cookieOptions = new CookieOptions
         {
@@ -48,7 +48,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] AuthRequest request)
     {
         var result = await
-            _identityProviderService.ProcessIdentityProviderAsync(request);
+            _socialAuthService.AuthenticateUserAsync(request);
 
         if (result.IsFailure)
         {
@@ -118,7 +118,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> CookieLogin([FromBody] AuthRequest request)
     {
         var result = await
-            _identityProviderService.ProcessIdentityProviderAsync(request);
+            _socialAuthService.AuthenticateUserAsync(request);
             
         if (result.IsFailure)
         {
