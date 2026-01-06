@@ -31,8 +31,9 @@ public abstract class Mapper<TEntity, TDto> : IMapper<TEntity, TDto>
     {
         var entityParam = Expression.Parameter(typeof(TEntity), "e");
         var bindings = new List<MemberBinding>();
-
-        foreach (var resultProp in typeof(TResult).GetProperties())
+        
+        var resultProps = typeof(TResult).GetProperties();
+        foreach (var resultProp in resultProps)
         {
             if (!resultProp.CanWrite || !resultProp.CanRead)
             {
