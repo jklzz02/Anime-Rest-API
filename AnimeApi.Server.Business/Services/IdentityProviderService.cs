@@ -6,11 +6,12 @@ using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
 using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
-namespace AnimeApi.Server;
+namespace AnimeApi.Server.Business.Services;
 
-public class IdentityProviderService
+public class IdentityProviderService : IIdentityProviderService
 {
     private readonly IHttpClientFactory _clientFactory;
     private readonly IUserService _userService;

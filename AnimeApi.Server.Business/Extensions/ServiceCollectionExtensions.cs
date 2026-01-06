@@ -54,6 +54,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IJwtGenerator, JwtGenerator>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRefreshTokenService,RefreshTokenService>();
+        services.AddScoped<IIdentityProviderService, IdentityProviderService>();
         
         services.AddSingleton<ITokenHasher, TokenHasher>();
         

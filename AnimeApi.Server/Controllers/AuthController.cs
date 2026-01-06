@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
-using AnimeApi.Server.Core.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,7 @@ public class AuthController : ControllerBase
     private readonly IUserService _userService;
     private readonly IJwtGenerator _jwtGenerator;
     private readonly IRefreshTokenService _refreshTokenService;
-    private readonly IdentityProviderService _identityProviderService;
+    private readonly IIdentityProviderService _identityProviderService;
     private readonly CookieOptions _cookieOptions;
     
 
@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
         IUserService userService,
         IJwtGenerator jwtGenerator,
         IRefreshTokenService refreshTokenService,
-        IdentityProviderService identityProviderService)
+        IIdentityProviderService identityProviderService)
     {
         _userService = userService;
         _jwtGenerator = jwtGenerator;

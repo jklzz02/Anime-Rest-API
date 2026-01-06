@@ -83,7 +83,6 @@ public class Program
             .AddDataAccess(connectionString!)
             .AddBusiness()
             .AddIdentity()
-            .AddScoped<IdentityProviderService>()
             .AddMemoryCache(options =>
             {
                 options.SizeLimit = Constants.Cache.CacheSize;
