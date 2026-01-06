@@ -60,20 +60,22 @@ public class AnimeHelper : IAnimeHelper
         return await 
             _repository.GetAllAsync();
     }
-
+    
     public async Task<PaginatedResult<AnimeDto>> GetAllAsync(int page, int size)
+        => await GetAllAsync(page, size, false);
+
+    public async Task<PaginatedResult<AnimeDto>> GetAllAsync(int page, int size, bool includeAdult)
     {
         var count = await
-            _repository.CountAsync();
-
+            _repository
+                .CountAsync(new AnimeQuery()
+                    .ExcludeAdultContent(!includeAdult));
+        
         var query = new AnimeQuery()
             .AsSplitQuery()
+            .ExcludeAdultContent(!includeAdult)
             .SortBy([
                 SortAction<Anime>.Desc(a => a.Score),
-                SortAction<Anime>.Desc(a => a.ReleaseYear),
-                SortAction<Anime>.Asc(a => a.Reviews.Count),
-                SortAction<Anime>.Asc(a => a.Name),
-                SortAction<Anime>.Asc(a => a.Favourites.Count),
                 SortAction<Anime>.Asc(a => a.Id)
             ])
             .Paginate(page, size)
@@ -81,26 +83,6 @@ public class AnimeHelper : IAnimeHelper
 
         var items = await
             _repository.FindAsync(query);
-
-        return new PaginatedResult<AnimeDto>(items, page, size, count);
-    }
-
-    public async Task<PaginatedResult<AnimeDto>> GetAllNonAdultAsync(int page, int size)
-    {
-        var query = new AnimeQuery()
-            .AsSplitQuery()
-            .ExcludeAdultContent();
-
-        var count = await
-            _repository.CountAsync(query);
-
-        var items = await
-            _repository.FindAsync(
-                query
-                    .SortBy(a => a.Score, SortDirections.Desc)
-                    .Paginate(page, size)
-                    .IncludeFullRelation());
-
 
         return new PaginatedResult<AnimeDto>(items, page, size, count);
     }

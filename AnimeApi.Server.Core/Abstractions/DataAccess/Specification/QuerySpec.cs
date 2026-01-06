@@ -8,9 +8,9 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
     where TEntity : class
     where TDerived : QuerySpec<TEntity, TDerived>
 {
-    private readonly List<Expression<Func<TEntity, bool>>> _filters = new();
-    private readonly List<SortAction<TEntity>> _sortActions = new();
-    private readonly List<Func<IQueryable<TEntity>, IQueryable<TEntity>>> _includes = new();
+    private readonly List<Expression<Func<TEntity, bool>>> _filters = [];
+    private readonly List<SortAction<TEntity>> _sortActions = [];
+    private readonly List<Func<IQueryable<TEntity>, IQueryable<TEntity>>> _includes = [];
     private int? _skip;
     private int? _take;
     private bool _asExpandable;

@@ -35,18 +35,11 @@ public class AnimeController : ControllerBase
         [FromQuery] Pagination pagination, 
         bool includeAdultContent = false)
     {
-        var result = 
-           includeAdultContent
-           ? await 
-                _cache
-                    .GetOrCreateAsync(
-                        () => _helper.GetAllAsync(pagination.Page, pagination.Size),
-                        Constants.Cache.DefaultCachedItemSize)
-            : await
-                _cache
-                    .GetOrCreateAsync(
-                         () => _helper.GetAllNonAdultAsync(pagination.Page, pagination.Size),
-                         Constants.Cache.DefaultCachedItemSize);
+        var result = await
+            _cache
+                .GetOrCreateAsync(
+                    () => _helper.GetAllAsync(pagination.Page, pagination.Size, includeAdultContent),
+                    Constants.Cache.DefaultCachedItemSize);
 
         if (result is null)
         {
