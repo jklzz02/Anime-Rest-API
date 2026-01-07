@@ -36,7 +36,7 @@ public sealed class PaginatedResult<T> where T : class
     
     [JsonProperty("total_pages")]
     public int TotalPages
-        =>  PageSize > 0
+        =>  PageSize > 0 &&  TotalItems > 0
             ? (int) Math.Ceiling(TotalItems / (double) PageSize)
             : 0;
    
