@@ -8,7 +8,7 @@ namespace AnimeApi.Server.Core.Objects;
 /// <typeparam name="T">The type of data contained in the paginated result. Must be a reference type.</typeparam>
 public sealed class PaginatedResult<T> where T : class
 {
-    private List<Error> _errors = [];
+    private readonly List<Error> _errors = [];
     
     [JsonIgnore]
     public IReadOnlyList<Error> Errors
@@ -36,7 +36,9 @@ public sealed class PaginatedResult<T> where T : class
     
     [JsonProperty("total_pages")]
     public int TotalPages
-        => (int) Math.Ceiling(TotalItems / (double) PageSize);
+        =>  PageSize > 0
+            ? (int) Math.Ceiling(TotalItems / (double) PageSize)
+            : 0;
    
     [JsonProperty("total_items")]
     public int TotalItems { get; }
