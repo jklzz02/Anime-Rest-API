@@ -60,10 +60,13 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
           return Result<AnimeDto>.InternalFailure("Create", "No entity created");
        }
 
-       var resultDto = Mapper.MapToDto(createdEntry.Entity);
+       var resultDto = await
+               FindFirstOrDefaultAsync(new AnimeQuery()
+                   .ByPk(createdEntry.Entity.Id)
+                   .IncludeFullRelation());
        
        Context.ChangeTracker.Clear();
-       return Result<AnimeDto>.Success(resultDto);
+       return Result<AnimeDto>.Success(resultDto!);
     }
 
     /// <inheritdoc />
@@ -80,7 +83,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
 
         var  entity = Mapper
             .AsSpecific<IAnimeMapper>()
-            .MapToEntity(dto, false);
+            .MapToEntity(dto);
         
         var anime = await
             new AnimeQuery()
@@ -96,9 +99,9 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
         }
 
         UpdateAnime(anime, entity);
-        await UpdateRelations(anime.AnimeGenres.ToList(), entity.AnimeGenres.ToList());
-        await UpdateRelations(anime.AnimeProducers.ToList(), entity.AnimeProducers.ToList());
-        await UpdateRelations(anime.AnimeLicensors.ToList(), entity.AnimeLicensors.ToList());
+        UpdateRelations(anime.AnimeGenres.ToList(), entity.AnimeGenres.ToList());
+        UpdateRelations(anime.AnimeProducers.ToList(), entity.AnimeProducers.ToList());
+        UpdateRelations(anime.AnimeLicensors.ToList(), entity.AnimeLicensors.ToList());
 
         var result = await Context.SaveChangesAsync() > 0;
 
@@ -107,10 +110,13 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
             return Result<AnimeDto>.InternalFailure("update", "something went wrong during entity update.");
         }
         
-        var resultDto = Mapper.MapToDto(anime);
+        var resultDto = await
+                FindFirstOrDefaultAsync(new AnimeQuery()
+                    .ByPk(entity.Id)
+                    .IncludeFullRelation());
         
         Context.ChangeTracker.Clear();
-        return Result<AnimeDto>.Success(resultDto);
+        return Result<AnimeDto>.Success(resultDto!);
     }
 
     private void UpdateAnime(Anime original, Anime updated)
@@ -134,7 +140,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
         original.Status = updated.Status;
     }
 
-   private async Task UpdateRelations<T>(
+   private void UpdateRelations<T>(
     List<T> original,
     List<T> updated)
     where T : class, IAnimeRelation, new()
@@ -151,13 +157,14 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
         
         var toRemove = original.Where(o => !updatedIds.Contains(o.RelatedId)).ToList();
         
-        toRemove.ForEach(x => Context.Set<T>().Remove(x));
+        toRemove.ForEach(x => Context.Entry(x).State = EntityState.Deleted);
         
         var idsToAdd = updatedIds.Where(id => !originalIds.Contains(id)).ToList();
 
         var newRelations = idsToAdd
-            .Select(id => new T { AnimeId = animeId, RelatedId = id });
+            .Select(id => new T { AnimeId = animeId, RelatedId = id })
+            .ToList();
         
-        await Context.Set<T>().AddRangeAsync(newRelations);
+        newRelations.ForEach(x => Context.Entry(x).State = EntityState.Added);
     }
 }
