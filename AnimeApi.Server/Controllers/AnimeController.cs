@@ -159,7 +159,6 @@ public class AnimeController : ControllerBase
     
     [HttpPost("summaries/target")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetSummariesByIdsAsync([FromBody] TargetAnimeParams targetParams)
@@ -189,7 +188,7 @@ public class AnimeController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
@@ -202,7 +201,10 @@ public class AnimeController : ControllerBase
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
 
-        return Ok(result.Data);
+        return CreatedAtAction(
+            "GetById",
+            new { id = result.Data.Id },
+            result.Data);
     }
     
     [HttpPatch("{id:int:min(1)}")]
