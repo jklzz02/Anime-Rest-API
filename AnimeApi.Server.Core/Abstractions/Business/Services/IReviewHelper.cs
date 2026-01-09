@@ -18,7 +18,7 @@ public interface IReviewHelper
     
     
     /// <summary>
-    /// Retrives a <see cref="PaginatedResult{T}"/> of all reviews.
+    /// Retrieves a <see cref="PaginatedResult{T}"/> of all reviews.
     /// </summary>
     /// <param name="page">The page to retrieve.</param>
     /// <param name="size">The amount of entities to retrieve.</param>
