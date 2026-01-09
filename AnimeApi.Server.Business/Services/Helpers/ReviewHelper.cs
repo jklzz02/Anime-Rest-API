@@ -32,6 +32,7 @@ public class ReviewHelper : IReviewHelper
         _validator = validator;
     }
 
+    /// <inheritdoc />
     public async Task<PaginatedResult<ReviewDto>> GetAllAsync(int page, int size)
     {
         var query = new ReviewQuery()
@@ -45,6 +46,22 @@ public class ReviewHelper : IReviewHelper
             _repository.FindAsync(query);
         
         return new PaginatedResult<ReviewDto>(result, page,  size, count);
+    }
+    
+    /// <inheritdoc />
+    public async Task<PaginatedResult<ReviewDetailedDto>> GetAllDetailedAsync(int page, int size)
+    {
+        var query = new ReviewQuery()
+            .SortBy(r => r.CreatedAt, SortDirections.Desc)
+            .Paginate(page, size);
+
+        var count = await
+            _repository.CountAsync();
+        
+        var result = await
+            _repository.FindAsync<ReviewDetailedDto>(query);
+        
+        return new PaginatedResult<ReviewDetailedDto>(result, page,  size, count);
     }
 
     /// <inheritdoc />
@@ -92,8 +109,17 @@ public class ReviewHelper : IReviewHelper
     {
         var query = new ReviewQuery().ByUser(userId);
 
-        return await 
-            _repository.FindAsync(query);
+        return await
+            _repository.FindAsync<ReviewDto>(query);
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<ReviewDetailedDto>> GetDetailedByUserIdAsync(int userId)
+    {
+        var query = new ReviewQuery().ByUser(userId);
+
+        return await
+            _repository.FindAsync<ReviewDetailedDto>(query);
     }
 
     /// <inheritdoc />

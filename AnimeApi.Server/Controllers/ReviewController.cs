@@ -40,6 +40,24 @@ public class ReviewController : ControllerBase
         
         return Ok(result);
     }
+    
+    [HttpGet("detailed")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAllDetailedAsync(
+        [FromQuery] Pagination pagination)
+    {
+        var result = await
+            _reviewHelper
+                .GetAllDetailedAsync(pagination.Page, pagination.Size);
+
+        if (!result.HasItems)
+        {
+            return NotFound();
+        }
+        
+        return Ok(result);
+    }
 
     [HttpGet("{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -128,9 +146,28 @@ public class ReviewController : ControllerBase
     [HttpGet("user/{userId:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByUserIdAsync([FromRoute, Range(1, int.MaxValue) ,DefaultValue(1)] int id) 
+    public async Task<IActionResult> GetByUserIdAsync([FromRoute, Range(1, int.MaxValue) ,DefaultValue(1)] int userId) 
     {
-        var reviews = await _reviewHelper.GetByUserIdAsync(id);
+        var reviews = await
+            _reviewHelper
+                .GetByUserIdAsync(userId);
+
+        if (!reviews.Any()) 
+        {
+            return NotFound();
+        }
+
+        return Ok(reviews);
+    }
+    
+    [HttpGet("user/{userId:int:min(1)}/detailed")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDetailedByUserIdAsync([FromRoute, Range(1, int.MaxValue) ,DefaultValue(1)] int userId) 
+    {
+        var reviews = await
+            _reviewHelper
+                .GetDetailedByUserIdAsync(userId);
 
         if (!reviews.Any()) 
         {
