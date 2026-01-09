@@ -126,7 +126,10 @@ public class AnimeHelper : IAnimeHelper
     {
         var query = new AnimeQuery()
             .IncludeFullRelation()
-            .SortBy(a => a.Score, SortDirections.Desc)
+            .SortBy([
+                SortAction<Anime>.Desc(a => a.Score),
+                SortAction<Anime>.Asc(a => a.Id)
+            ])
             .Limit(count);
 
         return await
@@ -140,7 +143,10 @@ public class AnimeHelper : IAnimeHelper
         
         var query = new AnimeQuery()
             .IncludeFullRelation()
-            .SortBy(a => a.Score, SortDirections.Desc)
+            .SortBy([
+                SortAction<Anime>.Desc(a => a.Score),
+                SortAction<Anime>.Asc(a => a.Id)
+            ])
             .Paginate(page, size);
         
         var items = await
@@ -256,6 +262,7 @@ public class AnimeHelper : IAnimeHelper
         var items = await
             _repository.FindAsync(
                 query
+                    .SortBy(SortAction<Anime>.Asc(a => a.Id))
                     .Paginate(page, size)
                     .IncludeFullRelation());
 

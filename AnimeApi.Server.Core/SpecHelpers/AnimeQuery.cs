@@ -266,7 +266,8 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         ]);
         SortBy([
             SortAction<Anime>.Desc(a => a.StartedAiring),
-            SortAction<Anime>.Desc(a => a.Score)
+            SortAction<Anime>.Desc(a => a.Score),
+            SortAction<Anime>.Asc(a => a.Id)
         ]);
         Limit(count);
 
