@@ -29,6 +29,16 @@ public class Repository<TEntity, TDto> : IRepository<TEntity, TDto>
     }
 
     /// <inheritdoc />
+    public async Task<IEnumerable<TResult>> GetAllAsync<TResult>()
+        where TResult : class, new()
+    {
+        return await
+            Context.Set<TEntity>()
+                .Select(Mapper.Projection<TResult>())
+                .ToListAsync();
+    }
+
+    /// <inheritdoc />
     public async Task<IEnumerable<TDto>> FindAsync(IQuerySpec<TEntity> specification)
     {
         var entities = await specification

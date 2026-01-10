@@ -58,6 +58,17 @@ public class AnimeController : ControllerBase
         
         return Ok(result);
     }
+
+    [HttpGet("list")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetListAsync([FromQuery] AnimeListQuery request)
+    {
+        var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
+            ? await _helper.GetAnimeListAsync(request.Count)
+            : await _helper.GetAnimeListByQueryAsync(request.Query, request.Count);
+        
+        return Ok(list);
+    }
     
     [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -76,8 +87,7 @@ public class AnimeController : ControllerBase
         return Ok(anime);
     }
 
-    [HttpPost]
-    [Route("target")]
+    [HttpPost("target")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -98,8 +108,7 @@ public class AnimeController : ControllerBase
         return Ok(anime);
     }
     
-    [HttpGet]
-    [Route("search")]
+    [HttpGet("search")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

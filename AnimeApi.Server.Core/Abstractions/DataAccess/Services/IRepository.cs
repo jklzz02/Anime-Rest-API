@@ -21,6 +21,14 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of DTOs representing all entities.</returns>
     Task<IEnumerable<TDto>> GetAllAsync();
+    
+    /// <summary>
+    /// Retrieves all entities projected to {TResult}.
+    /// </summary>
+    /// <typeparam name="TResult">The target destination type of the projections</typeparam>
+    /// <returns>A task representing the asynchronous operation. The task result contains a collection of projected entities.</returns>
+    Task<IEnumerable<TResult>> GetAllAsync<TResult>()
+        where TResult : class, new();
 
     /// <summary>
     /// Retrieves entities matching the specified query specification as a collection of data transfer objects (DTOs).

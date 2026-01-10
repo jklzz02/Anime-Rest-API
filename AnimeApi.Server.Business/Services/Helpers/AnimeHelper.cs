@@ -2,7 +2,6 @@ using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
-using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
@@ -49,7 +48,7 @@ public class AnimeHelper : IAnimeHelper
         var  query = new AnimeQuery()
             .ByPk(ids)
             .IncludeFullRelation()
-            .WithSorting(orderBy, direction);
+            .Sorting(orderBy, direction);
 
         return await
             _repository.FindAsync(query);
@@ -74,10 +73,8 @@ public class AnimeHelper : IAnimeHelper
         var query = new AnimeQuery()
             .AsSplitQuery()
             .ExcludeAdultContent(!includeAdult)
-            .SortBy([
-                SortAction<Anime>.Desc(a => a.Score),
-                SortAction<Anime>.Asc(a => a.Id)
-            ])
+            .Popular()
+            .TieBreaker()
             .Paginate(page, size)
             .IncludeFullRelation();
 
@@ -85,6 +82,31 @@ public class AnimeHelper : IAnimeHelper
             _repository.FindAsync(query);
 
         return new PaginatedResult<AnimeDto>(items, page, size, count);
+    }
+
+    public async Task<IEnumerable<AnimeListItem>> GetAnimeListAsync(int count)
+    {
+        var query = new AnimeQuery()
+            .Popular()
+            .Recent()
+            .TieBreaker()
+            .Limit(count);
+        
+        return await
+            _repository.FindAsync<AnimeListItem>(query);
+    }
+
+    public async Task<IEnumerable<AnimeListItem>> GetAnimeListByQueryAsync(string textQuery, int count)
+    {
+        var query = new AnimeQuery()
+            .FullTextSearch(textQuery)
+            .Popular()
+            .Recent()
+            .TieBreaker()
+            .Limit(count);
+        
+        return await
+            _repository.FindAsync<AnimeListItem>(query);
     }
 
     public async Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count)
@@ -116,7 +138,7 @@ public class AnimeHelper : IAnimeHelper
     {
         var query = new AnimeQuery()
             .ByPk(ids)
-            .WithSorting(orderBy, direction);
+            .Sorting(orderBy, direction);
         
         return await
             _repository.FindAsync<AnimeSummary>(query);
@@ -126,10 +148,8 @@ public class AnimeHelper : IAnimeHelper
     {
         var query = new AnimeQuery()
             .IncludeFullRelation()
-            .SortBy([
-                SortAction<Anime>.Desc(a => a.Score),
-                SortAction<Anime>.Asc(a => a.Id)
-            ])
+            .Popular()
+            .TieBreaker()
             .Limit(count);
 
         return await
@@ -143,10 +163,8 @@ public class AnimeHelper : IAnimeHelper
         
         var query = new AnimeQuery()
             .IncludeFullRelation()
-            .SortBy([
-                SortAction<Anime>.Desc(a => a.Score),
-                SortAction<Anime>.Asc(a => a.Id)
-            ])
+            .Popular()
+            .TieBreaker()
             .Paginate(page, size);
         
         var items = await
@@ -224,34 +242,34 @@ public class AnimeHelper : IAnimeHelper
 
         var query = new AnimeQuery()
             .AsSplitQuery()
-            .WithFullTextSearch(parameters.Query)
-            .WithName(parameters.Name)
-            .WithEnglishName(parameters.EnglishName)
-            .WithSource(parameters.Source)
-            .WithType(parameters.Type)
-            .WithStatus(parameters.Status)
-            .WithStudio(parameters.Studio)
-            .WithScoreRange(parameters.MinScore, parameters.MaxScore)
-            .WithEpisodeRange(parameters.MinEpisodes, parameters.MaxEpisodes, parameters.Episodes)
-            .WithYearRange(parameters.MinReleaseYear, parameters.MaxReleaseYear)
-            .WithAirDateRange(
+            .FullTextSearch(parameters.Query)
+            .Name(parameters.Name)
+            .EnglishName(parameters.EnglishName)
+            .Source(parameters.Source)
+            .Type(parameters.Type)
+            .Status(parameters.Status)
+            .Studio(parameters.Studio)
+            .ScoreRange(parameters.MinScore, parameters.MaxScore)
+            .EpisodeRange(parameters.MinEpisodes, parameters.MaxEpisodes, parameters.Episodes)
+            .YearRange(parameters.MinReleaseYear, parameters.MaxReleaseYear)
+            .AirDateRange(
                 parameters.StartDateFrom,
                 parameters.StartDateTo,
                 parameters.EndDateFrom,
                 parameters.EndDateTo)
-            .WithGenres(
+            .Genres(
                 parameters.GenreId,
                 parameters.GenreName,
                 parameters.GenreNames)
-            .WithProducers(
+            .Producers(
                 parameters.ProducerId,
                 parameters.ProducerName,
                 parameters.ProducerNames)
-            .WithLicensors(
+            .Licensors(
                 parameters.LicensorId,
                 parameters.LicensorName,
                 parameters.LicensorNames)
-            .WithSorting(
+            .Sorting(
                 parameters.OrderBy,
                 parameters.SortOrder)
             .ExcludeAdultContent(!parameters.IncludeAdultContent);
@@ -262,7 +280,7 @@ public class AnimeHelper : IAnimeHelper
         var items = await
             _repository.FindAsync(
                 query
-                    .SortBy(SortAction<Anime>.Asc(a => a.Id))
+                    .TieBreaker()
                     .Paginate(page, size)
                     .IncludeFullRelation());
 

@@ -7,14 +7,13 @@ namespace AnimeApi.Server.Core.SpecHelpers;
 
 public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
 {
-
     public AnimeQuery ByPk(int id)
         => FilterBy(a => a.Id == id);
 
     public AnimeQuery ByPk(IEnumerable<int> id)
         =>  FilterBy(a => id.Contains(a.Id));
 
-    public AnimeQuery WithFullTextSearch(string? query)
+    public AnimeQuery FullTextSearch(string? query)
     {
         if (!string.IsNullOrWhiteSpace(query))
         {
@@ -26,7 +25,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithName(string? name)
+    public AnimeQuery Name(string? name)
     {
         if (!string.IsNullOrWhiteSpace(name))
             FilterBy(a => a.Name.Contains(name));
@@ -34,7 +33,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithEnglishName(string? englishName)
+    public AnimeQuery EnglishName(string? englishName)
     {
         if (!string.IsNullOrWhiteSpace(englishName))
             FilterBy(a => a.EnglishName.Contains(englishName));
@@ -42,13 +41,13 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithSource(int? sourceId)
-        => WithSource(sourceId, null);
+    public AnimeQuery Source(int? sourceId)
+        => Source(sourceId, null);
 
-    public AnimeQuery WithSource(string? source)
-        => WithSource(null, source);
+    public AnimeQuery Source(string? source)
+        => Source(null, source);
 
-    public AnimeQuery WithSource(int? sourceId, string? source)
+    public AnimeQuery Source(int? sourceId, string? source)
     {
         if (!string.IsNullOrWhiteSpace(source))
             FilterBy(a => a.Source.Name.ToLower().Contains(source.ToLower()));
@@ -59,13 +58,13 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithType(int? typeId)
-        => WithType(typeId, null);
+    public AnimeQuery Type(int? typeId)
+        => Type(typeId, null);
 
-    public AnimeQuery WithType(string? type)
-        => WithType(null, type);
+    public AnimeQuery Type(string? type)
+        => Type(null, type);
 
-    public AnimeQuery WithType(int? typeId, string? type)
+    public AnimeQuery Type(int? typeId, string? type)
     {
         if (!string.IsNullOrWhiteSpace(type))
             FilterBy(a => a.Type.Name.ToLower().Contains(type.ToLower()));
@@ -76,7 +75,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithStatus(string? status)
+    public AnimeQuery Status(string? status)
     {
         if (!string.IsNullOrWhiteSpace(status))
             FilterBy(a => a.Status.Contains(status));
@@ -84,7 +83,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithStudio(string? studio)
+    public AnimeQuery Studio(string? studio)
     {
         if (!string.IsNullOrWhiteSpace(studio))
             FilterBy(a => a.Studio.ToLower() == studio.ToLower());
@@ -92,7 +91,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithScoreRange(decimal? minScore, decimal? maxScore)
+    public AnimeQuery ScoreRange(decimal? minScore, decimal? maxScore)
     {
         if (minScore.HasValue)
             FilterBy(a => a.Score >= minScore);
@@ -103,7 +102,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithEpisodeRange(int? minEpisodes, int? maxEpisodes, int? exactEpisodes = null)
+    public AnimeQuery EpisodeRange(int? minEpisodes, int? maxEpisodes, int? exactEpisodes = null)
     {
         if (exactEpisodes.HasValue)
         {
@@ -121,7 +120,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithYearRange(int? minYear, int? maxYear)
+    public AnimeQuery YearRange(int? minYear, int? maxYear)
     {
         if (minYear.HasValue)
             FilterBy(a => a.ReleaseYear >= minYear);
@@ -132,7 +131,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithAirDateRange(
+    public AnimeQuery AirDateRange(
         DateTime? startFrom,
         DateTime? startTo,
         DateTime? endFrom,
@@ -153,7 +152,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithGenres(
+    public AnimeQuery Genres(
         int? genreId = null,
         string? genreName = null,
         IEnumerable<string>? genreNames = null)
@@ -170,7 +169,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithProducers(
+    public AnimeQuery Producers(
         int? producerId = null,
         string? producerName = null,
         IEnumerable<string>? producerNames = null)
@@ -187,7 +186,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithLicensors(
+    public AnimeQuery Licensors(
         int? licensorId = null,
         string? licensorName = null,
         IEnumerable<string>? licensorNames = null)
@@ -204,7 +203,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         return this;
     }
 
-    public AnimeQuery WithSorting(string? field, string? order)
+    public AnimeQuery Sorting(string? field, string? order)
     {
         if (string.IsNullOrWhiteSpace(field) || string.IsNullOrWhiteSpace(order))
         {
@@ -264,11 +263,9 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
             a => a.StartedAiring != null,
             a => a.StartedAiring <= DateTime.UtcNow,
         ]);
-        SortBy([
-            SortAction<Anime>.Desc(a => a.StartedAiring),
-            SortAction<Anime>.Desc(a => a.Score),
-            SortAction<Anime>.Asc(a => a.Id)
-        ]);
+        Recent();
+        Popular();
+        TieBreaker();
         Limit(count);
 
         return this;
@@ -290,6 +287,18 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
     public AnimeQuery ExcludeAdultContent()
         => ExcludeAdultContent(true);
 
+    public AnimeQuery Popular()
+        => SortBy(a => a.Score, SortDirections.Desc);
+    
+    public AnimeQuery Recent()
+        => SortBy([
+            SortAction<Anime>.Desc(a => a.ReleaseYear),
+            SortAction<Anime>.Desc(a => a.StartedAiring)
+        ]);
+
+    public AnimeQuery TieBreaker()
+        => SortBy(a => a.Id, SortDirections.Asc);
+    
     public AnimeQuery IncludeProducers()
     {
         Include(q => q.Include(a => a.AnimeProducers)
