@@ -8,8 +8,9 @@ public class ReviewValidator : AbstractValidator<ReviewDto>
     public ReviewValidator()
     {
         RuleFor(r => r.Id)
-            .NotEmpty()
-            .WithMessage("cannot be empty");
+            .GreaterThan(0)
+            .When(r => r.Id != 0)
+            .WithMessage("must be greater than 0");
         
         RuleFor(r => r.AnimeId)
             .NotEmpty()
