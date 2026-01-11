@@ -10,6 +10,9 @@ public class AnimeListItem
     [JsonProperty("title")]
     public string Name { get; set; }
     
+    [JsonProperty("english_title")]
+    public string EnglishName { get; set; }
+    
     [JsonProperty("image_url")]
     public string? ImageUrl { get; set; }
 }
