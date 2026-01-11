@@ -56,7 +56,7 @@ public class ReviewMapper : Mapper<Review, ReviewDto>
           Id = review.Id,
           Title = review.Title,
           Content = review.Content,
-          CreatedAt = review.CreatedAt,
+          CreatedAt = review.CreatedAt.ToUniversalTime(),
           Score = review.Score,
           AnimeId = review.AnimeId,
           UserId = review.UserId,
