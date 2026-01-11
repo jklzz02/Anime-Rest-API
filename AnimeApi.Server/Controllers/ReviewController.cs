@@ -247,7 +247,7 @@ public class ReviewController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -279,7 +279,10 @@ public class ReviewController : ControllerBase
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
         }
 
-        return Ok(result.Data);
+        return CreatedAtAction(
+            "GetById",
+            new {id = result.Data.Id},
+            result.Data);
     }
 
     [Authorize]
