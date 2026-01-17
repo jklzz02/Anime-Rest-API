@@ -278,7 +278,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
                 a => !string.IsNullOrEmpty(a.Rating),
                 a => a.Rating.Trim() != string.Empty,
                 a => !a.Rating.Trim().StartsWith(Constants.Ratings.AdultContent),
-                a => a.AnimeGenres.All(ag => ag.Genre.Name.Trim().ToLower() != "hentai")
+                a => a.AnimeGenres.All(ag => !Constants.Ratings.AdultGenres.Contains(ag.Genre.Name.Trim().ToLower()))
             ]);
 
         return this;

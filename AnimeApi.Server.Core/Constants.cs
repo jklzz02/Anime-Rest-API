@@ -110,6 +110,12 @@ public static class Constants
 
     public static class Ratings
     {
+        public static readonly IReadOnlyList<string> AdultGenres =
+        [
+            "hentai",
+            "erotica"
+        ];
+        
         /// <summary>General Audience - Suitable for all ages</summary>
         public const string General = "G";
 

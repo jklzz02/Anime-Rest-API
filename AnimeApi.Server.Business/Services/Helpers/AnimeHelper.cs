@@ -112,6 +112,7 @@ public class AnimeHelper : IAnimeHelper
     public async Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count)
     {
         var query = new AnimeQuery()
+            .ExcludeAdultContent()
             .Recents(count)
             .IncludeFullRelation();
 
