@@ -32,11 +32,12 @@ public static class ValidationResultExtensions
                         p => p.GetCustomAttribute<JsonPropertyAttribute>()!.PropertyName
                     );
 
-            return results.Select(e => 
+            return [.. results.Select(e => 
                 Error.Validation(
-                    propertyMap.TryGetValue(e.PropertyName, out var jsonKey) ? jsonKey : e.PropertyName,
+                    propertyMap.TryGetValue(e.PropertyName, out var jsonKey)
+                        ? jsonKey!
+                        : e.PropertyName,
                     e.ErrorMessage)
-            )
-            .ToList();
+            )];
         }
 }
