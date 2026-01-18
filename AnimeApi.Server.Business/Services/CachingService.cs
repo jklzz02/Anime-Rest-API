@@ -147,7 +147,7 @@ public class CachingService : ICachingService
     }
 
     /// <summary>
-    /// Normalizes the cache key by serializing and hashing it.
+    /// Normalizes the cache key by serializing and normalizing it.
     /// </summary>
     /// <param name="key">The key to be normalized.</param>
     /// <returns>The normalized key.</returns>
