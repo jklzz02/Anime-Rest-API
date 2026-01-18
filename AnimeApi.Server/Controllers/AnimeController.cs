@@ -117,19 +117,10 @@ public class AnimeController : ControllerBase
         [FromQuery] AnimeSearchParameters parameters,
         [FromQuery] Pagination pagination)
     {
-        var key = JsonConvert
-            .SerializeObject(new
-            {
-                parameters,
-                pagination.Page,
-                pagination.Size
-            })
-            .ToLowerNormalized();
-        
         var result = await 
             _cache
                 .GetOrCreateAsync(
-                    key,
+                    parameters,
                     () =>_helper.SearchAsync(parameters, pagination.Page, pagination.Size),
                     Constants.Cache.DefaultCachedItemSize,
                     TimeSpan.FromMinutes(2));

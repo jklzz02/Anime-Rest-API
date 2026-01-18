@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
@@ -151,7 +152,7 @@ public class CachingService : ICachingService
     /// <param name="key">The key to be normalized.</param>
     /// <returns>The normalized key.</returns>
     private string NormalizeKey(object key)
-        => Hash(SerializeKey(key));
+        => Hash(SerializeKey(key).ToLowerNormalized());
 
     /// <summary>
     /// Normalizes the cache key by converting it to a string.
