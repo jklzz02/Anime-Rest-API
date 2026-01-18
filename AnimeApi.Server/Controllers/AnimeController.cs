@@ -120,7 +120,7 @@ public class AnimeController : ControllerBase
         var result = await 
             _cache
                 .GetOrCreateAsync(
-                    parameters,
+                    new { parameters, pagination.Page, pagination.Size},
                     () =>_helper.SearchAsync(parameters, pagination.Page, pagination.Size),
                     Constants.Cache.DefaultCachedItemSize,
                     TimeSpan.FromMinutes(2));

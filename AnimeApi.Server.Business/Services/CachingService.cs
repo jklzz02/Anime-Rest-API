@@ -1,7 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using System.Security.Cryptography;
-using System.Text;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
