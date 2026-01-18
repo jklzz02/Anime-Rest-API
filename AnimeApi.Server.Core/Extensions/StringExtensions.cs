@@ -45,7 +45,7 @@ public static class StringExtensions
     public static string ToLowerNormalized(this string str)
     {
         return str
-            .Normalize()
+            .NormalizeString()
             .ToLowerInvariant();
     }
     
@@ -57,7 +57,7 @@ public static class StringExtensions
     public static string ToUpperNormalized(this string str)
     {
         return str
-            .Normalize()
+            .NormalizeString()
             .ToUpperInvariant();
     }
 
@@ -66,10 +66,8 @@ public static class StringExtensions
     /// </summary>
     /// <param name="str">The string to be normalized.</param>
     /// <returns>The normalized string after removing unwanted characters.</returns>
-    private static string Normalize(this string str)
-    {
-       return str
-            .Where(c => !char.IsPunctuation(c) || !char.IsSymbol(c) || char.IsWhiteSpace(c))
-            .ToString() ?? string.Empty;
-    }
+    private static string NormalizeString(this string? str)
+        => string.IsNullOrWhiteSpace(str)
+            ? string.Empty 
+            : string.Concat(str.Where(c => !char.IsWhiteSpace(c)));
 }

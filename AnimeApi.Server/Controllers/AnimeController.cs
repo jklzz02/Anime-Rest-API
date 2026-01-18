@@ -9,6 +9,7 @@ using AnimeApi.Server.RequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Controllers;
 
@@ -116,10 +117,19 @@ public class AnimeController : ControllerBase
         [FromQuery] AnimeSearchParameters parameters,
         [FromQuery] Pagination pagination)
     {
+        var key = JsonConvert
+            .SerializeObject(new
+            {
+                parameters,
+                pagination.Page,
+                pagination.Size
+            })
+            .ToLowerNormalized();
+        
         var result = await 
             _cache
                 .GetOrCreateAsync(
-                    new { parameters, pagination.Page, pagination.Size },
+                    key,
                     () =>_helper.SearchAsync(parameters, pagination.Page, pagination.Size),
                     Constants.Cache.DefaultCachedItemSize,
                     TimeSpan.FromMinutes(2));
