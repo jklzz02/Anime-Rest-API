@@ -1,5 +1,6 @@
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.ResponseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,12 +24,14 @@ public class HealthController : Controller
     public IActionResult CacheStatus()
     {
         var status = _cache.Statistics;
-        return Ok(new
+        
+        return Ok( new CacheStatusResponse
         {
-            hits = status.TotalHits,
-            misses = status.TotalMisses,
-            estimated_size = status.CurrentEstimatedSize,
-            entries_count = status.CurrentEntryCount
+            Hits = status.TotalHits,
+            Misses = status.TotalMisses,
+            EstimatedUnitSize = status.CurrentEstimatedSize.GetValueOrDefault(),
+            EntriesCount = status.CurrentEntryCount,
+            EvictionCount = _cache.EvictionCount
         });
     }
 }

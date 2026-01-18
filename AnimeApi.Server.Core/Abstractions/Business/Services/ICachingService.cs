@@ -21,6 +21,11 @@ public interface ICachingService
     int DefaultItemSize { get; set; }
     
     /// <summary>
+    /// Gets the number of items that have been evicted from the cache.
+    /// </summary>
+    long EvictionCount { get; }
+    
+    /// <summary>
     /// Gets the current statistics for the cache.
     /// </summary>
     MemoryCacheStatistics Statistics { get; }

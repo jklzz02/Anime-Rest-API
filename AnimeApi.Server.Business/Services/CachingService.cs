@@ -17,12 +17,20 @@ public class CachingService : ICachingService
 {
     private readonly IMemoryCache _cache;
     private static readonly ConcurrentDictionary<Expression, Delegate> _compiledLambdas = new();
+    private long _evictionCount = 0;
 
+    /// <inheritdoc />
     public MemoryCacheStatistics Statistics
         => _cache.GetCurrentStatistics() ?? new MemoryCacheStatistics();
 
+    /// <inheritdoc />
+    public long EvictionCount
+        => Interlocked.Read(ref _evictionCount);
+    
+    /// <inheritdoc />
     public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromMinutes(Constants.Cache.DefaultExpirationMinutes);
 
+    /// <inheritdoc />
     public int DefaultItemSize { get; set; } = Constants.Cache.DefaultCachedItemSize;
 
     /// <summary>
@@ -82,14 +90,22 @@ public class CachingService : ICachingService
     public async Task<T?> GetOrCreateAsync<T>(object key, Func<Task<T>> factory, int size, TimeSpan expiration)
     {
         return await _cache.GetOrCreateAsync(
-        NormalizeKey(key),
-        async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = expiration;
-            entry.Size = size;
+            NormalizeKey(key),
+            async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = expiration;
+                entry.Size = size;
+                
+                entry.RegisterPostEvictionCallback((evictedKey, value, reason, state) =>
+                {
+                    if (reason == EvictionReason.Capacity)
+                    {
+                        Interlocked.Increment(ref _evictionCount);
+                    }
+                });
 
-            return await factory();
-        });
+                return await factory();
+            });
     }
 
     /// <inheritdoc />
