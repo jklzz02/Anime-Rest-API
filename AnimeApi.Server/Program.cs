@@ -86,6 +86,7 @@ public class Program
             .AddMemoryCache(options =>
             {
                 options.SizeLimit = Constants.Cache.CacheSize;
+                options.TrackStatistics = true;
             })
             .AddAuthentication(Constants.Auth.DefaultScheme)
             .AddJwtBearer(Constants.Auth.DefaultScheme, options =>

@@ -18,6 +18,9 @@ public class CachingService : ICachingService
     private readonly IMemoryCache _cache;
     private static readonly ConcurrentDictionary<Expression, Delegate> _compiledLambdas = new();
 
+    public MemoryCacheStatistics Statistics
+        => _cache.GetCurrentStatistics() ?? new MemoryCacheStatistics();
+
     public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromMinutes(Constants.Cache.DefaultExpirationMinutes);
 
     public int DefaultItemSize { get; set; } = Constants.Cache.DefaultCachedItemSize;
