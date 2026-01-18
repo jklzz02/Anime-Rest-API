@@ -152,7 +152,7 @@ public class CachingService : ICachingService
     /// <param name="key">The key to be normalized.</param>
     /// <returns>The normalized key.</returns>
     private string NormalizeKey(object key)
-        => Hash(SerializeKey(key).ToLowerNormalized());
+        => SerializeKey(key).ToLowerNormalized();
 
     /// <summary>
     /// Normalizes the cache key by converting it to a string.
@@ -173,18 +173,6 @@ public class CachingService : ICachingService
                 NullValueHandling = NullValueHandling.Include
             })
         };
-    }
-
-    /// <summary>
-    /// Returns the SHA256 hash of the given string.
-    /// </summary>
-    /// <param name="str">The string to be hashed.</param>
-    /// <returns>The hashed string.</returns>
-    private string Hash(string str)
-    {
-        using var sha = SHA256.Create();
-        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(str));
-        return Convert.ToHexString(bytes);
     }
 
     /// <summary>
@@ -248,7 +236,7 @@ public class CachingService : ICachingService
                     }
             }
 
-            if (typeof(Task)?.IsAssignableFrom(expression?.Type) ?? false)
+            if (typeof(Task).IsAssignableFrom(expression.Type))
                 return expression.ToString();
 
             var lambda = _compiledLambdas.GetOrAdd(expression, expr => Expression.Lambda(expr).Compile());
@@ -257,7 +245,7 @@ public class CachingService : ICachingService
         }
         catch
         {
-            return expression?.ToString();
+            return expression.ToString();
         }
     }
 }
