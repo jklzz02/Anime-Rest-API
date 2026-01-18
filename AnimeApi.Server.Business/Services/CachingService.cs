@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Objects;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
@@ -20,13 +21,25 @@ public class CachingService : ICachingService
     private long _evictionCount = 0;
 
     /// <inheritdoc />
-    public MemoryCacheStatistics Statistics
-        => _cache.GetCurrentStatistics() ?? new MemoryCacheStatistics();
+    public CacheStatus GetStatistics()
+    {
+        var stats = _cache.GetCurrentStatistics();
+        
+        if (stats is null)
+        {
+            return new CacheStatus();
+        }
 
-    /// <inheritdoc />
-    public long EvictionCount
-        => Interlocked.Read(ref _evictionCount);
-    
+        return new CacheStatus
+        {
+            Hits = stats.TotalHits,
+            Misses = stats.TotalMisses,
+            EntriesCount = stats.CurrentEntryCount,
+            EstimatedUnitSize = stats.CurrentEstimatedSize.GetValueOrDefault(),
+            EvictionCount = Interlocked.Read(ref _evictionCount)
+        };
+    }
+
     /// <inheritdoc />
     public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromMinutes(Constants.Cache.DefaultExpirationMinutes);
 

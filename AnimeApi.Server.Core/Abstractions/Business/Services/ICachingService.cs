@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Microsoft.Extensions.Caching.Memory;
+using AnimeApi.Server.Core.Objects;
 
 namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 
@@ -19,16 +19,11 @@ public interface ICachingService
     /// The default size of cached items, used for cache size management.
     /// </summary>
     int DefaultItemSize { get; set; }
-    
+
     /// <summary>
-    /// Gets the number of items that have been evicted from the cache.
+    /// Gets the current cache statistics.
     /// </summary>
-    long EvictionCount { get; }
-    
-    /// <summary>
-    /// Gets the current statistics for the cache.
-    /// </summary>
-    MemoryCacheStatistics Statistics { get; }
+    CacheStatus GetStatistics();
 
     /// <summary>
     /// Retrieves a cached item for the specified key or creates and caches a new item using the provided factory function

@@ -1,9 +1,11 @@
-using AnimeApi.Server.Core;
 using Newtonsoft.Json;
 
-namespace AnimeApi.Server.ResponseModels;
+namespace AnimeApi.Server.Core.Objects;
 
-public record CacheStatusResponse
+/// <summary>
+/// Represents the status of the application's in-memory cache.'
+/// </summary>
+public record CacheStatus
 {
     [JsonProperty("hits")]
     public long Hits { get; init; }
