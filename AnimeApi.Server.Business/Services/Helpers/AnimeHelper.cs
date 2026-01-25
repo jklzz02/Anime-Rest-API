@@ -2,10 +2,10 @@ using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Abstractions.Dto;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
-using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.Core.SpecHelpers;
 using FluentValidation;
 
@@ -37,6 +37,15 @@ public class AnimeHelper : IAnimeHelper
             _repository.FindFirstOrDefaultAsync(query);
     }
 
+    public async Task<TProjection?> GetByIdAsync<TProjection>(int id) where TProjection : class, IProjectableFrom<AnimeDto>, new()
+    {
+        var query = new AnimeQuery()
+            .ByPk(id);
+        
+        return await
+            _repository.FindFirstOrDefaultAsync<TProjection>(query);
+    }
+
     public Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids)
         =>  GetByIdAsync(
             ids,
@@ -52,6 +61,30 @@ public class AnimeHelper : IAnimeHelper
 
         return await
             _repository.FindAsync(query);
+    }
+
+    public async Task<IEnumerable<TProjection>> GetByIdAsync<TProjection>(IEnumerable<int> ids)
+        where TProjection : class, IProjectableFrom<AnimeDto>, new()
+    {
+        var query = new AnimeQuery()
+            .ByPk(ids);
+        
+        return await
+            _repository.FindAsync<TProjection>(query);
+    }
+
+    public async Task<IEnumerable<TProjection>> GetByIdAsync<TProjection>(
+        IEnumerable<int> ids, 
+        string orderBy, 
+        string direction)
+        where TProjection : class, IProjectableFrom<AnimeDto>, new()
+    {
+        var query = new AnimeQuery()
+            .ByPk(ids)
+            .Sorting(orderBy, direction);
+        
+        return await
+            _repository.FindAsync<TProjection>(query);
     }
 
     public async Task<IEnumerable<AnimeDto>> GetAllAsync()
@@ -84,7 +117,31 @@ public class AnimeHelper : IAnimeHelper
         return new PaginatedResult<AnimeDto>(items, page, size, count);
     }
 
-    public async Task<IEnumerable<AnimeListItem>> GetAnimeListAsync(int count)
+    public async Task<PaginatedResult<TProjection>> GetAllAsync<TProjection>(
+        int page,
+        int size,
+        bool includeAdult = false)
+        where TProjection : class, IProjectableFrom<AnimeDto>, new()
+    {
+        var count = await
+            _repository
+                .CountAsync(new AnimeQuery()
+                    .ExcludeAdultContent(!includeAdult));
+
+        var query = new AnimeQuery()
+            .AsSplitQuery()
+            .ExcludeAdultContent(!includeAdult)
+            .Popular()
+            .TieBreaker()
+            .Paginate(page, size);
+        
+        var items = await
+            _repository.FindAsync<TProjection>(query);
+        
+        return new PaginatedResult<TProjection>(items, page, size, count);
+    }
+
+    public async Task<IEnumerable<AnimeDto>> GetAsync(int count)
     {
         var query = new AnimeQuery()
             .Popular()
@@ -93,10 +150,38 @@ public class AnimeHelper : IAnimeHelper
             .Limit(count);
         
         return await
-            _repository.FindAsync<AnimeListItem>(query);
+            _repository.FindAsync(query);
     }
 
-    public async Task<IEnumerable<AnimeListItem>> GetAnimeListByQueryAsync(string textQuery, int count)
+    public async Task<IEnumerable<TProjection>> GetAsync<TProjection>(int count)
+        where TProjection : class, IProjectableFrom<AnimeDto>, new()
+    {
+        var query = new AnimeQuery()
+            .Popular()
+            .Recent()
+            .TieBreaker()
+            .Limit(count);
+        
+        return await
+            _repository.FindAsync<TProjection>(query);
+    }
+
+    public async Task<IEnumerable<AnimeDto>> GetByQueryAsync(string textQuery, int count)
+    {
+        var query = new AnimeQuery()
+            .FullTextSearch(textQuery)
+            .Popular()
+            .Recent()
+            .TieBreaker()
+            .Limit(count)
+            .IncludeFullRelation();
+        
+        return await
+            _repository.FindAsync(query);
+    }
+
+    public async Task<IEnumerable<TProjection>> GetByQueryAsync<TProjection>(string textQuery, int count)
+        where TProjection : class, IProjectableFrom<AnimeDto>, new()
     {
         var query = new AnimeQuery()
             .FullTextSearch(textQuery)
@@ -106,7 +191,7 @@ public class AnimeHelper : IAnimeHelper
             .Limit(count);
         
         return await
-            _repository.FindAsync<AnimeListItem>(query);
+            _repository.FindAsync<TProjection>(query);   
     }
 
     public async Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count)
@@ -120,58 +205,15 @@ public class AnimeHelper : IAnimeHelper
             _repository.FindAsync(query);
     }
 
-    public async Task<AnimeSummary?> GetSummaryByIdAsync(int id)
-    {
-        return await
-            _repository.FindFirstOrDefaultAsync<AnimeSummary>(new AnimeQuery().ByPk(id));
-    }
-    
-    public async Task<IEnumerable<AnimeSummary>> GetSummariesByIdAsync(IEnumerable<int> ids)
-        => await GetSummariesByIdAsync(
-            ids,
-            Constants.OrderBy.Fields.Score,
-            Constants.OrderBy.StringDirections.Descending);
-
-    public async Task<IEnumerable<AnimeSummary>> GetSummariesByIdAsync(
-        IEnumerable<int> ids,
-        string orderBy,
-        string direction)
+    public async Task<IEnumerable<TProjection>> GetMostRecentAsync<TProjection>(int count)
+        where TProjection : class, IProjectableFrom<AnimeDto>, new()
     {
         var query = new AnimeQuery()
-            .ByPk(ids)
-            .Sorting(orderBy, direction);
+            .ExcludeAdultContent()
+            .Recents(count);
         
         return await
-            _repository.FindAsync<AnimeSummary>(query);
-    }
-
-    public async Task<IEnumerable<AnimeSummary>> GetSummariesAsync(int count)
-    {
-        var query = new AnimeQuery()
-            .IncludeFullRelation()
-            .Popular()
-            .TieBreaker()
-            .Limit(count);
-
-        return await
-            _repository.FindAsync<AnimeSummary>(query);
-    }
-
-    public async Task<PaginatedResult<AnimeSummary>> GetSummariesAsync(int page, int size)
-    {
-        var count = await
-            _repository.CountAsync();
-        
-        var query = new AnimeQuery()
-            .IncludeFullRelation()
-            .Popular()
-            .TieBreaker()
-            .Paginate(page, size);
-        
-        var items = await
-            _repository.FindAsync<AnimeSummary>(query);
-        
-        return new PaginatedResult<AnimeSummary>(items, page, size, count);
+            _repository.FindAsync<TProjection>(query);
     }
 
     public async Task<Result<AnimeDto>> CreateAsync(AnimeDto entity)
@@ -241,7 +283,51 @@ public class AnimeHelper : IAnimeHelper
             return new PaginatedResult<AnimeDto>(errors);
         }
 
-        var query = new AnimeQuery()
+        var query = BuildSearchQuery(parameters);
+
+        var count = await
+            _repository.CountAsync(query);
+
+        var items = await
+            _repository.FindAsync(
+                query
+                    .TieBreaker()
+                    .Paginate(page, size)
+                    .IncludeFullRelation());
+
+        return new PaginatedResult<AnimeDto>(items, page, size, count);
+    }
+    
+    public async Task<PaginatedResult<TProjection>> SearchAsync<TProjection>(AnimeSearchParameters parameters, int page, int size = 100) where TProjection : class, IProjectableFrom<AnimeDto>, new()
+    {
+        var validationResult = await 
+            _paramsValidator.ValidateAsync(parameters);
+
+        if (!validationResult.IsValid)
+        {
+            List<Error> errors = validationResult.Errors
+                .ToJsonKeyedErrors<AnimeSearchParameters>();
+            
+            return new PaginatedResult<TProjection>(errors);
+        }
+
+        var query = BuildSearchQuery(parameters);
+
+        var count = await
+            _repository.CountAsync(query);
+
+        var items = await
+            _repository.FindAsync<TProjection>(
+                query
+                    .TieBreaker()
+                    .Paginate(page, size));
+
+        return new PaginatedResult<TProjection>(items, page, size, count);
+    }
+
+    private AnimeQuery BuildSearchQuery(AnimeSearchParameters parameters)
+    {
+        return new AnimeQuery()
             .AsSplitQuery()
             .FullTextSearch(parameters.Query)
             .Name(parameters.Name)
@@ -274,17 +360,5 @@ public class AnimeHelper : IAnimeHelper
                 parameters.OrderBy,
                 parameters.SortOrder)
             .ExcludeAdultContent(!parameters.IncludeAdultContent);
-
-        var count = await
-            _repository.CountAsync(query);
-
-        var items = await
-            _repository.FindAsync(
-                query
-                    .TieBreaker()
-                    .Paginate(page, size)
-                    .IncludeFullRelation());
-
-        return new PaginatedResult<AnimeDto>(items, page, size, count);
     }
 }

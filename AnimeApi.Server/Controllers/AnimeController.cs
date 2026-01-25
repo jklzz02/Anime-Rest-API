@@ -5,11 +5,11 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.RequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Controllers;
 
@@ -32,7 +32,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAllAsync(
+    public async Task<IActionResult> GetAll(
         [FromQuery] Pagination pagination, 
         bool includeAdultContent = false)
     {
@@ -59,22 +59,11 @@ public class AnimeController : ControllerBase
         
         return Ok(result);
     }
-
-    [HttpGet("list")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetListAsync([FromQuery] AnimeListQuery request)
-    {
-        var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
-            ? await _helper.GetAnimeListAsync(request.Count)
-            : await _helper.GetAnimeListByQueryAsync(request.Query, request.Count);
-        
-        return Ok(list);
-    }
     
     [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIdAsync([FromRoute, Range(1, int.MaxValue)] int id)
+    public async Task<IActionResult> GetById([FromRoute, Range(1, int.MaxValue)] int id)
     {
         var anime = await _cache
             .GetOrCreateAsync(
@@ -88,11 +77,11 @@ public class AnimeController : ControllerBase
         return Ok(anime);
     }
 
-    [HttpPost("target")]
+    [HttpPost("by-ids")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIdsAsync([FromBody] TargetAnimeParams targetParams)
+    public async Task<IActionResult> GetByIds([FromBody] TargetAnimeParams targetParams)
     {
         var anime = await _cache
             .GetOrCreateAsync(
@@ -108,12 +97,41 @@ public class AnimeController : ControllerBase
 
         return Ok(anime);
     }
+
+    [HttpGet("top/{count:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTop(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
+    {
+        var result = await _helper.GetAsync(count);
+        return Ok(result);
+    }
+
+    [HttpGet("by-query")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetByQuery([FromQuery] AnimeListQuery request)
+    {
+        var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
+            ? await _helper.GetAsync(request.Count)
+            : await _helper.GetByQueryAsync(request.Query, request.Count);
+        
+        return Ok(list);
+    }
+
+    [HttpGet("recent/{count:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRecent(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
+    {
+        var result = await _helper.GetMostRecentAsync(count);
+        return Ok(result);
+    }
     
     [HttpGet("search")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByParametersAsync(
+    public async Task<IActionResult> Search(
         [FromQuery] AnimeSearchParameters parameters,
         [FromQuery] Pagination pagination)
     {
@@ -143,12 +161,44 @@ public class AnimeController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("summary/{id:int:min(1)}")]
+    [HttpGet("summaries")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAllSummaries(
+        [FromQuery] Pagination pagination, 
+        bool includeAdultContent = false)
+    {
+        var result = await
+            _cache
+                .GetOrCreateAsync(
+                    () => _helper.GetAllAsync<AnimeSummary>(pagination.Page, pagination.Size, includeAdultContent),
+                    Constants.Cache.DefaultCachedItemSize);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
+        }
+        
+        if (!result.HasItems) 
+        {
+            return NotFound();
+        }
+        
+        return Ok(result);
+    }
+
+    [HttpGet("summaries/{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetSummaryAsync([FromRoute, Range(1, int.MaxValue)] int id)
+    public async Task<IActionResult> GetSummaryById([FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var summary = await _helper.GetSummaryByIdAsync(id);
+        var summary = await _helper.GetByIdAsync<AnimeSummary>(id);
         
         if (summary is null)
         {
@@ -157,25 +207,16 @@ public class AnimeController : ControllerBase
         
         return Ok(summary);
     }
-
-    [HttpGet("summaries/count/{count:int:min(1)}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetSummariesAsync(
-        [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
-    {
-        var summaries = await _helper.GetSummariesAsync(count);
-        return Ok(summaries);
-    }
     
-    [HttpPost("summaries/target")]
+    [HttpPost("summaries/by-ids")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetSummariesByIdsAsync([FromBody] TargetAnimeParams targetParams)
+    public async Task<IActionResult> GetSummariesByIds([FromBody] TargetAnimeParams targetParams)
     {
         var summaries = await _cache
             .GetOrCreateAsync(
-                () => _helper.GetSummariesByIdAsync(
+                () => _helper.GetByIdAsync<AnimeSummary>(
                     targetParams.TargetAnimeIds,
                     targetParams.OrderBy,
                     targetParams.SortOrder));
@@ -187,13 +228,198 @@ public class AnimeController : ControllerBase
         
         return Ok(summaries);
     }
-    
-    [HttpGet("recent")]
+
+    [HttpGet("summaries/top/{count:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetRecentAsync(
-        [FromQuery, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
+    public async Task<IActionResult> GetTopSummaries(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
-        var result = await _helper.GetMostRecentAsync(count);
+        var summaries = await _helper.GetAsync<AnimeSummary>(count);
+        return Ok(summaries);
+    }
+
+    [HttpGet("summaries/by-query")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSummariesByQuery([FromQuery] AnimeListQuery request)
+    {
+        var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
+            ? await _helper.GetAsync<AnimeSummary>(request.Count)
+            : await _helper.GetByQueryAsync<AnimeSummary>(request.Query, request.Count);
+        
+        return Ok(list);
+    }
+
+    [HttpGet("summaries/recent/{count:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRecentSummaries(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
+    {
+        var result = await _helper.GetMostRecentAsync<AnimeSummary>(count);
+        return Ok(result);
+    }
+
+    [HttpGet("summaries/search")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SearchSummaries(
+        [FromQuery] AnimeSearchParameters parameters,
+        [FromQuery] Pagination pagination)
+    {
+        var result = await 
+            _cache
+                .GetOrCreateAsync(
+                    new { parameters, pagination.Page, pagination.Size},
+                    () =>_helper.SearchAsync<AnimeSummary>(parameters, pagination.Page, pagination.Size),
+                    Constants.Cache.DefaultCachedItemSize,
+                    TimeSpan.FromMinutes(2));
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+        
+        if (!result.Success)
+        {
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
+        }
+        
+        if (!result.HasItems) 
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
+    [HttpGet("list-items")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAllListItems(
+        [FromQuery] Pagination pagination, 
+        bool includeAdultContent = false)
+    {
+        var result = await
+            _cache
+                .GetOrCreateAsync(
+                    () => _helper.GetAllAsync<AnimeListItem>(pagination.Page, pagination.Size, includeAdultContent),
+                    Constants.Cache.DefaultCachedItemSize);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
+        }
+        
+        if (!result.HasItems) 
+        {
+            return NotFound();
+        }
+        
+        return Ok(result);
+    }
+
+    [HttpGet("list-items/{id:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetListItemById([FromRoute, Range(1, int.MaxValue)] int id)
+    {
+        var listItem = await _helper.GetByIdAsync<AnimeListItem>(id);
+        
+        if (listItem is null)
+        {
+            return NotFound();
+        }
+        
+        return Ok(listItem);
+    }
+
+    [HttpPost("list-items/by-ids")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetListItemsByIds([FromBody] TargetAnimeParams targetParams)
+    {
+        var listItems = await _cache
+            .GetOrCreateAsync(
+                () => _helper.GetByIdAsync<AnimeListItem>(
+                    targetParams.TargetAnimeIds,
+                    targetParams.OrderBy,
+                    targetParams.SortOrder));
+
+        if (listItems is null)
+        {
+            return NotFound();
+        }
+        
+        return Ok(listItems);
+    }
+
+    [HttpGet("list-items/top/{count:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTopListItems(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
+    {
+        var listItems = await _helper.GetAsync<AnimeListItem>(count);
+        return Ok(listItems);
+    }
+
+    [HttpGet("list-items/by-query")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetListItemsByQuery([FromQuery] AnimeListQuery request)
+    {
+        var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
+            ? await _helper.GetAsync<AnimeListItem>(request.Count)
+            : await _helper.GetByQueryAsync<AnimeListItem>(request.Query, request.Count);
+        
+        return Ok(list);
+    }
+
+    [HttpGet("list-items/recent/{count:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRecentListItems(
+        [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
+    {
+        var result = await _helper.GetMostRecentAsync<AnimeListItem>(count);
+        return Ok(result);
+    }
+
+    [HttpGet("list-items/search")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SearchListItems(
+        [FromQuery] AnimeSearchParameters parameters,
+        [FromQuery] Pagination pagination)
+    {
+        var result = await 
+            _cache
+                .GetOrCreateAsync(
+                    new { parameters, pagination.Page, pagination.Size},
+                    () =>_helper.SearchAsync<AnimeListItem>(parameters, pagination.Page, pagination.Size),
+                    Constants.Cache.DefaultCachedItemSize,
+                    TimeSpan.FromMinutes(2));
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+        
+        if (!result.Success)
+        {
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
+        }
+        
+        if (!result.HasItems) 
+        {
+            return NotFound();
+        }
+
         return Ok(result);
     }
 
@@ -202,7 +428,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> CreateAsync([FromBody] AnimeDto anime)
+    public async Task<IActionResult> Create([FromBody] AnimeDto anime)
     {
         var result = await _helper.CreateAsync(anime);
         
@@ -212,7 +438,7 @@ public class AnimeController : ControllerBase
         }
 
         return CreatedAtAction(
-            "GetById",
+            nameof(GetById),
             new { id = result.Data.Id },
             result.Data);
     }
@@ -222,7 +448,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> UpdatePartialAsync(
+    public async Task<IActionResult> UpdatePartial(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id,
         [FromBody] JsonPatchDocument<AnimeDto> patchDocument)
     {
@@ -255,7 +481,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> UpdateFullAsync([FromBody] AnimeDto anime)
+    public async Task<IActionResult> Update([FromBody] AnimeDto anime)
     {
         var result = await _helper.UpdateAsync(anime);
         
@@ -272,7 +498,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]   
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Policy = Constants.UserAccess.Admin)]
-    public async Task<IActionResult> DeleteAsync([FromRoute, Range(1, int.MaxValue)] int id)
+    public async Task<IActionResult> Delete([FromRoute, Range(1, int.MaxValue)] int id)
     {
         var result = await _helper.DeleteAsync(id);
 

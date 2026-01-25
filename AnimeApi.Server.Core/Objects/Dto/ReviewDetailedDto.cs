@@ -1,9 +1,10 @@
+using AnimeApi.Server.Core.Abstractions.Dto;
 using AnimeApi.Server.Core.Objects.Partials;
 using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Core.Objects.Dto;
 
-public record ReviewDetailedDto
+public record ReviewDetailedDto : IProjectableFrom<ReviewDto>
 {
     [JsonProperty("id")]
     public int Id { get; set; }

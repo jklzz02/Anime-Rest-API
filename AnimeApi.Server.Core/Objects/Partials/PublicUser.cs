@@ -1,8 +1,10 @@
+using AnimeApi.Server.Core.Abstractions.Dto;
+using AnimeApi.Server.Core.Objects.Dto;
 using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Core.Objects.Partials;
 
-public record PublicUser
+public record PublicUser : IProjectableFrom<AppUserDto>
 {
     [JsonProperty("id")]
     public int Id { get; init; }
