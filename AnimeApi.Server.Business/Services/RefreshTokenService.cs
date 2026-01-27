@@ -9,23 +9,15 @@ using AnimeApi.Server.Core.SpecHelpers;
 
 namespace AnimeApi.Server.Business.Services;
 
-public class RefreshTokenService : IRefreshTokenService
+public class RefreshTokenService(
+    ITokenHasher tokenHasher,
+    IRepository<RefreshToken, RefreshTokenDto> repository)
+    : IRefreshTokenService
 {
-    private readonly ITokenHasher _hasher;
-    private readonly IRepository<RefreshToken, RefreshTokenDto> _repository;
-    
-    public RefreshTokenService(
-        ITokenHasher tokenHasher,
-        IRepository<RefreshToken, RefreshTokenDto> repository)
-    {
-        _hasher = tokenHasher;
-        _repository = repository;
-    }
-
     public async Task<RefreshTokenResult> CreateAsync(int userId)
     {
         var token = GenerateToken();
-        var hashed = _hasher.Hash(token);
+        var hashed = tokenHasher.Hash(token);
         var refreshToken = new RefreshTokenDto
         {
             CreatedAt = DateTime.UtcNow,
@@ -36,7 +28,7 @@ public class RefreshTokenService : IRefreshTokenService
         };
 
         var saved = await 
-            _repository.AddAsync(refreshToken);
+            repository.AddAsync(refreshToken);
 
         if (saved is null)
         {
@@ -52,13 +44,13 @@ public class RefreshTokenService : IRefreshTokenService
 
     public async Task<RefreshTokenValidation> ValidateAsync(string token)
     {
-        var hashed = _hasher.Hash(token);
+        var hashed = tokenHasher.Hash(token);
         
         var query = new TokenQuery()
             .ByToken(hashed);
         
         var refreshToken = await 
-            _repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(query);
 
         return new RefreshTokenValidation
         {
@@ -70,7 +62,7 @@ public class RefreshTokenService : IRefreshTokenService
     public async Task<bool> RevokeAsync(string token)
     {
         var dto = await
-            _repository.FindFirstOrDefaultAsync(
+            repository.FindFirstOrDefaultAsync(
                 new TokenQuery()
                     .ByToken(token)
             );
@@ -83,7 +75,7 @@ public class RefreshTokenService : IRefreshTokenService
         dto.Revoke();
 
         var result = await
-            _repository.UpdateAsync(dto);
+            repository.UpdateAsync(dto);
 
         return result.IsSuccess;
     }
@@ -94,7 +86,7 @@ public class RefreshTokenService : IRefreshTokenService
             .ByUser(userId);
         
         var result = await
-            _repository.DeleteAsync(query);
+            repository.DeleteAsync(query);
         
         return result;
     }

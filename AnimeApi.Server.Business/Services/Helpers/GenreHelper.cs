@@ -10,24 +10,17 @@ using AnimeApi.Server.Core.SpecHelpers;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
-public class GenreHelper : IGenreHelper
+public class GenreHelper(
+    IRepository<Genre, GenreDto> repository,
+    IBaseValidator<GenreDto> validator)
+    : IGenreHelper
 {
-    private readonly IRepository<Genre, GenreDto> _repository;
-    private readonly IBaseValidator<GenreDto> _validator;
-    public GenreHelper(
-        IRepository<Genre, GenreDto> repository,
-        IBaseValidator<GenreDto> validator)
-    {
-        _repository = repository;
-        _validator = validator;
-    }
-
     public async Task<GenreDto?> GetByIdAsync(int id)
     {
         var query = new BaseQuery<Genre>().ById(id);
 
         return await 
-            _repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<GenreDto>> GetByNameAsync(string name)
@@ -37,13 +30,13 @@ public class GenreHelper : IGenreHelper
         var query = new BaseQuery<Genre>().ByName(name);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<GenreDto>> GetAllAsync()
     {
         return await 
-            _repository.GetAllAsync();
+            repository.GetAllAsync();
     }
 
     public async Task<Result<GenreDto>> CreateAsync(GenreDto entity)
@@ -52,13 +45,13 @@ public class GenreHelper : IGenreHelper
         ArgumentNullException.ThrowIfNull(entity);
         
         var existing = await 
-            _repository.GetAllAsync();
+            repository.GetAllAsync();
 
-        _validator
+        validator
             .WithExistingIds(existing.Select(g => g.Id.GetValueOrDefault()))
             .WithExistingNames(existing.Select(g => g.Name));
         
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -67,7 +60,7 @@ public class GenreHelper : IGenreHelper
             return Result<GenreDto>.Failure(errors);
         }
 
-        var result = await _repository.AddAsync(entity);
+        var result = await repository.AddAsync(entity);
         
         if (result.IsFailure)
         {
@@ -81,7 +74,7 @@ public class GenreHelper : IGenreHelper
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -90,7 +83,7 @@ public class GenreHelper : IGenreHelper
             return Result<GenreDto>.Failure(errors);
         }
 
-        var result = await _repository.UpdateAsync(entity);
+        var result = await repository.UpdateAsync(entity);
         
         if (result.IsFailure)
         {
@@ -104,6 +97,6 @@ public class GenreHelper : IGenreHelper
     {
         var query = new BaseQuery<Genre>().ById(id);
         
-        return await _repository.DeleteAsync(query);
+        return await repository.DeleteAsync(query);
     }
 }

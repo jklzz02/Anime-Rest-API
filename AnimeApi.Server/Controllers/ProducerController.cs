@@ -11,24 +11,15 @@ namespace AnimeApi.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ProducerController : ControllerBase
+public class ProducerController(IProducerHelper helper, ICachingService cache) : ControllerBase
 {
-    private readonly IProducerHelper _helper;
-    private readonly ICachingService _cache;
-    
-    public ProducerController(IProducerHelper helper, ICachingService cache)
-    {
-        _helper = helper;
-        _cache = cache;
-    }
-    
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
         var producers = await
-            _cache.GetOrCreateAsync(
-                () => _helper.GetAllAsync(),
+            cache.GetOrCreateAsync(
+                () => helper.GetAllAsync(),
                 Constants.Cache.MinCachedItemSize);
         
         return Ok(producers);
@@ -40,7 +31,7 @@ public class ProducerController : ControllerBase
     public async Task<IActionResult> GetByIdAsync(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
-        var producer = await _helper.GetByIdAsync(id);
+        var producer = await helper.GetByIdAsync(id);
         
         if (producer is null)
         {
@@ -55,7 +46,7 @@ public class ProducerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByNameAsync([FromRoute] string name)
     {
-        var producer = await _helper.GetByNameAsync(name);
+        var producer = await helper.GetByNameAsync(name);
         if (!producer.Any()) return NotFound();
         
         return Ok(producer);
@@ -68,7 +59,7 @@ public class ProducerController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] ProducerDto producer)
     {
-        var result = await _helper.CreateAsync(producer);
+        var result = await helper.CreateAsync(producer);
         
         if (result.IsFailure)
         {
@@ -93,7 +84,7 @@ public class ProducerController : ControllerBase
             return BadRequest();
         }
         
-        var result = await _helper.UpdateAsync(producer);
+        var result = await helper.UpdateAsync(producer);
         
         if (result.IsFailure)
         {
@@ -110,7 +101,7 @@ public class ProducerController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
-        var result = await _helper.DeleteAsync(id);
+        var result = await helper.DeleteAsync(id);
         
         if (!result) 
         {

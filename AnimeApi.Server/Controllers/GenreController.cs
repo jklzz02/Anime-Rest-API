@@ -11,25 +11,16 @@ namespace AnimeApi.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GenreController : ControllerBase
+public class GenreController(IGenreHelper helper, ICachingService cache) : ControllerBase
 {
-    private readonly IGenreHelper _helper;
-    private readonly ICachingService _cache;
-
-    public GenreController(IGenreHelper helper, ICachingService cache)
-    {
-        _helper = helper;
-        _cache = cache;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
         var genres = await
-            _cache
+            cache
                 .GetOrCreateAsync(
-                    () => _helper.GetAllAsync(),
+                    () => helper.GetAllAsync(),
                     Constants.Cache.MinCachedItemSize);
         
         return Ok(genres);
@@ -41,7 +32,7 @@ public class GenreController : ControllerBase
     public async Task<IActionResult> GetByIdAsync(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
-        var genre = await _helper.GetByIdAsync(id);
+        var genre = await helper.GetByIdAsync(id);
 
         if (genre is null) 
         {
@@ -57,7 +48,7 @@ public class GenreController : ControllerBase
     public async Task<IActionResult> GetByNameAsync(
         [FromRoute, MaxLength(Constants.MaxTextQueryLength)] string name)
     {
-        var genre = await _helper.GetByNameAsync(name);
+        var genre = await helper.GetByNameAsync(name);
         
         if (!genre.Any()) 
         {
@@ -74,7 +65,7 @@ public class GenreController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] GenreDto genre)
     {
-        var result = await _helper.CreateAsync(genre);
+        var result = await helper.CreateAsync(genre);
         
         if (result.IsFailure)
         {
@@ -99,7 +90,7 @@ public class GenreController : ControllerBase
             return BadRequest();
         }
         
-        var result = await _helper.UpdateAsync(genre);
+        var result = await helper.UpdateAsync(genre);
         
         if (result.IsFailure)
         {
@@ -115,7 +106,7 @@ public class GenreController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var result = await _helper.DeleteAsync(id);
+        var result = await helper.DeleteAsync(id);
         
         if (!result) 
         {

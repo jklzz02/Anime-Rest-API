@@ -7,19 +7,12 @@ namespace AnimeApi.Server.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class HealthController : Controller
+public class HealthController(ICachingService cache) : Controller
 {
-    private readonly ICachingService _cache;
-    
-    public HealthController(ICachingService cache)
-    {
-        _cache = cache;
-    }
-
     [HttpGet("cache")]
     [Authorize(Policy = Constants.UserAccess.Admin)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult CacheStatus()
-        => Ok(_cache.GetStatistics());
+        => Ok(cache.GetStatistics());
 }

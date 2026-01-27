@@ -11,22 +11,12 @@ using FluentValidation;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
-public class AnimeHelper : IAnimeHelper
+public class AnimeHelper(
+    IRepository<Anime, AnimeDto> repository,
+    IValidator<AnimeDto> validator,
+    IValidator<AnimeSearchParameters> paramsValidator)
+    : IAnimeHelper
 {
-    private readonly IRepository<Anime, AnimeDto> _repository;
-    private readonly IValidator<AnimeDto> _validator;
-    private readonly IValidator<AnimeSearchParameters> _paramsValidator;
-    
-    public AnimeHelper(
-        IRepository<Anime, AnimeDto> repository,
-        IValidator<AnimeDto> validator,
-        IValidator<AnimeSearchParameters> paramsValidator)
-    {
-        _repository = repository;
-        _validator = validator;
-        _paramsValidator = paramsValidator;
-    }
-    
     public async Task<AnimeDto?> GetByIdAsync(int id)
     {
         var query = new AnimeQuery()
@@ -34,7 +24,7 @@ public class AnimeHelper : IAnimeHelper
             .IncludeFullRelation();
 
         return await
-            _repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<TProjection?> GetByIdAsync<TProjection>(int id) where TProjection : class, IProjectableFrom<AnimeDto>, new()
@@ -43,7 +33,7 @@ public class AnimeHelper : IAnimeHelper
             .ByPk(id);
         
         return await
-            _repository.FindFirstOrDefaultAsync<TProjection>(query);
+            repository.FindFirstOrDefaultAsync<TProjection>(query);
     }
 
     public Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids)
@@ -60,7 +50,7 @@ public class AnimeHelper : IAnimeHelper
             .Sorting(orderBy, direction);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<TProjection>> GetByIdAsync<TProjection>(IEnumerable<int> ids)
@@ -70,7 +60,7 @@ public class AnimeHelper : IAnimeHelper
             .ByPk(ids);
         
         return await
-            _repository.FindAsync<TProjection>(query);
+            repository.FindAsync<TProjection>(query);
     }
 
     public async Task<IEnumerable<TProjection>> GetByIdAsync<TProjection>(
@@ -84,13 +74,13 @@ public class AnimeHelper : IAnimeHelper
             .Sorting(orderBy, direction);
         
         return await
-            _repository.FindAsync<TProjection>(query);
+            repository.FindAsync<TProjection>(query);
     }
 
     public async Task<IEnumerable<AnimeDto>> GetAllAsync()
     {
         return await 
-            _repository.GetAllAsync();
+            repository.GetAllAsync();
     }
     
     public async Task<PaginatedResult<AnimeDto>> GetAllAsync(int page, int size)
@@ -99,7 +89,7 @@ public class AnimeHelper : IAnimeHelper
     public async Task<PaginatedResult<AnimeDto>> GetAllAsync(int page, int size, bool includeAdult)
     {
         var count = await
-            _repository
+            repository
                 .CountAsync(new AnimeQuery()
                     .ExcludeAdultContent(!includeAdult));
         
@@ -112,7 +102,7 @@ public class AnimeHelper : IAnimeHelper
             .IncludeFullRelation();
 
         var items = await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
 
         return new PaginatedResult<AnimeDto>(items, page, size, count);
     }
@@ -124,7 +114,7 @@ public class AnimeHelper : IAnimeHelper
         where TProjection : class, IProjectableFrom<AnimeDto>, new()
     {
         var count = await
-            _repository
+            repository
                 .CountAsync(new AnimeQuery()
                     .ExcludeAdultContent(!includeAdult));
 
@@ -136,7 +126,7 @@ public class AnimeHelper : IAnimeHelper
             .Paginate(page, size);
         
         var items = await
-            _repository.FindAsync<TProjection>(query);
+            repository.FindAsync<TProjection>(query);
         
         return new PaginatedResult<TProjection>(items, page, size, count);
     }
@@ -150,7 +140,7 @@ public class AnimeHelper : IAnimeHelper
             .Limit(count);
         
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<TProjection>> GetAsync<TProjection>(int count)
@@ -163,7 +153,7 @@ public class AnimeHelper : IAnimeHelper
             .Limit(count);
         
         return await
-            _repository.FindAsync<TProjection>(query);
+            repository.FindAsync<TProjection>(query);
     }
 
     public async Task<IEnumerable<AnimeDto>> GetByQueryAsync(string textQuery, int count)
@@ -177,7 +167,7 @@ public class AnimeHelper : IAnimeHelper
             .IncludeFullRelation();
         
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<TProjection>> GetByQueryAsync<TProjection>(string textQuery, int count)
@@ -191,7 +181,7 @@ public class AnimeHelper : IAnimeHelper
             .Limit(count);
         
         return await
-            _repository.FindAsync<TProjection>(query);   
+            repository.FindAsync<TProjection>(query);   
     }
 
     public async Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count)
@@ -202,7 +192,7 @@ public class AnimeHelper : IAnimeHelper
             .IncludeFullRelation();
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<TProjection>> GetMostRecentAsync<TProjection>(int count)
@@ -213,14 +203,14 @@ public class AnimeHelper : IAnimeHelper
             .Recents(count);
         
         return await
-            _repository.FindAsync<TProjection>(query);
+            repository.FindAsync<TProjection>(query);
     }
 
     public async Task<Result<AnimeDto>> CreateAsync(AnimeDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
         
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -229,7 +219,7 @@ public class AnimeHelper : IAnimeHelper
              return Result<AnimeDto>.Failure(errors);
         }
 
-        var result = await _repository.AddAsync(entity);
+        var result = await repository.AddAsync(entity);
         
         if (result.IsFailure)
         {
@@ -243,7 +233,7 @@ public class AnimeHelper : IAnimeHelper
     {
         ArgumentNullException.ThrowIfNull(entity);
         
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -252,7 +242,7 @@ public class AnimeHelper : IAnimeHelper
             return Result<AnimeDto>.Failure(errors);
         }
         
-        var result = await _repository.UpdateAsync(entity);
+        var result = await repository.UpdateAsync(entity);
         if (result.IsFailure)
         {
             return Result<AnimeDto>.Failure(result.Errors);
@@ -264,7 +254,7 @@ public class AnimeHelper : IAnimeHelper
     public async Task<bool> DeleteAsync(int id)
     {
         return await 
-            _repository.DeleteAsync(new AnimeQuery().ByPk(id));
+            repository.DeleteAsync(new AnimeQuery().ByPk(id));
     }
 
     public async Task<PaginatedResult<AnimeDto>> SearchAsync(
@@ -273,7 +263,7 @@ public class AnimeHelper : IAnimeHelper
         int size = 100)
     {
         var validationResult = await 
-            _paramsValidator.ValidateAsync(parameters);
+            paramsValidator.ValidateAsync(parameters);
 
         if (!validationResult.IsValid)
         {
@@ -286,10 +276,10 @@ public class AnimeHelper : IAnimeHelper
         var query = BuildSearchQuery(parameters);
 
         var count = await
-            _repository.CountAsync(query);
+            repository.CountAsync(query);
 
         var items = await
-            _repository.FindAsync(
+            repository.FindAsync(
                 query
                     .TieBreaker()
                     .Paginate(page, size)
@@ -301,7 +291,7 @@ public class AnimeHelper : IAnimeHelper
     public async Task<PaginatedResult<TProjection>> SearchAsync<TProjection>(AnimeSearchParameters parameters, int page, int size = 100) where TProjection : class, IProjectableFrom<AnimeDto>, new()
     {
         var validationResult = await 
-            _paramsValidator.ValidateAsync(parameters);
+            paramsValidator.ValidateAsync(parameters);
 
         if (!validationResult.IsValid)
         {
@@ -314,10 +304,10 @@ public class AnimeHelper : IAnimeHelper
         var query = BuildSearchQuery(parameters);
 
         var count = await
-            _repository.CountAsync(query);
+            repository.CountAsync(query);
 
         var items = await
-            _repository.FindAsync<TProjection>(
+            repository.FindAsync<TProjection>(
                 query
                     .TieBreaker()
                     .Paginate(page, size));

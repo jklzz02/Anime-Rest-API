@@ -12,22 +12,15 @@ namespace AnimeApi.Server.Business.Services;
 /// Provides user-related services including user retrieval, creation, and deletion.
 /// Implements the <see cref="IUserService"/> interface.
 /// </summary>
-public class UserService : IUserService
+public class UserService(IRepository<AppUser, AppUserDto> userRepository) : IUserService
 {
-    private readonly IRepository<AppUser, AppUserDto> _userRepository;
-    
-    public UserService(IRepository<AppUser, AppUserDto> userRepository)
-    {
-        _userRepository = userRepository;
-    }
-
     /// <inheritdoc />
     public async Task<AppUserDto?> GetByEmailAsync(string email)
     {
         var query = new UserQuery().ByEmail(email);
         
         return await
-            _userRepository.FindFirstOrDefaultAsync(query);
+            userRepository.FindFirstOrDefaultAsync(query);
     }
 
     /// <inheritdoc />
@@ -36,7 +29,7 @@ public class UserService : IUserService
         var query = new UserQuery().ByPk(id);
         
         return await
-            _userRepository.FindFirstOrDefaultAsync(query);
+            userRepository.FindFirstOrDefaultAsync(query);
     }
 
     /// <inheritdoc />
@@ -44,7 +37,7 @@ public class UserService : IUserService
     {
         var  query = new UserQuery().ByPk(id);
         return await
-            _userRepository.FindFirstOrDefaultAsync<PublicUser>(query);
+            userRepository.FindFirstOrDefaultAsync<PublicUser>(query);
     }
 
     /// <inheritdoc />
@@ -53,7 +46,7 @@ public class UserService : IUserService
         var query = new UserQuery().ByEmail(payload.Email);
         
         var existingUser = await
-            _userRepository.FindFirstOrDefaultAsync(query);
+            userRepository.FindFirstOrDefaultAsync(query);
 
         if (existingUser != null)
         {
@@ -70,7 +63,7 @@ public class UserService : IUserService
         };
 
         var result = await 
-            _userRepository.AddAsync(newUser);
+            userRepository.AddAsync(newUser);
         
         return result.Data;
     }
@@ -81,6 +74,6 @@ public class UserService : IUserService
         var query = new UserQuery().ByEmail(email);
         
         return await 
-            _userRepository.DeleteAsync(query);
+            userRepository.DeleteAsync(query);
     }
 }

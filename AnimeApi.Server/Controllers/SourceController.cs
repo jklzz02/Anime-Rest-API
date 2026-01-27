@@ -11,20 +11,13 @@ namespace AnimeApi.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SourceController : Controller
+public class SourceController(ISourceHelper helper) : Controller
 {
-    private readonly ISourceHelper _helper;
-    
-    public SourceController(ISourceHelper helper)
-    {
-        _helper = helper;
-    }
-    
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
-        var sources = await _helper.GetAllAsync();
+        var sources = await helper.GetAllAsync();
         return Ok(sources);
     }
     
@@ -34,7 +27,7 @@ public class SourceController : Controller
     public async Task<IActionResult> GetByIdAsync(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
-        var source = await _helper.GetByIdAsync(id);
+        var source = await helper.GetByIdAsync(id);
         if (source is null) return NotFound();
         
         return Ok(source);
@@ -46,7 +39,7 @@ public class SourceController : Controller
     public async Task<IActionResult> GetByNameAsync(
         [FromRoute, MaxLength(Constants.MaxTextQueryLength)] string name)
     {
-        var source = await _helper.GetByNameAsync(name);
+        var source = await helper.GetByNameAsync(name);
         
         if (!source.Any()) 
         {
@@ -63,7 +56,7 @@ public class SourceController : Controller
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] SourceDto source)
     {
-        var result = await _helper.CreateAsync(source);
+        var result = await helper.CreateAsync(source);
         
         if (result.IsFailure)
         {
@@ -83,7 +76,7 @@ public class SourceController : Controller
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] SourceDto source)
     {
-        var result = await _helper.UpdateAsync(source);
+        var result = await helper.UpdateAsync(source);
 
         if (result.IsFailure)
         {
@@ -101,7 +94,7 @@ public class SourceController : Controller
     public async Task<IActionResult> DeleteAsync(
         [FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var result = await _helper.DeleteAsync(id);
+        var result = await helper.DeleteAsync(id);
 
         if (!result) 
         {

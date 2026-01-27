@@ -7,18 +7,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Repositories;
 
-public class Repository<TEntity, TDto> : IRepository<TEntity, TDto>
+public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, TDto> mapper)
+    : IRepository<TEntity, TDto>
     where TEntity : class
     where TDto : class
 {
-    protected AnimeDbContext Context { get; }
-    protected IMapper<TEntity, TDto> Mapper { get; }
-
-    public Repository(AnimeDbContext context, IMapper<TEntity, TDto> mapper)
-    {
-        Context = context;
-        Mapper = mapper;
-    }
+    protected AnimeDbContext Context { get; } = context;
+    protected IMapper<TEntity, TDto> Mapper { get; } = mapper;
 
     /// <inheritdoc />
     public async Task<int> CountAsync(IQuerySpec<TEntity> specification)

@@ -9,24 +9,16 @@ using AnimeApi.Server.Core.SpecHelpers;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
-public class SourceHelper : ISourceHelper
+public class SourceHelper(
+    IRepository<Source, SourceDto> repository,
+    IBaseValidator<SourceDto> validator)
+    : ISourceHelper
 {
-    private readonly IRepository<Source, SourceDto> _repository;
-    private readonly IBaseValidator<SourceDto> _validator;
-    
-    public SourceHelper(
-        IRepository<Source, SourceDto> repository,
-        IBaseValidator<SourceDto> validator)
-    {
-        _repository = repository;
-        _validator = validator;
-    }
-    
     public async Task<SourceDto?> GetByIdAsync(int id)
     {
         var query = new BaseQuery<Source>().ById(id);
         return await
-            _repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<SourceDto>> GetByNameAsync(string name)
@@ -34,13 +26,13 @@ public class SourceHelper : ISourceHelper
         var query = new BaseQuery<Source>().ByName(name);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<SourceDto>> GetAllAsync()
     {
         return await 
-            _repository.GetAllAsync();
+            repository.GetAllAsync();
     }
 
     public async Task<Result<SourceDto>> CreateAsync(SourceDto entity)
@@ -48,13 +40,13 @@ public class SourceHelper : ISourceHelper
         ArgumentNullException.ThrowIfNull(entity);
 
         var existing = await 
-            _repository.GetAllAsync();
+            repository.GetAllAsync();
 
-        _validator
+        validator
             .WithExistingIds(existing.Select(p => p.Id.GetValueOrDefault()))
             .WithExistingNames(existing.Select(p => p.Name));
         
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -63,7 +55,7 @@ public class SourceHelper : ISourceHelper
             return Result<SourceDto>.Failure(errors);
         }
         
-        var result = await _repository.AddAsync(entity);
+        var result = await repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
@@ -77,7 +69,7 @@ public class SourceHelper : ISourceHelper
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -86,7 +78,7 @@ public class SourceHelper : ISourceHelper
             return Result<SourceDto>.Failure(errors);
         }
 
-        var result = await _repository.UpdateAsync(entity);
+        var result = await repository.UpdateAsync(entity);
         
         if (result.IsFailure)
         {
@@ -100,6 +92,6 @@ public class SourceHelper : ISourceHelper
     {
         var query = new BaseQuery<Source>().ById(id);
         return await
-            _repository.DeleteAsync(query);
+            repository.DeleteAsync(query);
     }
 }

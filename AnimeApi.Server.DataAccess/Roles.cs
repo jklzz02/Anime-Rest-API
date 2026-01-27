@@ -6,20 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess;
 
-public class Roles : IRoles
+public class Roles(AnimeDbContext context) : IRoles
 {
-    private readonly AnimeDbContext _context;
-    
-    public Roles(AnimeDbContext context)
-    {
-        _context = context;
-    }
-
     /// <inheritdoc/>
     public async Task<Role> AdminAsync()
     {
         return await
-            _context.Roles
+            context.Roles
                 .FirstAsync(r => r.Access == Constants.UserAccess.Admin);
     }
     
@@ -27,7 +20,7 @@ public class Roles : IRoles
     public async Task<Role> UserAsync()
     {
         return await
-            _context.Roles
+            context.Roles
                 .FirstAsync(r => r.Access == Constants.UserAccess.User);
     }
 }

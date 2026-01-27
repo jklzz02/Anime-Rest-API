@@ -14,24 +14,15 @@ namespace AnimeApi.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ReviewController : ControllerBase
+public class ReviewController(IReviewHelper reviewHelper, IUserService userService) : ControllerBase
 {
-    private readonly IReviewHelper _reviewHelper;
-    private readonly IUserService _userService;
-
-    public ReviewController(IReviewHelper reviewHelper, IUserService userService)
-    {
-        _reviewHelper = reviewHelper;
-        _userService = userService;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAllAsync(
         [FromQuery] Pagination pagination)
     {
-        var result = await _reviewHelper.GetAllAsync(pagination.Page, pagination.Size);
+        var result = await reviewHelper.GetAllAsync(pagination.Page, pagination.Size);
 
         if (!result.HasItems)
         {
@@ -48,7 +39,7 @@ public class ReviewController : ControllerBase
         [FromQuery] Pagination pagination)
     {
         var result = await
-            _reviewHelper
+            reviewHelper
                 .GetAllDetailedAsync(pagination.Page, pagination.Size);
 
         if (!result.HasItems)
@@ -64,7 +55,7 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
-        var review = await _reviewHelper.GetByIdAsync(id);
+        var review = await reviewHelper.GetByIdAsync(id);
 
         if (review is null)
         {
@@ -80,7 +71,7 @@ public class ReviewController : ControllerBase
     public async Task<IActionResult> GetDetailedByIdAsync([FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
         var review = await
-            _reviewHelper
+            reviewHelper
                 .GetDetailedByIdAsync(id);
 
         if (review is null)
@@ -96,7 +87,7 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByAnimeIdAsync([FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int animeId)
     {
-        var reviews = await _reviewHelper.GetByAnimeIdAsync(animeId);
+        var reviews = await reviewHelper.GetByAnimeIdAsync(animeId);
 
         if (!reviews.Any())
         {
@@ -112,7 +103,7 @@ public class ReviewController : ControllerBase
     public async Task<IActionResult> GetByAnimeTitleAsync(
         [FromRoute, MaxLength(Constants.MaxTextQueryLength), MinLength(1)] string title) 
     {
-        var reviews = await _reviewHelper.GetByTitleAsync(title);
+        var reviews = await reviewHelper.GetByTitleAsync(title);
 
         if (!reviews.Any())
         {
@@ -128,7 +119,7 @@ public class ReviewController : ControllerBase
     public async Task<IActionResult> GetByQueryAsync(
         [FromRoute, MaxLength(Constants.MaxTextQueryLength), MinLength(1)] string query)
     {
-        var result = await _reviewHelper.GetByTextSearchAsync(query);
+        var result = await reviewHelper.GetByTextSearchAsync(query);
 
         if (result.ValidationErrors.Any())
         {
@@ -149,7 +140,7 @@ public class ReviewController : ControllerBase
     public async Task<IActionResult> GetByUserIdAsync([FromRoute, Range(1, int.MaxValue) ,DefaultValue(1)] int userId) 
     {
         var reviews = await
-            _reviewHelper
+            reviewHelper
                 .GetByUserIdAsync(userId);
 
         if (!reviews.Any()) 
@@ -166,7 +157,7 @@ public class ReviewController : ControllerBase
     public async Task<IActionResult> GetDetailedByUserIdAsync([FromRoute, Range(1, int.MaxValue) ,DefaultValue(1)] int userId) 
     {
         var reviews = await
-            _reviewHelper
+            reviewHelper
                 .GetDetailedByUserIdAsync(userId);
 
         if (!reviews.Any()) 
@@ -182,7 +173,7 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByUserEmailAsync([FromRoute] string email)
     {
-        var reviews = await _reviewHelper.GetByUserEmailAsync(email);
+        var reviews = await reviewHelper.GetByUserEmailAsync(email);
 
         if (!reviews.Any())
         {
@@ -197,7 +188,7 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByDateAsync([FromQuery] DateTime date)
     {
-        var reviews = await _reviewHelper.GetByDateAsync(date);
+        var reviews = await reviewHelper.GetByDateAsync(date);
 
         if (!reviews.Any())
         {
@@ -212,7 +203,7 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMostRecentAsync([FromQuery] TimeSpan timeSpan)
     {
-        var reviews = await _reviewHelper.GetMostRecentByTimeSpanAsync(timeSpan);
+        var reviews = await reviewHelper.GetMostRecentByTimeSpanAsync(timeSpan);
 
         if (!reviews.Any())
         {
@@ -230,7 +221,7 @@ public class ReviewController : ControllerBase
         [FromQuery, Range(1, 10)] int minScore,
         [FromQuery, Range(1, 10)] int maxScore)
     {
-        var result = await _reviewHelper.GetByScoreAsync(minScore, maxScore);
+        var result = await reviewHelper.GetByScoreAsync(minScore, maxScore);
 
         if (result.ValidationErrors.Any())
         {
@@ -261,7 +252,7 @@ public class ReviewController : ControllerBase
             return Unauthorized();
         }
 
-        var user = await _userService.GetByEmailAsync(email);
+        var user = await userService.GetByEmailAsync(email);
 
         if (user is null)
         {
@@ -273,7 +264,7 @@ public class ReviewController : ControllerBase
             return Forbid();
         }
 
-        var result = await _reviewHelper.CreateAsync(review);
+        var result = await reviewHelper.CreateAsync(review);
         if (result.IsFailure)
         {
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
@@ -301,7 +292,7 @@ public class ReviewController : ControllerBase
             return Unauthorized();
         }
 
-        var user = await _userService.GetByEmailAsync(email);
+        var user = await userService.GetByEmailAsync(email);
         if (user is null)
         {
             return Unauthorized();
@@ -312,7 +303,7 @@ public class ReviewController : ControllerBase
             return Forbid();
         }
 
-        var result = await _reviewHelper.UpdateAsync(review);
+        var result = await reviewHelper.UpdateAsync(review);
         if (result.IsFailure)
         {
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
@@ -340,13 +331,13 @@ public class ReviewController : ControllerBase
             return Unauthorized();
         }
         
-        var user = await _userService.GetByEmailAsync(email);
+        var user = await userService.GetByEmailAsync(email);
         if (user is null)
         {
             return Unauthorized();
         }
         
-        var review = await _reviewHelper.GetByIdAsync(id);
+        var review = await reviewHelper.GetByIdAsync(id);
         if (review is null)
         {
             return NotFound();
@@ -363,7 +354,7 @@ public class ReviewController : ControllerBase
             return BadRequest(ModelState);
         }
         
-        var result = await _reviewHelper.UpdateAsync(review);
+        var result = await reviewHelper.UpdateAsync(review);
         if (result.IsFailure)
         {
             return BadRequest(result.ValidationErrors.ToKeyValuePairs());
@@ -388,13 +379,13 @@ public class ReviewController : ControllerBase
             return Unauthorized();
         }
 
-        var user = await _userService.GetByEmailAsync(email);
+        var user = await userService.GetByEmailAsync(email);
         if (user is null)
         {
             return Unauthorized();
         }
 
-        var review = await _reviewHelper.GetByIdAsync(id);
+        var review = await reviewHelper.GetByIdAsync(id);
         if (review is null)
         {
             return NotFound();
@@ -405,7 +396,7 @@ public class ReviewController : ControllerBase
             return Forbid();
         }
 
-        var result = await _reviewHelper.DeleteAsync(id);
+        var result = await reviewHelper.DeleteAsync(id);
         if (!result)
         {
             return BadRequest();

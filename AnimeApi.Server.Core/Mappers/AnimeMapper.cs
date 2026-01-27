@@ -8,22 +8,12 @@ namespace AnimeApi.Server.Core.Mappers;
 /// <summary>
 /// Provides mapping methods for converting between <see cref="Anime"/> and <see cref="AnimeDto"/> objects.
 /// </summary>
-public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
+public class AnimeMapper(
+    IMapper<Producer, ProducerDto> producerMapper,
+    IMapper<Licensor, LicensorDto> licensorMapper,
+    IMapper<Genre, GenreDto> genreMapper)
+    : Mapper<Anime, AnimeDto>, IAnimeMapper
 {
-    private readonly IMapper<Producer, ProducerDto> _producerMapper;
-    private readonly IMapper<Licensor, LicensorDto> _licensorMapper;
-    private readonly IMapper<Genre, GenreDto> _genreMapper;
-
-    public AnimeMapper(
-        IMapper<Producer, ProducerDto> producerMapper,
-        IMapper<Licensor, LicensorDto> licensorMapper,
-        IMapper<Genre, GenreDto> genreMapper)
-    {
-        _producerMapper = producerMapper;
-        _licensorMapper = licensorMapper;
-        _genreMapper = genreMapper;
-    }
-
     public Anime MapToEntity(AnimeDto dto, bool includeNavigation)
     {
         ArgumentNullException.ThrowIfNull(dto);
@@ -57,7 +47,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
                 {
                     GenreId = g.Id ?? 0,
                     AnimeId = dto.Id ?? 0,
-                    Genre = includeNavigation? _genreMapper.MapToEntity(g) : null
+                    Genre = includeNavigation? genreMapper.MapToEntity(g) : null
                 })
                 .ToList() ?? new List<AnimeGenre>(),
 
@@ -66,7 +56,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
                 {
                     ProducerId = p.Id ?? 0,
                     AnimeId = dto.Id ?? 0,
-                    Producer = includeNavigation ? _producerMapper.MapToEntity(p) : null
+                    Producer = includeNavigation ? producerMapper.MapToEntity(p) : null
                 })
                 .ToList() ?? new List<AnimeProducer>(),
 
@@ -75,7 +65,7 @@ public class AnimeMapper : Mapper<Anime, AnimeDto>, IAnimeMapper
                 {
                     LicensorId = l.Id ?? 0,
                     AnimeId = dto.Id ?? 0,
-                    Licensor = includeNavigation ? _licensorMapper.MapToEntity(l) : null
+                    Licensor = includeNavigation ? licensorMapper.MapToEntity(l) : null
                 })
                 .ToList() ?? new List<AnimeLicensor>()
         };

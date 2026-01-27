@@ -16,7 +16,7 @@ namespace AnimeApi.Server.Business.Services;
 public class CachingService : ICachingService
 {
     private readonly IMemoryCache _cache;
-    private static readonly ConcurrentDictionary<Expression, Delegate> _compiledLambdas = new();
+    private static readonly ConcurrentDictionary<Expression, Delegate> CompiledLambdas = new();
     private long _evictionCount = 0;
 
     /// <inheritdoc />
@@ -223,7 +223,7 @@ public class CachingService : ICachingService
 
                 case MethodCallExpression methodCall:
                     {
-                        var target = ExtractValue(methodCall.Object);
+                        var target = ExtractValue(methodCall.Object!);
                         var args = methodCall.Arguments.Select(ExtractValue).ToArray();
                         return new
                         {
@@ -237,7 +237,7 @@ public class CachingService : ICachingService
             if (typeof(Task).IsAssignableFrom(expression.Type))
                 return expression.ToString();
 
-            var lambda = _compiledLambdas.GetOrAdd(expression, expr => Expression.Lambda(expr).Compile());
+            var lambda = CompiledLambdas.GetOrAdd(expression, expr => Expression.Lambda(expr).Compile());
             
             return lambda.DynamicInvoke();
         }

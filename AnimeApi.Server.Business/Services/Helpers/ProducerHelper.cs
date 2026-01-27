@@ -10,26 +10,17 @@ using AnimeApi.Server.Core.SpecHelpers;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
-public class ProducerHelper : IProducerHelper
+public class ProducerHelper(
+    IRepository<Producer, ProducerDto> repository,
+    IBaseValidator<ProducerDto> validator)
+    : IProducerHelper
 {
-    private readonly IRepository<Producer, ProducerDto> _repository;
-    IMapper<Producer, ProducerDto> _mapper;
-    private readonly IBaseValidator<ProducerDto> _validator;
-    public ProducerHelper(
-        IRepository<Producer, ProducerDto> repository,
-        IMapper<Producer, ProducerDto> mapper,
-        IBaseValidator<ProducerDto> validator)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _validator = validator;
-    }
     public async Task<ProducerDto?> GetByIdAsync(int id)
     {
         var query = new BaseQuery<Producer>().ById(id);
         
         return await
-            _repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<ProducerDto>> GetByNameAsync(string name)
@@ -37,13 +28,13 @@ public class ProducerHelper : IProducerHelper
         var query = new BaseQuery<Producer>().ByName(name);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<ProducerDto>> GetAllAsync()
     {
         return await 
-            _repository.GetAllAsync();
+            repository.GetAllAsync();
     }
 
     public async Task<Result<ProducerDto>> CreateAsync(ProducerDto entity)
@@ -51,13 +42,13 @@ public class ProducerHelper : IProducerHelper
         ArgumentNullException.ThrowIfNull(entity);
         
         var existing = await 
-            _repository.GetAllAsync();
+            repository.GetAllAsync();
 
-        _validator
+        validator
             .WithExistingIds(existing.Select(p => p.Id.GetValueOrDefault()))
             .WithExistingNames(existing.Select(p => p.Name));
         
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -66,7 +57,7 @@ public class ProducerHelper : IProducerHelper
             return Result<ProducerDto>.Failure(errors);
         };
         
-        var result = await _repository.AddAsync(entity);
+        var result = await repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
@@ -80,7 +71,7 @@ public class ProducerHelper : IProducerHelper
     {
         ArgumentNullException.ThrowIfNull(entity);
         
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -89,7 +80,7 @@ public class ProducerHelper : IProducerHelper
             return Result<ProducerDto>.Failure(errors);
         };
         
-        var result = await _repository.UpdateAsync(entity);
+        var result = await repository.UpdateAsync(entity);
         
         if (result.IsFailure)
         {
@@ -104,6 +95,6 @@ public class ProducerHelper : IProducerHelper
         var query = new BaseQuery<Producer>().ById(id);
 
         return await
-            _repository.DeleteAsync(query);
+            repository.DeleteAsync(query);
     }
 }

@@ -9,25 +9,17 @@ using Type = AnimeApi.Server.Core.Objects.Models.Type;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
-public class TypeHelper : ITypeHelper
+public class TypeHelper(
+    IRepository<Type, TypeDto> repository,
+    IBaseValidator<TypeDto> validator)
+    : ITypeHelper
 {
-    private readonly IRepository<Type, TypeDto> _repository;
-    private readonly IBaseValidator<TypeDto> _validator;
-
-    public TypeHelper(
-        IRepository<Type, TypeDto> repository,
-        IBaseValidator<TypeDto> validator)
-    {
-        _repository = repository;
-        _validator = validator;
-    }
-    
     public async Task<TypeDto?> GetByIdAsync(int id)
     {
         var query = new BaseQuery<Type>().ById(id);
 
         return await
-            _repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<TypeDto>> GetByNameAsync(string name)
@@ -35,13 +27,13 @@ public class TypeHelper : ITypeHelper
         var query = new BaseQuery<Type>().ByName(name);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     public async Task<IEnumerable<TypeDto>> GetAllAsync()
     {
         return await 
-            _repository.GetAllAsync();
+            repository.GetAllAsync();
     }
 
     public async Task<Result<TypeDto>> CreateAsync(TypeDto entity)
@@ -49,13 +41,13 @@ public class TypeHelper : ITypeHelper
         ArgumentNullException.ThrowIfNull(entity);
 
         var existing = await 
-            _repository.GetAllAsync();
+            repository.GetAllAsync();
 
-        _validator
+        validator
             .WithExistingIds(existing.Select(t => t.Id.GetValueOrDefault()))
             .WithExistingNames(existing.Select(t => t.Name));
         
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
 
         if (!validationResult.IsValid)
         {
@@ -65,7 +57,7 @@ public class TypeHelper : ITypeHelper
             return Result<TypeDto>.Failure(errors);
         }
         
-        var result = await _repository.AddAsync(entity);
+        var result = await repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
@@ -79,7 +71,7 @@ public class TypeHelper : ITypeHelper
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -88,7 +80,7 @@ public class TypeHelper : ITypeHelper
             return Result<TypeDto>.Failure(errors);
         }
 
-        var result = await _repository.UpdateAsync(entity);
+        var result = await repository.UpdateAsync(entity);
         
         if (result.IsFailure)
         {
@@ -103,6 +95,6 @@ public class TypeHelper : ITypeHelper
         var query = new BaseQuery<Type>().ById(id);
 
         return await 
-            _repository.DeleteAsync(query);
+            repository.DeleteAsync(query);
     }
 }

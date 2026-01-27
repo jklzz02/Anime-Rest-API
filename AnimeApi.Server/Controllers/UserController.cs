@@ -10,17 +10,9 @@ namespace AnimeApi.Server.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UserController : ControllerBase
+public class UserController(IUserService userService, IFavouritesHelper favouritesHelper)
+    : ControllerBase
 {
-    private readonly IUserService _userService;
-    private readonly IFavouritesHelper _favouritesHelper;
-    
-    public UserController(IUserService userService, IFavouritesHelper favouritesHelper)
-    {
-        _userService = userService;
-        _favouritesHelper = favouritesHelper;
-    }
-
     [HttpGet]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -28,7 +20,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetCurrentUserAsync()
     {
         var email = User.FindFirst(ClaimTypes.Email);
-        var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
+        var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
         
         if (user is null) 
         {
@@ -44,7 +36,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetByIdAsync([FromRoute, Range(1, int.MaxValue)] int id)
     {
         var user = await
-            _userService.GetPublicUserAsync(id);
+            userService.GetPublicUserAsync(id);
         
         if (user is null)
         {
@@ -61,14 +53,14 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetCurrentUserFavourites()
     {
         var email = User.FindFirst(ClaimTypes.Email);
-        var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
+        var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
 
         if (user is null)
         {
             return Unauthorized();
         }
 
-        var favourites = await _favouritesHelper
+        var favourites = await favouritesHelper
             .GetFavouritesAsync(user.Id);
         
         return Ok(favourites);
@@ -83,7 +75,7 @@ public class UserController : ControllerBase
         [FromBody, Range(1, int.MaxValue)] int animeId)
     {
         var email = User.FindFirst(ClaimTypes.Email);
-        var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
+        var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
 
         if (user is null)
         {
@@ -96,14 +88,14 @@ public class UserController : ControllerBase
             AnimeId = animeId
         };
 
-        var favourites = await _favouritesHelper.GetFavouritesAsync(user.Id);
+        var favourites = await favouritesHelper.GetFavouritesAsync(user.Id);
 
         if (favourites.Any(f => f.UserId == user.Id && f.AnimeId == animeId))
         {
             return BadRequest();
         }
         
-        var result = await _favouritesHelper.AddFavouriteAsync(favourite);
+        var result = await favouritesHelper.AddFavouriteAsync(favourite);
         
         if (result.IsFailure)
         {
@@ -121,14 +113,14 @@ public class UserController : ControllerBase
     public async Task<IActionResult> DestroyCurrentUserAsync()
     {
         var email = User.FindFirst(ClaimTypes.Email);
-        var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
+        var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
 
         if (user is null) 
         {
             return NotFound();
         }
         
-        var result = await _userService.DestroyUserAsync(email!.Value);
+        var result = await userService.DestroyUserAsync(email!.Value);
         
         if (!result) 
         {
@@ -147,7 +139,7 @@ public class UserController : ControllerBase
         [FromRoute, Range(1, int.MaxValue)] int id)
     {
         var email = User.FindFirst(ClaimTypes.Email);
-        var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
+        var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
         
         if (user is null)
         {
@@ -160,7 +152,7 @@ public class UserController : ControllerBase
             AnimeId = id
         };
         
-        var result = await _favouritesHelper.RemoveFavouriteAsync(favourite);
+        var result = await favouritesHelper.RemoveFavouriteAsync(favourite);
         
         if (!result)
         {

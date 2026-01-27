@@ -14,24 +14,11 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 /// Provides helper methods for performing operations related to reviews,
 /// such as retrieving, creating, updating, and deleting reviews associated with anime, users, and other criteria.
 /// </summary>
-public class ReviewHelper : IReviewHelper
+public class ReviewHelper(
+    IRepository<Review, ReviewDto> repository,
+    IValidator<ReviewDto> validator)
+    : IReviewHelper
 {
-    private readonly IRepository<Review, ReviewDto> _repository;
-    private readonly IValidator<ReviewDto> _validator;
-    
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ReviewHelper"/> class.
-    /// </summary>
-    /// <param name="repository">The repository for accessing and managing review data.</param>
-    /// <param name="validator">The validator for validating review data.</param>
-    public ReviewHelper(
-        IRepository<Review, ReviewDto> repository,
-        IValidator<ReviewDto> validator)
-    {
-        _repository = repository;
-        _validator = validator;
-    }
-
     /// <inheritdoc />
     public async Task<PaginatedResult<ReviewDto>> GetAllAsync(int page, int size)
     {
@@ -40,10 +27,10 @@ public class ReviewHelper : IReviewHelper
             .Paginate(page, size);
 
         var count = await
-            _repository.CountAsync();
+            repository.CountAsync();
         
         var result = await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
         
         return new PaginatedResult<ReviewDto>(result, page,  size, count);
     }
@@ -56,10 +43,10 @@ public class ReviewHelper : IReviewHelper
             .Paginate(page, size);
 
         var count = await
-            _repository.CountAsync();
+            repository.CountAsync();
         
         var result = await
-            _repository.FindAsync<ReviewDetailedDto>(query);
+            repository.FindAsync<ReviewDetailedDto>(query);
         
         return new PaginatedResult<ReviewDetailedDto>(result, page,  size, count);
     }
@@ -70,7 +57,7 @@ public class ReviewHelper : IReviewHelper
         var query = new ReviewQuery().ByPk(id);
 
         return await
-            _repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(query);
     }
 
     /// <inheritdoc />
@@ -80,7 +67,7 @@ public class ReviewHelper : IReviewHelper
             .ByPk(id);
         
         return await
-            _repository
+            repository
                 .FindFirstOrDefaultAsync<ReviewDetailedDto>(query);
     }
 
@@ -90,7 +77,7 @@ public class ReviewHelper : IReviewHelper
         var query = new ReviewQuery().ByAnime(animeId);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     /// <inheritdoc />
@@ -101,7 +88,7 @@ public class ReviewHelper : IReviewHelper
         var query = new ReviewQuery().ByAnime(title);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
     
     /// <inheritdoc />
@@ -110,7 +97,7 @@ public class ReviewHelper : IReviewHelper
         var query = new ReviewQuery().ByUser(userId);
 
         return await
-            _repository.FindAsync<ReviewDto>(query);
+            repository.FindAsync<ReviewDto>(query);
     }
 
     /// <inheritdoc />
@@ -119,7 +106,7 @@ public class ReviewHelper : IReviewHelper
         var query = new ReviewQuery().ByUser(userId);
 
         return await
-            _repository.FindAsync<ReviewDetailedDto>(query);
+            repository.FindAsync<ReviewDetailedDto>(query);
     }
 
     /// <inheritdoc />
@@ -132,7 +119,7 @@ public class ReviewHelper : IReviewHelper
         
         var query = new ReviewQuery().ByText(text);
         var results = await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
 
         return Result<IEnumerable<ReviewDto>>.Success(results);
     }
@@ -145,7 +132,7 @@ public class ReviewHelper : IReviewHelper
         var query = new ReviewQuery().ByEmail(email);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
     
     /// <inheritdoc />
@@ -154,7 +141,7 @@ public class ReviewHelper : IReviewHelper
         var query = new ReviewQuery().ByDate(date);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     /// <inheritdoc />
@@ -168,7 +155,7 @@ public class ReviewHelper : IReviewHelper
             ]);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     /// <inheritdoc />
@@ -211,7 +198,7 @@ public class ReviewHelper : IReviewHelper
             .ByScoreRange(minScore, maxScore);
         
         var results = await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
         
         return Result<IEnumerable<ReviewDto>>.Success(results);
     }
@@ -221,7 +208,7 @@ public class ReviewHelper : IReviewHelper
     {
         ArgumentNullException.ThrowIfNull(entity);
         
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -231,7 +218,7 @@ public class ReviewHelper : IReviewHelper
         }
 
         var result = await
-            _repository.AddAsync(entity);
+            repository.AddAsync(entity);
 
         if (result.IsFailure)
         {
@@ -246,7 +233,7 @@ public class ReviewHelper : IReviewHelper
     {
         ArgumentNullException.ThrowIfNull(entity);
         
-        var validationResult = await _validator.ValidateAsync(entity);
+        var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
             List<Error> errors = validationResult.Errors
@@ -255,7 +242,7 @@ public class ReviewHelper : IReviewHelper
             return Result<ReviewDto>.Failure(errors);
         }
         
-        var result = await _repository
+        var result = await repository
             .UpdateAsync(entity);
         
         if (result.IsFailure)
@@ -273,6 +260,6 @@ public class ReviewHelper : IReviewHelper
             .ByPk(id);
 
         return await
-            _repository.DeleteAsync(query);
+            repository.DeleteAsync(query);
     }
 }

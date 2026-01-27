@@ -12,34 +12,21 @@ namespace AnimeApi.Server.Controllers;
 
 [ApiController]
 [Route("[Controller]")]
-public class AuthController : ControllerBase
+public class AuthController(
+    IUserService userService,
+    IJwtGenerator jwtGenerator,
+    IRefreshTokenService refreshTokenService,
+    ISocialAuthService socialAuthService)
+    : ControllerBase
 {
-    private readonly IUserService _userService;
-    private readonly IJwtGenerator _jwtGenerator;
-    private readonly IRefreshTokenService _refreshTokenService;
-    private readonly ISocialAuthService _socialAuthService;
-    private readonly CookieOptions _cookieOptions;
-    
-
-    public AuthController(
-        IUserService userService,
-        IJwtGenerator jwtGenerator,
-        IRefreshTokenService refreshTokenService,
-        ISocialAuthService socialAuthService)
+    private readonly CookieOptions _cookieOptions = new()
     {
-        _userService = userService;
-        _jwtGenerator = jwtGenerator;
-        _refreshTokenService = refreshTokenService;
-        _socialAuthService = socialAuthService;
-        
-        _cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-            Path = "/"
-        };
-    }
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.None,
+        Path = "/"
+    };
+
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -48,7 +35,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] AuthRequest request)
     {
         var result = await
-            _socialAuthService.AuthenticateUserAsync(request);
+            socialAuthService.AuthenticateUserAsync(request);
 
         if (result.IsFailure)
         {
@@ -56,12 +43,12 @@ public class AuthController : ControllerBase
         }
         
         var user = await
-            _userService.GetOrCreateUserAsync(result.Data);
+            userService.GetOrCreateUserAsync(result.Data);
         
-        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
+        await refreshTokenService.RevokeByUserIdAsync(user.Id);
         
-        var accessToken = _jwtGenerator.GenerateToken(user);
-        var refreshToken = await _refreshTokenService.CreateAsync(user.Id);
+        var accessToken = jwtGenerator.GenerateToken(user);
+        var refreshToken = await refreshTokenService.CreateAsync(user.Id);
 
         return Ok(new
         {
@@ -75,17 +62,17 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Refresh([FromBody] RefreshRequest request)
     {
-        var validation = await _refreshTokenService.ValidateAsync(request.RefreshToken);
+        var validation = await refreshTokenService.ValidateAsync(request.RefreshToken);
         if (!validation.Success)
             return Unauthorized("Invalid or expired refresh token.");
 
-        var user = await _userService.GetByIdAsync(validation.UserId);
+        var user = await userService.GetByIdAsync(validation.UserId);
         if (user is null)
             return Unauthorized("User not found.");
 
-        var accessToken = _jwtGenerator.GenerateToken(user);
-        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
-        var newRefresh = await _refreshTokenService.CreateAsync(user.Id);
+        var accessToken = jwtGenerator.GenerateToken(user);
+        await refreshTokenService.RevokeByUserIdAsync(user.Id);
+        var newRefresh = await refreshTokenService.CreateAsync(user.Id);
 
         return Ok(new
         {
@@ -100,14 +87,14 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Logout()
     {
         var email = User.FindFirst(ClaimTypes.Email);
-        var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
+        var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
 
         if (user is null)
         {
             return Unauthorized();
         }
 
-        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
+        await refreshTokenService.RevokeByUserIdAsync(user.Id);
         return NoContent();
     }
 
@@ -118,7 +105,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> CookieLogin([FromBody] AuthRequest request)
     {
         var result = await
-            _socialAuthService.AuthenticateUserAsync(request);
+            socialAuthService.AuthenticateUserAsync(request);
             
         if (result.IsFailure)
         {
@@ -126,13 +113,13 @@ public class AuthController : ControllerBase
         }
         
         var user = await
-            _userService
+            userService
                 .GetOrCreateUserAsync(result.Data);
 
-        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
+        await refreshTokenService.RevokeByUserIdAsync(user.Id);
 
-        var accessToken = _jwtGenerator.GenerateToken(user);
-        var refreshToken = await _refreshTokenService.CreateAsync(user.Id);
+        var accessToken = jwtGenerator.GenerateToken(user);
+        var refreshToken = await refreshTokenService.CreateAsync(user.Id);
 
         SetTokenCookies(accessToken, refreshToken);
         
@@ -152,17 +139,17 @@ public class AuthController : ControllerBase
         if (string.IsNullOrEmpty(refreshTokenFromCookie))
             return Unauthorized("Refresh token not found.");
 
-        var validation = await _refreshTokenService.ValidateAsync(refreshTokenFromCookie);
+        var validation = await refreshTokenService.ValidateAsync(refreshTokenFromCookie);
         if (!validation.Success)
             return Unauthorized("Invalid or expired refresh token.");
 
-        var user = await _userService.GetByIdAsync(validation.UserId);
+        var user = await userService.GetByIdAsync(validation.UserId);
         if (user is null)
             return Unauthorized("User not found.");
 
-        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
-        var accessToken = _jwtGenerator.GenerateToken(user);
-        var newRefresh = await _refreshTokenService.CreateAsync(user.Id);
+        await refreshTokenService.RevokeByUserIdAsync(user.Id);
+        var accessToken = jwtGenerator.GenerateToken(user);
+        var newRefresh = await refreshTokenService.CreateAsync(user.Id);
 
         SetTokenCookies(accessToken, newRefresh);
 
@@ -179,14 +166,14 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> WebLogout()
     {
         var email = User.FindFirst(ClaimTypes.Email);
-        var user = await _userService.GetByEmailAsync(email?.Value ?? string.Empty);
+        var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
 
         if (user is null)
         {
             return Unauthorized("User not found.");
         }
 
-        await _refreshTokenService.RevokeByUserIdAsync(user.Id);
+        await refreshTokenService.RevokeByUserIdAsync(user.Id);
 
         ClearTokenCookies();
         return NoContent();

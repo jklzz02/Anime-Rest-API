@@ -9,14 +9,14 @@ namespace AnimeApi.Server.Business.Validators;
 /// such as name requirements and uniqueness constraints.
 /// </summary>
 /// <typeparam name="TEntity">The type of entity to be validated, which must implement IBaseDto.</typeparam>
-public class BaseValidator<TEntity>  : AbstractValidator<TEntity>, IBaseValidator<TEntity>
+public sealed class BaseValidator<TEntity>  : AbstractValidator<TEntity>, IBaseValidator<TEntity>
     where TEntity : IBaseDto
-{ 
+{
     /// <summary>
     /// Gets the entity name by converting the type name to lowercase and removing the "dto" suffix.
     /// Used in validation messages to provide context-specific error descriptions.
     /// </summary>
-    protected virtual string EntityName => typeof(TEntity).Name
+    private string EntityName => typeof(TEntity).Name
         .ToLower()
         .Replace("dto", string.Empty);
 

@@ -11,20 +11,13 @@ namespace AnimeApi.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TypeController : ControllerBase
+public class TypeController(ITypeHelper helper) : ControllerBase
 {
-    private readonly ITypeHelper _helper;
-    
-    public TypeController(ITypeHelper helper)
-    {
-        _helper = helper;
-    }
-    
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
-        var types = await _helper.GetAllAsync();
+        var types = await helper.GetAllAsync();
         return Ok(types);
     }
     
@@ -34,7 +27,7 @@ public class TypeController : ControllerBase
     public async Task<IActionResult> GetByIdAsync(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
-        var type = await _helper.GetByIdAsync(id);
+        var type = await helper.GetByIdAsync(id);
         
         if (type is null) 
         {
@@ -51,7 +44,7 @@ public class TypeController : ControllerBase
     public async Task<IActionResult> GetByNameAsync(
         [FromRoute, MaxLength(Constants.MaxTextQueryLength)] string name)
     {
-        var type = await _helper.GetByNameAsync(name);
+        var type = await helper.GetByNameAsync(name);
         
         if (!type.Any())
         {
@@ -68,7 +61,7 @@ public class TypeController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] TypeDto type)
     {
-        var result = await _helper.CreateAsync(type);
+        var result = await helper.CreateAsync(type);
         
         if (result.IsFailure)
         {
@@ -88,7 +81,7 @@ public class TypeController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> UpdateFullAsync([FromBody] TypeDto type)
     {
-        var result = await _helper.UpdateAsync(type);
+        var result = await helper.UpdateAsync(type);
         
         if (result.IsFailure)
         {
@@ -106,7 +99,7 @@ public class TypeController : ControllerBase
     public async Task<IActionResult> DeleteAsync(
         [FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var result = await _helper.DeleteAsync(id);
+        var result = await helper.DeleteAsync(id);
         
         if (!result)
         {

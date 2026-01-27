@@ -11,24 +11,15 @@ namespace AnimeApi.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class LicensorController : ControllerBase
+public class LicensorController(ILicensorHelper helper, ICachingService cache) : ControllerBase
 {
-    private readonly ILicensorHelper _helper;
-    private readonly ICachingService _cache;
-
-    public LicensorController(ILicensorHelper helper, ICachingService cache)
-    {
-        _helper = helper;
-        _cache = cache;
-    }
-    
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
         var licensors = await
-            _cache.GetOrCreateAsync(
-                () => _helper.GetAllAsync(),
+            cache.GetOrCreateAsync(
+                () => helper.GetAllAsync(),
                 Constants.Cache.MinCachedItemSize);
 
         return Ok(licensors);
@@ -39,7 +30,7 @@ public class LicensorController : ControllerBase
     public async Task<IActionResult> GetByIdAsync(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id)
     {
-        var licensor = await _helper.GetByIdAsync(id);
+        var licensor = await helper.GetByIdAsync(id);
         
         if (licensor is null) 
         {
@@ -55,7 +46,7 @@ public class LicensorController : ControllerBase
     public async Task<IActionResult> GetByNameAsync(
         [FromRoute, MaxLength(Constants.MaxTextQueryLength)] string name)
     {
-        var licensor = await _helper.GetByNameAsync(name);
+        var licensor = await helper.GetByNameAsync(name);
 
         if (!licensor.Any()) 
         {
@@ -72,7 +63,7 @@ public class LicensorController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] LicensorDto licensor)
     {
-        var result = await _helper.CreateAsync(licensor);
+        var result = await helper.CreateAsync(licensor);
 
         if (result.IsFailure)
         {
@@ -97,7 +88,7 @@ public class LicensorController : ControllerBase
             return BadRequest();
         }
         
-        var result = await _helper.UpdateAsync(licensor);
+        var result = await helper.UpdateAsync(licensor);
 
         if (result.IsFailure)
         {
@@ -114,7 +105,7 @@ public class LicensorController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var result = await _helper.DeleteAsync(id);
+        var result = await helper.DeleteAsync(id);
         
         if (!result) 
         {

@@ -10,22 +10,14 @@ using FluentValidation;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
 
-public class FavouritesHelper : IFavouritesHelper
+public class FavouritesHelper(
+    IRepository<Favourite, FavouriteDto> repository,
+    IMapper<Favourite, FavouriteDto> mapper,
+    IValidator<FavouriteDto> validator)
+    : IFavouritesHelper
 {
-    private readonly IRepository<Favourite, FavouriteDto> _repository;
-    private readonly IMapper<Favourite, FavouriteDto> _mapper;
-    private readonly IValidator<FavouriteDto> _validator;
-        
-    public FavouritesHelper(
-        IRepository<Favourite, FavouriteDto> repository,
-        IMapper<Favourite, FavouriteDto> mapper,
-        IValidator<FavouriteDto> validator)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _validator = validator;
-    }
-    
+    private readonly IMapper<Favourite, FavouriteDto> _mapper = mapper;
+
     public async Task<FavouriteDto?> GetFavouriteAsync(int userId, int animeId)
     {
         var query = new FavouriteQuery()
@@ -33,7 +25,7 @@ public class FavouritesHelper : IFavouritesHelper
             .ByAnimeId(animeId);
 
         return await
-            _repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(query);
     }
 
     public async Task<IEnumerable<FavouriteDto>> GetFavouritesAsync(int userId)
@@ -41,18 +33,18 @@ public class FavouritesHelper : IFavouritesHelper
         var query = new FavouriteQuery().ByUserId(userId);
 
         return await
-            _repository.FindAsync(query);
+            repository.FindAsync(query);
     }
 
     public async Task<Result<FavouriteDto>> AddFavouriteAsync(FavouriteDto favourite)
     {
-        var validationResult = await _validator.ValidateAsync(favourite);
+        var validationResult = await validator.ValidateAsync(favourite);
         if (!validationResult.IsValid)
         {
             return Result<FavouriteDto>.Failure(validationResult.Errors.ToJsonKeyedErrors<FavouriteDto>());
         }
 
-        var result = await _repository.AddAsync(favourite);
+        var result = await repository.AddAsync(favourite);
 
         return result.IsSuccess
             ? Result<FavouriteDto>.Success(result.Data)
@@ -66,7 +58,7 @@ public class FavouritesHelper : IFavouritesHelper
             .ByAnimeId(favourite.AnimeId);
 
         return await 
-            _repository.DeleteAsync(query);
+            repository.DeleteAsync(query);
     }
 
     public async Task<int> GetFavouritesCountAsync(int animeId)
@@ -74,6 +66,6 @@ public class FavouritesHelper : IFavouritesHelper
         var query = new FavouriteQuery().ByAnimeId(animeId);
 
         return await
-            _repository.CountAsync(query);
+            repository.CountAsync(query);
     }
 }

@@ -15,19 +15,10 @@ namespace AnimeApi.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AnimeController : ControllerBase
+public class AnimeController(
+    IAnimeHelper helper,
+    ICachingService cachingService) : ControllerBase
 {
-    private readonly IAnimeHelper _helper;
-    private readonly ICachingService _cache;
-    
-    public AnimeController(
-        IAnimeHelper helper,
-        ICachingService cachingService)
-    {
-        _helper = helper;
-        _cache = cachingService;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -37,9 +28,9 @@ public class AnimeController : ControllerBase
         bool includeAdultContent = false)
     {
         var result = await
-            _cache
+            cachingService
                 .GetOrCreateAsync(
-                    () => _helper.GetAllAsync(pagination.Page, pagination.Size, includeAdultContent),
+                    () => helper.GetAllAsync(pagination.Page, pagination.Size, includeAdultContent),
                     Constants.Cache.DefaultCachedItemSize);
 
         if (result is null)
@@ -65,9 +56,9 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById([FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var anime = await _cache
+        var anime = await cachingService
             .GetOrCreateAsync(
-                () => _helper.GetByIdAsync(id));
+                () => helper.GetByIdAsync(id));
         
         if (anime is null)
         {
@@ -83,9 +74,9 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIds([FromBody] TargetAnimeParams targetParams)
     {
-        var anime = await _cache
+        var anime = await cachingService
             .GetOrCreateAsync(
-                () => _helper.GetByIdAsync(
+                () => helper.GetByIdAsync(
                     targetParams.TargetAnimeIds,
                     targetParams.OrderBy,
                     targetParams.SortOrder));
@@ -103,7 +94,7 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetTop(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
-        var result = await _helper.GetAsync(count);
+        var result = await helper.GetAsync(count);
         return Ok(result);
     }
 
@@ -112,8 +103,8 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetByQuery([FromQuery] AnimeListQuery request)
     {
         var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
-            ? await _helper.GetAsync(request.Count)
-            : await _helper.GetByQueryAsync(request.Query, request.Count);
+            ? await helper.GetAsync(request.Count)
+            : await helper.GetByQueryAsync(request.Query, request.Count);
         
         return Ok(list);
     }
@@ -123,7 +114,7 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetRecent(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
-        var result = await _helper.GetMostRecentAsync(count);
+        var result = await helper.GetMostRecentAsync(count);
         return Ok(result);
     }
     
@@ -136,10 +127,10 @@ public class AnimeController : ControllerBase
         [FromQuery] Pagination pagination)
     {
         var result = await 
-            _cache
+            cachingService
                 .GetOrCreateAsync(
                     new { parameters, pagination.Page, pagination.Size},
-                    () =>_helper.SearchAsync(parameters, pagination.Page, pagination.Size),
+                    () =>helper.SearchAsync(parameters, pagination.Page, pagination.Size),
                     Constants.Cache.DefaultCachedItemSize,
                     TimeSpan.FromMinutes(2));
 
@@ -170,9 +161,9 @@ public class AnimeController : ControllerBase
         bool includeAdultContent = false)
     {
         var result = await
-            _cache
+            cachingService
                 .GetOrCreateAsync(
-                    () => _helper.GetAllAsync<AnimeSummary>(pagination.Page, pagination.Size, includeAdultContent),
+                    () => helper.GetAllAsync<AnimeSummary>(pagination.Page, pagination.Size, includeAdultContent),
                     Constants.Cache.DefaultCachedItemSize);
 
         if (result is null)
@@ -198,7 +189,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetSummaryById([FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var summary = await _helper.GetByIdAsync<AnimeSummary>(id);
+        var summary = await helper.GetByIdAsync<AnimeSummary>(id);
         
         if (summary is null)
         {
@@ -214,9 +205,9 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetSummariesByIds([FromBody] TargetAnimeParams targetParams)
     {
-        var summaries = await _cache
+        var summaries = await cachingService
             .GetOrCreateAsync(
-                () => _helper.GetByIdAsync<AnimeSummary>(
+                () => helper.GetByIdAsync<AnimeSummary>(
                     targetParams.TargetAnimeIds,
                     targetParams.OrderBy,
                     targetParams.SortOrder));
@@ -234,7 +225,7 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetTopSummaries(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
-        var summaries = await _helper.GetAsync<AnimeSummary>(count);
+        var summaries = await helper.GetAsync<AnimeSummary>(count);
         return Ok(summaries);
     }
 
@@ -243,8 +234,8 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetSummariesByQuery([FromQuery] AnimeListQuery request)
     {
         var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
-            ? await _helper.GetAsync<AnimeSummary>(request.Count)
-            : await _helper.GetByQueryAsync<AnimeSummary>(request.Query, request.Count);
+            ? await helper.GetAsync<AnimeSummary>(request.Count)
+            : await helper.GetByQueryAsync<AnimeSummary>(request.Query, request.Count);
         
         return Ok(list);
     }
@@ -254,7 +245,7 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetRecentSummaries(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
-        var result = await _helper.GetMostRecentAsync<AnimeSummary>(count);
+        var result = await helper.GetMostRecentAsync<AnimeSummary>(count);
         return Ok(result);
     }
 
@@ -267,10 +258,10 @@ public class AnimeController : ControllerBase
         [FromQuery] Pagination pagination)
     {
         var result = await 
-            _cache
+            cachingService
                 .GetOrCreateAsync(
                     new { parameters, pagination.Page, pagination.Size},
-                    () =>_helper.SearchAsync<AnimeSummary>(parameters, pagination.Page, pagination.Size),
+                    () =>helper.SearchAsync<AnimeSummary>(parameters, pagination.Page, pagination.Size),
                     Constants.Cache.DefaultCachedItemSize,
                     TimeSpan.FromMinutes(2));
 
@@ -301,9 +292,9 @@ public class AnimeController : ControllerBase
         bool includeAdultContent = false)
     {
         var result = await
-            _cache
+            cachingService
                 .GetOrCreateAsync(
-                    () => _helper.GetAllAsync<AnimeListItem>(pagination.Page, pagination.Size, includeAdultContent),
+                    () => helper.GetAllAsync<AnimeListItem>(pagination.Page, pagination.Size, includeAdultContent),
                     Constants.Cache.DefaultCachedItemSize);
 
         if (result is null)
@@ -329,7 +320,7 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetListItemById([FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var listItem = await _helper.GetByIdAsync<AnimeListItem>(id);
+        var listItem = await helper.GetByIdAsync<AnimeListItem>(id);
         
         if (listItem is null)
         {
@@ -345,9 +336,9 @@ public class AnimeController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetListItemsByIds([FromBody] TargetAnimeParams targetParams)
     {
-        var listItems = await _cache
+        var listItems = await cachingService
             .GetOrCreateAsync(
-                () => _helper.GetByIdAsync<AnimeListItem>(
+                () => helper.GetByIdAsync<AnimeListItem>(
                     targetParams.TargetAnimeIds,
                     targetParams.OrderBy,
                     targetParams.SortOrder));
@@ -365,7 +356,7 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetTopListItems(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
-        var listItems = await _helper.GetAsync<AnimeListItem>(count);
+        var listItems = await helper.GetAsync<AnimeListItem>(count);
         return Ok(listItems);
     }
 
@@ -374,8 +365,8 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetListItemsByQuery([FromQuery] AnimeListQuery request)
     {
         var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
-            ? await _helper.GetAsync<AnimeListItem>(request.Count)
-            : await _helper.GetByQueryAsync<AnimeListItem>(request.Query, request.Count);
+            ? await helper.GetAsync<AnimeListItem>(request.Count)
+            : await helper.GetByQueryAsync<AnimeListItem>(request.Query, request.Count);
         
         return Ok(list);
     }
@@ -385,7 +376,7 @@ public class AnimeController : ControllerBase
     public async Task<IActionResult> GetRecentListItems(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
-        var result = await _helper.GetMostRecentAsync<AnimeListItem>(count);
+        var result = await helper.GetMostRecentAsync<AnimeListItem>(count);
         return Ok(result);
     }
 
@@ -398,10 +389,10 @@ public class AnimeController : ControllerBase
         [FromQuery] Pagination pagination)
     {
         var result = await 
-            _cache
+            cachingService
                 .GetOrCreateAsync(
                     new { parameters, pagination.Page, pagination.Size},
-                    () =>_helper.SearchAsync<AnimeListItem>(parameters, pagination.Page, pagination.Size),
+                    () =>helper.SearchAsync<AnimeListItem>(parameters, pagination.Page, pagination.Size),
                     Constants.Cache.DefaultCachedItemSize,
                     TimeSpan.FromMinutes(2));
 
@@ -430,7 +421,7 @@ public class AnimeController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> Create([FromBody] AnimeDto anime)
     {
-        var result = await _helper.CreateAsync(anime);
+        var result = await helper.CreateAsync(anime);
         
         if (result.IsFailure)
         {
@@ -452,7 +443,7 @@ public class AnimeController : ControllerBase
         [FromRoute, Range(1, int.MaxValue), DefaultValue(1)] int id,
         [FromBody] JsonPatchDocument<AnimeDto> patchDocument)
     {
-        var anime = await _helper.GetByIdAsync(id);
+        var anime = await helper.GetByIdAsync(id);
 
         if (anime is null)
         {
@@ -466,7 +457,7 @@ public class AnimeController : ControllerBase
             return BadRequest(ModelState);
         }
         
-        var result = await _helper.UpdateAsync(anime);
+        var result = await helper.UpdateAsync(anime);
         
         if (result.IsFailure)
         {
@@ -483,7 +474,7 @@ public class AnimeController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> Update([FromBody] AnimeDto anime)
     {
-        var result = await _helper.UpdateAsync(anime);
+        var result = await helper.UpdateAsync(anime);
         
         if (result.IsFailure)
         {
@@ -500,7 +491,7 @@ public class AnimeController : ControllerBase
     [Authorize(Policy = Constants.UserAccess.Admin)]
     public async Task<IActionResult> Delete([FromRoute, Range(1, int.MaxValue)] int id)
     {
-        var result = await _helper.DeleteAsync(id);
+        var result = await helper.DeleteAsync(id);
 
         if (!result) 
         {
