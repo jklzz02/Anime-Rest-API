@@ -1,5 +1,0 @@
-### GET request to example server
-GET https://localhost:7145/api/Anime/1
-
-###
-GET https://localhost:7145/api/Anime?page=1
