@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -11,12 +11,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="FluentValidation" Version="11.11.0" />
-      <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.3.0" />
-      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.3" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+      <PackageReference Include="FluentValidation" Version="12.1.1" />
+      <PackageReference Include="Google.Apis.Auth" Version="1.73.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.3.9" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
     </ItemGroup>
 
     <ItemGroup>

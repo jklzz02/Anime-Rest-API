@@ -6,7 +6,7 @@ namespace AnimeApi.Server.Core;
 public static class Constants
 {
     /// <summary> Represents the name of the application. </summary>
-    public const string App = "AnimeApi";
+    public const string App = "AnimeHub";
     
     public const int SerializerMaxDepth = 64;
     public const int MaxTextQueryLength = 60;

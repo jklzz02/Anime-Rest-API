@@ -8,7 +8,7 @@ using AnimeApi.Server.DataAccess.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Newtonsoft.Json;
 
 namespace AnimeApi.Server;
@@ -122,7 +122,11 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = Constants.App, Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = Constants.App,
+                Version = "v1",
+            });
 
             c.AddSecurityDefinition(Constants.Auth.DefaultScheme, new OpenApiSecurityScheme
             {
@@ -134,19 +138,9 @@ public class Program
                 BearerFormat = "JWT"
             });
 
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = Constants.Auth.DefaultScheme
-                        }
-                    },
-                    Array.Empty<string>()
-                }
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
             });
         });
         
