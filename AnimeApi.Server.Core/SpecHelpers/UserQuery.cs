@@ -10,4 +10,13 @@ public class UserQuery : QuerySpec<AppUser, UserQuery>
     
     public UserQuery ByEmail(string email)
         => FilterBy(u => u.Email == email);
+    
+    public UserQuery ByUsername(string username)
+        => FilterBy(u => u.Username == username);
+
+    public UserQuery SortByEmail()
+        => SortBy(u => u.Email);
+    
+    public UserQuery TieBreaker()
+        => SortBy(u => u.Id);
 }

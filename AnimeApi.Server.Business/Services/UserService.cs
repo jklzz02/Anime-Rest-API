@@ -1,5 +1,6 @@
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
@@ -21,6 +22,19 @@ public class UserService(IRepository<AppUser, AppUserDto> userRepository) : IUse
         
         return await
             userRepository.FindFirstOrDefaultAsync(query);
+    }
+
+    /// <inheritdoc />
+    public async Task<PaginatedResult<PublicUser>> GetPublicUsersAsync(int page, int pageSize)
+    {
+        var count =  await userRepository.CountAsync();
+
+        var results = await
+            userRepository.FindAsync<PublicUser>(new UserQuery()
+                .SortByEmail()
+                .TieBreaker());
+        
+        return new PaginatedResult<PublicUser>(results, page, pageSize, count);
     }
 
     /// <inheritdoc />
@@ -66,6 +80,15 @@ public class UserService(IRepository<AppUser, AppUserDto> userRepository) : IUse
             userRepository.AddAsync(newUser);
         
         return result.Data;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> DestroyUserAsync(int id)
+    {
+        var query =  new UserQuery().ByPk(id);
+        
+        return await
+            userRepository.DeleteAsync(query);
     }
 
     /// <inheritdoc />

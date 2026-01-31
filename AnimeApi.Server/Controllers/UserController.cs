@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.RequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +30,19 @@ public class UserController(IUserService userService, IFavouritesHelper favourit
         }
         
         return Ok(user);
+    }
+
+    [HttpGet("list")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
+    public async Task<IActionResult> GetAllAsync([FromQuery] Pagination pagination)
+    {
+        var users = await
+            userService
+                .GetPublicUsersAsync(pagination.Page, pagination.Size);
+        
+        return Ok(users);
     }
 
     [HttpGet("{id:int:min(1)}")]
@@ -127,6 +142,22 @@ public class UserController(IUserService userService, IFavouritesHelper favourit
             Unauthorized();
         }
 
+        return NoContent();
+    }
+
+    [HttpDelete("destroy/{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
+    public async Task<IActionResult> DestroyUserAsync([FromRoute, Range(1, int.MaxValue)] int id)
+    {
+        var result = await userService.DestroyUserAsync(id);
+        if (!result)
+        {
+            NotFound();
+        }
+        
         return NoContent();
     }
     

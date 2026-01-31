@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Partials;
@@ -10,15 +11,6 @@ namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 public interface IUserService
 {
     /// <summary>
-    /// Retrieves a user by their email address asynchronously.
-    /// </summary>
-    /// <param name="email">The email address of the user to retrieve.</param>
-    /// <returns>
-    /// An <see cref="AppUserDto"/> representing the user if found, or null if no user exists with the specified email.
-    /// </returns>
-    Task<AppUserDto?> GetByEmailAsync(string email);
-    
-    /// <summary>
     /// Retrieves a user by their unique identifier asynchronously.
     /// </summary>
     /// <param name="id">The unique identifier of the user to retrieve.</param>
@@ -26,6 +18,23 @@ public interface IUserService
     /// An <see cref="AppUserDto"/> representing the user if found, or null if no user exists with the specified identifier.
     /// </returns>
     Task<AppUserDto?> GetByIdAsync(int id);
+    
+    /// <summary>
+    /// Retrieves a user by their email address asynchronously.
+    /// </summary>
+    /// <param name="email">The email address of the user to retrieve.</param>
+    /// <returns>
+    /// An <see cref="AppUserDto"/> representing the user if found, or null if no user exists with the specified email.
+    /// </returns>
+    Task<AppUserDto?> GetByEmailAsync(string email);
+ 
+    /// <summary>
+    /// Retrieves a paginated list of publicly available user's data. 
+    /// </summary>
+    /// <param name="page">The page to fetch</param>
+    /// <param name="pageSize">The number of items to retrieve per page</param>
+    /// <returns>A <see cref="PaginatedResult{T}"/> representing the paginated user data.</returns>
+    Task<PaginatedResult<PublicUser>> GetPublicUsersAsync(int page, int pageSize);
     
     /// <summary>
     /// Retrieves publicly accessible data of a user by their unique identifier asynchronously
@@ -43,6 +52,16 @@ public interface IUserService
     /// </returns>
     Task<AppUserDto> GetOrCreateUserAsync(AuthPayload payload);
 
+    /// <summary>
+    /// Deletes a user identified by their id asynchronously.
+    /// </summary>
+    /// <param name="id">The id of the user to be deleted.</param>
+    /// <returns>
+    /// A boolean value indicating whether the user was successfully deleted
+    /// (true if deleted, false if the user does not exist).
+    /// </returns>
+    Task<bool> DestroyUserAsync(int id);
+    
     /// <summary>
     /// Deletes a user identified by their email address asynchronously.
     /// </summary>
