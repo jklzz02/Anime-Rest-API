@@ -14,42 +14,51 @@ public class SourceHelper(
     IBaseValidator<SourceDto> validator)
     : ISourceHelper
 {
+    private static BaseQuery<Source> Query => new();
+    
     public async Task<SourceDto?> GetByIdAsync(int id)
     {
-        var query = new BaseQuery<Source>().ById(id);
         return await
-            repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(Query.ById(id));
     }
 
     public async Task<IEnumerable<SourceDto>> GetByNameAsync(string name)
     {
-        var query = new BaseQuery<Source>().ByName(name);
-
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        
         return await
-            repository.FindAsync(query);
+            repository.FindAsync(Query
+                .ByName(name)
+                .SortByName()
+                .TieBreaker());
     }
 
     public async Task<IEnumerable<SourceDto>> GetAllAsync()
     {
         return await 
-            repository.GetAllAsync();
+            repository.FindAsync(Query
+                .SortByName()
+                .TieBreaker());
     }
 
     public async Task<Result<SourceDto>> CreateAsync(SourceDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        var existing = await 
-            repository.GetAllAsync();
+        var sources = await repository.GetAllAsync();
+        
+        var existing = sources
+            .Where(s => !string.IsNullOrWhiteSpace(s.Name))
+            .ToList();
 
         validator
             .WithExistingIds(existing.Select(p => p.Id.GetValueOrDefault()))
-            .WithExistingNames(existing.Select(p => p.Name));
+            .WithExistingNames(existing.Select(p => p.Name!));
         
         var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            List<Error> errors = validationResult.Errors
+            var errors = validationResult.Errors
                 .ToJsonKeyedErrors<SourceDto>();
             
             return Result<SourceDto>.Failure(errors);
@@ -57,12 +66,9 @@ public class SourceHelper(
         
         var result = await repository.AddAsync(entity);
 
-        if (result.IsFailure)
-        {
-            return Result<SourceDto>.Failure(result.Errors);
-        }
-     
-        return result;
+        return result.IsFailure
+            ? Result<SourceDto>.Failure(result.Errors)
+            : result;
     }
 
     public async Task<Result<SourceDto>> UpdateAsync(SourceDto entity)
@@ -72,7 +78,7 @@ public class SourceHelper(
         var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            List<Error> errors = validationResult.Errors
+            var errors = validationResult.Errors
                 .ToJsonKeyedErrors<SourceDto>();
             
             return Result<SourceDto>.Failure(errors);
@@ -80,18 +86,14 @@ public class SourceHelper(
 
         var result = await repository.UpdateAsync(entity);
         
-        if (result.IsFailure)
-        {
-            return Result<SourceDto>.Failure(result.Errors);
-        }
-     
-        return result;
+        return result.IsFailure
+            ? Result<SourceDto>.Failure(result.Errors)
+            : result;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new BaseQuery<Source>().ById(id);
         return await
-            repository.DeleteAsync(query);
+            repository.DeleteAsync(Query.ById(id));
     }
 }

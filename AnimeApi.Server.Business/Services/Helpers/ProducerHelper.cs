@@ -1,5 +1,4 @@
 using AnimeApi.Server.Business.Extensions;
-using AnimeApi.Server.Core.Abstractions.Business.Mappers;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
@@ -15,56 +14,61 @@ public class ProducerHelper(
     IBaseValidator<ProducerDto> validator)
     : IProducerHelper
 {
+    private static BaseQuery<Producer> Query => new();
+    
     public async Task<ProducerDto?> GetByIdAsync(int id)
     {
-        var query = new BaseQuery<Producer>().ById(id);
-        
         return await
-            repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(Query.ById(id));
     }
 
     public async Task<IEnumerable<ProducerDto>> GetByNameAsync(string name)
     {
-        var query = new BaseQuery<Producer>().ByName(name);
-
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        
         return await
-            repository.FindAsync(query);
+            repository.FindAsync(Query
+                .ByName(name)
+                .SortByName()
+                .TieBreaker());
     }
 
     public async Task<IEnumerable<ProducerDto>> GetAllAsync()
     {
         return await 
-            repository.GetAllAsync();
+            repository.FindAsync(Query
+                .SortByName()
+                .TieBreaker());
     }
 
     public async Task<Result<ProducerDto>> CreateAsync(ProducerDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
-        
-        var existing = await 
-            repository.GetAllAsync();
 
+        var producers = await repository.GetAllAsync();
+        
+        var existing = producers
+            .Where(e => !string.IsNullOrWhiteSpace(e.Name))
+            .ToList();
+        
         validator
             .WithExistingIds(existing.Select(p => p.Id.GetValueOrDefault()))
-            .WithExistingNames(existing.Select(p => p.Name));
+            .WithExistingNames(existing.Select(p => p.Name!));
         
         var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            List<Error> errors = validationResult.Errors
+            var errors = validationResult.Errors
                 .ToJsonKeyedErrors<ProducerDto>();
             
             return Result<ProducerDto>.Failure(errors);
-        };
+        }
         
         var result = await repository.AddAsync(entity);
 
-        if (result.IsFailure)
-        {
-            return Result<ProducerDto>.Failure(result.Errors);
-        }
-        
-        return result;
+        return result.IsFailure
+            ? Result<ProducerDto>.Failure(result.Errors)
+            : result;
     }
 
     public async Task<Result<ProducerDto>> UpdateAsync(ProducerDto entity)
@@ -74,7 +78,7 @@ public class ProducerHelper(
         var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            List<Error> errors = validationResult.Errors
+            var errors = validationResult.Errors
                 .ToJsonKeyedErrors<ProducerDto>();
             
             return Result<ProducerDto>.Failure(errors);
@@ -82,19 +86,14 @@ public class ProducerHelper(
         
         var result = await repository.UpdateAsync(entity);
         
-        if (result.IsFailure)
-        {
-            return Result<ProducerDto>.Failure(result.Errors);
-        }
-        
-        return result;
+        return result.IsFailure
+            ? Result<ProducerDto>.Failure(result.Errors)
+            : result;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new BaseQuery<Producer>().ById(id);
-
         return await
-            repository.DeleteAsync(query);
+            repository.DeleteAsync(Query.ById(id));
     }
 }

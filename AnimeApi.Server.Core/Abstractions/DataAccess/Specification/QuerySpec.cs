@@ -141,14 +141,17 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         return query;
     }
     
-    public TDerived SortBy(Expression<Func<TEntity, object?>>? keySelector, SortDirections direction)
+    public TDerived SortBy(Expression<Func<TEntity, object?>> keySelector)
+        => SortBy(keySelector, SortDirections.Asc);
+    
+    public TDerived SortBy(Expression<Func<TEntity, object?>> keySelector, SortDirections direction)
     {
-        if (keySelector != null)
-        {
-            _sortActions.Add(direction == SortDirections.Desc
-                ? SortAction<TEntity>.Desc(keySelector)
-                : SortAction<TEntity>.Asc(keySelector));
-        }
+        ArgumentNullException.ThrowIfNull(keySelector);
+        
+        _sortActions.Add(direction == SortDirections.Desc
+            ? SortAction<TEntity>.Desc(keySelector)
+            : SortAction<TEntity>.Asc(keySelector));
+
         return (TDerived)this;
     }
 
@@ -164,7 +167,9 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
 
     public TDerived SortBy(IEnumerable<SortAction<TEntity>> sortActions)
     {
-        if (sortActions?.Any() ?? false)
+        ArgumentNullException.ThrowIfNull(sortActions);
+        
+        if (sortActions.Any())
         {
             _sortActions.AddRange(sortActions);
         }
@@ -181,9 +186,11 @@ public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
         return (TDerived)this;
     }
 
-    protected TDerived FilterBy(IEnumerable<Expression<Func<TEntity, bool>>>? filters)
+    protected TDerived FilterBy(IEnumerable<Expression<Func<TEntity, bool>>> filters)
     {
-        if (filters?.Any() ?? false)
+        ArgumentNullException.ThrowIfNull(filters);
+        
+        if (filters.Any())
         {
             _filters.AddRange(filters);
         }

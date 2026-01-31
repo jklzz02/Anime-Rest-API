@@ -14,44 +14,53 @@ public class TypeHelper(
     IBaseValidator<TypeDto> validator)
     : ITypeHelper
 {
+    private static BaseQuery<Type> Query => new();
+    
     public async Task<TypeDto?> GetByIdAsync(int id)
     {
-        var query = new BaseQuery<Type>().ById(id);
-
         return await
-            repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(Query.ById(id));
     }
 
     public async Task<IEnumerable<TypeDto>> GetByNameAsync(string name)
     {
-        var query = new BaseQuery<Type>().ByName(name);
-
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        
         return await
-            repository.FindAsync(query);
+            repository.FindAsync(Query
+                .ByName(name)
+                .SortByName()
+                .TieBreaker());
     }
 
     public async Task<IEnumerable<TypeDto>> GetAllAsync()
     {
         return await 
-            repository.GetAllAsync();
+            repository
+                .FindAsync(Query
+                    .SortByName()
+                    .TieBreaker());
     }
 
     public async Task<Result<TypeDto>> CreateAsync(TypeDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        var existing = await 
-            repository.GetAllAsync();
+        var types = await repository.GetAllAsync();
+        
+        var existing = types
+            .Where(t => !string.IsNullOrEmpty(t.Name))
+            .ToList();
 
         validator
             .WithExistingIds(existing.Select(t => t.Id.GetValueOrDefault()))
-            .WithExistingNames(existing.Select(t => t.Name));
+            .WithExistingNames(existing.Select(t => t.Name!));
         
         var validationResult = await validator.ValidateAsync(entity);
 
         if (!validationResult.IsValid)
         {
-            List<Error> errors = validationResult.Errors
+            var errors = validationResult.Errors
                 .ToJsonKeyedErrors<TypeDto>();
             
             return Result<TypeDto>.Failure(errors);
@@ -59,12 +68,9 @@ public class TypeHelper(
         
         var result = await repository.AddAsync(entity);
 
-        if (result.IsFailure)
-        {
-            return Result<TypeDto>.Failure(result.Errors);
-        }
-        
-        return result;
+        return result.IsFailure
+            ? Result<TypeDto>.Failure(result.Errors)
+            : result;
     }
 
     public async Task<Result<TypeDto>> UpdateAsync(TypeDto entity)
@@ -74,7 +80,7 @@ public class TypeHelper(
         var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            List<Error> errors = validationResult.Errors
+            var errors = validationResult.Errors
                 .ToJsonKeyedErrors<TypeDto>();
             
             return Result<TypeDto>.Failure(errors);
@@ -82,19 +88,14 @@ public class TypeHelper(
 
         var result = await repository.UpdateAsync(entity);
         
-        if (result.IsFailure)
-        {
-            return Result<TypeDto>.Failure(result.Errors);
-        }
-     
-        return result;
+        return result.IsFailure
+            ? Result<TypeDto>.Failure(result.Errors)
+            : result;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new BaseQuery<Type>().ById(id);
-
         return await 
-            repository.DeleteAsync(query);
+            repository.DeleteAsync(Query.ById(id));
     }
 }

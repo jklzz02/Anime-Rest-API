@@ -12,4 +12,10 @@ public class BaseQuery<TEntity> : QuerySpec<TEntity, BaseQuery<TEntity>>
 
     public BaseQuery<TEntity> ByName(string name)
         => FilterBy(e => EF.Functions.TrigramsAreSimilar(e.Name, name));
+
+    public BaseQuery<TEntity> SortByName()
+        => SortBy(e => e.Name);
+    
+    public BaseQuery<TEntity> TieBreaker()
+        => SortBy(b => b.Id);
 }

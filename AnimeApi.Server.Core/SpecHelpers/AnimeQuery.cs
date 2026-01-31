@@ -297,7 +297,7 @@ public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
         ]);
 
     public AnimeQuery TieBreaker()
-        => SortBy(a => a.Id, SortDirections.Asc);
+        => SortBy(a => a.Id);
     
     public AnimeQuery IncludeProducers()
     {

@@ -14,42 +14,51 @@ public class LicensorHelper(
     IBaseValidator<LicensorDto> validator)
     : ILicensorHelper
 {
+    private static BaseQuery<Licensor> Query => new();
+    
     public async Task<LicensorDto?> GetByIdAsync(int id)
     {
-        var query = new BaseQuery<Licensor>().ById(id);
-
         return await
-            repository.FindFirstOrDefaultAsync(query);
+            repository.FindFirstOrDefaultAsync(Query.ById(id));
     }
 
     public async Task<IEnumerable<LicensorDto>> GetByNameAsync(string name)
     {
-        var query = new BaseQuery<Licensor>().ByName(name);
+        ArgumentException.ThrowIfNullOrEmpty(name);
         
         return await
-            repository.FindAsync(query);
+            repository.FindAsync(Query
+                .ByName(name)
+                .SortByName()
+                .TieBreaker());
     }
     
     public async Task<IEnumerable<LicensorDto>> GetAllAsync()
     {
         return await 
-            repository.GetAllAsync();
+            repository.FindAsync(Query
+                .SortByName()
+                .TieBreaker());
     }
 
     public async Task<Result<LicensorDto>> CreateAsync(LicensorDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
         
-        var existing = await repository.GetAllAsync();
+        var licensors = await repository.GetAllAsync();
+        
+        var existing =  licensors
+            .Where(l => !string.IsNullOrWhiteSpace(l.Name))
+            .ToList();
 
         validator
             .WithExistingIds(existing.Select(l => l.Id.GetValueOrDefault()))
-            .WithExistingNames(existing.Select(l => l.Name));
+            .WithExistingNames(existing.Select(l => l.Name!));
         
         var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            List<Error> errors = validationResult.Errors
+            var errors = validationResult.Errors
                 .ToJsonKeyedErrors<LicensorDto>();
 
             return Result<LicensorDto>.Failure(errors);
@@ -58,12 +67,9 @@ public class LicensorHelper(
         var result = 
             await repository.AddAsync(entity);
 
-        if (result.IsFailure)
-        {
-            return Result<LicensorDto>.Failure(result.Errors);
-        }
-        
-        return result;
+        return result.IsFailure
+            ? Result<LicensorDto>.Failure(result.Errors)
+            : result;
     }
 
     public async Task<Result<LicensorDto>> UpdateAsync(LicensorDto entity)
@@ -73,7 +79,7 @@ public class LicensorHelper(
         var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            List<Error> errors = validationResult.Errors
+            var errors = validationResult.Errors
                 .ToJsonKeyedErrors<LicensorDto>();
             
             return Result<LicensorDto>.Failure(errors);
@@ -81,19 +87,14 @@ public class LicensorHelper(
         
         var result = await repository.UpdateAsync(entity);
 
-        if (result.IsFailure)
-        {
-            return Result<LicensorDto>.Failure(result.Errors);
-        }
-        
-        return result;
+        return result.IsFailure
+            ? Result<LicensorDto>.Failure(result.Errors)
+            : result;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var query = new BaseQuery<Licensor>().ById(id);
-
         return await 
-            repository.DeleteAsync(query);
+            repository.DeleteAsync(Query.ById(id));
     }
 }
