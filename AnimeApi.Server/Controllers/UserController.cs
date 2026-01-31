@@ -24,7 +24,7 @@ public class UserController(IUserService userService, IFavouritesHelper favourit
         var email = User.FindFirst(ClaimTypes.Email);
         var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
         
-        if (user is null) 
+        if (user is null)
         {
             return Unauthorized();
         }
@@ -130,14 +130,14 @@ public class UserController(IUserService userService, IFavouritesHelper favourit
         var email = User.FindFirst(ClaimTypes.Email);
         var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
 
-        if (user is null) 
+        if (user is null)
         {
             return NotFound();
         }
         
         var result = await userService.DestroyUserAsync(email!.Value);
         
-        if (!result) 
+        if (!result)
         {
             Unauthorized();
         }

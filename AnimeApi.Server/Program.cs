@@ -69,7 +69,9 @@ public class Program
         builder.Services
             .AddAuthorization(options =>
             {
-                options.AddPolicy(Constants.UserAccess.Admin, policy => policy.RequireRole(Constants.UserAccess.Admin));
+                options.AddPolicy(
+                    Constants.UserAccess.Admin,
+                    policy => policy.RequireRole(Constants.UserAccess.Admin));
             })
             .AddHttpClient()
             .AddControllers()
