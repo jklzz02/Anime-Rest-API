@@ -20,7 +20,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseCollation("utf8mb4_0900_ai_ci")
+
                 .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -61,13 +61,13 @@ namespace AnimeApi.Server.DataAccess.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
-                        .UseCollation("utf8mb3_general_ci");
+;
 
                     b.Property<string>("Other_Name")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
-                        .UseCollation("utf8mb3_general_ci");
+;
 
                     b.Property<string>("Rating")
                         .IsRequired()
@@ -96,13 +96,13 @@ namespace AnimeApi.Server.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
-                        .UseCollation("utf8mb3_general_ci");
+;
 
                     b.Property<string>("Synopsis")
                         .IsRequired()
                         .HasMaxLength(5000)
                         .HasColumnType("character varying(5000)")
-                        .UseCollation("utf8mb3_general_ci");
+;
 
                     b.Property<string>("Trailer_embed_url")
                         .HasMaxLength(255)
@@ -302,7 +302,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
-                        .UseCollation("utf8mb3_general_ci");
+;
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
@@ -325,7 +325,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
-                        .UseCollation("utf8mb3_general_ci");
+;
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
@@ -388,7 +388,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(5000)
                         .HasColumnType("character varying(5000)")
-                        .UseCollation("utf8mb3_general_ci");
+;
 
                     b.Property<DateTime>("Created_At")
                         .HasColumnType("timestamp with time zone");
@@ -400,7 +400,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
-                        .UseCollation("utf8mb3_general_ci");
+;
 
                     b.Property<int>("User_Id")
                         .HasColumnType("integer");

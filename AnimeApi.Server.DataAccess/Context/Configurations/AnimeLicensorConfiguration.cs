@@ -8,7 +8,7 @@ public class AnimeLicensorConfiguration : IEntityTypeConfiguration<AnimeLicensor
 {
     public void Configure(EntityTypeBuilder<AnimeLicensor> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PRIMARY");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("anime_licensor");
 

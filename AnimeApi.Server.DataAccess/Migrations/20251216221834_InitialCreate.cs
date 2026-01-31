@@ -31,7 +31,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false, collation: "utf8mb3_general_ci")
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,7 +44,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false, collation: "utf8mb3_general_ci")
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -119,10 +119,10 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false, collation: "utf8mb3_general_ci"),
+                    Name = table.Column<string>(type: "text", nullable: false),
                     English_Name = table.Column<string>(type: "text", nullable: false),
-                    Other_Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false, collation: "utf8mb3_general_ci"),
-                    Synopsis = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false, collation: "utf8mb3_general_ci"),
+                    Other_Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Synopsis = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
                     Image_URL = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Episodes = table.Column<int>(type: "integer", nullable: false),
                     Duration = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
@@ -130,7 +130,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                     Started_Airing = table.Column<DateTime>(type: "timestamptz", nullable: true),
                     Finished_Airing = table.Column<DateTime>(type: "timestamptz", nullable: true),
                     Rating = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Studio = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false, collation: "utf8mb3_general_ci"),
+                    Studio = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Score = table.Column<decimal>(type: "numeric(3,1)", precision: 3, scale: 1, nullable: false),
                     Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     TypeId = table.Column<int>(type: "integer", nullable: false),
@@ -264,7 +264,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Content = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false, collation: "utf8mb3_general_ci"),
+                    Content = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
                     Anime_Id = table.Column<int>(type: "integer", nullable: false),
                     User_Id = table.Column<int>(type: "integer", nullable: false),
                     Created_At = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),

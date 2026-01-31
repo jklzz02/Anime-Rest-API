@@ -8,8 +8,7 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
 {
     public void Configure(EntityTypeBuilder<Review> entity)
     {
-        entity.HasKey(e => e.Id)
-            .HasName("PRIMARY");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("review");
 

@@ -8,7 +8,7 @@ public class TypeConfiguration : IEntityTypeConfiguration<TypeModel>
 {
     public void Configure(EntityTypeBuilder<TypeModel> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PRIMARY");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("type");
 

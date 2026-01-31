@@ -8,8 +8,7 @@ public class FavouriteConfiguration : IEntityTypeConfiguration<Favourite>
 {
     public void Configure(EntityTypeBuilder<Favourite> entity)
     {
-        entity.HasKey(e => new { User_Id = e.UserId, Anime_Id = e.AnimeId })
-            .HasName("PRIMARY");
+        entity.HasKey(e => new { User_Id = e.UserId, Anime_Id = e.AnimeId });
 
         entity.ToTable("user_favourites");
 

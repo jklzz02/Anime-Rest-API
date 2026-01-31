@@ -8,7 +8,7 @@ public class LicensorConfiguration : IEntityTypeConfiguration<Licensor>
 {
     public void Configure(EntityTypeBuilder<Licensor> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PRIMARY");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("licensor");
 

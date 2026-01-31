@@ -16,8 +16,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 type: "character varying(30)",
                 maxLength: 30,
                 nullable: false,
-                defaultValue: "",
-                collation: "utf8mb3_general_ci");
+                defaultValue: "");
         }
 
         /// <inheritdoc />

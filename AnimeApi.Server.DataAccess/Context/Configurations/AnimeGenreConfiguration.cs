@@ -8,7 +8,7 @@ public class AnimeGenreConfiguration : IEntityTypeConfiguration<AnimeGenre>
 {
     public void Configure(EntityTypeBuilder<AnimeGenre> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PRIMARY");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("anime_genre");
 

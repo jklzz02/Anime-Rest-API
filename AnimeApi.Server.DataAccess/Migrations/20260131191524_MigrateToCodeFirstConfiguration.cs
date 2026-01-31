@@ -21,7 +21,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 oldClrType: typeof(string),
                 oldType: "character varying(30)",
                 oldMaxLength: 30,
-                oldCollation: "utf8mb3_general_ci");
+                oldNullable: false);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Content",
@@ -32,7 +32,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 oldClrType: typeof(string),
                 oldType: "character varying(5000)",
                 oldMaxLength: 5000,
-                oldCollation: "utf8mb3_general_ci");
+                oldNullable: false);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
@@ -41,7 +41,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldCollation: "utf8mb3_general_ci");
+                oldNullable: false);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
@@ -50,7 +50,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldCollation: "utf8mb3_general_ci");
+                oldNullable: false);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Synopsis",
@@ -61,7 +61,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 oldClrType: typeof(string),
                 oldType: "character varying(5000)",
                 oldMaxLength: 5000,
-                oldCollation: "utf8mb3_general_ci");
+                oldNullable: false);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Studio",
@@ -72,7 +72,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 oldClrType: typeof(string),
                 oldType: "character varying(255)",
                 oldMaxLength: 255,
-                oldCollation: "utf8mb3_general_ci");
+                oldNullable: false);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Other_Name",
@@ -83,7 +83,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 oldClrType: typeof(string),
                 oldType: "character varying(255)",
                 oldMaxLength: 255,
-                oldCollation: "utf8mb3_general_ci");
+                oldNullable: false);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
@@ -92,7 +92,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldCollation: "utf8mb3_general_ci");
+                oldNullable: false);
 
             migrationBuilder.AlterColumn<string>(
                 name: "English_Name",
@@ -115,7 +115,6 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 type: "character varying(30)",
                 maxLength: 30,
                 nullable: false,
-                collation: "utf8mb3_general_ci",
                 oldClrType: typeof(string),
                 oldType: "character varying(30)",
                 oldMaxLength: 30);
@@ -126,7 +125,6 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 type: "character varying(5000)",
                 maxLength: 5000,
                 nullable: false,
-                collation: "utf8mb3_general_ci",
                 oldClrType: typeof(string),
                 oldType: "character varying(5000)",
                 oldMaxLength: 5000);
@@ -136,7 +134,6 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 table: "producer",
                 type: "text",
                 nullable: false,
-                collation: "utf8mb3_general_ci",
                 oldClrType: typeof(string),
                 oldType: "text");
 
@@ -145,7 +142,6 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 table: "licensor",
                 type: "text",
                 nullable: false,
-                collation: "utf8mb3_general_ci",
                 oldClrType: typeof(string),
                 oldType: "text");
 
@@ -155,7 +151,6 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 type: "character varying(5000)",
                 maxLength: 5000,
                 nullable: false,
-                collation: "utf8mb3_general_ci",
                 oldClrType: typeof(string),
                 oldType: "character varying(5000)",
                 oldMaxLength: 5000);
@@ -166,7 +161,6 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 type: "character varying(255)",
                 maxLength: 255,
                 nullable: false,
-                collation: "utf8mb3_general_ci",
                 oldClrType: typeof(string),
                 oldType: "character varying(255)",
                 oldMaxLength: 255);
@@ -177,7 +171,6 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 type: "character varying(255)",
                 maxLength: 255,
                 nullable: false,
-                collation: "utf8mb3_general_ci",
                 oldClrType: typeof(string),
                 oldType: "character varying(255)",
                 oldMaxLength: 255);
@@ -187,7 +180,6 @@ namespace AnimeApi.Server.DataAccess.Migrations
                 table: "anime",
                 type: "text",
                 nullable: false,
-                collation: "utf8mb3_general_ci",
                 oldClrType: typeof(string),
                 oldType: "text");
 

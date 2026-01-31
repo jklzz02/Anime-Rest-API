@@ -8,7 +8,7 @@ public class SourceConfiguration : IEntityTypeConfiguration<Source>
 {
     public void Configure(EntityTypeBuilder<Source> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PRIMARY");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("source");
 

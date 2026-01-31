@@ -8,7 +8,7 @@ public class ProducerConfiguration : IEntityTypeConfiguration<Producer>
 {
     public void Configure(EntityTypeBuilder<Producer> entity)
     {
-        entity.HasKey(e => e.Id).HasName("PRIMARY");
+        entity.HasKey(e => e.Id);
 
         entity.ToTable("producer");
 
