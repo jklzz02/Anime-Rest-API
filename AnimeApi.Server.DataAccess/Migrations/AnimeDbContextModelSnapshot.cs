@@ -253,6 +253,43 @@ namespace AnimeApi.Server.DataAccess.Migrations
                     b.ToTable("user", (string)null);
                 });
 
+            modelBuilder.Entity("AnimeApi.Server.Core.Objects.Models.Ban", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("Created_At");
+
+                    b.Property<DateTime?>("Expiration")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("Expiration");
+
+                    b.Property<string>("NormalizedEmail")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("Normalized_Email");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("Reason");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Ban", (string)null);
+                });
+
             modelBuilder.Entity("AnimeApi.Server.Core.Objects.Models.Favourite", b =>
                 {
                     b.Property<int>("UserId")
@@ -572,6 +609,18 @@ namespace AnimeApi.Server.DataAccess.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("AnimeApi.Server.Core.Objects.Models.Ban", b =>
+                {
+                    b.HasOne("AnimeApi.Server.Core.Objects.Models.AppUser", "User")
+                        .WithMany("Bans")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Ban_User");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("AnimeApi.Server.Core.Objects.Models.Favourite", b =>
                 {
                     b.HasOne("AnimeApi.Server.Core.Objects.Models.Anime", "Anime")
@@ -641,6 +690,8 @@ namespace AnimeApi.Server.DataAccess.Migrations
 
             modelBuilder.Entity("AnimeApi.Server.Core.Objects.Models.AppUser", b =>
                 {
+                    b.Navigation("Bans");
+
                     b.Navigation("Favourites");
 
                     b.Navigation("RefreshToken")

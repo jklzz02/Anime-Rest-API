@@ -14,5 +14,7 @@ public class AppUser
     
     public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
     
+    public ICollection<Ban>  Bans { get; set; } = new List<Ban>();
+    
     public virtual RefreshToken RefreshToken { get; set; } = null!;
 }
