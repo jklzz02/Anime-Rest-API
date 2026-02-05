@@ -16,7 +16,7 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     protected IMapper<TEntity, TDto> Mapper { get; } = mapper;
 
     /// <inheritdoc />
-    public async Task<int> CountAsync(IQuerySpec<TEntity> specification)
+    public async Task<int> CountAsync(ISpecification<TEntity> specification)
     {
         return await specification
             .Apply(Context.Set<TEntity>())
@@ -34,7 +34,7 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TDto>> FindAsync(IQuerySpec<TEntity> specification)
+    public async Task<IEnumerable<TDto>> FindAsync(ISpecification<TEntity> specification)
     {
         var entities = await specification
             .Apply(Context.Set<TEntity>())
@@ -44,7 +44,7 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TResult>> FindAsync<TResult>(IQuerySpec<TEntity> specification)
+    public async Task<IEnumerable<TResult>> FindAsync<TResult>(ISpecification<TEntity> specification)
         where TResult : class, new()
     {
         return await specification
@@ -54,7 +54,7 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public async Task<TDto?> FindFirstOrDefaultAsync(IQuerySpec<TEntity> specification)
+    public async Task<TDto?> FindFirstOrDefaultAsync(ISpecification<TEntity> specification)
     {
         var entity = await specification
             .Apply(Context.Set<TEntity>())
@@ -64,7 +64,7 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public async Task<TResult?> FindFirstOrDefaultAsync<TResult>(IQuerySpec<TEntity> specification)
+    public async Task<TResult?> FindFirstOrDefaultAsync<TResult>(ISpecification<TEntity> specification)
         where TResult : class, new()
     {
         return await specification
@@ -188,7 +188,7 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public virtual async Task<bool> DeleteAsync(IQuerySpec<TEntity> specification)
+    public virtual async Task<bool> DeleteAsync(ISpecification<TEntity> specification)
     {
         var entity = await specification
             .Apply(Context.Set<TEntity>())
@@ -202,7 +202,7 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public virtual async Task<bool> DeleteRangeAsync(IQuerySpec<TEntity> specification)
+    public virtual async Task<bool> DeleteRangeAsync(ISpecification<TEntity> specification)
     {
         var entities = await specification
             .Apply(Context.Set<TEntity>())
@@ -222,7 +222,7 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public async Task<bool> ExistsAsync(IQuerySpec<TEntity> specification)
+    public async Task<bool> ExistsAsync(ISpecification<TEntity> specification)
     {
         return await specification
             .Apply(Context.Set<TEntity>())

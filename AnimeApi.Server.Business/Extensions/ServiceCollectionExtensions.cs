@@ -37,7 +37,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITypeHelper, TypeHelper>();
         services.AddScoped<IFavouritesHelper, FavouritesHelper>();
         services.AddScoped<IReviewHelper, ReviewHelper>();
-
+        
+        services.AddScoped<IBanService, BanService>();
         services.AddSingleton<ICachingService, CachingService>();
         
         return services;

@@ -1,3 +1,4 @@
+using System.Text;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
@@ -5,7 +6,7 @@ using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.Core.Objects.Partials;
-using AnimeApi.Server.Core.SpecHelpers;
+using AnimeApi.Server.Core.Specification;
 
 namespace AnimeApi.Server.Business.Services;
 
@@ -13,7 +14,9 @@ namespace AnimeApi.Server.Business.Services;
 /// Provides user-related services including user retrieval, creation, and deletion.
 /// Implements the <see cref="IUserService"/> interface.
 /// </summary>
-public class UserService(IRepository<AppUser, AppUserDto> userRepository) : IUserService
+public class UserService(
+    IBanService banService,
+    IRepository<AppUser, AppUserDto> userRepository) : IUserService
 {
     /// <inheritdoc />
     public async Task<AppUserDto?> GetByEmailAsync(string email)
@@ -55,16 +58,27 @@ public class UserService(IRepository<AppUser, AppUserDto> userRepository) : IUse
     }
 
     /// <inheritdoc />
-    public async Task<AppUserDto> GetOrCreateUserAsync(AuthPayload payload)
+    public async Task<Result<AppUserDto>> GetOrCreateUserAsync(AuthPayload payload)
     {
+        var activeBan = await
+            banService.GetActiveBansAsync(payload.Email);
+
+        if (activeBan.Any())
+        {
+            return Result<AppUserDto>
+                .ValidationFailure(
+                    "Banned",
+                    $"Email {payload.Email} is linked with a banned account.");
+        }
+        
         var query = new UserQuery().ByEmail(payload.Email);
         
         var existingUser = await
             userRepository.FindFirstOrDefaultAsync(query);
-
+        
         if (existingUser != null)
         {
-            return existingUser;
+            return Result<AppUserDto>.Success(existingUser);
         }
 
         var newUser = new AppUserDto
@@ -79,7 +93,7 @@ public class UserService(IRepository<AppUser, AppUserDto> userRepository) : IUse
         var result = await 
             userRepository.AddAsync(newUser);
         
-        return result.Data;
+        return result;
     }
 
     /// <inheritdoc />

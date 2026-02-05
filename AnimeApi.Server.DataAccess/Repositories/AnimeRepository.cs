@@ -4,7 +4,7 @@ using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Abstractions.Business.Mappers;
-using AnimeApi.Server.Core.SpecHelpers;
+using AnimeApi.Server.Core.Specification;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.DataAccess.Repositories;

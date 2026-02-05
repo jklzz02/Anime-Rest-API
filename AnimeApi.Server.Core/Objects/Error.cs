@@ -50,6 +50,14 @@ public record Error
     /// Creates a new instance of the <see cref="Error"/> class with the type set to <see cref="ErrorType.Validation"/>.
     /// </summary>
     /// <param name="message">The message describing the validation error.</param>
+    /// <returns>A <see cref="Error"/> instance representing a validation error.</returns>
+    public static Error Validation(string message)
+        => new(ErrorType.Validation, message, string.Empty);
+    
+    /// <summary>
+    /// Creates a new instance of the <see cref="Error"/> class with the type set to <see cref="ErrorType.Validation"/>.
+    /// </summary>
+    /// <param name="message">The message describing the validation error.</param>
     /// <param name="details">Additional details about the validation error.</param>
     /// <returns>A <see cref="Error"/> instance representing a validation error.</returns>
     public static Error Validation(string message, string details)

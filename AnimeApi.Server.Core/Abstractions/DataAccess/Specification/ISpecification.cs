@@ -5,7 +5,7 @@ namespace AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 /// Represents a query specification interface used to apply filtering, sorting, and projection logic to a queryable data source.
 /// </summary>
 /// <typeparam name="TEntity">The type of the entity being queried.</typeparam>
-public interface IQuerySpec<TEntity> where TEntity : class
+public interface ISpecification<TEntity> where TEntity : class
 {
     /// <summary>
     /// Applies the specified query logic to the provided IQueryable object, including filtering, sorting, projection,

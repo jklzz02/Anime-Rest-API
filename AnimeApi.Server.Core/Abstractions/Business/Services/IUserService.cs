@@ -48,9 +48,9 @@ public interface IUserService
     /// </summary>
     /// <param name="payload">The Google authentication payload containing user details.</param>
     /// <returns>
-    /// An <see cref="AppUserDto"/> representing the retrieved or newly created user.
+    /// An <see cref="Result{T}"/> representing the retrieved or newly created user.
     /// </returns>
-    Task<AppUserDto> GetOrCreateUserAsync(AuthPayload payload);
+    Task<Result<AppUserDto>> GetOrCreateUserAsync(AuthPayload payload);
 
     /// <summary>
     /// Deletes a user identified by their id asynchronously.

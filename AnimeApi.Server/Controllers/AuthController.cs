@@ -32,6 +32,7 @@ public class AuthController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Login([FromBody] AuthRequest request)
     {
         var result = await
@@ -44,11 +45,16 @@ public class AuthController(
         
         var user = await
             userService.GetOrCreateUserAsync(result.Data);
+
+        if (user.IsFailure)
+        {
+            return Forbid(user.Errors.ToSingleLineString());
+        }
         
-        await refreshTokenService.RevokeByUserIdAsync(user.Id);
+        await refreshTokenService.RevokeByUserIdAsync(user.Data.Id);
         
-        var accessToken = jwtGenerator.GenerateToken(user);
-        var refreshToken = await refreshTokenService.CreateAsync(user.Id);
+        var accessToken = jwtGenerator.GenerateToken(user.Data);
+        var refreshToken = await refreshTokenService.CreateAsync(user.Data.Id);
 
         return Ok(new
         {
@@ -102,6 +108,7 @@ public class AuthController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CookieLogin([FromBody] AuthRequest request)
     {
         var result = await
@@ -116,10 +123,15 @@ public class AuthController(
             userService
                 .GetOrCreateUserAsync(result.Data);
 
-        await refreshTokenService.RevokeByUserIdAsync(user.Id);
+        if (user.IsFailure)
+        {
+            return Forbid(user.Errors.ToSingleLineString());
+        }
 
-        var accessToken = jwtGenerator.GenerateToken(user);
-        var refreshToken = await refreshTokenService.CreateAsync(user.Id);
+        await refreshTokenService.RevokeByUserIdAsync(user.Data.Id);
+
+        var accessToken = jwtGenerator.GenerateToken(user.Data);
+        var refreshToken = await refreshTokenService.CreateAsync(user.Data.Id);
 
         SetTokenCookies(accessToken, refreshToken);
         

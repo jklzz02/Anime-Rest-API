@@ -3,9 +3,9 @@ using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.Core.SpecHelpers;
+namespace AnimeApi.Server.Core.Specification;
 
-public class AnimeQuery : QuerySpec<Anime, AnimeQuery>
+public class AnimeQuery : Specification<Anime, AnimeQuery>
 {
     public AnimeQuery ByPk(int id)
         => FilterBy(a => a.Id == id);

@@ -125,7 +125,7 @@ public class AnimeHelperTest
             _searchParametersValidatorMock.Object);        
         
         _repositoryMock
-            .Setup(r => r.FindFirstOrDefaultAsync(It.IsAny<IQuerySpec<Anime>>()))
+            .Setup(r => r.FindFirstOrDefaultAsync(It.IsAny<ISpecification<Anime>>()))
             .ReturnsAsync(new AnimeDto {Id = animeId });
         
         var result = await service.GetByIdAsync(animeId);
@@ -144,7 +144,7 @@ public class AnimeHelperTest
             _searchParametersValidatorMock.Object);
         
         _repositoryMock
-            .Setup(r => r.FindFirstOrDefaultAsync(It.IsAny<IQuerySpec<Anime>>()))
+            .Setup(r => r.FindFirstOrDefaultAsync(It.IsAny<ISpecification<Anime>>()))
             .ReturnsAsync((AnimeDto?)null);
         
         var result = await service.GetByIdAsync(invalidAnimeId);
@@ -221,8 +221,8 @@ public class AnimeHelperTest
             _searchParametersValidatorMock.Object);
         
         _repositoryMock
-            .Setup(r => r.DeleteAsync(It.IsAny<IQuerySpec<Anime>>()))
-            .ReturnsAsync((IQuerySpec<Anime> spec) =>
+            .Setup(r => r.DeleteAsync(It.IsAny<ISpecification<Anime>>()))
+            .ReturnsAsync((ISpecification<Anime> spec) =>
             {
                 return spec.Apply(anime.AsQueryable()).Any();
             });
@@ -244,8 +244,8 @@ public class AnimeHelperTest
             _searchParametersValidatorMock.Object);
         
         _repositoryMock
-            .Setup(r => r.DeleteAsync(It.IsAny<IQuerySpec<Anime>>()))
-            .ReturnsAsync((IQuerySpec<Anime> spec) =>
+            .Setup(r => r.DeleteAsync(It.IsAny<ISpecification<Anime>>()))
+            .ReturnsAsync((ISpecification<Anime> spec) =>
             {
                 var toBeRemoved = spec.Apply(anime.AsQueryable()).First();
                 anime.Remove(toBeRemoved);

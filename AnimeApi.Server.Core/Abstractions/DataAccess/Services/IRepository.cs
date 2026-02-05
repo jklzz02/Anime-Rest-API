@@ -35,7 +35,7 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <param name="specification">The query specification defining the criteria for retrieving entities.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of DTOs for the entities matching the query specification.</returns>
-    Task<IEnumerable<TDto>> FindAsync(IQuerySpec<TEntity> specification);
+    Task<IEnumerable<TDto>> FindAsync(ISpecification<TEntity> specification);
 
     /// <summary>
     ///  Retrieves a collection of entities projected to {TResult}.
@@ -43,7 +43,7 @@ public interface IRepository<TEntity, TDto>
     /// <param name="specification">The query specification defining the criteria for retrieving entities to project.</param>
     /// <typeparam name="TResult">The type to project to</typeparam>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of projected entities.</returns>
-    Task<IEnumerable<TResult>> FindAsync<TResult>(IQuerySpec<TEntity> specification)
+    Task<IEnumerable<TResult>> FindAsync<TResult>(ISpecification<TEntity> specification)
         where TResult : class, new();
 
     /// <summary>
@@ -52,7 +52,7 @@ public interface IRepository<TEntity, TDto>
     /// <param name="specification">The query specification defining the criteria for retrieving entity to project.</param>
     /// <typeparam name="TResult">The type to project to.</typeparam>
     /// <returns>A task representing the asynchronous operation. The task result contains the first matched projected entity, or null if no match is found.</returns>
-    Task<TResult?> FindFirstOrDefaultAsync<TResult>(IQuerySpec<TEntity> specification)
+    Task<TResult?> FindFirstOrDefaultAsync<TResult>(ISpecification<TEntity> specification)
         where TResult : class, new();
     
     /// <summary>
@@ -60,7 +60,7 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <param name="specification">The query specification defining the criteria to match the entity.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the DTO representing the first matched entity, or null if no match is found.</returns>
-    Task<TDto?> FindFirstOrDefaultAsync(IQuerySpec<TEntity> specification);
+    Task<TDto?> FindFirstOrDefaultAsync(ISpecification<TEntity> specification);
     
     /// <summary>
     /// Retrieves the total count of entities in the repository.
@@ -73,7 +73,7 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <param name="specification">The query specification used to filter the entities.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the count of entities that satisfy the query specification.</returns>
-    Task<int> CountAsync(IQuerySpec<TEntity> specification);
+    Task<int> CountAsync(ISpecification<TEntity> specification);
 
     /// <summary>
     /// Asynchronously adds a new entity to the repository and returns the result.
@@ -108,19 +108,19 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <param name="specification">The query specification defining the entities to delete.</param>
     /// <returns>A task representing the asynchronous operation. The task result indicates whether the operation was successful.</returns>
-    Task<bool> DeleteAsync(IQuerySpec<TEntity> specification);
+    Task<bool> DeleteAsync(ISpecification<TEntity> specification);
 
     /// <summary>
     /// Deletes a range of entities from the repository that match the given specification.
     /// </summary>
     /// <param name="specification">The query specification defining the filter criteria for selecting entities to delete.</param>
     /// <returns>A task representing the asynchronous operation. The task result is a boolean value indicating whether any entities were deleted.</returns>
-    Task<bool> DeleteRangeAsync(IQuerySpec<TEntity> specification);
+    Task<bool> DeleteRangeAsync(ISpecification<TEntity> specification);
 
     /// <summary>
     /// Checks whether any entity satisfies the provided specification.
     /// </summary>
     /// <param name="specification">The query specification used to filter the entities.</param>
     /// <returns>A task representing the asynchronous operation. The task result is true if any entity satisfies the specification; otherwise, false.</returns>
-    Task<bool> ExistsAsync(IQuerySpec<TEntity> specification);
+    Task<bool> ExistsAsync(ISpecification<TEntity> specification);
 }

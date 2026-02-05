@@ -18,6 +18,7 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddMappers(this IServiceCollection services)
     {
         services.AddScoped<IAnimeMapper, AnimeMapper>();
+        services.AddScoped<IMapper<Ban, BanDto>, BanMapper>();
         services.AddScoped<IMapper<Producer, ProducerDto>, BaseMapper<Producer, ProducerDto>>();
         services.AddScoped<IMapper<Licensor, LicensorDto>, BaseMapper<Licensor, LicensorDto>>();
         services.AddScoped<IMapper<Genre, GenreDto>, BaseMapper<Genre, GenreDto>>();

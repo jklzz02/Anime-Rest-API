@@ -4,7 +4,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Validators;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
-using AnimeApi.Server.Core.SpecHelpers;
+using AnimeApi.Server.Core.Specification;
 using Type = AnimeApi.Server.Core.Objects.Models.Type;
 
 namespace AnimeApi.Server.Business.Services.Helpers;

@@ -12,6 +12,10 @@ public class BanConfiguration : IEntityTypeConfiguration<Ban>
 
         entity.HasKey(e => e.Id);
 
+        entity.HasIndex(e => e.UserId)
+            .HasDatabaseName("UserId_Ban")
+            .IsUnique();
+
         entity.HasOne(e => e.User)
             .WithMany(u => u.Bans)
             .HasConstraintName("FK_Ban_User");

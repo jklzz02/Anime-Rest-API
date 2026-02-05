@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
             }));
 
         services.AddScoped<IRepository<Anime, AnimeDto>, AnimeRepository>();
+        services.AddScoped<IRepository<Ban,  BanDto>, Repository<Ban, BanDto>>();
         services.AddScoped<IRepository<Producer, ProducerDto>, Repository<Producer, ProducerDto>>();
         services.AddScoped<IRepository<Genre, GenreDto>, Repository<Genre, GenreDto>>();
         services.AddScoped<IRepository<Licensor, LicensorDto>, Repository<Licensor, LicensorDto>>();

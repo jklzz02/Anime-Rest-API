@@ -1,9 +1,9 @@
 ﻿using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects.Models;
 
-namespace AnimeApi.Server.Core.SpecHelpers;
+namespace AnimeApi.Server.Core.Specification;
 
-public class TokenQuery : QuerySpec<RefreshToken, TokenQuery>
+public class TokenQuery : Specification<RefreshToken, TokenQuery>
 {
     public TokenQuery ByPk(int id)
         => FilterBy(t => t.Id == id);

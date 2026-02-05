@@ -1,9 +1,9 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects.Models;
 
-namespace AnimeApi.Server.Core.SpecHelpers;
+namespace AnimeApi.Server.Core.Specification;
 
-public class UserQuery : QuerySpec<AppUser, UserQuery>
+public class UserQuery : Specification<AppUser, UserQuery>
 {
     public UserQuery ByPk(int id)
         => FilterBy(u => u.Id == id);

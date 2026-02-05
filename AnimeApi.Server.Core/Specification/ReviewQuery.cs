@@ -2,9 +2,9 @@
 using AnimeApi.Server.Core.Objects.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.Core.SpecHelpers;
+namespace AnimeApi.Server.Core.Specification;
 
-public class ReviewQuery : QuerySpec<Review, ReviewQuery>
+public class ReviewQuery : Specification<Review, ReviewQuery>
 {
     public ReviewQuery ByPk(int id)
         => FilterBy(r =>  r.Id == id);

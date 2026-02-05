@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 
-public class QuerySpec<TEntity, TDerived> : IQuerySpec<TEntity>
+public class Specification<TEntity, TDerived> : ISpecification<TEntity>
     where TEntity : class
-    where TDerived : QuerySpec<TEntity, TDerived>
+    where TDerived : Specification<TEntity, TDerived>
 {
     private readonly List<Expression<Func<TEntity, bool>>> _filters = [];
     private readonly List<SortAction<TEntity>> _sortActions = [];

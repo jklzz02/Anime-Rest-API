@@ -5,7 +5,7 @@ using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
-using AnimeApi.Server.Core.SpecHelpers;
+using AnimeApi.Server.Core.Specification;
 
 namespace AnimeApi.Server.Business.Services;
 

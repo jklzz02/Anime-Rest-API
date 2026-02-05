@@ -5,7 +5,9 @@ using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Exceptions;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.DataAccess.Extensions;
+using AnimeApi.Server.Handlers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -119,6 +121,9 @@ public class Program
                     }
                 };
             });
+        
+        // Add authorization handlers
+        builder.Services.AddScoped<IAuthorizationHandler, BanAuthorizationHandler>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();

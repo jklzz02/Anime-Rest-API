@@ -2,9 +2,9 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using Microsoft.EntityFrameworkCore;
 
-namespace AnimeApi.Server.Core.SpecHelpers;
+namespace AnimeApi.Server.Core.Specification;
 
-public class BaseQuery<TEntity> : QuerySpec<TEntity, BaseQuery<TEntity>>
+public class BaseQuery<TEntity> : Specification<TEntity, BaseQuery<TEntity>>
     where TEntity : class, IBaseEntity, new()
 {
     public BaseQuery<TEntity> ById(int id)

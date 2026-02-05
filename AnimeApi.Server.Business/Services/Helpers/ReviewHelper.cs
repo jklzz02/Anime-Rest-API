@@ -5,7 +5,7 @@ using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
-using AnimeApi.Server.Core.SpecHelpers;
+using AnimeApi.Server.Core.Specification;
 using FluentValidation;
 
 namespace AnimeApi.Server.Business.Services.Helpers;
