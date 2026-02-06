@@ -15,7 +15,8 @@ public class BanMapper : Mapper<Ban, BanDto>
             CreatedAt = entity.CreatedAt,
             Expiration = entity.Expiration,
             NormalizedEmail = entity.NormalizedEmail,
-            Reason = entity.Reason
+            Reason = entity.Reason,
+            Version = entity.Version
         };
     }
 
@@ -28,7 +29,8 @@ public class BanMapper : Mapper<Ban, BanDto>
             CreatedAt = dto.CreatedAt,
             Expiration = dto.Expiration,
             NormalizedEmail = dto.NormalizedEmail,
-            Reason = dto.Reason
+            Reason = dto.Reason,
+            Version = dto.Version
         };
     }
 }

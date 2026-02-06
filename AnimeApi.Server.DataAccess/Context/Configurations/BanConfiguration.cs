@@ -8,7 +8,7 @@ public class BanConfiguration : IEntityTypeConfiguration<Ban>
 {
     public void Configure(EntityTypeBuilder<Ban> entity)
     {
-        entity.ToTable("Ban");
+        entity.ToTable("ban");
 
         entity.HasKey(e => e.Id);
 
@@ -23,6 +23,11 @@ public class BanConfiguration : IEntityTypeConfiguration<Ban>
         entity.Property(e => e.CreatedAt)
             .HasColumnType("timestamptz")
             .HasColumnName("Created_At");
+
+        entity.Property(e => e.Version)
+            .HasColumnName("Version")
+            .HasDefaultValue(1)
+            .IsRequired();
         
         entity.Property(e => e.Expiration)
             .HasColumnType("timestamptz")

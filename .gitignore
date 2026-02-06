@@ -2,6 +2,11 @@
 bin/
 obj/
 
+# Exclude EF Core artifact output
+bin\Debug/
+bin\\Debug/
+bin\Release/
+
 # User-specific stuff
 .vs/
 .idea/

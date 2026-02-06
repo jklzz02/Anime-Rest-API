@@ -21,6 +21,9 @@ public record BanDto
     
     [JsonProperty("reason")]
     public string? Reason { get; init; }
+
+    [JsonProperty("version")]
+    public int Version { get; init; } = 1;
     
     [JsonIgnore]
     public AppUserDto? User { get; init; }
@@ -37,7 +40,8 @@ public record BanDto
             NormalizedEmail = NormalizedEmail,
             CreatedAt = DateTime.UtcNow,
             Expiration = expiration,
-            Reason = reason
+            Reason = reason,
+            Version = Version + 1
         };
     
     public BanDto Revoked()
@@ -48,6 +52,7 @@ public record BanDto
             CreatedAt = CreatedAt,
             NormalizedEmail =  NormalizedEmail,
             Expiration = DateTime.UtcNow,
-            Reason = Reason
+            Reason = Reason,
+            Version = Version
         };
 }

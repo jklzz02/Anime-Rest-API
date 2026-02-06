@@ -14,5 +14,7 @@ public class Ban
     
     public string? Reason { get; set; }
     
+    public int Version { get; set; }
+    
     public AppUser User { get; set; }
 }

@@ -63,9 +63,11 @@ public class BanService(
                 $"There is no user with email '{email}'");
         }
         
-        var activeBan = (await GetActiveBansAsync(email)).ToList();
+        var bans = (await
+                banRepo.FindAsync(new BanQuery().ByUser(email.ToLowerNormalized())))
+            .ToList();
 
-        if (!activeBan.Any())
+        if (!bans.Any())
         {
             
             var newEntries = user.Select(u =>
@@ -82,7 +84,7 @@ public class BanService(
                 banRepo.AddRangeAsync(newEntries);   
         }
         
-        var updatedEntries = activeBan
+        var updatedEntries = bans
             .Select(ab => ab.Updated(reason, expiration));
         
         return await 
