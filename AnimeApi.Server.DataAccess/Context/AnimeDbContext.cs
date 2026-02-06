@@ -23,6 +23,8 @@ public partial class AnimeDbContext : DbContext
 
     public virtual DbSet<AnimeProducer> AnimeProducers { get; set; }
     
+    public virtual DbSet<Ban> Bans { get; set; }
+    
     public virtual DbSet<AppUser> Users { get; set; }
     
     public virtual DbSet<Favourite> UserFavourites { get; set; }
