@@ -10,6 +10,7 @@ public class BanMapper : Mapper<Ban, BanDto>
     {
         return new BanDto
         {
+            Id = entity.Id,
             UserId = entity.UserId,
             CreatedAt = entity.CreatedAt,
             Expiration = entity.Expiration,
@@ -22,6 +23,7 @@ public class BanMapper : Mapper<Ban, BanDto>
     {
         return new Ban
         {
+            Id = dto.Id,
             UserId = dto.UserId,
             CreatedAt = dto.CreatedAt,
             Expiration = dto.Expiration,

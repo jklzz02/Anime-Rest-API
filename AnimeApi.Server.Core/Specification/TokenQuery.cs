@@ -13,4 +13,7 @@ public class TokenQuery : Specification<RefreshToken, TokenQuery>
 
     public TokenQuery ByUser(int userId)
         => FilterBy(t => t.UserId == userId);
+    
+    public TokenQuery ByUser(IEnumerable<int> userIds)
+     => FilterBy(t => userIds.Contains(t.UserId));
 }

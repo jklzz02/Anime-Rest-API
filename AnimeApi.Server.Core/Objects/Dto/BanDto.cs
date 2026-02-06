@@ -18,6 +18,17 @@ public record BanDto
     
     public bool IsActive
         => Expiration is null || Expiration > DateTime.UtcNow;
+
+    public BanDto Updated(string? reason, DateTime? expiration)
+        => new BanDto
+        {
+            Id = Id,
+            UserId = UserId,
+            NormalizedEmail = NormalizedEmail,
+            CreatedAt = DateTime.UtcNow,
+            Expiration = expiration,
+            Reason = reason
+        };
     
     public BanDto Revoked()
         => new BanDto

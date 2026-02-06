@@ -31,4 +31,11 @@ public interface IRefreshTokenService
     /// <param name="userId">The unique identifier of the user whose refresh tokens are to be revoked.</param>
     /// <returns>A boolean value indicating whether the operation was successful.</returns>
     Task<bool> RevokeByUserIdAsync(int userId);
+
+    /// <summary>
+    /// Asynchronously revokes all refresh tokens associated with the users linked to the specified email.
+    /// </summary>
+    /// <param name="email">The email linked to the user's.</param>
+    /// <returns>A boolean value indicating whether the operation was successful.</returns>
+    Task<bool> RevokeByEmailAsync(string email);
 }

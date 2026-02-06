@@ -1,4 +1,3 @@
-using System.Text;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects;
@@ -21,10 +20,17 @@ public class UserService(
     /// <inheritdoc />
     public async Task<AppUserDto?> GetByEmailAsync(string email)
     {
-        var query = new UserQuery().ByEmail(email);
-        
         return await
-            userRepository.FindFirstOrDefaultAsync(query);
+            userRepository.FindFirstOrDefaultAsync(
+                new UserQuery().ByEmail(email));
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<AppUserDto>> GetUsersLinkedToEmail(string email)
+    {
+        return await
+            userRepository.FindAsync(
+                new UserQuery().ByEmail(email));
     }
 
     /// <inheritdoc />

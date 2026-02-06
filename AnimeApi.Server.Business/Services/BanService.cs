@@ -62,19 +62,31 @@ public class BanService(
                 "User not found",
                 $"There is no user with email '{email}'");
         }
-
-        var newEntries = user.Select(u =>
-        new BanDto 
-        {
-            UserId = u.Id,
-            NormalizedEmail =  u.Email.ToLowerNormalized(),
-            CreatedAt =  DateTime.UtcNow,
-            Expiration =  expiration,
-            Reason = reason
-        });
         
-        return await
-            banRepo.AddRangeAsync(newEntries);
+        var activeBan = (await GetActiveBansAsync(email)).ToList();
+
+        if (!activeBan.Any())
+        {
+            
+            var newEntries = user.Select(u =>
+                new BanDto 
+                {
+                    UserId = u.Id,
+                    NormalizedEmail =  u.Email.ToLowerNormalized(),
+                    CreatedAt =  DateTime.UtcNow,
+                    Expiration =  expiration,
+                    Reason = reason
+                });
+        
+            return await
+                banRepo.AddRangeAsync(newEntries);   
+        }
+        
+        var updatedEntries = activeBan
+            .Select(ab => ab.Updated(reason, expiration));
+        
+        return await 
+            banRepo.UpdateRangeAsync(updatedEntries);
     }
     
     public async Task<Result<IEnumerable<BanDto>>> UnbanUserAsync(string email)

@@ -32,7 +32,6 @@ public class AuthController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Login([FromBody] AuthRequest request)
     {
         var result = await
@@ -48,7 +47,7 @@ public class AuthController(
 
         if (user.IsFailure)
         {
-            return Forbid(user.Errors.ToSingleLineString());
+            return Unauthorized(user.Errors.ToKeyValuePairs());
         }
         
         await refreshTokenService.RevokeByUserIdAsync(user.Data.Id);
@@ -108,7 +107,6 @@ public class AuthController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CookieLogin([FromBody] AuthRequest request)
     {
         var result = await
@@ -125,7 +123,7 @@ public class AuthController(
 
         if (user.IsFailure)
         {
-            return Forbid(user.Errors.ToSingleLineString());
+            return Unauthorized(user.Errors.ToSingleLineString());
         }
 
         await refreshTokenService.RevokeByUserIdAsync(user.Data.Id);

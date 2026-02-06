@@ -27,6 +27,15 @@ public interface IUserService
     /// An <see cref="AppUserDto"/> representing the user if found, or null if no user exists with the specified email.
     /// </returns>
     Task<AppUserDto?> GetByEmailAsync(string email);
+    
+    /// <summary>
+    /// Retrieves a user by their email address asynchronously.
+    /// </summary>
+    /// <param name="email">The email address of the linked users to retrieve.</param>
+    /// <returns>
+    /// An <see cref="IEnumerable{T}"/> representing the users linked to the specified email.
+    /// </returns>
+    Task<IEnumerable<AppUserDto>> GetUsersLinkedToEmail(string email);
  
     /// <summary>
     /// Retrieves a paginated list of publicly available user's data. 

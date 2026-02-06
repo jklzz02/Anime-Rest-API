@@ -10,6 +10,7 @@ using AnimeApi.Server.Core.Specification;
 namespace AnimeApi.Server.Business.Services;
 
 public class RefreshTokenService(
+    IUserService userService,
     ITokenHasher tokenHasher,
     IRepository<RefreshToken, RefreshTokenDto> repository)
     : IRefreshTokenService
@@ -89,6 +90,19 @@ public class RefreshTokenService(
             repository.DeleteAsync(query);
         
         return result;
+    }
+
+    public async Task<bool> RevokeByEmailAsync(string email)
+    {
+        var linkedUsers = (await
+                userService.GetUsersLinkedToEmail(email))
+            .ToList();
+        
+        var query = new TokenQuery()
+            .ByUser(linkedUsers.Select(u => u.Id));
+        
+        return await
+            repository.DeleteAsync(query);
     }
 
     private string GenerateToken()
