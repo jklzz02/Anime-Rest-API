@@ -192,7 +192,7 @@ public class JwtGeneratorTest
         var jwtToken = handler.ReadJwtToken(token);
         var afterGeneration = DateTime.UtcNow;
 
-        Assert.NotNull(jwtToken.ValidTo);
+        Assert.NotNull(jwtToken);
         Assert.True(jwtToken.ValidTo >= beforeGeneration.AddHours(2).AddMinutes(-1));
         Assert.True(jwtToken.ValidTo <= afterGeneration.AddHours(2).AddMinutes(1));
     }

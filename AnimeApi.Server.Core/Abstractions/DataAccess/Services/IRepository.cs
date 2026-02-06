@@ -40,7 +40,7 @@ public interface IRepository<TEntity, TDto>
     /// <summary>
     ///  Retrieves a collection of entities projected to {TResult}.
     /// </summary>
-    /// <param name="specification">The query specification defining the criteria for retrieving entities to project.</param>
+    /// <param name="specification">The query specification defining the criteria for retrieving entities to be projected.</param>
     /// <typeparam name="TResult">The type to project to</typeparam>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of projected entities.</returns>
     Task<IList<TResult>> FindAsync<TResult>(ISpecification<TEntity> specification)
@@ -49,7 +49,7 @@ public interface IRepository<TEntity, TDto>
     /// <summary>
     /// Retrieves the first entity that matches the provided specification projected to {TResult}.
     /// </summary>
-    /// <param name="specification">The query specification defining the criteria for retrieving entity to project.</param>
+    /// <param name="specification">The query specification defining the criteria for retrieving entity to  be projected.</param>
     /// <typeparam name="TResult">The type to project to.</typeparam>
     /// <returns>A task representing the asynchronous operation. The task result contains the first matched projected entity, or null if no match is found.</returns>
     Task<TResult?> FindFirstOrDefaultAsync<TResult>(ISpecification<TEntity> specification)
