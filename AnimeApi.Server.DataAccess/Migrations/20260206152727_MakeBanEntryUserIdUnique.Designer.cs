@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AnimeApi.Server.DataAccess.Migrations
 {
     [DbContext(typeof(AnimeDbContext))]
-    [Migration("20260205230752_MakeBanEntityUserIdUnique")]
-    partial class MakeBanEntityUserIdUnique
+    [Migration("20260206152727_MakeBanEntryUserIdUnique")]
+    partial class MakeBanEntryUserIdUnique
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

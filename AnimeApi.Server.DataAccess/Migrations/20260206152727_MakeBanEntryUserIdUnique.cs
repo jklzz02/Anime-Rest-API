@@ -5,7 +5,7 @@
 namespace AnimeApi.Server.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class MakeBanEntityUserIdUnique : Migration
+    public partial class MakeBanEntryUserIdUnique : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
