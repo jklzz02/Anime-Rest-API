@@ -222,7 +222,7 @@ public class AnimeQuery : Specification<Anime, AnimeQuery>
                 $"Invalid sort order. Choose among: ({string.Join(", ", Constants.OrderBy.StringDirections.Directions)})");
         }
 
-        bool ascending = order.EqualsIgnoreCase(Constants.OrderBy.StringDirections.Ascending);
+        var ascending = order.EqualsIgnoreCase(Constants.OrderBy.StringDirections.Ascending);
 
         SortBy(field.ToLowerNormalized() switch
         {
@@ -248,7 +248,7 @@ public class AnimeQuery : Specification<Anime, AnimeQuery>
 
             _ => ascending
                 ? SortAction<Anime>.Asc(a => a.Score)
-                : SortAction<Anime>.Desc(a => a.Score),
+                : SortAction<Anime>.Desc(a => a.Score)
         });
 
         return this;
@@ -261,7 +261,7 @@ public class AnimeQuery : Specification<Anime, AnimeQuery>
 
         FilterBy([
             a => a.StartedAiring != null,
-            a => a.StartedAiring <= DateTime.UtcNow,
+            a => a.StartedAiring <= DateTime.UtcNow
         ]);
         Recent();
         Popular();

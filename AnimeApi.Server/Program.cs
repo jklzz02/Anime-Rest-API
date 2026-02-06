@@ -132,7 +132,7 @@ public class Program
             c.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = Constants.App,
-                Version = "v1",
+                Version = "v1"
             });
 
             c.AddSecurityDefinition(Constants.Auth.DefaultScheme, new OpenApiSecurityScheme
@@ -166,7 +166,7 @@ public class Program
                     return RateLimitPartition.GetNoLimiter(clientDomain);
                 }
                 
-                if (context.User?.IsInRole(Constants.UserAccess.Admin) == true)
+                if (context.User.IsInRole(Constants.UserAccess.Admin) == true)
                 {
                     return RateLimitPartition.GetNoLimiter(Constants.UserAccess.Admin);
                 }

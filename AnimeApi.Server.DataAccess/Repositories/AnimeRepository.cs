@@ -119,7 +119,7 @@ public class AnimeRepository : Repository<Anime, AnimeDto>
         return Result<AnimeDto>.Success(resultDto!);
     }
 
-    private void UpdateAnime(Anime original, Anime updated)
+    private static void UpdateAnime(Anime original, Anime updated)
     {
         original.Name = updated.Name;
         original.EnglishName = updated.EnglishName;

@@ -75,7 +75,7 @@ public static class Constants
         public enum Roles
         {
             Admin = 1,
-            User = 2,
+            User = 2
         }
     }
 
