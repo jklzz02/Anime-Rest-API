@@ -1,21 +1,31 @@
+using Newtonsoft.Json;
+
 namespace AnimeApi.Server.Core.Objects.Dto;
 
 public record BanDto
 {
+    [JsonProperty("id")]
     public int Id { get; init; }
     
+    [JsonProperty("user_id")]
     public int UserId { get; set; }
     
+    [JsonProperty("normalized_email")]
     public string NormalizedEmail { get; init; }
     
+    [JsonProperty("created_at")]
     public DateTime CreatedAt { get; init; }
     
+    [JsonProperty("expiration_date")]
     public DateTime? Expiration { get; init; }
     
+    [JsonProperty("reason")]
     public string? Reason { get; init; }
     
-    public AppUserDto User { get; init; }
+    [JsonIgnore]
+    public AppUserDto? User { get; init; }
     
+    [JsonProperty("active")]
     public bool IsActive
         => Expiration is null || Expiration > DateTime.UtcNow;
 

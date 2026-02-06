@@ -125,7 +125,7 @@ public class UserController(
     }
 
     [HttpPost("ban")]
-    //[Authorize(Policy = Constants.UserAccess.Admin)]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -143,7 +143,22 @@ public class UserController(
         
         return NoContent();
     }
-    
+
+    [HttpPatch("unban")]
+    [Authorize(Policy = Constants.UserAccess.Admin)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UnbanUserAsync([FromQuery, MinLength(1), MaxLength(250)] string email)
+    {
+        var res = await banService.UnbanUserAsync(email);
+        if (res.IsFailure)
+        {
+            return BadRequest(res.ValidationErrors.ToKeyValuePairs());
+        }
+
+        return Ok(res.Data);
+    }
 
     [HttpDelete]
     [Authorize]
