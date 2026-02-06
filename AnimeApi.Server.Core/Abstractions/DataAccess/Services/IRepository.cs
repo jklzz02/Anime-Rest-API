@@ -20,14 +20,14 @@ public interface IRepository<TEntity, TDto>
     /// Retrieves all entities as a collection of data transfer objects (DTOs) from the repository.
     /// </summary>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of DTOs representing all entities.</returns>
-    Task<IEnumerable<TDto>> GetAllAsync();
+    Task<IList<TDto>> GetAllAsync();
     
     /// <summary>
     /// Retrieves all entities projected to {TResult}.
     /// </summary>
     /// <typeparam name="TResult">The target destination type of the projections</typeparam>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of projected entities.</returns>
-    Task<IEnumerable<TResult>> GetAllAsync<TResult>()
+    Task<IList<TResult>> GetAllAsync<TResult>()
         where TResult : class, new();
 
     /// <summary>
@@ -35,7 +35,7 @@ public interface IRepository<TEntity, TDto>
     /// </summary>
     /// <param name="specification">The query specification defining the criteria for retrieving entities.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of DTOs for the entities matching the query specification.</returns>
-    Task<IEnumerable<TDto>> FindAsync(ISpecification<TEntity> specification);
+    Task<IList<TDto>> FindAsync(ISpecification<TEntity> specification);
 
     /// <summary>
     ///  Retrieves a collection of entities projected to {TResult}.
@@ -43,7 +43,7 @@ public interface IRepository<TEntity, TDto>
     /// <param name="specification">The query specification defining the criteria for retrieving entities to project.</param>
     /// <typeparam name="TResult">The type to project to</typeparam>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of projected entities.</returns>
-    Task<IEnumerable<TResult>> FindAsync<TResult>(ISpecification<TEntity> specification)
+    Task<IList<TResult>> FindAsync<TResult>(ISpecification<TEntity> specification)
         where TResult : class, new();
 
     /// <summary>

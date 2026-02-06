@@ -24,7 +24,7 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TResult>> GetAllAsync<TResult>()
+    public async Task<IList<TResult>> GetAllAsync<TResult>()
         where TResult : class, new()
     {
         return await
@@ -34,17 +34,17 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TDto>> FindAsync(ISpecification<TEntity> specification)
+    public async Task<IList<TDto>> FindAsync(ISpecification<TEntity> specification)
     {
         var entities = await specification
             .Apply(Context.Set<TEntity>())
             .ToListAsync();
 
-        return Mapper.MapToDto(entities);
+        return Mapper.MapToDto(entities).ToList();
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TResult>> FindAsync<TResult>(ISpecification<TEntity> specification)
+    public async Task<IList<TResult>> FindAsync<TResult>(ISpecification<TEntity> specification)
         where TResult : class, new()
     {
         return await specification
@@ -74,13 +74,13 @@ public class Repository<TEntity, TDto>(AnimeDbContext context, IMapper<TEntity, 
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TDto>> GetAllAsync()
+    public async Task<IList<TDto>> GetAllAsync()
     {
         var entities = await Context.Set<TEntity>()
             .AsNoTracking()
             .ToListAsync();
 
-        return Mapper.MapToDto(entities);
+        return Mapper.MapToDto(entities).ToList();
     }
 
     /// <inheritdoc />

@@ -51,10 +51,11 @@ public class BanService(
                 "Expired",
                 "Cannot set expiration in the past.");
         }
-        
-        var user = (await
-            userRepo.FindAsync(new UserQuery().ByEmail(email)))
-                .ToList();
+
+        var user = await
+            userRepo.FindAsync(
+                new UserQuery()
+                    .ByEmail(email));
 
         if (!user.Any())
         {
@@ -62,10 +63,11 @@ public class BanService(
                 "User not found",
                 $"There is no user with email '{email}'");
         }
-        
-        var bans = (await
-                banRepo.FindAsync(new BanQuery().ByUser(email.ToLowerNormalized())))
-            .ToList();
+
+        var bans = await
+            banRepo.FindAsync(
+                new BanQuery()
+                    .ByUser(email.ToLowerNormalized()));
 
         if (!bans.Any())
         {
@@ -93,11 +95,10 @@ public class BanService(
     
     public async Task<Result<IEnumerable<BanDto>>> UnbanUserAsync(string email)
     {
-        var activeBan =  (await
+        var activeBan = await
             banRepo.FindAsync(new BanQuery()
                 .ByUser(email.ToLowerNormalized())
-                .Active()))
-            .ToList();
+                .Active());
 
         if (!activeBan.Any())
         {

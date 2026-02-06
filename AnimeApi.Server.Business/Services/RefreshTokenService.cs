@@ -94,9 +94,7 @@ public class RefreshTokenService(
 
     public async Task<bool> RevokeByEmailAsync(string email)
     {
-        var linkedUsers = (await
-                userService.GetUsersLinkedToEmail(email))
-            .ToList();
+        var linkedUsers = await userService.GetUsersLinkedToEmail(email);
         
         var query = new TokenQuery()
             .ByUser(linkedUsers.Select(u => u.Id));
