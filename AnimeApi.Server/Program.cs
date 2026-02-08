@@ -5,7 +5,8 @@ using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Exceptions;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.DataAccess.Extensions;
-using AnimeApi.Server.Handlers;
+using AnimeApi.Server.Handlers.Auth;
+using AnimeApi.Server.Handlers.HealthCheck;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
@@ -121,6 +122,10 @@ public class Program
                     }
                 };
             });
+        
+        // Register health check handlers
+        builder.Services.AddHealthChecks()
+            .AddCheck<CacheHealthCheck>(nameof(CacheHealthCheck));
         
         // Add authorization handlers
         builder.Services.AddScoped<IAuthorizationHandler, BanAuthorizationHandler>();

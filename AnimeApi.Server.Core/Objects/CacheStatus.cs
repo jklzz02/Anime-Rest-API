@@ -39,21 +39,49 @@ public record CacheStatus
             : 0;
     
     [JsonProperty("state")]
-    public string State
+    public CacheState State
     {
         get
         {
             if (EntriesCount == 0)
-                return "empty";
+                return CacheState.Empty;
 
             if (CapacityUsedPercent >= 90)
-                return "under_pressure";
+                return CacheState.UnderPressure;
 
             if (HitRatio < 50)
-                return "ineffective";
-
-            return "healthy";
+                return CacheState.Ineffective;
+            
+            return CacheState.Healthy;
         }
     }
 
+    public IReadOnlyDictionary<string, object> ToReport()
+        => new Dictionary<string, object>
+        {
+            { "hits", Hits },
+            { "misses", Misses },
+            { "hit_ratio", HitRatio },
+            { "entries_count", EntriesCount },
+            { "estimated_unit_size", EstimatedUnitSize },
+            { "max_unit_size", MaxUnitSize },
+            { "capacity_used_percent", CapacityUsedPercent },
+            {"eviction_count", EvictionCount },
+            { "state", State }
+        };
+}
+
+public enum CacheState
+{
+    [JsonProperty("empty")]
+    Empty,
+    
+    [JsonProperty("under_pressure")]
+    UnderPressure,
+    
+    [JsonProperty("ineffective")]
+    Ineffective,
+    
+    [JsonProperty("healthy")]
+    Healthy
 }

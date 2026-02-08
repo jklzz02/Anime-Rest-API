@@ -2,7 +2,7 @@ using System.Security.Claims;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AnimeApi.Server.Handlers;
+namespace AnimeApi.Server.Handlers.Auth;
 
 public class BanAuthorizationHandler(IBanService banService) : IAuthorizationHandler
 {
