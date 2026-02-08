@@ -1,7 +1,9 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Facades;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;
+using AnimeApi.Server.DataAccess.Facades;
 using AnimeApi.Server.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +30,7 @@ public static class ServiceCollectionExtensions
                     .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
             }));
 
+        // Repositories
         services.AddScoped<IRepository<Anime, AnimeDto>, AnimeRepository>();
         services.AddScoped<IRepository<Ban,  BanDto>, Repository<Ban, BanDto>>();
         services.AddScoped<IRepository<Producer, ProducerDto>, Repository<Producer, ProducerDto>>();
@@ -39,6 +42,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepository<Review, ReviewDto>, Repository<Review, ReviewDto>>();
         services.AddScoped<IRepository<AppUser, AppUserDto>, Repository<AppUser, AppUserDto>>();
         services.AddScoped<IRepository<RefreshToken, RefreshTokenDto>, Repository<RefreshToken, RefreshTokenDto>>();
+
+        // Facades
+        services.AddScoped<IAnimeFacade, IAnimeFacade>();
+        services.AddScoped<IUserFacade, UserFacade>();
+        services.AddScoped<IReviewFacade, ReviewFacade>();
+        
         services.AddScoped<IRoles, Roles>();
         
         return services;

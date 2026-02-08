@@ -12,12 +12,9 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 
 public class FavouritesHelper(
     IRepository<Favourite, FavouriteDto> repository,
-    IMapper<Favourite, FavouriteDto> mapper,
     IValidator<FavouriteDto> validator)
     : IFavouritesHelper
 {
-    private readonly IMapper<Favourite, FavouriteDto> _mapper = mapper;
-
     public async Task<FavouriteDto?> GetFavouriteAsync(int userId, int animeId)
     {
         var query = new FavouriteQuery()
