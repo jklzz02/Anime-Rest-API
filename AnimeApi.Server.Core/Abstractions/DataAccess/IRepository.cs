@@ -1,7 +1,7 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 
-namespace AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+namespace AnimeApi.Server.Core.Abstractions.DataAccess;
 
 /// <summary>
 /// Defines the contract for a generic repository interface to perform operations on entities and their corresponding DTOs.

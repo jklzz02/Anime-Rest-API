@@ -1,5 +1,4 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess;
-using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.DataAccess.Context;

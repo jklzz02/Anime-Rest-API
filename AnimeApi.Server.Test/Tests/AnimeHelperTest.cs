@@ -2,7 +2,7 @@ using AnimeApi.Server.Business.Services.Helpers;
 using AnimeApi.Server.Test.Generators;
 using FluentValidation.Results;
 using Moq;
-using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;

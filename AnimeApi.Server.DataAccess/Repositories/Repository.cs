@@ -1,5 +1,5 @@
 ﻿using AnimeApi.Server.Core.Abstractions.Business.Mappers;
-using AnimeApi.Server.Core.Abstractions.DataAccess.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.DataAccess.Context;
