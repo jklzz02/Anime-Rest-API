@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRepository<RefreshToken, RefreshTokenDto>, Repository<RefreshToken, RefreshTokenDto>>();
 
         // Facades
-        services.AddScoped<IAnimeFacade, IAnimeFacade>();
+        services.AddScoped<IAnimeFacade, AnimeFacade>();
         services.AddScoped<IUserFacade, UserFacade>();
         services.AddScoped<IReviewFacade, ReviewFacade>();
         
