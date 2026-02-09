@@ -1,11 +1,12 @@
+using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
-using AnimeApi.Server.Core.Abstractions.DataAccess;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Facades;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
-using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.Core.Specification;
+using FluentValidation;
 
 namespace AnimeApi.Server.Business.Services;
 
@@ -14,14 +15,14 @@ namespace AnimeApi.Server.Business.Services;
 /// Implements the <see cref="IUserService"/> interface.
 /// </summary>
 public class UserService(
-    IBanService banService,
-    IRepository<AppUser, AppUserDto> userRepository) : IUserService
+    IUserFacade userFacade,
+    IValidator<FavouriteDto> favouriteValidator) : IUserService
 {
     /// <inheritdoc />
     public async Task<AppUserDto?> GetByEmailAsync(string email)
     {
         return await
-            userRepository.FindFirstOrDefaultAsync(
+            userFacade.Users.FindFirstOrDefaultAsync(
                 new UserQuery().ByEmail(email));
     }
 
@@ -29,17 +30,17 @@ public class UserService(
     public async Task<IEnumerable<AppUserDto>> GetUsersLinkedToEmail(string email)
     {
         return await
-            userRepository.FindAsync(
+            userFacade.Users.FindAsync(
                 new UserQuery().ByEmail(email));
     }
 
     /// <inheritdoc />
     public async Task<PaginatedResult<PublicUser>> GetPublicUsersAsync(int page, int pageSize)
     {
-        var count =  await userRepository.CountAsync();
+        var count =  await userFacade.Users.CountAsync();
 
         var results = await
-            userRepository.FindAsync<PublicUser>(new UserQuery()
+            userFacade.Users.FindAsync<PublicUser>(new UserQuery()
                 .SortByEmail()
                 .TieBreaker());
         
@@ -52,7 +53,7 @@ public class UserService(
         var query = new UserQuery().ByPk(id);
         
         return await
-            userRepository.FindFirstOrDefaultAsync(query);
+            userFacade.Users.FindFirstOrDefaultAsync(query);
     }
 
     /// <inheritdoc />
@@ -60,14 +61,17 @@ public class UserService(
     {
         var  query = new UserQuery().ByPk(id);
         return await
-            userRepository.FindFirstOrDefaultAsync<PublicUser>(query);
+            userFacade.Users.FindFirstOrDefaultAsync<PublicUser>(query);
     }
 
     /// <inheritdoc />
     public async Task<Result<AppUserDto>> GetOrCreateUserAsync(AuthPayload payload)
     {
         var activeBan = await
-            banService.GetActiveBansAsync(payload.Email);
+            userFacade.Bans.FindAsync(
+            new BanQuery()
+                        .Active()
+                        .ByUser(payload.Email));
 
         if (activeBan.Any())
         {
@@ -80,7 +84,7 @@ public class UserService(
         var query = new UserQuery().ByEmail(payload.Email);
         
         var existingUser = await
-            userRepository.FindFirstOrDefaultAsync(query);
+            userFacade.Users.FindFirstOrDefaultAsync(query);
         
         if (existingUser != null)
         {
@@ -97,7 +101,7 @@ public class UserService(
         };
 
         var result = await 
-            userRepository.AddAsync(newUser);
+            userFacade.Users.AddAsync(newUser);
         
         return result;
     }
@@ -108,7 +112,7 @@ public class UserService(
         var query =  new UserQuery().ByPk(id);
         
         return await
-            userRepository.DeleteAsync(query);
+            userFacade.Users.DeleteAsync(query);
     }
 
     /// <inheritdoc />
@@ -117,6 +121,42 @@ public class UserService(
         var query = new UserQuery().ByEmail(email);
         
         return await 
-            userRepository.DeleteAsync(query);
+            userFacade.Users.DeleteAsync(query);
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<FavouriteDto>> GetFavouritesAsync(int userId)
+    {
+        var query = new FavouriteQuery().ByUserId(userId);
+
+        return await
+            userFacade.Favourites.FindAsync(query);
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<FavouriteDto>> AddFavouriteAsync(FavouriteDto favourite)
+    {
+        var validationResult = await favouriteValidator.ValidateAsync(favourite);
+        if (!validationResult.IsValid)
+        {
+            return Result<FavouriteDto>.Failure(validationResult.Errors.ToJsonKeyedErrors<FavouriteDto>());
+        }
+
+        var result = await userFacade.Favourites.AddAsync(favourite);
+
+        return result.IsSuccess
+            ? Result<FavouriteDto>.Success(result.Data)
+            : Result<FavouriteDto>.Failure(result.Errors);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> RemoveFavouriteAsync(FavouriteDto favourite)
+    {
+        var query = new FavouriteQuery()
+            .ByUserId(favourite.UserId)
+            .ByAnimeId(favourite.AnimeId);
+
+        return await 
+            userFacade.Favourites.DeleteAsync(query);
     }
 }

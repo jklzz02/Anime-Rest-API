@@ -1,18 +1,15 @@
 using AnimeApi.Server.Core.Abstractions.Business.Services;
-using AnimeApi.Server.Core.Abstractions.DataAccess;
+using AnimeApi.Server.Core.Abstractions.DataAccess.Facades;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
-using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.Core.Specification;
 
 namespace AnimeApi.Server.Business.Services;
 
-public class BanService(
-    IRepository<AppUser, AppUserDto> userRepo,
-    IRepository<Ban, BanDto> banRepo)
-    : IBanService
+public class BanService(IUserFacade userFacade) : IBanService
 {
+    /// <inheritdoc/>
     public async Task<BanDto?> GetActiveBanAsync(int userId)
     {
         var query = new BanQuery()
@@ -20,9 +17,10 @@ public class BanService(
             .Active();
 
         return await
-            banRepo.FindFirstOrDefaultAsync(query);
+            userFacade.Bans.FindFirstOrDefaultAsync(query);
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<BanDto>> GetActiveBansAsync(string email)
     {
         var query = new BanQuery()
@@ -30,15 +28,18 @@ public class BanService(
             .Active();
         
         return await
-            banRepo.FindAsync(query);
+            userFacade.Bans.FindAsync(query);
     }
     
+    /// <inheritdoc/>
     public async Task<Result<IEnumerable<BanDto>>> PermaBanUser(string email, string reason)
         => await BanUserAsync(email, null, reason);
     
+    /// <inheritdoc/>
     public async Task<Result<IEnumerable<BanDto>>> BanUserAsync(string email, DateTime expiration)
         => await BanUserAsync(email, expiration, null);
     
+    /// <inheritdoc/>
     public async Task<Result<IEnumerable<BanDto>>> BanUserAsync(
         string email,
         DateTime? expiration,
@@ -53,7 +54,7 @@ public class BanService(
         }
 
         var user = await
-            userRepo.FindAsync(
+            userFacade.Users.FindAsync(
                 new UserQuery()
                     .ByEmail(email));
 
@@ -65,7 +66,7 @@ public class BanService(
         }
 
         var bans = await
-            banRepo.FindAsync(
+            userFacade.Bans.FindAsync(
                 new BanQuery()
                     .ByUser(email.ToLowerNormalized()));
 
@@ -83,20 +84,21 @@ public class BanService(
                 });
         
             return await
-                banRepo.AddRangeAsync(newEntries);   
+                userFacade.Bans.AddRangeAsync(newEntries);   
         }
         
         var updatedEntries = bans
             .Select(ab => ab.Updated(reason, expiration));
         
         return await 
-            banRepo.UpdateRangeAsync(updatedEntries);
+            userFacade.Bans.UpdateRangeAsync(updatedEntries);
     }
     
+    /// <inheritdoc/>
     public async Task<Result<IEnumerable<BanDto>>> UnbanUserAsync(string email)
     {
         var activeBan = await
-            banRepo.FindAsync(new BanQuery()
+            userFacade.Bans.FindAsync(new BanQuery()
                 .ByUser(email.ToLowerNormalized())
                 .Active());
 
@@ -110,6 +112,6 @@ public class BanService(
         var updatedEntries = activeBan.Select(b => b.Revoked());
         
         return await
-            banRepo.UpdateRangeAsync(updatedEntries);
+            userFacade.Bans.UpdateRangeAsync(updatedEntries);
     }
 }

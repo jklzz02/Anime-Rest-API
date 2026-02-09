@@ -15,7 +15,6 @@ namespace AnimeApi.Server.Controllers;
 public class UserController(
     IBanService banService,
     IUserService userService,
-    IFavouritesHelper favouritesHelper,
     IRefreshTokenService refreshTokenService)
     : ControllerBase
 {
@@ -79,7 +78,7 @@ public class UserController(
             return Unauthorized();
         }
 
-        var favourites = await favouritesHelper
+        var favourites = await userService
             .GetFavouritesAsync(user.Id);
         
         return Ok(favourites);
@@ -107,14 +106,14 @@ public class UserController(
             AnimeId = animeId
         };
 
-        var favourites = await favouritesHelper.GetFavouritesAsync(user.Id);
+        var favourites = await userService.GetFavouritesAsync(user.Id);
 
         if (favourites.Any(f => f.UserId == user.Id && f.AnimeId == animeId))
         {
             return BadRequest();
         }
         
-        var result = await favouritesHelper.AddFavouriteAsync(favourite);
+        var result = await userService.AddFavouriteAsync(favourite);
         
         if (result.IsFailure)
         {
@@ -223,7 +222,7 @@ public class UserController(
             AnimeId = id
         };
         
-        var result = await favouritesHelper.RemoveFavouriteAsync(favourite);
+        var result = await userService.RemoveFavouriteAsync(favourite);
         
         if (!result)
         {

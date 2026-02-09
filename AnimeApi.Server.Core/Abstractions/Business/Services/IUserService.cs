@@ -80,4 +80,25 @@ public interface IUserService
     /// (true if deleted, false if the user does not exist).
     /// </returns>
     Task<bool> DestroyUserAsync(string email);
+    
+    /// <summary>
+    /// Get the favourites of the specified user
+    /// </summary>
+    /// <param name="userId">The user identifier</param>
+    /// <returns>An <see cref="IEnumerable{T}"/> of the user's favourites</returns>
+    Task<IEnumerable<FavouriteDto>> GetFavouritesAsync(int userId);
+    
+    /// <summary>
+    /// Add a favourite
+    /// </summary>
+    /// <param name="favourite">The <see cref="FavouriteDto"/> to be added.</param>
+    /// <returns>A <see cref="Result{T}"/> containing the created entry.</returns>
+    Task<Result<FavouriteDto>> AddFavouriteAsync(FavouriteDto favourite);
+    
+    /// <summary>
+    /// Remove a favourite.
+    /// </summary>
+    /// <param name="favourite">The favourite to be removed.</param>
+    /// <returns>True if the deletion was successful, otherwise false</returns>
+    Task<bool> RemoveFavouriteAsync(FavouriteDto favourite);
 }

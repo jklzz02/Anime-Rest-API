@@ -17,7 +17,7 @@ public static class ValidationResultExtensions
     ///  A list of <see cref="Error"/> objects where the keys are JSON property names and the
     /// values are the corresponding error messages. If no <see cref="JsonPropertyAttribute"/> is found, the original property name is used as the key.
     /// </returns>
-    public static List<Error> ToJsonKeyedErrors<T>(this IEnumerable<ValidationFailure> results)
+    public static List<Error> ToJsonKeyedErrors<T>(this IEnumerable<ValidationFailure>? results)
         {
             if (results is null || !results.Any())
             {
