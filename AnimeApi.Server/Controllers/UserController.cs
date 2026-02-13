@@ -43,11 +43,11 @@ public class UserController(
     {
         var users = await
             userService
-                .GetPublicUsersAsync(pagination.Page, pagination.Size);
+                .GetUsersAsync(pagination.Page, pagination.Size);
         
         return Ok(users);
     }
-
+    
     [HttpGet("{id:int:min(1)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Abstractions.Dto;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
@@ -36,14 +37,24 @@ public interface IUserService
     /// An <see cref="IEnumerable{T}"/> representing the users linked to the specified email.
     /// </returns>
     Task<IEnumerable<AppUserDto>> GetUsersLinkedToEmail(string email);
- 
+
     /// <summary>
     /// Retrieves a paginated list of publicly available user's data. 
     /// </summary>
     /// <param name="page">The page to fetch</param>
     /// <param name="pageSize">The number of items to retrieve per page</param>
     /// <returns>A <see cref="PaginatedResult{T}"/> representing the paginated user data.</returns>
-    Task<PaginatedResult<PublicUser>> GetPublicUsersAsync(int page, int pageSize);
+    Task<PaginatedResult<AppUserDto>> GetUsersAsync(int page, int pageSize);
+    
+    /// <summary>
+    /// Retrieves a paginated list of publicly available user's data. 
+    /// </summary>
+    /// <param name="page">The page to fetch</param>
+    /// <param name="pageSize">The number of items to retrieve per page</param>
+    /// <typeparam name="TUser">The type to be projected to.</typeparam>
+    /// <returns>A <see cref="PaginatedResult{T}"/> representing the paginated user data.</returns>
+    Task<PaginatedResult<TUser>> GetUsersAsync<TUser>(int page, int pageSize)
+        where TUser : class, IProjectableFrom<AppUserDto>, new();
     
     /// <summary>
     /// Retrieves publicly accessible data of a user by their unique identifier asynchronously

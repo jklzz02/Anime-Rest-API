@@ -1,6 +1,7 @@
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Facades;
+using AnimeApi.Server.Core.Abstractions.Dto;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
@@ -35,16 +36,34 @@ public class UserService(
     }
 
     /// <inheritdoc />
-    public async Task<PaginatedResult<PublicUser>> GetPublicUsersAsync(int page, int pageSize)
+    public async Task<PaginatedResult<AppUserDto>> GetUsersAsync(int page, int pageSize)
+    {
+        var count = await userFacade.Users.CountAsync();
+        
+        var results = await
+            userFacade.Users.FindAsync(new UserQuery()
+                .SortByEmail()
+                .TieBreaker()
+                .Limit(pageSize)
+            );
+        
+        return new PaginatedResult<AppUserDto>(results, page, pageSize, count);
+    }
+
+    /// <inheritdoc />
+    public async Task<PaginatedResult<TUser>> GetUsersAsync<TUser>(int page, int pageSize)
+    where TUser : class, IProjectableFrom<AppUserDto>, new()
     {
         var count =  await userFacade.Users.CountAsync();
 
         var results = await
-            userFacade.Users.FindAsync<PublicUser>(new UserQuery()
+            userFacade.Users.FindAsync<TUser>(new UserQuery()
                 .SortByEmail()
-                .TieBreaker());
+                .TieBreaker()
+                .Limit(pageSize)
+            );
         
-        return new PaginatedResult<PublicUser>(results, page, pageSize, count);
+        return new PaginatedResult<TUser>(results, page, pageSize, count);
     }
 
     /// <inheritdoc />
