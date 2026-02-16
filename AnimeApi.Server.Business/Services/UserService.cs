@@ -1,10 +1,12 @@
 using AnimeApi.Server.Business.Extensions;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Abstractions.DataAccess;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Facades;
 using AnimeApi.Server.Core.Abstractions.Dto;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Auth;
 using AnimeApi.Server.Core.Objects.Dto;
+using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.Core.Specification;
 using FluentValidation;
@@ -17,6 +19,7 @@ namespace AnimeApi.Server.Business.Services;
 /// </summary>
 public class UserService(
     IUserFacade userFacade,
+    IRepository<Review, ReviewDto> reviewRepo,
     IValidator<FavouriteDto> favouriteValidator) : IUserService
 {
     /// <inheritdoc />
