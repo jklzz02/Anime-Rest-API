@@ -106,8 +106,8 @@ public class AnimeMapper(
             TrailerUrl = anime.TrailerUrl,
             TrailerEmbedUrl = anime.TrailerEmbedUrl,
             TrailerImageUrl = anime.TrailerImageUrl,
-            FavouritesCount = anime.Favourites.Count(),
-            ReviewCount = anime.Favourites.Count(),
+            FavouritesCount = anime.Favourites.Count,
+            ReviewCount = anime.Reviews.Count,
             
             Genres = anime.AnimeGenres
                 .Select(ag => new GenreDto
