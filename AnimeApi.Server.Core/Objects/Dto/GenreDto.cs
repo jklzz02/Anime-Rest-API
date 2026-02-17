@@ -7,6 +7,7 @@ public record GenreDto : IBaseDto
 {
     [JsonProperty( PropertyName = "id")]
     public int? Id { get; init; }
+    
     [JsonProperty( PropertyName = "name")]
     public string? Name { get; init; }
 }

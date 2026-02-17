@@ -23,7 +23,7 @@ public interface IReviewHelper
     /// <param name="page">The page to retrieve.</param>
     /// <param name="size">The amount of entities to retrieve.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="PaginatedResult{T}"/>.</returns>
-    Task<PaginatedResult<ReviewDetailedDto>> GetAllDetailedAsync(int page, int size);
+    Task<PaginatedResult<ReviewDetails>> GetAllDetailedAsync(int page, int size);
     
     /// <summary>
     /// Retrieves a <see cref="ReviewDto"/> by its unique identifier.
@@ -37,7 +37,7 @@ public interface IReviewHelper
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<ReviewDetailedDto?> GetDetailedByIdAsync(int id);
+    Task<ReviewDetails?> GetDetailedByIdAsync(int id);
 
     /// <summary>
     /// Retrieves a collection of <see cref="ReviewDto"/> associated with a specific user identifier.
@@ -48,11 +48,11 @@ public interface IReviewHelper
 
     
     /// <summary>
-    /// Retrieves a collection of <see cref="ReviewDetailedDto"/> associated with a specific user identifier.
+    /// Retrieves a collection of <see cref="ReviewDetails"/> associated with a specific user identifier.
     /// </summary>
     /// <param name="userId">The unique identifier of the user whose reviews are to be retrieved.</param>
-    /// <return>A task that represents the asynchronous operation. The task result contains a collection of <see cref="ReviewDetailedDto"/> associated with the specified user.</return>
-    Task<IEnumerable<ReviewDetailedDto>> GetDetailedByUserIdAsync(int userId);
+    /// <return>A task that represents the asynchronous operation. The task result contains a collection of <see cref="ReviewDetails"/> associated with the specified user.</return>
+    Task<IEnumerable<ReviewDetails>> GetDetailedByUserIdAsync(int userId);
     
     /// <summary>
     /// Retrieves a collection of <see cref="ReviewDto"/> associated with a specific user email address.

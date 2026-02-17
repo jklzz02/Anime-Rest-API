@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace AnimeApi.Server.Core.Objects.Dto;
 
-public record ReviewDetailedDto : IProjectableFrom<ReviewDto>
+public record ReviewDetails : IProjectableFrom<ReviewDto>
 {
     [JsonProperty("id")]
     public int Id { get; set; }

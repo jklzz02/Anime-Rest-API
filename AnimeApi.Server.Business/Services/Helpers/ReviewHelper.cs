@@ -36,7 +36,7 @@ public class ReviewHelper(
     }
     
     /// <inheritdoc />
-    public async Task<PaginatedResult<ReviewDetailedDto>> GetAllDetailedAsync(int page, int size)
+    public async Task<PaginatedResult<ReviewDetails>> GetAllDetailedAsync(int page, int size)
     {
         var query = new ReviewQuery()
             .SortBy(r => r.CreatedAt, SortDirections.Desc)
@@ -46,9 +46,9 @@ public class ReviewHelper(
             repository.CountAsync();
         
         var result = await
-            repository.FindAsync<ReviewDetailedDto>(query);
+            repository.FindAsync<ReviewDetails>(query);
         
-        return new PaginatedResult<ReviewDetailedDto>(result, page,  size, count);
+        return new PaginatedResult<ReviewDetails>(result, page,  size, count);
     }
 
     /// <inheritdoc />
@@ -61,14 +61,14 @@ public class ReviewHelper(
     }
 
     /// <inheritdoc />
-    public async Task<ReviewDetailedDto?> GetDetailedByIdAsync(int id)
+    public async Task<ReviewDetails?> GetDetailedByIdAsync(int id)
     {
         var query = new ReviewQuery()
             .ByPk(id);
         
         return await
             repository
-                .FindFirstOrDefaultAsync<ReviewDetailedDto>(query);
+                .FindFirstOrDefaultAsync<ReviewDetails>(query);
     }
 
     /// <inheritdoc />
@@ -101,12 +101,12 @@ public class ReviewHelper(
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<ReviewDetailedDto>> GetDetailedByUserIdAsync(int userId)
+    public async Task<IEnumerable<ReviewDetails>> GetDetailedByUserIdAsync(int userId)
     {
         var query = new ReviewQuery().ByUser(userId);
 
         return await
-            repository.FindAsync<ReviewDetailedDto>(query);
+            repository.FindAsync<ReviewDetails>(query);
     }
 
     /// <inheritdoc />
