@@ -4,7 +4,7 @@ using AnimeApi.Server.Core.Objects.Models;
 
 namespace AnimeApi.Server.Core.Mappers;
 
-public class RefreshTokenMapper : Mapper<RefreshToken, RefreshTokenDto>, IMapper<RefreshToken, RefreshTokenDto>
+public class RefreshTokenMapper : Mapper<RefreshToken, RefreshTokenDto>
 {
     public override RefreshTokenDto MapToDto(RefreshToken refreshToken)
     {
