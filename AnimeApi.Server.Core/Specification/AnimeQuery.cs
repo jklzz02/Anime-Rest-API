@@ -288,7 +288,7 @@ public class AnimeQuery : Specification<Anime, AnimeQuery>
         => ExcludeAdultContent(true);
 
     public AnimeQuery Popular()
-        => SortBy(a => a.Score, SortDirections.Desc);
+        => SortBy(a => a.Score, SortDirection.Desc);
     
     public AnimeQuery Recent()
         => SortBy([

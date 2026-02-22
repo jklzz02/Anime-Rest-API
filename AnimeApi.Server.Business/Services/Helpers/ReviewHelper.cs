@@ -23,7 +23,7 @@ public class ReviewHelper(
     public async Task<PaginatedResult<ReviewDto>> GetAllAsync(int page, int size)
     {
         var query = new ReviewQuery()
-            .SortBy(r => r.CreatedAt, SortDirections.Desc)
+            .SortBy(r => r.CreatedAt, SortDirection.Desc)
             .Paginate(page, size);
 
         var count = await
@@ -39,7 +39,7 @@ public class ReviewHelper(
     public async Task<PaginatedResult<ReviewDetails>> GetAllDetailedAsync(int page, int size)
     {
         var query = new ReviewQuery()
-            .SortBy(r => r.CreatedAt, SortDirections.Desc)
+            .SortBy(r => r.CreatedAt, SortDirection.Desc)
             .Paginate(page, size);
 
         var count = await

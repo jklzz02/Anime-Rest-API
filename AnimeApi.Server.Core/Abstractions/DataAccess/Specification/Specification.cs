@@ -100,13 +100,13 @@ public class Specification<TEntity, TDerived> : ISpecification<TEntity>
             {
                 if (orderedQuery == null)
                 {
-                    orderedQuery = sortAction.Direction == SortDirections.Desc
+                    orderedQuery = sortAction.Direction == SortDirection.Desc
                         ? query.OrderByDescending(sortAction.KeySelector)
                         : query.OrderBy(sortAction.KeySelector);
                 }
                 else
                 {
-                    orderedQuery = sortAction.Direction == SortDirections.Desc
+                    orderedQuery = sortAction.Direction == SortDirection.Desc
                         ? orderedQuery.ThenByDescending(sortAction.KeySelector)
                         : orderedQuery.ThenBy(sortAction.KeySelector);
                 }
@@ -142,13 +142,13 @@ public class Specification<TEntity, TDerived> : ISpecification<TEntity>
     }
     
     public TDerived SortBy(Expression<Func<TEntity, object?>> keySelector)
-        => SortBy(keySelector, SortDirections.Asc);
+        => SortBy(keySelector, SortDirection.Asc);
     
-    public TDerived SortBy(Expression<Func<TEntity, object?>> keySelector, SortDirections direction)
+    public TDerived SortBy(Expression<Func<TEntity, object?>> keySelector, SortDirection direction)
     {
         ArgumentNullException.ThrowIfNull(keySelector);
         
-        _sortActions.Add(direction == SortDirections.Desc
+        _sortActions.Add(direction == SortDirection.Desc
             ? SortAction<TEntity>.Desc(keySelector)
             : SortAction<TEntity>.Asc(keySelector));
 
@@ -208,22 +208,22 @@ public class Specification<TEntity, TDerived> : ISpecification<TEntity>
 public class SortAction<TEntity>
 {
     public Expression<Func<TEntity, object?>> KeySelector { get; }
-    public SortDirections Direction { get; }
+    public SortDirection Direction { get; }
 
-    private SortAction(Expression<Func<TEntity, object?>> keySelector, SortDirections direction)
+    private SortAction(Expression<Func<TEntity, object?>> keySelector, SortDirection direction)
     {
         KeySelector = keySelector;
         Direction = direction;
     }
 
     public static SortAction<TEntity> Asc(Expression<Func<TEntity, object?>> keySelector)
-        => new(keySelector, SortDirections.Asc);
+        => new(keySelector, SortDirection.Asc);
 
     public static SortAction<TEntity> Desc(Expression<Func<TEntity, object?>> keySelector)
-        => new(keySelector, SortDirections.Desc);
+        => new(keySelector, SortDirection.Desc);
 }
 
-public enum SortDirections
+public enum SortDirection
 {
     Asc,
     Desc
