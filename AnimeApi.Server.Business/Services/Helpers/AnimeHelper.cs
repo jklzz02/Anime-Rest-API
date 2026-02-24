@@ -288,14 +288,18 @@ public class AnimeHelper(
         return new PaginatedResult<AnimeDto>(items, page, size, count);
     }
     
-    public async Task<PaginatedResult<TProjection>> SearchAsync<TProjection>(AnimeSearchParameters parameters, int page, int size = 100) where TProjection : class, IProjectableFrom<AnimeDto>, new()
+    public async Task<PaginatedResult<TProjection>> SearchAsync<TProjection>(
+        AnimeSearchParameters parameters,
+        int page,
+        int size = 100)
+        where TProjection : class, IProjectableFrom<AnimeDto>, new()
     {
-        var validationResult = await 
+        var validationResult = await
             paramsValidator.ValidateAsync(parameters);
 
         if (!validationResult.IsValid)
         {
-            List<Error> errors = validationResult.Errors
+            var errors = validationResult.Errors
                 .ToJsonKeyedErrors<AnimeSearchParameters>();
             
             return new PaginatedResult<TProjection>(errors);
