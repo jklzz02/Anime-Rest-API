@@ -11,7 +11,7 @@ namespace AnimeApi.Server.Core.Objects
     /// </remarks>
     public class AnimeSearchParameters
     {
-        [FromQuery(Name = "query")]
+        [FromQuery(Name = "q")]
         public string? Query { get; set; }
 
         [FromQuery(Name = "title")]
