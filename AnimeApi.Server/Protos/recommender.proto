@@ -6,7 +6,7 @@ package recommender;
 service AnimeRecommender {
   rpc GetCompatible (CompatibleRequest) returns (CompatibleResponse);
 
-  rpc GetCfReccomendations (CollaborativeRecommendationRequest) returns (CollaborativeRecommendationResponse);
+  rpc GetCfRecommendations (CollaborativeRecommendationRequest) returns (CollaborativeRecommendationResponse);
 
   rpc GetCompatibility (CompatibilityRequest) returns (CompatibilityResponse);
 
