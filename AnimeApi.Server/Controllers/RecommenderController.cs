@@ -151,12 +151,12 @@ public class RecommenderController(
     }
 
     [Authorize]
-    [HttpGet]
+    [HttpGet("cf/user-recommendations")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> GetCfRecommendations()
+    public async Task<IActionResult> GetCfRecommendations([FromQuery, Range(1, 100)] int count = 10)
     {
         try
         {
@@ -168,6 +168,23 @@ public class RecommenderController(
             {
                 return Unauthorized();
             }
+            
+            var favourites = await userService.GetFavouritesAsync(user.Id);
+
+            var message = new CollaborativeRecommendationRequest
+            {
+                UserFavouriteIds = { favourites.Select(f => f.AnimeId) },
+                Limit = count,
+            };
+
+            var response = await recommenderClient.GetCfRecommendationsAsync(message);
+
+            if (response is null)
+            {
+                return NotFound();
+            }
+            
+            return Ok(response.Recommended);
         }
         catch (RpcException ex)
         {
