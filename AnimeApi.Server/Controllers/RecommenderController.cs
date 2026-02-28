@@ -20,6 +20,7 @@ public class RecommenderController(
 {
     [HttpGet("related")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> GetRelated(RelatedAnimeRequest request)
@@ -55,6 +56,7 @@ public class RecommenderController(
     [Authorize]
     [HttpGet("compatibility/score")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> GetCompatibilityScore(
@@ -102,6 +104,7 @@ public class RecommenderController(
     [Authorize]
     [HttpPost("compatibility/scores")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> GetCompatibilityScores([FromBody] TargetAnimeCompatibilityRequest request)
@@ -140,6 +143,31 @@ public class RecommenderController(
             });
 
             return Ok(result);
+        }
+        catch (RpcException ex)
+        {
+            return RpcFailureResponse(ex);
+        }
+    }
+
+    [Authorize]
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> GetCfRecommendations()
+    {
+        try
+        {
+            var email = User.FindFirst(ClaimTypes.Email);
+            
+            var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
+            
+            if (user is null)
+            {
+                return Unauthorized();
+            }
         }
         catch (RpcException ex)
         {
