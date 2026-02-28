@@ -19,14 +19,14 @@ graph TB
     A[Angular SPA<br/><em>In Development</em>]
     B[YARP Proxy<br/><em>Planned</em>]
     C[ASP.NET Core API<br/><strong>This Solution</strong>]
-    E[FastAPI Recommender<br/><em>In Development</em>]
+    E[Recommender<br/><em>In Development</em>]
     D[(PostgreSQL Database)]
 
     %% Connections
     A -.->|HTTP Requests| B
     B -.->|Proxied Requests| C
     C -->|SQL Queries| D
-    C -.->|REST API Calls| E
+    C -.->|gRPC| E
 
     %% Styling
     classDef planned fill:#9e9e9e,stroke:#757575,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
