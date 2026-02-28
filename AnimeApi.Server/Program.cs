@@ -7,6 +7,7 @@ using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.DataAccess.Extensions;
 using AnimeApi.Server.Handlers.Auth;
 using AnimeApi.Server.Handlers.HealthCheck;
+using AnimeApi.Server.Recommender.Grpc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
@@ -35,6 +36,8 @@ public class Program
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Issuer");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "Authentication:Jwt:Secret");
         ConfigurationException.ThrowIfEmpty(builder.Configuration, "RateLimiter:Enabled");
+        ConfigurationException.ThrowIfMissing(builder.Configuration, "gRPC");
+        ConfigurationException.ThrowIfEmpty(builder.Configuration, "gRPC:AnimeRecommender:Url");
         
         var connectionString = builder.Configuration
             .GetConnectionString("DefaultConnection");
@@ -42,6 +45,10 @@ public class Program
         var clientDomain = builder.Configuration
             .GetSection("Authorization")
             .GetValue<string>("ClientDomain");
+        
+        var animeRecommenderUrl = builder.Configuration
+            .GetSection("gRPC:AnimeRecommender")
+            .GetValue<string>("Url");
         
         var clientKey = builder.Configuration
             .GetSection("Authorization")
@@ -126,6 +133,11 @@ public class Program
         // Register health check handlers
         builder.Services.AddHealthChecks()
             .AddCheck<CacheHealthCheck>(nameof(CacheHealthCheck));
+
+        builder.Services.AddGrpcClient<AnimeRecommender.AnimeRecommenderClient>(opt =>
+        {
+            opt.Address = new Uri(animeRecommenderUrl!);
+        });
         
         // Add authorization handlers
         builder.Services.AddScoped<IAuthorizationHandler, BanAuthorizationHandler>();
