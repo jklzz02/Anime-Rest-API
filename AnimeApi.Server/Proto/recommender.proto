@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package recommender;
+
+service AnimeRecommender {
+  rpc GetCompatible (CompatibleRequest) returns (CompatibleResponse);
+
+  rpc GetCompatibility (CompatibilityRequest) returns (CompatibilityResponse);
+
+  rpc GetCompatibilityScores (CompatibilityBatchRequest) returns (CompatibilityBatchResponse);
+
+  rpc GetRelated (RelatedRequest) returns (RelatedResponse);
+}
+
+message CompatibleRequest {
+  repeated int32 user_favourite_ids = 1;
+  int32 limit = 2;
+}
+
+message CompatibleAnime {
+  int32 anime_id = 1;
+  double compatibility_score = 2;
+}
+
+message CompatibleResponse {
+  repeated CompatibleAnime data = 1;
+  string scale = 2;
+}
+
+message CompatibilityRequest {
+  int32 target_anime_id = 1;
+  repeated int32 user_favourite_ids = 2;
+}
+
+message CompatibilityResponse {
+  int32 target_anime_id = 1;
+  double compatibility_score = 2;
+  string scale = 3;
+}
+
+message CompatibilityBatchRequest {
+  repeated int32 target_anime_ids = 1;
+  repeated int32 user_favourite_ids = 2;
+}
+
+message CompatibilityBatchResponse {
+  repeated CompatibilityResponse scores = 1;
+}
+
+message RelatedRequest {
+  int32 anime_id = 1;
+  int32 limit = 2;
+}
+
+message RelatedResponse {
+  repeated int32 anime_ids = 1;
+}
