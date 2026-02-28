@@ -30,11 +30,6 @@ public class RecommenderController(
 
             var response = await recommenderClient.GetRelatedAsync(message);
 
-            if (response is null)
-            {
-                return NotFound();
-            }
-
             return request.EntityType switch
             {
                 ResultEntityType.Full
@@ -46,6 +41,45 @@ public class RecommenderController(
                 _ => Ok(await helper.GetByIdAsync<AnimeListItem>(response.AnimeIds)),
             };
             
+        }
+        catch (RpcException ex)
+        {
+            return RpcFailureResponse(ex);
+        }
+    }
+
+    [HttpGet("compatibility/score")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> GetCompatibility(CompatibilityAnimeRequest request)
+    {
+        if (request.UserFavouriteIds.Any(uf => uf <= 0))
+        {
+            return BadRequest("User favourite ids must be positive integers.");
+        }
+        
+        try
+        {
+            var message = new CompatibilityRequest
+            {
+                TargetAnimeId = request.AnimeId,
+                UserFavouriteIds = { request.UserFavouriteIds }
+            };
+
+            var response = await recommenderClient.GetCompatibilityAsync(message);
+
+            if (response is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new
+            {
+                target_anime_id = response.TargetAnimeId,
+                compatibility_score = response.CompatibilityScore,
+                scale = response.Scale
+            });
         }
         catch (RpcException ex)
         {
