@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.Recommender.Grpc;
 using AnimeApi.Server.RequestModels.Recommender;
 using Grpc.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.Controllers;
@@ -11,7 +14,8 @@ namespace AnimeApi.Server.Controllers;
 [ApiController]
 public class RecommenderController(
     AnimeRecommender.AnimeRecommenderClient recommenderClient,
-    IAnimeHelper helper)
+    IAnimeHelper helper,
+    IUserService userService)
     : ControllerBase
 {
     [HttpGet("related")]
@@ -48,23 +52,31 @@ public class RecommenderController(
         }
     }
 
+    [Authorize]
     [HttpGet("compatibility/score")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> GetCompatibility(CompatibilityAnimeRequest request)
+    public async Task<IActionResult> GetCompatibility(
+        [FromQuery(Name = "target_anime_id"), Range(1, int.MaxValue)] int animeId)
     {
-        if (request.UserFavouriteIds.Any(uf => uf <= 0))
+        var email = User.FindFirst(ClaimTypes.Email);
+        
+        var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
+
+        if (user is null)
         {
-            return BadRequest("User favourite ids must be positive integers.");
+            return Unauthorized();
         }
+        
+        var favourites = await userService.GetFavouritesAsync(user.Id);
         
         try
         {
             var message = new CompatibilityRequest
             {
-                TargetAnimeId = request.AnimeId,
-                UserFavouriteIds = { request.UserFavouriteIds }
+                TargetAnimeId = animeId,
+                UserFavouriteIds = { favourites.Select(f => f.AnimeId) }
             };
 
             var response = await recommenderClient.GetCompatibilityAsync(message);
