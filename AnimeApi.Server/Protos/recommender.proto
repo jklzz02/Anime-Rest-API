@@ -6,6 +6,8 @@ package recommender;
 service AnimeRecommender {
   rpc GetCompatible (CompatibleRequest) returns (CompatibleResponse);
 
+  rpc GetCfReccomendations (CollaborativeRecommendationRequest) returns (CollaborativeRecommendationResponse);
+
   rpc GetCompatibility (CompatibilityRequest) returns (CompatibilityResponse);
 
   rpc GetCompatibilityScores (CompatibilityBatchRequest) returns (CompatibilityBatchResponse);
@@ -46,6 +48,15 @@ message CompatibilityBatchRequest {
 
 message CompatibilityBatchResponse {
   repeated CompatibilityResponse scores = 1;
+}
+
+message CollaborativeRecommendationRequest {
+  repeated int32 user_favourite_ids = 1;
+  int32 limit = 2;
+}
+
+message CollaborativeRecommendationResponse {
+  repeated int32 recommended = 1;
 }
 
 message RelatedRequest {

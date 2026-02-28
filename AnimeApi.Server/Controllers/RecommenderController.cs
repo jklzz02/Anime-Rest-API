@@ -57,7 +57,7 @@ public class RecommenderController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> GetCompatibility(
+    public async Task<IActionResult> GetCompatibilityScore(
         [FromQuery(Name = "target_anime_id"), Range(1, int.MaxValue)] int animeId)
     {
         var email = User.FindFirst(ClaimTypes.Email);
@@ -92,6 +92,54 @@ public class RecommenderController(
                 compatibility_score = response.CompatibilityScore,
                 scale = response.Scale
             });
+        }
+        catch (RpcException ex)
+        {
+            return RpcFailureResponse(ex);
+        }
+    }
+
+    [Authorize]
+    [HttpPost("compatibility/scores")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> GetCompatibilityScores([FromBody] TargetAnimeCompatibilityRequest request)
+    {
+        try
+        {
+            var email = User.FindFirst(ClaimTypes.Email);
+            
+            var user = await userService.GetByEmailAsync(email?.Value ?? string.Empty);
+            
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+            
+            var favourites = await userService.GetFavouritesAsync(user.Id);
+
+            var message = new CompatibilityBatchRequest
+            {
+                TargetAnimeIds = { request.TargetAnimeIds },
+                UserFavouriteIds = { favourites.Select(f => f.AnimeId) }
+            };
+
+            var response = await recommenderClient.GetCompatibilityScoresAsync(message);
+
+            if (response is null)
+            {
+                return NotFound();
+            }
+            
+            var result = response.Scores.Select(s => new
+            {
+                target_anime_id = s.TargetAnimeId,
+                compatibility_score = s.CompatibilityScore,
+                scale = s.Scale
+            });
+
+            return Ok(result);
         }
         catch (RpcException ex)
         {
