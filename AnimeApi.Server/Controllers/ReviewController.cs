@@ -4,6 +4,7 @@ using System.Security.Claims;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Extensions;
+using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.RequestModels;
 using Microsoft.AspNetCore.Authorization;
@@ -233,6 +234,56 @@ public class ReviewController(IReviewHelper reviewHelper, IUserService userServi
             return NotFound();
         }
 
+        return Ok(result);
+    }
+
+    [HttpGet("search")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SearchAsync(
+        [FromQuery] ReviewSearchParameters parameters,
+        [FromQuery] Pagination pagination)
+    {
+        var result = await
+            reviewHelper
+                .SearchAsync(parameters, pagination.Page, pagination.Size);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
+        }
+        
+        if (!result.HasItems) 
+        {
+            return NotFound();
+        }
+        
+        return Ok(result);
+    }
+    
+    [HttpGet("search/detailed")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SearchDetailedAsync(
+        [FromQuery] ReviewSearchParameters parameters,
+        [FromQuery] Pagination pagination)
+    {
+        var result = await
+            reviewHelper
+                .SearchAsync<ReviewDetails>(parameters, pagination.Page, pagination.Size);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ValidationErrors.ToKeyValuePairs());
+        }
+        
+        if (!result.HasItems) 
+        {
+            return NotFound();
+        }
+        
         return Ok(result);
     }
 

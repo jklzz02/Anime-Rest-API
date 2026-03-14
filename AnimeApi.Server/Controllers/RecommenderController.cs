@@ -4,6 +4,7 @@ using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.Recommender.Grpc;
 using AnimeApi.Server.RequestModels.Recommender;
+using AnimeApi.Server.RequestModels.ResultType;
 using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,10 +38,10 @@ public class RecommenderController(
 
             return request.EntityType switch
             {
-                ResultEntityType.Full
+                AnimeResultType.Full
                     => Ok(await helper.GetByIdAsync(response.AnimeIds)),
                     
-                ResultEntityType.Summary
+                AnimeResultType.Summary
                     => Ok(await helper.GetByIdAsync<AnimeSummary>(response.AnimeIds)),
                         
                 _ => Ok(await helper.GetByIdAsync<AnimeListItem>(response.AnimeIds)),

@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
             services.AddTransient<IValidator<AnimeDto>, AnimeValidator>();
             services.AddTransient<IValidator<ReviewDto>, ReviewValidator>();
             services.AddTransient<IValidator<AnimeSearchParameters>, AnimeSearchParametersValidator>();
+            services.AddTransient<IValidator<ReviewSearchParameters>, ReviewSearchParametersValidator>();
             services.AddTransient<IValidator<FavouriteDto>, FavouriteValidator>();
             services.AddTransient<IBaseValidator<GenreDto>, BaseValidator<GenreDto>>();
             services.AddTransient<IBaseValidator<SourceDto>, BaseValidator<SourceDto>>();

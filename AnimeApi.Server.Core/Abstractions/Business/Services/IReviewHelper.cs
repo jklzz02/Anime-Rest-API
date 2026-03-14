@@ -1,3 +1,4 @@
+using AnimeApi.Server.Core.Abstractions.Dto;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 
@@ -96,6 +97,45 @@ public interface IReviewHelper
     /// <param name="maxScore">The maximum score threshold for retrieving reviews.</param>
     /// <return>A task that represents the asynchronous operation. The task result contains a collection of <see cref="ReviewDto"/> that meet the minimum score condition.</return>
     Task<Result<IEnumerable<ReviewDto>>> GetByScoreAsync(int minScore, int maxScore);
+
+    /// <summary>
+    /// Searches for reviews based on the specified parameters.
+    /// </summary>
+    /// <param name="parameters">The parameters to filter the search results.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="PaginatedResult{T}"/> of type <see cref="ReviewDto"/>.</returns>
+    Task<PaginatedResult<ReviewDto>> SearchAsync(ReviewSearchParameters parameters);
+
+    /// <summary>
+    /// Searches for reviews based on the specified criteria and returns a paginated result.
+    /// </summary>
+    /// <param name="parameters">The parameters defining the search criteria.</param>
+    /// <param name="page">The page to retrieve, starting from 1.</param>
+    /// <param name="size">The number of items per page.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="PaginatedResult{T}"/> of reviews matching the criteria.</returns>
+    Task<PaginatedResult<ReviewDto>> SearchAsync(ReviewSearchParameters parameters, int page, int size);
+    
+    /// <summary>
+    /// Searches for reviews based on the specified <see cref="ReviewSearchParameters"/>.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the projected result that implements <see cref="IProjectableFrom{T}"/>.</typeparam>
+    /// <param name="parameters">The parameters defining the search criteria.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="PaginatedResult{TResult}"/> with the search results.</returns>
+    Task<PaginatedResult<TResult>> SearchAsync<TResult>(ReviewSearchParameters parameters)
+        where TResult : class, IProjectableFrom<ReviewDto>, new();
+
+    /// <summary>
+    /// Searches for reviews based on the specified search parameters and returns a paginated result.
+    /// </summary>
+    /// <param name="parameters">The parameters to filter the search results.</param>
+    /// <param name="page">The page number to retrieve.</param>
+    /// <param name="size">The number of results per page.</param>
+    /// <typeparam name="TResult">The type of the result, which must implement <see cref="IProjectableFrom{T}"/> for <see cref="ReviewDto"/>.</typeparam>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="PaginatedResult{TResult}"/> of the search results.</returns>
+    Task<PaginatedResult<TResult>> SearchAsync<TResult>(
+        ReviewSearchParameters parameters,
+        int page,
+        int size)
+        where TResult : class, IProjectableFrom<ReviewDto>, new();
 
     /// <summary>
     /// Retrieves a collection of <see cref="ReviewDto"/> by full text search.

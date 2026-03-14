@@ -1,7 +1,9 @@
 using AnimeApi.Server.Business.Extensions;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
+using AnimeApi.Server.Core.Abstractions.Dto;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
@@ -16,7 +18,8 @@ namespace AnimeApi.Server.Business.Services.Helpers;
 /// </summary>
 public class ReviewHelper(
     IRepository<Review, ReviewDto> repository,
-    IValidator<ReviewDto> validator)
+    IValidator<ReviewDto> validator,
+    IValidator<ReviewSearchParameters> paramsValidator)
     : IReviewHelper
 {
     /// <inheritdoc />
@@ -195,12 +198,107 @@ public class ReviewHelper(
         }
         
         var query = new ReviewQuery()
-            .ByScoreRange(minScore, maxScore);
+            .ScoreRange(minScore, maxScore);
         
         var results = await
             repository.FindAsync(query);
         
         return Result<IEnumerable<ReviewDto>>.Success(results);
+    }
+
+    /// <inheritdoc />
+    public async Task<PaginatedResult<ReviewDto>> SearchAsync(ReviewSearchParameters parameters)
+        => await SearchAsync(parameters, 1, Constants.Pagination.MaxPageSize);
+
+    
+    public async Task<PaginatedResult<ReviewDto>> SearchAsync(ReviewSearchParameters parameters, int page, int size)
+    {
+
+        if (page <= 0)
+        {
+            return new PaginatedResult<ReviewDto>(Error.Validation(nameof(page),
+                "The page number must be greater than zero."));
+        }
+
+        if (size <= 0)
+        {
+            return new PaginatedResult<ReviewDto>(Error.Validation(nameof(size),
+                "The page size must be greater than zero."));
+        }
+
+        var validationResult = await
+            paramsValidator.ValidateAsync(parameters);
+
+        if (!validationResult.IsValid)
+        {
+            return new PaginatedResult<ReviewDto>(validationResult.Errors.ToJsonKeyedErrors<ReviewSearchParameters>());
+        }
+        
+        var query = new ReviewQuery()
+            .Title(parameters.Title)
+            .Anime(parameters.AnimeId, parameters.AnimeName)
+            .User(parameters.UserId, parameters.UserName)
+            .ScoreRange(parameters.MinScore, parameters.MaxScore)
+            .DateRange(parameters.From, parameters.To)
+            .Sorting(parameters.OrderBy, parameters.SortOrder);
+        
+        var count = await
+            repository.CountAsync(query);
+        
+        var results = await
+            repository.FindAsync(query.Paginate(page, size));
+        
+        return new PaginatedResult<ReviewDto>(results, page, size, count);
+    }
+
+    /// <inheritdoc />
+    public async Task<PaginatedResult<TResult>> SearchAsync<TResult>(ReviewSearchParameters parameters)
+        where TResult : class, IProjectableFrom<ReviewDto>, new()
+        => await SearchAsync<TResult>(parameters, 1, Constants.Pagination.MaxPageSize);
+    
+    /// <inheritdoc />
+    public async Task<PaginatedResult<TResult>> SearchAsync<TResult>(
+        ReviewSearchParameters parameters,
+        int page,
+        int size)
+        where TResult : class, IProjectableFrom<ReviewDto>, new()
+    {
+        
+        if (page <= 0)
+        {
+            return new PaginatedResult<TResult>(Error.Validation(nameof(page),
+                "The page number must be greater than zero."));
+        }
+
+        if (size <= 0)
+        {
+            return new PaginatedResult<TResult>(Error.Validation(nameof(size),
+                "The page size must be greater than zero."));
+        }
+        
+        var validationResult = await
+            paramsValidator.ValidateAsync(parameters);
+
+        if (!validationResult.IsValid)
+        {
+            return new PaginatedResult<TResult>(validationResult.Errors.ToJsonKeyedErrors<ReviewSearchParameters>());
+        }
+        
+        var query = new ReviewQuery()
+            .Title(parameters.Title)
+            .Anime(parameters.AnimeId, parameters.AnimeName)
+            .User(parameters.UserId, parameters.UserName)
+            .ScoreRange(parameters.MinScore, parameters.MaxScore)
+            .DateRange(parameters.From, parameters.To)
+            .Sorting(parameters.OrderBy, parameters.SortOrder);
+        
+        var count = await
+            repository.CountAsync(query);
+        
+        var results = await
+            repository.FindAsync<TResult>(query.Paginate(page, size));
+        
+        return new PaginatedResult<TResult>(results, page, size, count);
     }
 
     /// <inheritdoc />

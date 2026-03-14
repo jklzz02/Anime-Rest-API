@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using AnimeApi.Server.RequestModels.ResultType;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.RequestModels.Recommender;
@@ -12,5 +13,5 @@ public class RelatedAnimeRequest
     public int Count { get; init; } = 10;
     
     [FromQuery(Name = "type")]
-    public ResultEntityType EntityType { get; init; } = ResultEntityType.Full;
+    public AnimeResultType EntityType { get; init; } = AnimeResultType.Full;
 }

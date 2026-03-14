@@ -8,9 +8,6 @@ public class ReviewSearchParameters
     [FromQuery(Name = "title")]
     public string? Title { get; set; }
     
-    [FromQuery(Name = "content")]
-    public string? Content { get; set; }
-    
     [FromQuery(Name = "anime_id")]
     public int? AnimeId { get; set; }
     
@@ -23,8 +20,11 @@ public class ReviewSearchParameters
     [FromQuery(Name = "user_name")]
     public string? UserName { get; set; }
     
-    [FromQuery(Name = "created_at")]
-    public DateTime? CreatedAt { get; set; }
+    [FromQuery(Name = "from")]
+    public DateTime? From { get; set; }
+    
+    [FromQuery(Name = "to")]
+    public DateTime? To { get; set; }
     
     [FromQuery(Name = "min_score")]
     public decimal? MinScore { get; set; }
