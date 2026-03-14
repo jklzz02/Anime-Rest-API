@@ -1,55 +1,61 @@
 using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 
 namespace AnimeApi.Server.Core.Sorting;
 
-public class SortMap<TEntity>
+public class SortMap<TEntity, TDerived>
     where TEntity : class, new()
+    where TDerived : SortMap<TEntity, TDerived>, new()
 {
-    private readonly Dictionary<string, SortAction<TEntity>> _map = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly TDerived _instance = new(); 
+    
+    private readonly Dictionary<string, Expression<Func<TEntity, object?>>> _map =
+        new(StringComparer.OrdinalIgnoreCase);
 
-    public IReadOnlyList<string> AvailableFields
+    private IReadOnlyList<string> AvailableFields
         => _map.Keys.ToList();
 
-    public bool IsValid(string? fieldName)
+    private bool IsValid(string? fieldName)
         => fieldName != null && _map.ContainsKey(fieldName);
 
-    public static SortAction<TEntity>? Action(string fieldName)
-        => new SortMap<TEntity>().TryGetAction(fieldName, out var sortAction)
+    public static SortAction<TEntity>? Action(string fieldName, bool asc)
+        => _instance.TryGetAction(fieldName, asc, out var sortAction)
             ? sortAction
             : null;
-
-    public static SortAction<TEntity>? Action(string fieldName, bool asc)
-    {
-        var sortAction = Action(fieldName);
-
-        if (sortAction == null)
-        {
-            return null;
-        }
-        
-        return asc
-            ? SortAction<TEntity>.Asc(sortAction.KeySelector)
-            : SortAction<TEntity>.Desc(sortAction.KeySelector);
-    }
-
-    public bool TryGetAction(string fieldName, [NotNullWhen(true)] out SortAction<TEntity>? sortAction)
-        => _map.TryGetValue(fieldName, out sortAction);
     
     public static IReadOnlyList<string> Fields
-        => new SortMap<TEntity>().AvailableFields;
+        => _instance.AvailableFields;
     
     public static bool Validate(string? fieldName)
-        => new SortMap<TEntity>().IsValid(fieldName);
+        => _instance.IsValid(fieldName);
 
-    protected void Register(string fieldName, SortAction<TEntity> sortAction)
+    protected void Register(string fieldName, Expression<Func<TEntity, object?>> fieldSelector)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fieldName);
-        ArgumentNullException.ThrowIfNull(sortAction);
+        ArgumentNullException.ThrowIfNull(fieldSelector);
 
-        if (!_map.TryAdd(fieldName, sortAction))
+        if (!_map.TryAdd(fieldName, fieldSelector))
         {
             throw new ArgumentException($"Sorting field '{fieldName}' is already registered");
         }
+    }
+    
+    private bool TryGetAction(
+        string fieldName,
+        bool asc,
+        [NotNullWhen(true)] out SortAction<TEntity>? sortAction)
+    {
+        if (!IsValid(fieldName))
+        {
+            sortAction = null;
+            return false;
+        }
+        
+        sortAction = asc
+            ? SortAction<TEntity>.Asc(_map[fieldName])
+            : SortAction<TEntity>.Desc(_map[fieldName]);
+        
+        return true;
     }
 }
