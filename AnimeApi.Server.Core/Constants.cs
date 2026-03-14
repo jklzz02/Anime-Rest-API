@@ -137,48 +137,4 @@ public static class Constants
         /// <summary>Unrated or not classified</summary>
         public const string Unrated = "";
     }
-
-    /// <summary>
-    /// Contains constants used for specifying sorting options in queries.
-    /// </summary>
-    public static class OrderBy
-    {
-        /// <summary>
-        /// Constants representing the fields by which data can be ordered.
-        /// </summary>
-        public static class Fields
-        {
-            public const string Id = "id";
-            public const string Name = "title";
-            public const string ReleaseYear = "year";
-            public const string ReleaseDate = "release_date";
-            public const string Score = "score";
-            public const string Episodes = "episodes";
-
-            public static readonly IReadOnlyList<string> ValidFields =
-            [
-                Id,
-                Name,
-                ReleaseYear,
-                ReleaseDate,
-                Score,
-                Episodes
-            ];
-        }
-
-        /// <summary>
-        /// Constants representing the direction of sorting.
-        /// </summary>
-        public static class StringDirections
-        {
-            public const string Ascending = "asc";
-            public const string Descending = "desc";
-
-            public static readonly IReadOnlyList<string> Directions = 
-            [
-                Ascending,
-                Descending
-            ]; 
-        }
-    }
 }

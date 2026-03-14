@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Extensions;
+using AnimeApi.Server.Core.Sorting;
 using Newtonsoft.Json;
 
 namespace AnimeApi.Server.RequestModels;
@@ -11,10 +11,10 @@ public record TargetAnimeParams : IValidatableObject
     public List<int> TargetAnimeIds { get; init; } = [];
     
     [JsonProperty("order_by")]
-    public string OrderBy { get; init; } = Constants.OrderBy.Fields.Score;
+    public string OrderBy { get; init; } = SortConstants.Anime.Score;
     
     [JsonProperty("sort_order")]
-    public string SortOrder { get; init; } = Constants.OrderBy.StringDirections.Descending;
+    public string SortOrder { get; init; } = SortConstants.Descending;
 
     [JsonProperty("include_adult_content")]
     public bool IncludeAdultContent { get; init; } = true;
@@ -28,17 +28,17 @@ public record TargetAnimeParams : IValidatableObject
                 ["target_anime_ids"]);
         }
         
-        if (!Constants.OrderBy.Fields.ValidFields.ContainsIgnoreCase(OrderBy))
+        if (!AnimeSortMap.Validate(OrderBy))
         {
             yield return new ValidationResult(
-                $"order_by must be one of: {string.Join(", ", Constants.OrderBy.Fields.ValidFields)}",
+                $"order_by must be one of: {string.Join(", ", AnimeSortMap.Fields)}",
                 ["order_by"]);
         }
 
-        if (!Constants.OrderBy.StringDirections.Directions.ContainsIgnoreCase(SortOrder))
+        if (!SortConstants.Directions.ContainsIgnoreCase(SortOrder))
         {
             yield return new ValidationResult(
-                $"sort_order must be one of: {string.Join(", ", Constants.OrderBy.StringDirections.Directions)}",
+                $"sort_order must be one of: {string.Join(", ", SortConstants.Directions)}",
                 ["sort_order"]);
         }
     }

@@ -6,6 +6,7 @@ using AnimeApi.Server.Core.Abstractions.Dto;
 using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.Sorting;
 using AnimeApi.Server.Core.Specification;
 using FluentValidation;
 
@@ -39,8 +40,8 @@ public class AnimeHelper(
     public Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids)
         =>  GetByIdAsync(
             ids,
-            Constants.OrderBy.Fields.Score,
-            Constants.OrderBy.StringDirections.Descending);
+            SortConstants.Anime.Score,
+            SortConstants.Descending);
 
     public async Task<IEnumerable<AnimeDto>> GetByIdAsync(IEnumerable<int> ids, string orderBy, string direction)
     {

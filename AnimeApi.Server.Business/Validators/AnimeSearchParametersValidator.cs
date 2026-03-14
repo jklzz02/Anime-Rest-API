@@ -1,5 +1,5 @@
-using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Objects;
+using AnimeApi.Server.Core.Sorting;
 using FluentValidation;
 
 namespace AnimeApi.Server.Business.Validators;
@@ -9,13 +9,13 @@ public class AnimeSearchParametersValidator : AbstractValidator<AnimeSearchParam
     public AnimeSearchParametersValidator()
     {
         RuleFor(a => a.OrderBy)
-            .Must(a => Constants.OrderBy.Fields.ValidFields.Contains(a))
+            .Must(AnimeSortMap.Validate)
             .When(a => !string.IsNullOrEmpty(a.OrderBy))
-            .WithMessage($"Invalid order by field. Choose among: ({string.Join(", ", Constants.OrderBy.Fields.ValidFields)})");
+            .WithMessage($"Invalid order by field. Choose among: ({string.Join(", ", AnimeSortMap.Fields)})");
         
         RuleFor(a => a.SortOrder)
-            .Must(a => Constants.OrderBy.StringDirections.Directions.Contains(a))
+            .Must(a => SortConstants.Directions.Contains(a))
             .When(a => !string.IsNullOrEmpty(a.SortOrder))
-            .WithMessage($"Invalid sort order. Choose among: ({string.Join(", ", Constants.OrderBy.StringDirections.Directions)})");
+            .WithMessage($"Invalid sort order. Choose among: ({string.Join(", ", SortConstants.Directions)})");
     }
 }

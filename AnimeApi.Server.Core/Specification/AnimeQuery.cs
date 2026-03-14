@@ -1,6 +1,7 @@
 ﻿using AnimeApi.Server.Core.Abstractions.DataAccess.Specification;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.Core.Objects.Models;
+using AnimeApi.Server.Core.Sorting;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimeApi.Server.Core.Specification;
@@ -209,47 +210,22 @@ public class AnimeQuery : Specification<Anime, AnimeQuery>
         {
             return this;
         }
-
-        if (!Constants.OrderBy.Fields.ValidFields.Contains(field.ToLower()))
+        
+        if (!AnimeSortMap.Validate(field))
         {
             throw new ArgumentException(
-                $"Invalid order by field. Choose among: ({string.Join(", ", Constants.OrderBy.Fields.ValidFields)})");
+                $"Invalid order by field. Choose among: ({string.Join(", ", AnimeSortMap.Fields)})");
         }
 
-        if (!Constants.OrderBy.StringDirections.Directions.Contains(order.ToLower()))
+        if (!SortConstants.Directions.Contains(order.ToLower()))
         {             
             throw new ArgumentException(
-                $"Invalid sort order. Choose among: ({string.Join(", ", Constants.OrderBy.StringDirections.Directions)})");
+                $"Invalid sort order. Choose among: ({string.Join(", ", SortConstants.Directions)})");
         }
 
-        var ascending = order.EqualsIgnoreCase(Constants.OrderBy.StringDirections.Ascending);
+        var ascending = order.EqualsIgnoreCase(SortConstants.Ascending);
 
-        SortBy(field.ToLowerNormalized() switch
-        {
-            Constants.OrderBy.Fields.Id => ascending
-                ? SortAction<Anime>.Asc(a => a.Id)
-                : SortAction<Anime>.Desc(a => a.Id),
-
-            Constants.OrderBy.Fields.Name => ascending
-                ? SortAction<Anime>.Asc(a => a.Name)
-                : SortAction<Anime>.Desc(a => a.Name),
-
-            Constants.OrderBy.Fields.ReleaseYear => ascending
-                ? SortAction<Anime>.Asc(a => a.ReleaseYear)
-                : SortAction<Anime>.Desc(a => a.ReleaseYear),
-
-            Constants.OrderBy.Fields.ReleaseDate => ascending
-                ? SortAction<Anime>.Asc(a => a.StartedAiring)
-                : SortAction<Anime>.Desc(a => a.StartedAiring),
-
-            Constants.OrderBy.Fields.Episodes => ascending
-                ? SortAction<Anime>.Asc(a => a.Episodes)
-                : SortAction<Anime>.Desc(a => a.Episodes),
-
-            _ => ascending
-                ? SortAction<Anime>.Asc(a => a.Score)
-                : SortAction<Anime>.Desc(a => a.Score)
-        });
+        SortBy(AnimeSortMap.Action(field, ascending));
 
         return this;
     }
