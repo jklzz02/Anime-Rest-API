@@ -39,9 +39,6 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
             .HasForeignKey(e => e.RoleId)
             .HasConstraintName("User_Role_Id_fk");
 
-        entity.HasOne(e => e.RefreshToken)
-            .WithOne(e => e.User);
-
         entity.Navigation(u => u.Role)
             .AutoInclude();
     }

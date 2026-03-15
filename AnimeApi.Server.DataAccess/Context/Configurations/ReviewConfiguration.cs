@@ -31,10 +31,12 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
 
         entity.HasOne(r => r.Anime).WithMany(a => a.Reviews)
             .HasForeignKey(r => r.AnimeId)
-            .HasConstraintName("Anime_Id_fk");
+            .HasConstraintName("Anime_Id_fk")
+            .OnDelete(DeleteBehavior.Cascade);
 
         entity.HasOne(r => r.User).WithMany(u => u.Reviews)
             .HasForeignKey(r => r.UserId)
-            .HasConstraintName("User_Id_Fk");
+            .HasConstraintName("User_Id_Fk")
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

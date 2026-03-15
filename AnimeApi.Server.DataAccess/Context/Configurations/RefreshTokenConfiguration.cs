@@ -15,7 +15,6 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         entity.HasOne(e => e.User)
             .WithOne(e => e.RefreshToken)
             .HasForeignKey<RefreshToken>(e => e.UserId)
-            .HasConstraintName("RefreshToken_User_Id_fk")
             .OnDelete(DeleteBehavior.Cascade);
 
         entity.Property(e => e.HashedToken)
