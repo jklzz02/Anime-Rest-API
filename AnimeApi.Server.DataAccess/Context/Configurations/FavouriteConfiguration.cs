@@ -14,11 +14,13 @@ public class FavouriteConfiguration : IEntityTypeConfiguration<Favourite>
 
         entity.HasOne(e => e.User).WithMany(u => u.Favourites)
             .HasForeignKey(e => e.UserId)
-            .HasConstraintName("User_Favourites_User_Id_fk");
+            .HasConstraintName("User_Favourites_User_Id_fk")
+            .OnDelete(DeleteBehavior.Cascade);
 
         entity.HasOne(e => e.Anime).WithMany(a => a.Favourites)
             .HasForeignKey(e => e.AnimeId)
-            .HasConstraintName("User_Favourites_Anime_Id_fk");
+            .HasConstraintName("User_Favourites_Anime_Id_fk")
+            .OnDelete(DeleteBehavior.Cascade);
 
         entity.Property(e => e.AnimeId)
             .HasColumnName("Anime_Id");
