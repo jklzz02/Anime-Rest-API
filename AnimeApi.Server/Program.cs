@@ -5,15 +5,14 @@ using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Exceptions;
 using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.DataAccess.Extensions;
+using AnimeApi.Server.Handlers;
 using AnimeApi.Server.Handlers.Auth;
 using AnimeApi.Server.Handlers.HealthCheck;
 using AnimeApi.Server.Recommender.Grpc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
-using Newtonsoft.Json;
 
 namespace AnimeApi.Server;
 
@@ -202,6 +201,9 @@ public class Program
             });
         });
         
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        builder.Services.AddProblemDetails();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -211,30 +213,7 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        app.UseExceptionHandler(errorApp =>
-        {
-            errorApp.Run(async context =>
-            {
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                context.Response.ContentType = "application/json";
-
-                var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
-                if (errorFeature != null)
-                {
-                    var ex = errorFeature.Error;
-
-                    var result = JsonConvert.SerializeObject(new
-                    {
-                        error = Constants.Remark.InternalServerError,
-                        details = app.Environment.IsDevelopment() 
-                            ? ex.Message
-                            : "An unexpected error occurred."
-                    });
-
-                    await context.Response.WriteAsync(result);
-                }
-            });
-        });
+        app.UseExceptionHandler();
 
         app.UseHttpsRedirection();
 
