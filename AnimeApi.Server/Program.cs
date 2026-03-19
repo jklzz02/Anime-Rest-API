@@ -182,7 +182,7 @@ public class Program
                     return RateLimitPartition.GetNoLimiter(clientDomain);
                 }
                 
-                if (context.User.IsInRole(Constants.UserAccess.Admin) == true)
+                if (context.User.IsInRole(Constants.UserAccess.Admin))
                 {
                     return RateLimitPartition.GetNoLimiter(Constants.UserAccess.Admin);
                 }
