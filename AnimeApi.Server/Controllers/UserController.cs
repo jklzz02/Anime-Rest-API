@@ -69,11 +69,11 @@ public class UserController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByQueryAsync(
-        [FromQuery, MinLength(1), MaxLength(30)] string query,
+        [FromQuery, MinLength(1), MaxLength(30)] string q,
         [FromQuery, Range(1, int.MaxValue), DefaultValue(10)] int count)
     {
         var users = await
-            userService.GetPublicUsersAsync(query, count);
+            userService.GetPublicUsersAsync(q, count);
         
         if (!users.Any())
         {
