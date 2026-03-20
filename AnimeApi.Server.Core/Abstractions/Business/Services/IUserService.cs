@@ -62,6 +62,17 @@ public interface IUserService
     /// <param name="id">The unique identifier of the user to retrieve.</param>
     /// <returns>A <see cref="PublicUser"/> representing the user if found, or null if no user exists with the specified identifier.</returns>
     Task<PublicUser?> GetPublicUserAsync(int id);
+
+    /// <summary>
+    /// Retrieves a collection of public users based on a text query and a maximum count.
+    /// </summary>
+    /// <param name="textQuery">The text query used to search for public users.</param>
+    /// <param name="count">The maximum number of public users to retrieve.</param>
+    /// <returns>
+    /// An <see cref="IEnumerable{T}"/> of <see cref="PublicUser"/> objects that match
+    /// the specified query parameters.
+    /// </returns>
+    Task<IEnumerable<PublicUser>> GetPublicUsersAsync(string textQuery, int count);
     
     /// <summary>
     /// Retrieves an existing user or creates a new one based on the provided Google authentication payload.

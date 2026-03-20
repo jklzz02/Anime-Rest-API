@@ -86,6 +86,17 @@ public class UserService(
             userFacade.Users.FindFirstOrDefaultAsync<PublicUser>(query);
     }
 
+    public async Task<IEnumerable<PublicUser>> GetPublicUsersAsync(string textQuery, int count)
+    {
+        var query = new UserQuery()
+            .FullTextSearch(textQuery)
+            .Limit(count)
+            .TieBreaker();
+        
+        return await
+            userFacade.Users.FindAsync<PublicUser>(query);
+    }
+
     /// <inheritdoc />
     public async Task<Result<AppUserDto>> GetOrCreateUserAsync(AuthPayload payload)
     {
