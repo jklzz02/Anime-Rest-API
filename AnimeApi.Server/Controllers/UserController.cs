@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using AnimeApi.Server.Core;
@@ -68,12 +67,11 @@ public class UserController(
     [HttpGet("by-query")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByQueryAsync(
-        [FromQuery, MinLength(1), MaxLength(30)] string q,
-        [FromQuery, Range(1, int.MaxValue), DefaultValue(10)] int count)
+    public async Task<IActionResult> GetByQueryAsync([FromQuery] ListQuery request)
     {
-        var users = await
-            userService.GetPublicUsersAsync(q, count);
+        var users = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
+            ? await userService.GetPublicUsersAsync(request.Count)
+            : await userService.GetPublicUsersAsync(request.Query, request.Count);
         
         if (!users.Any())
         {

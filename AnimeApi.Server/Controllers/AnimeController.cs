@@ -100,7 +100,7 @@ public class AnimeController(
 
     [HttpGet("by-query")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetByQuery([FromQuery] AnimeListQuery request)
+    public async Task<IActionResult> GetByQuery([FromQuery] ListQuery request)
     {
         var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
             ? await helper.GetAsync(request.Count)
@@ -231,7 +231,7 @@ public class AnimeController(
 
     [HttpGet("summaries/by-query")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetSummariesByQuery([FromQuery] AnimeListQuery request)
+    public async Task<IActionResult> GetSummariesByQuery([FromQuery] ListQuery request)
     {
         var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
             ? await helper.GetAsync<AnimeSummary>(request.Count)
@@ -362,7 +362,7 @@ public class AnimeController(
 
     [HttpGet("list-items/by-query")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetListItemsByQuery([FromQuery] AnimeListQuery request)
+    public async Task<IActionResult> GetListItemsByQuery([FromQuery] ListQuery request)
     {
         var list = string.IsNullOrEmpty(request.Query) || request.Query.Length < 3
             ? await helper.GetAsync<AnimeListItem>(request.Count)

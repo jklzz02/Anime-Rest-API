@@ -64,6 +64,15 @@ public interface IUserService
     Task<PublicUser?> GetPublicUserAsync(int id);
 
     /// <summary>
+    /// Retrieves a collection of public users asynchronously with a maximum limit.
+    /// </summary>
+    /// <param name="count">The maximum number of public users to retrieve.</param>
+    /// <returns>
+    /// A collection of <see cref="PublicUser"/> objects representing the users.
+    /// </returns>
+    Task<IEnumerable<PublicUser>> GetPublicUsersAsync(int count);
+
+    /// <summary>
     /// Retrieves a collection of public users based on a text query and a maximum count.
     /// </summary>
     /// <param name="textQuery">The text query used to search for public users.</param>

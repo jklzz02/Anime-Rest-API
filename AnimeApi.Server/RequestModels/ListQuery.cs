@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeApi.Server.RequestModels;
 
-public record AnimeListQuery
+public record ListQuery
 {
     [FromQuery(Name = "q"), MaxLength(30)]
     public string? Query { get; init; }
