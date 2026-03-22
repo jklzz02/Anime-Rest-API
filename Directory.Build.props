@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <Protobuf_ProtocFullPath>/opt/homebrew/bin/protoc</Protobuf_ProtocFullPath>
+    <gRPC_PluginFullPath>/opt/homebrew/bin/grpc_csharp_plugin</gRPC_PluginFullPath>
+  </PropertyGroup>
+</Project>
