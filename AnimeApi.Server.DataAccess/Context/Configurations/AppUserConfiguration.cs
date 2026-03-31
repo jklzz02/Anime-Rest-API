@@ -34,6 +34,15 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
 
         entity.Property(e => e.RoleId)
             .HasColumnName("Role_Id");
+        
+         entity.HasOne<IdentityProvider>(e => e.Provider)
+             .WithMany(p => p.Users)
+             .HasForeignKey(e => e.ProviderId)
+             .OnDelete(DeleteBehavior.NoAction);
+        
+         entity.Property(e => e.ProviderId)
+             .HasColumnName("Provider_Id")
+             .HasDefaultValue(1);
 
         entity.HasOne<Role>(e => e.Role).WithMany(r => r.Users)
             .HasForeignKey(e => e.RoleId)

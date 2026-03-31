@@ -10,6 +10,9 @@ public class AppUser
     public int RoleId { get; set; }
     public Role Role { get; set; } = null!;
     
+    public int ProviderId { get; set; }
+    
+    public IdentityProvider Provider { get; set; }
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     
     public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();

@@ -3,6 +3,7 @@ using System;
 using AnimeApi.Server.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AnimeApi.Server.DataAccess.Migrations
 {
     [DbContext(typeof(AnimeDbContext))]
-    partial class AnimeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260331190828_AddIdentityProvider")]
+    partial class AddIdentityProvider
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -235,10 +238,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                         .HasColumnName("Picture_Url");
 
                     b.Property<int>("ProviderId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1)
-                        .HasColumnName("Provider_Id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("integer")
@@ -636,7 +636,7 @@ namespace AnimeApi.Server.DataAccess.Migrations
                     b.HasOne("AnimeApi.Server.Core.Objects.Models.IdentityProvider", "Provider")
                         .WithMany("Users")
                         .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AnimeApi.Server.Core.Objects.Models.Role", "Role")
