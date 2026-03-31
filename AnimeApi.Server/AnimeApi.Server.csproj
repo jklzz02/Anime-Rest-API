@@ -31,5 +31,6 @@
 
     <ItemGroup>
         <Protobuf Include="Protos\recommender.proto" GrpcServices="Client" />
+        <Protobuf Include="Protos\recommender_health.proto" GrpcServices="Client" />
     </ItemGroup>
 </Project>

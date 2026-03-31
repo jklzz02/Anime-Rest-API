@@ -1,0 +1,38 @@
+syntax = "proto3";
+option csharp_namespace = "AnimeApi.Server.Recommender.Grpc";
+
+package recommender;
+
+service AnimeRecommenderHealth {
+    rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    AnimeLoaderStatus anime_loader_status = 1;
+    DataSetStatus data_sets_status = 2;
+    int32 version = 3;
+    string service_status = 4;
+}
+
+message AnimeLoaderStatus {
+    bool is_loaded = 1;
+    bool has_error = 2;
+    int32 anime_count = 3;
+    string error_message = 4;
+    int32 cache_hits = 5;
+    int32 cache_misses = 6;
+    int32 cache_size = 7;
+    int32 cache_max_size = 8;
+}
+
+message DataSetStatus {
+    bool is_healthy = 1;
+    repeated DataHealth set_status = 2;
+}
+
+message DataHealth {
+    string file = 1;
+    string status = 2;
+}

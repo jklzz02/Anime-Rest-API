@@ -124,19 +124,28 @@ public class Program
                         {
                             context.Token = context.Request.Cookies[Constants.Auth.AccessTokenCookieName];
                         }
+
                         return Task.CompletedTask;
                     }
                 };
             });
+
+        builder.Services
+            .AddGrpcClient<AnimeRecommender.AnimeRecommenderClient>(opt =>
+            {
+                opt.Address = new Uri(animeRecommenderUrl!);
+            });
+
+        builder.Services
+            .AddGrpcClient<AnimeRecommenderHealth.AnimeRecommenderHealthClient>(opt =>
+            {
+                opt.Address = new Uri(animeRecommenderUrl!);
+            });
         
         // Register health check handlers
         builder.Services.AddHealthChecks()
-            .AddCheck<CacheHealthCheck>(nameof(CacheHealthCheck));
-
-        builder.Services.AddGrpcClient<AnimeRecommender.AnimeRecommenderClient>(opt =>
-        {
-            opt.Address = new Uri(animeRecommenderUrl!);
-        });
+            .AddCheck<CacheHealthCheck>(nameof(CacheHealthCheck))
+            .AddCheck<RecommenderHealthCheck>(nameof(RecommenderHealthCheck));
         
         // Add authorization handlers
         builder.Services.AddScoped<IAuthorizationHandler, BanAuthorizationHandler>();

@@ -10,9 +10,9 @@ namespace AnimeApi.Server.Controllers;
 public class HealthController(HealthCheckService healthService) : Controller
 {
     [HttpGet]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
+    //[Authorize(Policy = Constants.UserAccess.Admin)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> CacheStatus()
+    public async Task<IActionResult> HealthCheck()
         => Ok(await healthService.CheckHealthAsync());
 }
