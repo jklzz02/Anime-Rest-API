@@ -7,7 +7,7 @@ public class RecommenderHealthCheck(AnimeRecommenderHealth.AnimeRecommenderHealt
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
-        CancellationToken cancellationToken = new CancellationToken())
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -31,6 +31,7 @@ public class RecommenderHealthCheck(AnimeRecommenderHealth.AnimeRecommenderHealt
                         max_size = response.AnimeLoaderStatus.CacheMaxSize,
                     }
                 },
+                
                 ["dataset_status"] = response.DataSetsStatus.SetStatus
                     .Select(s => new { file = s.File, status = s.Status })
                     .ToList()
