@@ -11,7 +11,11 @@ public class RecommenderHealthCheck(AnimeRecommenderHealth.AnimeRecommenderHealt
     {
         try
         {
-            var response = await client.HealthCheckAsync(new HealthCheckRequest(), cancellationToken: cancellationToken);
+            var response = await
+                client
+                    .HealthCheckAsync(
+                        new HealthCheckRequest(),
+                        cancellationToken: cancellationToken);
 
             var data = new Dictionary<string, object>
             {
@@ -49,7 +53,9 @@ public class RecommenderHealthCheck(AnimeRecommenderHealth.AnimeRecommenderHealt
                     data: data
                 );
 
-            return HealthCheckResult.Healthy(data: data);
+            return HealthCheckResult.Healthy(
+                description: "Recommender service is healthy",
+                data: data);
         }
         catch (Exception ex)
         {
