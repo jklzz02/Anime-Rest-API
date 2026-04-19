@@ -21,6 +21,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<IMapper<Ban, BanDto>, BanMapper>();
         services.AddScoped<IMapper<Producer, ProducerDto>, BaseMapper<Producer, ProducerDto>>();
         services.AddScoped<IMapper<Licensor, LicensorDto>, BaseMapper<Licensor, LicensorDto>>();
+        services.AddScoped<IMapper<IdentityProvider, IdentityProviderDto>, BaseMapper<IdentityProvider, IdentityProviderDto>>();
         services.AddScoped<IMapper<Genre, GenreDto>, BaseMapper<Genre, GenreDto>>();
         services.AddScoped<IMapper<Type, TypeDto>, BaseMapper<Type, TypeDto>>();
         services.AddScoped<IMapper<Source, SourceDto>, BaseMapper<Source, SourceDto>>();

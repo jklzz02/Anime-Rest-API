@@ -4,17 +4,17 @@ namespace AnimeApi.Server.Core.Objects.Auth;
 
 public record AuthPayload
 {
-    private readonly string _username = string.Empty;
-
     public string Username
     {
-        get => string.IsNullOrWhiteSpace(_username)
-            ? Email.EmailToUsername()
-            : _username;
+        get;
         
-        init => _username = value;
-    }
-    
+        init => field = string.IsNullOrWhiteSpace(value)
+            ? Email.EmailToUsername()
+            : value;
+        
+    } = string.Empty;
+
+    public Constants.Auth.IdentityProvider IdentityProvider { get; init; }
     public string Email { get; init; } = string.Empty;
     public string Picture { get; init; } = string.Empty;
 }

@@ -17,7 +17,12 @@ public class AppUserMapper : Mapper<AppUser, AppUserDto>
             Username = appUser.Username,
             CreatedAt = appUser.CreatedAt,
             ProfilePictureUrl = appUser.PictureUrl,
-            Admin = appUser.Role?.Access.EqualsIgnoreCase(UserAccess.Admin) ?? false
+            Admin = appUser.Role?.Access.EqualsIgnoreCase(UserAccess.Admin) ?? false,
+            Provider = new IdentityProviderDto
+            {
+                Id = appUser.ProviderId,
+                Name = appUser.Provider?.Name ?? string.Empty
+            }
         };
     }
 
@@ -33,6 +38,7 @@ public class AppUserMapper : Mapper<AppUser, AppUserDto>
             RoleId = appUserDto.Admin 
                 ? (int) UserAccess.Roles.Admin
                 : (int) UserAccess.Roles.User,
+            ProviderId = appUserDto.Provider.Id ?? 0
         };
     }
 }

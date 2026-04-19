@@ -22,4 +22,7 @@ public record AppUserDto
     
     [JsonProperty("admin")]
     public bool Admin { get; init; }
+    
+    [JsonProperty("identity_provider")]
+    public IdentityProviderDto Provider { get; init; }
 }

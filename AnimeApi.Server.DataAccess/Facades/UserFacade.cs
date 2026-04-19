@@ -9,7 +9,8 @@ public class UserFacade(
     IRoles roles,
     IRepository<Ban, BanDto> banRepo,
     IRepository<AppUser, AppUserDto> userRepo,
-    IRepository<Favourite, FavouriteDto>  favRepo)
+    IRepository<Favourite, FavouriteDto>  favRepo,
+    IRepository<IdentityProvider, IdentityProviderDto> providersRepo)
     : IUserFacade
 {
     public IRoles Roles => roles;
@@ -19,4 +20,6 @@ public class UserFacade(
     public IRepository<AppUser, AppUserDto> Users => userRepo;
     
     public IRepository<Favourite, FavouriteDto> Favourites =>  favRepo;
+    
+    public IRepository<IdentityProvider, IdentityProviderDto> Providers => providersRepo;
 }

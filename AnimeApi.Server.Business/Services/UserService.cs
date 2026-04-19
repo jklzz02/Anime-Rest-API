@@ -1,4 +1,5 @@
 using AnimeApi.Server.Business.Extensions;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Abstractions.DataAccess;
 using AnimeApi.Server.Core.Abstractions.DataAccess.Facades;
@@ -136,13 +137,34 @@ public class UserService(
             return Result<AppUserDto>.Success(existingUser);
         }
 
+        var providerName = payload.IdentityProvider switch
+        {
+            Constants.Auth.IdentityProvider.Google => "Google",
+            Constants.Auth.IdentityProvider.Facebook => "Facebook",
+            Constants.Auth.IdentityProvider.Discord => "Discord",
+            _ => string.Empty
+        };
+
+        if (string.IsNullOrEmpty(providerName))
+        {
+            return Result<AppUserDto>.ValidationFailure(
+                "Unauthorized", 
+                "Invalid identity provider.");
+        }
+        
+        var provider = await
+            userFacade.Providers.FindFirstOrDefaultAsync(
+                new IdentityProviderQuery()
+                .ByName(providerName));
+
         var newUser = new AppUserDto
         {
             Username = payload.Username,
             Email = payload.Email,
             CreatedAt = DateTime.UtcNow,
             ProfilePictureUrl = payload.Picture,
-            Admin = false
+            Admin = false,
+            Provider = provider!
         };
 
         var result = await 

@@ -74,7 +74,8 @@ public class SocialAuthService : ISocialAuthService
             {
                 Email = payload.Email,
                 Picture = payload.Picture,
-                Username = string.Empty
+                Username = string.Empty,
+                IdentityProvider = Constants.Auth.IdentityProvider.Google
             });
         }
         catch (InvalidJwtException)
@@ -151,7 +152,8 @@ public class SocialAuthService : ISocialAuthService
         {
             Email = fbUser.Email,
             Picture = fbUser.Picture.Data.Url,
-            Username = fbUser.Name
+            Username = fbUser.Name,
+            IdentityProvider = Constants.Auth.IdentityProvider.Facebook
         });
     }
 
@@ -238,7 +240,8 @@ public class SocialAuthService : ISocialAuthService
         {
             Email = discordUser.Email,
             Username = discordUser.Username,
-            Picture = discordUser.AvatarUrl
+            Picture = discordUser.AvatarUrl,
+            IdentityProvider = Constants.Auth.IdentityProvider.Discord
         });
     }
 }

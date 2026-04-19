@@ -12,4 +12,6 @@ public interface IUserFacade
     IRepository<AppUser, AppUserDto>  Users { get; }
     
     IRepository<Favourite, FavouriteDto> Favourites { get; }
+    
+    IRepository<IdentityProvider, IdentityProviderDto> Providers { get; }
 }
