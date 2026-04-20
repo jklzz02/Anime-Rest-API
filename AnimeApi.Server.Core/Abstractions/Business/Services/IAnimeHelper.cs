@@ -34,6 +34,11 @@ public interface IAnimeHelper
     Task<IEnumerable<AnimeDto>> GetMostRecentAsync(int count);
     Task<IEnumerable<TProjection>> GetMostRecentAsync<TProjection>(int count) 
         where TProjection : class, IProjectableFrom<AnimeDto>, new();
+
+    Task<PaginatedResult<AnimeDto>> GetMostRecentAsync(int page, int size);
+
+    Task<PaginatedResult<TProjection>> GetMostRecentAsync<TProjection>(int page, int size)
+        where TProjection : class, IProjectableFrom<AnimeDto>, new();
     
     Task<PaginatedResult<AnimeDto>> SearchAsync(AnimeSearchParameters parameters, int page, int size = 100);
     Task<PaginatedResult<TProjection>> SearchAsync<TProjection>(AnimeSearchParameters parameters, int page, int size = 100) 

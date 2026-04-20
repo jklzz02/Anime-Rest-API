@@ -117,6 +117,15 @@ public class AnimeController(
         var result = await helper.GetMostRecentAsync(count);
         return Ok(result);
     }
+
+    [HttpGet("recent")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetRecent([FromQuery] Pagination pagination)
+    {
+        var result = await helper.GetMostRecentAsync(pagination.Page, pagination.Size);
+        return Ok(result);
+    }
     
     [HttpGet("search")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -246,6 +255,15 @@ public class AnimeController(
         [FromRoute, Range(1, int.MaxValue), DefaultValue(Constants.DefaultRetrieveCount)] int count)
     {
         var result = await helper.GetMostRecentAsync<AnimeSummary>(count);
+        return Ok(result);
+    }
+    
+    [HttpGet("summaries/recent")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetRecentSummaries([FromQuery] Pagination pagination)
+    {
+        var result = await helper.GetMostRecentAsync<AnimeSummary>(pagination.Page, pagination.Size);
         return Ok(result);
     }
 

@@ -207,6 +207,62 @@ public class AnimeHelper(
             repository.FindAsync<TProjection>(query);
     }
 
+    public async Task<PaginatedResult<AnimeDto>> GetMostRecentAsync(int page, int size)
+    {
+        if (page <= 0)
+        {
+            return new PaginatedResult<AnimeDto>(Error.Validation(nameof(page),
+                "The page number must be greater than zero."));
+        }
+        
+        if (size <= 0)
+        {
+            return new PaginatedResult<AnimeDto>(Error.Validation(nameof(size),
+                "The page size must be greater than zero."));
+        }
+
+        var query = new AnimeQuery()
+            .Recent()
+            .Paginate(page, size)
+            .IncludeFullRelation();
+        
+        var count = await
+            repository.CountAsync(query);
+        
+        var items = await
+            repository.FindAsync(query);
+        
+        return new PaginatedResult<AnimeDto>(items, page, size, count);
+    }
+
+    public async Task<PaginatedResult<TProjection>> GetMostRecentAsync<TProjection>(int page, int size)
+        where TProjection : class, IProjectableFrom<AnimeDto>, new()
+    {
+        if (page <= 0)
+        {
+            return new PaginatedResult<TProjection>(Error.Validation(nameof(page),
+                "The page number must be greater than zero."));
+        }
+        
+        if (size <= 0)
+        {
+            return new PaginatedResult<TProjection>(Error.Validation(nameof(size),
+                "The page size must be greater than zero."));
+        }
+        
+        var query = new AnimeQuery()
+            .Recent()
+            .Paginate(page, size);
+        
+        var count = await
+            repository.CountAsync(query);
+        
+        var items = await
+            repository.FindAsync<TProjection>(query);
+        
+        return new PaginatedResult<TProjection>(items, page, size, count);
+    }
+    
     public async Task<Result<AnimeDto>> CreateAsync(AnimeDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
