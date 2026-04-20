@@ -224,10 +224,11 @@ public class AnimeHelper(
         var query = new AnimeQuery()
             .Recent()
             .Paginate(page, size)
+            .ExcludeAdultContent()
             .IncludeFullRelation();
         
         var count = await
-            repository.CountAsync(query);
+            repository.CountAsync(new AnimeQuery().ExcludeAdultContent());
         
         var items = await
             repository.FindAsync(query);
@@ -252,10 +253,11 @@ public class AnimeHelper(
         
         var query = new AnimeQuery()
             .Recent()
+            .ExcludeAdultContent()
             .Paginate(page, size);
         
         var count = await
-            repository.CountAsync(query);
+            repository.CountAsync(new AnimeQuery().ExcludeAdultContent());
         
         var items = await
             repository.FindAsync<TProjection>(query);
