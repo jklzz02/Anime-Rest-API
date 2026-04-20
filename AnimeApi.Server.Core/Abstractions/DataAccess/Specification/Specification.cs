@@ -46,11 +46,6 @@ public class Specification<TEntity, TDerived> : ISpecification<TEntity>
         {
             throw new InvalidOperationException($"Cannot use {nameof(Paginate)} after {nameof(Limit)}. Use one or the other.");
         }
-
-        if (!_sortActions.Any())
-        {
-            throw new InvalidOperationException($"Using {nameof(Paginate)} without specifying {nameof(SortBy)} is not allowed, to avoid unexpected results.");
-        }
         
         _skip = (page - 1) * size;
         _take = size;
@@ -67,11 +62,6 @@ public class Specification<TEntity, TDerived> : ISpecification<TEntity>
         if (_isPaginated)
         {
             throw new InvalidOperationException($"Cannot use {nameof(Limit)} after {nameof(Paginate)}. Use one or the other.");
-        }
-
-        if (!_sortActions.Any())
-        {
-            throw new InvalidOperationException($"Using {nameof(Limit)} without specifying {nameof(SortBy)} is not allowed, to avoid unexpected results.");
         }
 
         _take = size;
