@@ -170,7 +170,12 @@ public class RecommenderController(
                 return Unauthorized();
             }
             
-            var favourites = await userService.GetFavouritesAsync(user.Id);
+            var favourites = (await userService.GetFavouritesAsync(user.Id)).ToList();
+
+            if (!favourites.Any())
+            {
+                return NotFound();
+            }
 
             var message = new CollaborativeRecommendationRequest
             {
