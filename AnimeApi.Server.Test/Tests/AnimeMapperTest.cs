@@ -1,5 +1,4 @@
 using AnimeApi.Server.Core.Mappers;
-using AnimeApi.Server.Core.Objects;
 using AnimeApi.Server.Core.Objects.Dto;
 using AnimeApi.Server.Core.Objects.Models;
 using AnimeApi.Server.Core.Objects.Partials;
