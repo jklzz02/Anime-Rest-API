@@ -22,13 +22,6 @@ public class CacheHealthCheck(ICachingService cache) : IHealthCheck
                             "Cache is healthy",
                             stats.ToReport())),
 
-                CacheState.UnderPressure
-                    => Task.FromResult(
-                        HealthCheckResult.Degraded(
-                            "Cache is under memory pressure",
-                            null,
-                            stats.ToReport())),
-
                 CacheState.Ineffective
                     => Task.FromResult(
                         HealthCheckResult.Degraded(

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
 using AnimeApi.Server.Core.Objects.Partials;
 using AnimeApi.Server.Recommender.Grpc;
@@ -16,6 +17,7 @@ namespace AnimeApi.Server.Controllers;
 public class RecommenderController(
     AnimeRecommender.AnimeRecommenderClient recommenderClient,
     IAnimeHelper helper,
+    ICachingService cache,
     IUserService userService)
     : ControllerBase
 {
@@ -34,17 +36,30 @@ public class RecommenderController(
                 Limit = request.Count
             };
 
-            var response = await recommenderClient.GetRelatedAsync(message);
+            var response = await cache.GetOrCreateAsync(
+                new { route = "related", request.AnimeId, request.Count },
+                async () => await recommenderClient.GetRelatedAsync(message));
+
+            if (response is null)
+            {
+                return Ok(Enumerable.Empty<int>());
+            }
 
             return request.EntityType switch
             {
                 AnimeResultType.Full
-                    => Ok(await helper.GetByIdAsync(response.AnimeIds)),
+                    => Ok(await cache
+                        .GetOrCreateAsync(() => helper
+                            .GetByIdAsync(response.AnimeIds))),
                     
                 AnimeResultType.Summary
-                    => Ok(await helper.GetByIdAsync<AnimeSummary>(response.AnimeIds)),
+                    => Ok(await cache
+                        .GetOrCreateAsync(() => helper
+                            .GetByIdAsync<AnimeSummary>(response.AnimeIds))),
                         
-                _ => Ok(await helper.GetByIdAsync<AnimeListItem>(response.AnimeIds)),
+                _ => Ok(await cache
+                        .GetOrCreateAsync(() => helper
+                            .GetByIdAsync<AnimeListItem>(response.AnimeIds))),
             };
             
         }
@@ -209,7 +224,7 @@ public class RecommenderController(
             Grpc.Core.StatusCode.Unavailable
                 => StatusCode(
                     StatusCodes.Status503ServiceUnavailable, 
-                    new { error = "Service Unavailable", details = ex.Status.Detail }),
+                    new { error = Constants.HttpRemark.Unavailable, details = ex.Status.Detail }),
                 
             Grpc.Core.StatusCode.DeadlineExceeded
                 => StatusCode(

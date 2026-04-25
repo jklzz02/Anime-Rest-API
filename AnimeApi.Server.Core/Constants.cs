@@ -83,9 +83,11 @@ public static class Constants
     /// Contains predefined string constants representing common HTTP status remarks.
     /// These remarks are used to describe the outcome of specific operations or responses within the application.
     /// </summary>
-    public static class Remark
+    public static class HttpRemark
     {
         public const string InternalServerError = "Internal Server Error";
+        public const string Unavailable = "Service Unavailable";
+        public const string GateWayTimeout = "Gateway Timeout";
         public const string NotFound = "Not Found";
         public const string Unauthorized = "Unauthorized";
         public const string Forbidden = "Forbidden";
@@ -102,7 +104,7 @@ public static class Constants
     public static class Cache
     {
         public const int DefaultExpirationMinutes = 5;
-        public const int CacheSize = 2048;
+        public const int CacheSize = 4096;
         public const int MaxCachedItemSize = 256;
         public const int DefaultCachedItemSize = 128;
         public const int MinCachedItemSize = 64;

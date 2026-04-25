@@ -6,7 +6,7 @@ namespace AnimeApi.Server.Core.Abstractions.Business.Services;
 /// <summary>
 /// Defines a service for managing caching operations, such as storing, retrieving, and removing cached items.
 /// </summary>
-public interface ICachingService
+public interface ICachingService : IDisposable
 {
     /// <summary>
     /// Gets or sets the default expiration timespan for cached items.
@@ -109,4 +109,9 @@ public interface ICachingService
     /// </summary>
     /// <param name="key">The unique key identifying the cached item to be removed.</param>
     void Remove(object key);
+
+    /// <summary>
+    /// Clears all cached items from the cache.
+    /// </summary>
+    void Clear();
 }

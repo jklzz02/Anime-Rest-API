@@ -17,6 +17,7 @@ public class CachingService : ICachingService
 {
     private readonly IMemoryCache _cache;
     private static readonly ConcurrentDictionary<Expression, Delegate> CompiledLambdas = new();
+    private bool _disposed = false;
     private long _evictionCount = 0;
 
     /// <inheritdoc />
@@ -127,6 +128,15 @@ public class CachingService : ICachingService
     /// <inheritdoc />
     public void Remove(object key)
         => _cache.Remove(NormalizeKey(key));
+
+    /// <inheritdoc />
+    public void Clear()
+    {
+        if (_cache is MemoryCache memoryCache)
+        {
+            memoryCache.Clear();
+        }
+    }
 
     /// <summary>
     /// Returns a unique key based on the provided expression.
@@ -245,5 +255,23 @@ public class CachingService : ICachingService
         {
             return expression.ToString();
         }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposing || _disposed)
+        {
+            return;
+        }
+
+        _cache.Dispose();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+        _disposed = true;
     }
 }

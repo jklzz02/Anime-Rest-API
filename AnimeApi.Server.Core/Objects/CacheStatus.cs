@@ -46,9 +46,6 @@ public record CacheStatus
             if (EntriesCount == 0)
                 return CacheState.Empty;
 
-            if (CapacityUsedPercent >= 90)
-                return CacheState.UnderPressure;
-
             if (HitRatio < 50)
                 return CacheState.Ineffective;
             
@@ -75,9 +72,6 @@ public enum CacheState
 {
     [JsonProperty("empty")]
     Empty,
-    
-    [JsonProperty("under_pressure")]
-    UnderPressure,
     
     [JsonProperty("ineffective")]
     Ineffective,

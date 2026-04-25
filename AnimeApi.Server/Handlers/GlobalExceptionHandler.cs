@@ -16,7 +16,7 @@ public class GlobalExceptionHandler(IHostEnvironment environment) : IExceptionHa
 
         var result = JsonConvert.SerializeObject(new
         {
-            error = Constants.Remark.InternalServerError,
+            error = Constants.HttpRemark.InternalServerError,
             details = environment.IsDevelopment()
                 ? exception.Message
                 : "An unexpected error occurred."
