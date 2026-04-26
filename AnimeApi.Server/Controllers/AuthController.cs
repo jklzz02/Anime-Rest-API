@@ -23,7 +23,7 @@ public class AuthController(
     {
         HttpOnly = true,
         Secure = true,
-        SameSite = SameSiteMode.None,
+        SameSite = SameSiteMode.Strict,
         Path = "/"
     };
 
