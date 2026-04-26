@@ -34,13 +34,14 @@ public class AdminController : Controller
         }
     }
 
-    [HttpGet("user-details")]
+    [HttpGet("linked-users-details")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetUserDetails(
         [FromServices] IUserService userService,
         [FromServices] IReviewHelper reviewHelper,
+        [FromServices] IBanService banService,
         UserDetailsRequest request)
     {
         var users = (await
@@ -51,6 +52,21 @@ public class AdminController : Controller
             return BadRequest($"There's no user with email '{request.Email}'");
         }
         
-        return Ok(users);
+        var reviews = (await 
+            reviewHelper.GetByUserEmailAsync(request.Email))
+                .ToLookup(r => r.UserId);
+        
+        var ban = (await
+            banService.GetBanHistoryAsync(request.Email))
+                .ToLookup(b => b.UserId);
+
+        var userDetails = users.Select(u => new
+        {
+            user = u,
+            reviews = reviews[u.Id],
+            ban = ban[u.Id]
+        });
+        
+        return Ok(userDetails);
     }
 }

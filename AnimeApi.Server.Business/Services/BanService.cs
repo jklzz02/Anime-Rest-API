@@ -30,7 +30,17 @@ public class BanService(IUserFacade userFacade) : IBanService
         return await
             userFacade.Bans.FindAsync(query);
     }
-    
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<BanDto>> GetBanHistoryAsync(string email)
+    {
+        var query = new BanQuery()
+            .ByUser(email.ToLowerNormalized());
+        
+        return await
+            userFacade.Bans.FindAsync(query);
+    }
+
     /// <inheritdoc/>
     public async Task<Result<IEnumerable<BanDto>>> PermaBanUser(string email, string reason)
         => await BanUserAsync(email, null, reason);

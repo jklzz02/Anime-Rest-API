@@ -18,6 +18,13 @@ public interface IBanService
     /// <param name="email">The email linked with the ban.</param>
     /// <returns>An <see cref="IEnumerable{T}"/> containing all the active bans linked to the email.</returns>
     Task<IEnumerable<BanDto>> GetActiveBansAsync(string email);
+    
+    /// <summary>
+    /// Get the ban history of the specified user.
+    /// </summary>
+    /// <param name="email">The email linked with the bans in the history</param>
+    /// <returns>An <see cref="IEnumerable{T}"/> containing all the bans linked to the email.</returns>
+    Task<IEnumerable<BanDto>> GetBanHistoryAsync(string email);
 
     /// <summary>
     /// Permanently ban all user's sharing the specified email.
