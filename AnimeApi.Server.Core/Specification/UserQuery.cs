@@ -32,4 +32,10 @@ public class UserQuery : Specification<AppUser, UserQuery>
     
     public UserQuery TieBreaker()
         => SortBy(u => u.Id);
+
+    public UserQuery IncludeProvider()
+    {
+        Include(q => q.Include(u => u.Provider));
+        return this;
+    }
 }

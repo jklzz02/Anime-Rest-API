@@ -36,7 +36,9 @@ public class UserService(
     {
         return await
             userFacade.Users.FindAsync(
-                new UserQuery().ByEmail(email));
+                new UserQuery()
+                    .ByEmail(email)
+                    .IncludeProvider());
     }
 
     /// <inheritdoc />

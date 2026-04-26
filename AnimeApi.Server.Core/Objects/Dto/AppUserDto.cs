@@ -24,5 +24,5 @@ public record AppUserDto
     public bool Admin { get; init; }
     
     [JsonProperty("identity_provider")]
-    public IdentityProviderDto Provider { get; init; }
+    public IdentityProviderDto? Provider { get; init; }
 }

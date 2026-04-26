@@ -59,7 +59,7 @@ public class AdminController : Controller
         var ban = (await
             banService.GetBanHistoryAsync(request.Email))
                 .ToLookup(b => b.UserId);
-
+        
         var userDetails = users.Select(u => new
         {
             user = u,
