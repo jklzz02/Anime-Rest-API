@@ -6,11 +6,11 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 namespace AnimeApi.Server.Controllers;
 
 [ApiController]
+[Authorize(Policy = Constants.UserAccess.Admin)]
 [Route("[controller]")]
 public class HealthController(HealthCheckService healthService) : Controller
 {
     [HttpGet]
-    [Authorize(Policy = Constants.UserAccess.Admin)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> HealthCheck()
