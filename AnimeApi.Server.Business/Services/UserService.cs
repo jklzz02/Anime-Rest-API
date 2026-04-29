@@ -75,7 +75,7 @@ public class UserService(
     /// <inheritdoc />
     public async Task<AppUserDto?> GetByIdAsync(int id)
     {
-        var query = new UserQuery().ByPk(id);
+        var query = new UserQuery().ByPk(id).IncludeProvider();
         
         return await
             userFacade.Users.FindFirstOrDefaultAsync(query);
