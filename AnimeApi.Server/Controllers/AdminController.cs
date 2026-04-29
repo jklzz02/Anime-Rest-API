@@ -1,5 +1,7 @@
+using System.ComponentModel.DataAnnotations;
 using AnimeApi.Server.Core;
 using AnimeApi.Server.Core.Abstractions.Business.Services;
+using AnimeApi.Server.Core.Extensions;
 using AnimeApi.Server.RequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,10 @@ namespace AnimeApi.Server.Controllers;
 [ApiController]
 [Authorize(Policy = Constants.UserAccess.Admin)]
 [Route("[controller]")]
-public class AdminController : Controller
+public class AdminController(
+    IBanService banService,
+    IUserService userService,
+    IReviewHelper reviewHelper) : Controller
 {
     [HttpDelete("cache/clear")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -34,15 +39,39 @@ public class AdminController : Controller
         }
     }
 
-    [HttpGet("linked-users-details")]
+    [HttpGet("user-details/")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetUserDetails(
-        [FromServices] IUserService userService,
-        [FromServices] IReviewHelper reviewHelper,
-        [FromServices] IBanService banService,
-        UserDetailsRequest request)
+        [FromRoute, Range(1, int.MaxValue)] int userId)
+    {
+        var user = await
+            userService.GetByIdAsync(userId);
+
+        if (user == null)
+        {
+            return BadRequest($"User with id '{userId}' not found");
+        }
+
+        var reviews = await
+            reviewHelper.GetByUserIdAsync(user.Id);
+        
+        var banHistory  = await banService.GetBanHistoryAsync(user.Email);
+
+        return Ok(new
+        {
+            user = user,
+            reviews = reviews,
+            ban = banHistory
+        });
+    }
+
+    [HttpGet("linked-users-details")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetLinkedUsersDetails(UserDetailsRequest request)
     {
         var users = (await
             userService.GetUsersLinkedToEmail(request.Email)).ToList();
@@ -68,5 +97,42 @@ public class AdminController : Controller
         });
         
         return Ok(userDetails);
+    }
+    
+    
+    [HttpPost("ban")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> BanUserAsync(
+        [FromBody] BanRequest request,
+        [FromServices] IRefreshTokenService refreshTokenService)
+    {
+        var res = await
+            banService.BanUserAsync(request.Email, request.Expiration, request.Reason);
+
+        if (res.IsFailure)
+        {
+            return BadRequest(res.ValidationErrors.ToKeyValuePairs());
+        }
+
+        await refreshTokenService.RevokeByEmailAsync(request.Email);
+        
+        return NoContent();
+    }
+
+    [HttpPatch("unban")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UnbanUserAsync([FromQuery, MinLength(1), MaxLength(250)] string email)
+    {
+        var res = await banService.UnbanUserAsync(email);
+        if (res.IsFailure)
+        {
+            return BadRequest(res.ValidationErrors.ToKeyValuePairs());
+        }
+
+        return Ok(res.Data);
     }
 }

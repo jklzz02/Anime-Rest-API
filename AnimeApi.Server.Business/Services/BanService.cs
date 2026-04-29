@@ -35,7 +35,8 @@ public class BanService(IUserFacade userFacade) : IBanService
     public async Task<IEnumerable<BanDto>> GetBanHistoryAsync(string email)
     {
         var query = new BanQuery()
-            .ByUser(email.ToLowerNormalized());
+            .ByUser(email.ToLowerNormalized())
+            .SortByDescending(b => b.CreatedAt);
         
         return await
             userFacade.Bans.FindAsync(query);
