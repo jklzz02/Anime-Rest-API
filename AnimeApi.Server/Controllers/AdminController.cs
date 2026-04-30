@@ -125,9 +125,9 @@ public class AdminController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> UnbanUserAsync([FromQuery, MinLength(1), MaxLength(250)] string email)
+    public async Task<IActionResult> UnbanUserAsync([FromBody] UnbanRequest request)
     {
-        var res = await banService.UnbanUserAsync(email);
+        var res = await banService.UnbanUserAsync(request.Email);
         if (res.IsFailure)
         {
             return BadRequest(res.ValidationErrors.ToKeyValuePairs());
