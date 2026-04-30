@@ -75,6 +75,16 @@ public class BanService(IUserFacade userFacade) : IBanService
                 "User not found",
                 $"There is no user with email '{email}'");
         }
+        
+        var activeBan = await
+            userFacade.Bans.FindFirstOrDefaultAsync(new BanQuery().ByUser(email).Active());
+
+        if (activeBan != null)
+        {
+            return Result<IEnumerable<BanDto>>.ValidationFailure(
+                "Already banned",
+                $"User with email '{email}' is already banned. The ban will be revoked on {activeBan.Expiration}.");
+        }
             
         var newEntries = user.Select(u =>
             new BanDto 
