@@ -75,34 +75,19 @@ public class BanService(IUserFacade userFacade) : IBanService
                 "User not found",
                 $"There is no user with email '{email}'");
         }
-
-        var bans = await
-            userFacade.Bans.FindAsync(
-                new BanQuery()
-                    .ByUser(email.ToLowerNormalized()));
-
-        if (!bans.Any())
-        {
             
-            var newEntries = user.Select(u =>
-                new BanDto 
-                {
-                    UserId = u.Id,
-                    NormalizedEmail =  u.Email.ToLowerNormalized(),
-                    CreatedAt =  DateTime.UtcNow,
-                    Expiration =  expiration,
-                    Reason = reason
-                });
+        var newEntries = user.Select(u =>
+            new BanDto 
+            {
+                UserId = u.Id,
+                NormalizedEmail =  u.Email.ToLowerNormalized(),
+                CreatedAt =  DateTime.UtcNow,
+                Expiration =  expiration,
+                Reason = reason
+            });
         
             return await
                 userFacade.Bans.AddRangeAsync(newEntries);   
-        }
-        
-        var updatedEntries = bans
-            .Select(ab => ab.Updated(reason, expiration));
-        
-        return await 
-            userFacade.Bans.UpdateRangeAsync(updatedEntries);
     }
     
     /// <inheritdoc/>
