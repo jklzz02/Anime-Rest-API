@@ -48,7 +48,7 @@ public static class Constants
     public static class Pagination
     {
         public const int MaxPageSize = 100;
-        public const int MinPageSize = 10;
+        public const int MinPageSize = 5;
     }
 
     /// <summary>
